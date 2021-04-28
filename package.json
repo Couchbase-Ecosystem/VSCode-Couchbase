@@ -1,0 +1,151 @@
+{
+  "name": "vscode-couchbase",
+  "displayName": "vscode-couchbase",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.55.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "vscode-couchbase.couchbaseDocument",
+        "displayName": "Couchbase Document",
+        "selector": [
+          {
+            "filenamePattern": "*.json"
+          }
+        ]
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "couchbase-activity-bar",
+          "title": "Couchbase",
+          "icon": "src/media/couchbase.svg"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "vscode-couchbase.createClusterConnection",
+        "title": "Create connection to Couchbase cluster",
+        "category": "Couchbase",
+        "icon": "src/media/add.svg"
+      },
+      {
+        "command": "vscode-couchbase.refreshConnection",
+        "title": "Refresh Cluster Connection",
+        "icon": {
+          "light": "media/couchbase.svg",
+          "dark": "media/couchbase.svg"
+        },
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.deleteClusterConnection",
+        "title": "Delete Cluster Connection",
+        "category": "Couchbase"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "vscode-couchbase.refreshConnection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.deleteClusterConnection",
+          "when": "false"
+        }
+      ],
+      "editor/context": [],
+      "view/item/context": [
+        {
+          "command": "vscode-couchbase.refreshConnection",
+          "when": "(view == couchbase || view == document-editor) && viewItem"
+        },
+        {
+          "command": "vscode-couchbase.deleteClusterConnection",
+          "when": "view == couchbase && viewItem == connection"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "vscode-couchbase.refreshConnection",
+          "when": "view == couchbase"
+        },
+        {
+          "command": "vscode-couchbase.createClusterConnection",
+          "when": "view == couchbase",
+          "group": "navigation"
+        }
+      ]
+    },
+    "views": {
+      "couchbase-activity-bar": [
+        {
+          "id": "couchbase",
+          "name": "Couchbase"
+        },
+        {
+          "id": "document-editor",
+          "name": "Document Editor"
+        },
+        {
+          "id": "couchbase-help",
+          "name": "Help and Feedback"
+        }
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Couchbase VSCode",
+      "properties": {
+        "test": {
+          "test": "test"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "test-compile": "tsc -p ./",
+    "test-watch": "tsc -watch -p ./",
+    "pretest": "npm run test-compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.0.4",
+    "@types/node": "^12.11.7",
+    "@types/vscode": "^1.55.0",
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "eslint": "^7.19.0",
+    "glob": "^7.1.6",
+    "mocha": "^8.2.1",
+    "node-loader": "^2.0.0",
+    "ts-loader": "^8.0.14",
+    "typescript": "^4.1.3",
+    "vscode-test": "^1.5.0",
+    "webpack": "^5.19.0",
+    "webpack-cli": "^4.4.0"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "keytar": "^7.6.0"
+  }
+}
