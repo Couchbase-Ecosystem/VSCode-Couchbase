@@ -1,40 +1,36 @@
 import * as vscode from 'vscode';
 import * as http from 'http';
-import axios from 'axios';
+import get from "axios";
 import { IConnection } from '../model/IConnection';
 import { ENDPOINTS } from './endpoints';
+import { AxiosRequestConfig } from "axios";
 
 
 
-export async function getDefaultPools(connection:IConnection): Promise<any>{
-    const options = {
-        hostname: connection.url,
-        port: connection.port,
-        path: ENDPOINTS.GET_POOLS,
-        auth: `${connection.username}:${connection.password}`,
-        method: 'GET'
+export async function getDefaultPools(connection: IConnection) {
+
+  let password = "password";
+  if(connection.password){
+    password = connection.password;
+  }
+
+  try {
+    const options: AxiosRequestConfig = {
+      baseURL: `${connection.url}`,
+      auth: {
+        username: connection.username,
+        password: password
+      },
+      method: "get",
     };
 
-    const axiosOptions = {
-      url: `http://${connection.url}:${connection.port}${ENDPOINTS.GET_POOLS}`,
-      auth: `${connection.username}:${connection.password}`,
-  };
-    const url = `${connection.url}:${connection.port}${ENDPOINTS.GET_POOLS}`;
-    console.log(url);
-
-    axios.get(url, {auth: {
-      username: connection.username,
-      password: connection.password ? connection.password: 'password'
-    }}).then(function (response) {
-      // handle success
-      console.log("t");
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-    })
-    .then(function () {
-      // always executed
-    });
-
+    const data = await get(
+      `${connection.url}${ENDPOINTS.GET_POOLS}`,
+      options
+    );
+    console.log(data);
+    return data;
+  } catch (err) {
+    throw new Error(err);
+  }
 }

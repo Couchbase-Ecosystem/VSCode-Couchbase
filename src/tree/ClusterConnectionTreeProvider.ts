@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import * as keytar from 'keytar';
-import { ClusterTreeNode } from '../model/ClusterTreeNode';
 import { IConnection } from '../model/IConnection';
 import { Constants } from '../util/constants';
 import { Global, Memory } from '../util/util';
@@ -24,9 +23,9 @@ export default class ClusterConnectionTreeProvider implements vscode.TreeDataPro
         return element.getChildren();
     }
 
-    refresh(): void {
-        this._onDidChangeTreeData.fire();
-      }
+    public refresh(element?: INode): void {
+        this._onDidChangeTreeData.fire(element);
+    }
 
     private async getActiveConnections(): Promise<ClusterConnectionNode[]> {
     const connections = Global.state.get<{ [key: string]: IConnection }>(Constants.connectionKeys);

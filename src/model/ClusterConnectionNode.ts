@@ -9,7 +9,11 @@ import { INode } from "./INode";
 import { Constants } from '../util/constants';
 import ClusterConnectionTreeProvider from '../tree/ClusterConnectionTreeProvider';
 import { BucketNode } from './BucketNode';
-import { getDefaultPools } from '../util/requests';
+import { ENDPOINTS } from '../util/endpoints';
+
+import get from "axios";
+import { AxiosRequestConfig } from "axios";
+
 
 export class ClusterConnectionNode implements INode {
     constructor(private readonly id:string, private readonly connection: IConnection) {
@@ -20,15 +24,15 @@ export class ClusterConnectionNode implements INode {
         return this.id;
     }
 
-    // Cluster Connection Top Level
     public getTreeItem(): vscode.TreeItem {
-        const id = `${this.connection.username}@${this.connection.url}`;
+        const id = `Cluster:${this.connection.username}@${this.connection.url}`;
         const activeConnection = Memory.state.get<IConnection>('activeConnection');
+
         return {
             label: id,
             collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
             contextValue: "connection",
-            iconPath: path.join(__filename, "..", "..", "..", "media", this.equalsConnection(activeConnection) ? "db-active.png": 'db-inactive.png'),
+            // iconPath: path.join(__filename, "..", "media", this.equalsConnection(activeConnection) ? "db-active.png": 'db-inactive.png'),
         };
     }
     
@@ -39,27 +43,44 @@ export class ClusterConnectionNode implements INode {
         if(this.connection.url !== activeConnection.url){
             return false;
         }
-        if(this.connection.port !== activeConnection.port){
-            return false;
-        }
         if(this.connection.username !== activeConnection.username){
             return false;
         }
         return true;
     }
 
-    // Run api request here and get list of buckets
     public async getChildren(): Promise<INode[]> {
 
-        let buckets_test = [];
+        try {
+            const options: AxiosRequestConfig = {
+              auth: {
+                username: this.connection.username,
+                password: this.connection.password ? this.connection.password : "",
+              },
+            };
 
-        const buckets = await getDefaultPools(this.connection);
-    
-        buckets_test.push(new BucketNode(this.connection, 'bucket1', vscode.TreeItemCollapsibleState.None));
-        buckets_test.push(new BucketNode(this.connection, 'bucket2', vscode.TreeItemCollapsibleState.None));
+            const bucketsResponse = await get(
+              `${this.connection.url}${ENDPOINTS.GET_POOLS}`,
+              options
+            );
+      
+            let bucketList: BucketNode[] = [];
+            bucketsResponse.data.forEach((bucket: any) => {
+              const bucketTreeItem = new BucketNode(
+                this.connection,
+                bucket.name,
+                vscode.TreeItemCollapsibleState.None
+              );
+              bucketList.push(bucketTreeItem);
+            });
+      
+            return bucketList;
+          } catch (err) {
+            console.log(err);
+            throw new Error(err);
+          }
+    }    
         
-        return buckets_test;
-    }
 
     public async deleteConnection(context: vscode.ExtensionContext, treeProvider: ClusterConnectionTreeProvider) {
 

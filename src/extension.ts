@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { ClusterConnectionNode } from './model/ClusterConnectionNode';
+import { INode } from './model/INode';
 import ClusterConnectionTreeProvider from './tree/ClusterConnectionTreeProvider';
-import { addConnection } from './util/connections';
+import { addConnection, useConnection } from './util/connections';
 import { Constants } from './util/constants';
 import { Global, Memory, WorkSpace } from './util/util';
 
@@ -24,11 +25,6 @@ export function activate(context: vscode.ExtensionContext) {
 		clusterConnectionTreeProvider.refresh();
 	}));
 
-
-	subscriptions.push(vscode.commands.registerCommand('vscode-couchbase.useClusterConnection', async (connectionNode: ClusterConnectionNode|undefined) => {
-		
-	}));
-
 	subscriptions.push(vscode.commands.registerCommand('vscode-couchbase.deleteClusterConnection', async (connection: ClusterConnectionNode|undefined) => {
 		if(connection){
 			await connection.deleteConnection(context, clusterConnectionTreeProvider);
@@ -36,9 +32,21 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 		Global.state.update(Constants.connectionKeys, {});
-		vscode.window.showInformationMessage('Removed all connections successfully');
 	}));
 
+	subscriptions.push(vscode.commands.registerCommand('vscode-couchbase.refreshConnection', (node:INode) => {
+		clusterConnectionTreeProvider.refresh(node);
+	}));
+
+	subscriptions.push(vscode.commands.registerCommand('vscode-couchbase.useClusterConnection', async (connection: ClusterConnectionNode) => {
+		await useConnection(connection);
+		clusterConnectionTreeProvider.refresh(connection);
+        const previousConnection = Memory.state.get<INode>('previousConnection');
+        if(previousConnection){
+            clusterConnectionTreeProvider.refresh(previousConnection);
+        }
+        Memory.state.update('previousConnection', connection);
+	}));
 
 }
 
