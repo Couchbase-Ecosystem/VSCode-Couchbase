@@ -3,16 +3,17 @@ import * as keytar from 'keytar';
 import { Constants } from './constants';
 import { Global, Memory } from './util';
 import { IConnection } from '../model/IConnection';
+import { ClusterConnectionNode } from '../model/ClusterConnectionNode';
 
 
 
 export function getConnectionId(connection: IConnection) {
-    const {url,port, username,} = connection;
-    return `${username}@${url}:${port}`;
+    const {url, username,} = connection;
+    return `${username}@${url}`;
 }
 
 async function saveConnection(connection: IConnection) {
-    const {url, port, username} = connection;
+    const {url, username} = connection;
     let connections = Global.state.get<{
         [key: string]: IConnection;
     }>(Constants.connectionKeys);
@@ -22,7 +23,6 @@ async function saveConnection(connection: IConnection) {
     const id = getConnectionId(connection);
     connections[id] = {
         url,
-        port,
         username
     };
     const password = connection.password || await keytar.getPassword(Constants.extensionID, id);
@@ -41,20 +41,16 @@ export async function getConnection(id: string):Promise<IConnection|undefined>{
 }
 
 export async function addConnection() {
-    const url = await vscode.window.showInputBox({ prompt: "Enter Cluter Connection URL", placeHolder: "URL", ignoreFocusOut: true });
+    const url = await vscode.window.showInputBox({ prompt: "Enter Cluter Connection URL", placeHolder: "URL", ignoreFocusOut: true , value: "http://127.0.0.1:8091"});
     if (!url) {
         return;
     }
-    const port = await vscode.window.showInputBox({ prompt: "Enter Port Number", placeHolder: "Port Number", ignoreFocusOut: true });
-    if (!port) {
-        return;
-    }
-    const username = await vscode.window.showInputBox({ prompt: "Enter Username", placeHolder: "Username", ignoreFocusOut: true });
+    const username = await vscode.window.showInputBox({ prompt: "Enter Username", placeHolder: "Username", ignoreFocusOut: true, value: "Administrator" });
     if (!username) {
         return;
     }
 
-    const password = await vscode.window.showInputBox({ prompt: "Enter Password", placeHolder: "Password", ignoreFocusOut: true });
+    const password = await vscode.window.showInputBox({ prompt: "Enter Password", placeHolder: "Password", ignoreFocusOut: true, value: "password" });
     if (!password) {
         return;
     }
@@ -62,11 +58,27 @@ export async function addConnection() {
     var { connections, id } = await saveConnection({
         url,
         username,
-        port,
         password
     });
     Memory.state.update('activeConnection', {
         password,
         ...connections[id]
     });
+}
+
+export async function useConnection(connection:ClusterConnectionNode){
+    const id = connection.connectToNode();
+    const activeConnection = Memory.state.get<{[key: string]:any}>('activeConnection');
+    if(!activeConnection){
+        return;
+    }
+    if(!activeConnection.password){
+        activeConnection.password = await keytar.getPassword(Constants.extensionID, id) || '';
+    }
+    if(!activeConnection.password){
+        activeConnection.password = await vscode.window.showInputBox({
+            placeHolder: 'Password'
+        });
+    }
+    return;
 }
