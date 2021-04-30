@@ -1,36 +1,42 @@
 import * as vscode from 'vscode';
 import * as http from 'http';
 import get from "axios";
-import { IConnection } from '../model/IConnection';
-import { ENDPOINTS } from './endpoints';
+import { IConnection } from '../model/IConnection';import { ENDPOINTS } from './endpoints';
 import { AxiosRequestConfig } from "axios";
+import DocumentNode from '../model/DocumentNode';
+import { MemFS } from './fileSystemProvider';
 
 
 
-export async function getDefaultPools(connection: IConnection) {
-
-  let password = "password";
-  if(connection.password){
-    password = connection.password;
-  }
-
+export async function getDocument(documentNode: DocumentNode) {
   try {
     const options: AxiosRequestConfig = {
-      baseURL: `${connection.url}`,
       auth: {
-        username: connection.username,
-        password: password
+        username: documentNode.connection.username,
+        password: documentNode.connection.password ? documentNode.connection.password : "",
       },
-      method: "get",
     };
 
-    const data = await get(
-      `${connection.url}${ENDPOINTS.GET_POOLS}`,
+    const documentResponse = await get(
+      `${documentNode.connection.url}${ENDPOINTS.GET_POOLS}/${documentNode.bucketName}/scopes/${documentNode.scopeName}/collections/${documentNode.collectionName}/docs/${documentNode.documentName}`,
       options
     );
-    console.log(data);
-    return data;
-  } catch (err) {
+    return documentResponse.data;
+    } catch (err) {
+    console.log(err);
     throw new Error(err);
-  }
+  } 
+}
+
+export function saveDocumentToFileSystem(memFS: MemFS, document: any): string {
+
+  const filename = `${document.meta.id}.json`;
+   memFS.writeFile(
+      vscode.Uri.parse(filename),
+      Buffer.from(JSON.stringify(document.json, null, 2)),
+      { 
+        create: true, overwrite: true 
+      }
+  );
+  return filename;
 }
