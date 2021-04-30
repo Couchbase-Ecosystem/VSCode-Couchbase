@@ -8,7 +8,7 @@ import DocumentNode from './DocumentNode';
 
 export default class CollectionNode implements INode{
     constructor(
-      private readonly connection: IConnection,
+        private readonly connection: IConnection,
         private readonly scopeName: string,
         private readonly bucketName: string,
         private readonly collectionName: string,
@@ -23,7 +23,7 @@ export default class CollectionNode implements INode{
     }
 
     public async getChildren(): Promise<INode[]> {
-
+      
       try {
         const options: AxiosRequestConfig = {
           auth: {
@@ -41,6 +41,10 @@ export default class CollectionNode implements INode{
         documentResponse.data.rows.forEach((document: any) => {
           const documentTreeItem = new DocumentNode(
             document.id,
+            this.connection,
+            this.scopeName,
+            this.bucketName,
+            this.collectionName,
             vscode.TreeItemCollapsibleState.None
           );
           documentList.push(documentTreeItem);

@@ -59,7 +59,12 @@
         "command": "vscode-couchbase.useClusterConnection",
         "title": "Connect to Cluster",
         "category": "Couchbase"
-      }
+      },
+      {
+				"command": "vscode-couchbase.openDocument",
+				"title": "Open Document",
+				"category": "Couchbase"
+			}
     ],
     "menus": {
       "commandPalette": [
@@ -74,7 +79,11 @@
         {
           "command": "vscode-couchbase.useClusterConnection",
           "when": "false"
-        }
+        },
+        {
+					"command": "vscode-couchbase.openDocument",
+					"when": "false"
+				}
       ],
       "editor/context": [],
       "view/item/context": [
@@ -89,7 +98,12 @@
         {
           "command": "vscode-couchbase.useClusterConnection",
           "when": "view == couchbase && viewItem == connection"
-        }
+        },
+        {
+					"command": "vscode-couchbase.openDocument",
+					"when": "view == couchbase && viewItem == document",
+					"group": "inline"
+				}
       ],
       "view/title": [
         {
