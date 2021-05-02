@@ -10,64 +10,32 @@ export default class CollectionNode implements INode{
     constructor(
         private readonly connection: IConnection,
         private readonly scopeName: string,
+        private readonly documents: any,
         private readonly bucketName: string,
         private readonly collectionName: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState
       ) {}
 
       public async getTreeItem(): Promise<vscode.TreeItem> {
-        try {
-          const options: AxiosRequestConfig = {
-            auth: {
-              username: this.connection.username,
-              password: this.connection.password ? this.connection.password : "",
-            },
+        return {
+              label: `Collection:${this.collectionName} (${this.documents.rows.length})`,
+              collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
           };
-    
-          const documentResponse = await get(
-            `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${this.collectionName}/docs/`,
-            options
-          );
-          return {
-            label: `Collection:${this.collectionName} (${documentResponse.data.rows.length})`,
-            collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-        };
-        } catch (err) {
-          console.log(err);
-          throw new Error(err);
-        } 
     }
 
     public async getChildren(): Promise<INode[]> {
-      try {
-        const options: AxiosRequestConfig = {
-          auth: {
-            username: this.connection.username,
-            password: this.connection.password ? this.connection.password : "",
-          },
-        };
-  
-        const documentResponse = await get(
-          `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${this.collectionName}/docs/`,
-          options
-        );
-
-        let documentList: DocumentNode[] = [];
-        documentResponse.data.rows.forEach((document: any) => {
-          const documentTreeItem = new DocumentNode(
-            document.id,
-            this.connection,
-            this.scopeName,
-            this.bucketName,
-            this.collectionName,
-            vscode.TreeItemCollapsibleState.None
-          );
-          documentList.push(documentTreeItem);
-        });
-        return documentList;
-      } catch (err) {
-        console.log(err);
-        throw new Error(err);
-      } 
-    }
+    let documentList: DocumentNode[] = [];
+    this.documents.rows.forEach((document: any) => {
+      const documentTreeItem = new DocumentNode(
+        document.id,
+        this.connection,
+        this.scopeName,
+        this.bucketName,
+        this.collectionName,
+        vscode.TreeItemCollapsibleState.None
+      );
+      documentList.push(documentTreeItem);
+    });
+    return documentList;
+  }
 }

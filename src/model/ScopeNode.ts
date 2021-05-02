@@ -27,16 +27,36 @@ export class ScopeNode implements INode{
     public async getChildren(): Promise<INode[]> {
 
         let collectionList: CollectionNode[] = [];
-        this.collections.forEach((collection: any) => {
-          const collectionTreeItem = new CollectionNode(
-            this.connection,
-            this.scopeName,
-            this.bucketName,
-            collection.name,
-            vscode.TreeItemCollapsibleState.None
-          );
-          collectionList.push(collectionTreeItem);
-        });
+
+        for( const collection of this.collections){
+          try {
+            const options: AxiosRequestConfig = {
+              auth: {
+                username: this.connection.username,
+                password: this.connection.password ? this.connection.password : "",
+              },
+            };
+      
+            const documentResponse = await get(
+              `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${collection.name}/docs/`,
+              options
+            );
+            const collectionTreeItem = new CollectionNode(
+              this.connection,
+              this.scopeName,
+              documentResponse.data,
+              this.bucketName,
+              collection.name,
+              vscode.TreeItemCollapsibleState.None
+            );
+            collectionList.push(collectionTreeItem);
+          }
+          
+        catch (err) {
+          console.log(err);
+          throw new Error(err);
+        } 
+      }
         return collectionList;
     }
 }

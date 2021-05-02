@@ -25,8 +25,11 @@ export class ClusterConnectionNode implements INode {
     }
 
     public getTreeItem(): vscode.TreeItem {
-        const id = `Cluster:${this.connection.username}@${this.connection.url}`;
-        const activeConnection = Memory.state.get<IConnection>('activeConnection');
+      let id = `Cluster:${this.connection.username}@${this.connection.url}`;
+      if (this.connection.connectionIdentifier !== ''){
+        id = `Cluster:${this.connection.connectionIdentifier}`;
+      }
+      const activeConnection = Memory.state.get<IConnection>('activeConnection');
 
         return {
             label: this.equalsConnection(activeConnection) ? `Active:${id}`: id,
