@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import * as http from 'http';
 import get from "axios";
-import { IConnection } from '../model/IConnection';import { ENDPOINTS } from './endpoints';
+import { ENDPOINTS } from './endpoints';
 import { AxiosRequestConfig } from "axios";
 import DocumentNode from '../model/DocumentNode';
 import { MemFS } from './fileSystemProvider';
@@ -35,7 +34,7 @@ export function saveDocumentToFileSystem(memFS: MemFS, document: any): string {
       vscode.Uri.parse(filename),
       Buffer.from(JSON.stringify(document.json, null, 2)),
       { 
-        create: true, overwrite: true 
+        create: true, overwrite: true
       }
   );
   return filename;
