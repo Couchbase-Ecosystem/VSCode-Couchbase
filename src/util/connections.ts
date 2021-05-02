@@ -8,12 +8,12 @@ import { ClusterConnectionNode } from '../model/ClusterConnectionNode';
 
 
 export function getConnectionId(connection: IConnection) {
-    const {url, username,} = connection;
+    const {url, username, connectionIdentifier} = connection;
     return `${username}@${url}`;
 }
 
 async function saveConnection(connection: IConnection) {
-    const {url, username} = connection;
+    const {url, username, connectionIdentifier} = connection;
     let connections = Global.state.get<{
         [key: string]: IConnection;
     }>(Constants.connectionKeys);
@@ -23,7 +23,8 @@ async function saveConnection(connection: IConnection) {
     const id = getConnectionId(connection);
     connections[id] = {
         url,
-        username
+        username,
+        connectionIdentifier
     };
     const password = connection.password || await keytar.getPassword(Constants.extensionID, id);
     if (password) {
@@ -55,10 +56,16 @@ export async function addConnection() {
         return;
     }
 
+    const connectionIdentifier = await vscode.window.showInputBox({ prompt: "Enter Connection Identifier (Optional)", placeHolder: "Connection Identifier", ignoreFocusOut: true, value: '' });
+    if (!connectionIdentifier) {
+        return;
+    }
+
     var { connections, id } = await saveConnection({
         url,
         username,
-        password
+        password,
+        connectionIdentifier
     });
     Memory.state.update('activeConnection', {
         password,
