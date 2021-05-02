@@ -15,15 +15,30 @@ export default class CollectionNode implements INode{
         public readonly collapsibleState: vscode.TreeItemCollapsibleState
       ) {}
 
-      public getTreeItem(): vscode.TreeItem {
-        return {
-            label: `Collection:${this.collectionName}`,
+      public async getTreeItem(): Promise<vscode.TreeItem> {
+        try {
+          const options: AxiosRequestConfig = {
+            auth: {
+              username: this.connection.username,
+              password: this.connection.password ? this.connection.password : "",
+            },
+          };
+    
+          const documentResponse = await get(
+            `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${this.collectionName}/docs/`,
+            options
+          );
+          return {
+            label: `Collection:${this.collectionName} (${documentResponse.data.rows.length})`,
             collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
         };
+        } catch (err) {
+          console.log(err);
+          throw new Error(err);
+        } 
     }
 
     public async getChildren(): Promise<INode[]> {
-      
       try {
         const options: AxiosRequestConfig = {
           auth: {

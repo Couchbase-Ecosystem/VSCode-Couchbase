@@ -29,10 +29,10 @@ export class ClusterConnectionNode implements INode {
         const activeConnection = Memory.state.get<IConnection>('activeConnection');
 
         return {
-            label: id,
+            label: this.equalsConnection(activeConnection) ? `Active:${id}`: id,
             collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
             contextValue: "connection",
-            // iconPath: path.join(__filename, "..", "media", this.equalsConnection(activeConnection) ? "db-active.png": 'db-inactive.png'),
+            // iconPath: path.join(__filename, "..", "media", this.equalsConnection(activeConnection) ? "green.png": 'db-inactive.png'),
         };
     }
     
