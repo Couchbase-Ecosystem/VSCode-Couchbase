@@ -61,10 +61,10 @@
         "category": "Couchbase"
       },
       {
-				"command": "vscode-couchbase.openDocument",
-				"title": "Open Document",
-				"category": "Couchbase"
-			}
+        "command": "vscode-couchbase.openDocument",
+        "title": "Open Document",
+        "category": "Couchbase"
+      }
     ],
     "menus": {
       "commandPalette": [
@@ -81,9 +81,9 @@
           "when": "false"
         },
         {
-					"command": "vscode-couchbase.openDocument",
-					"when": "false"
-				}
+          "command": "vscode-couchbase.openDocument",
+          "when": "false"
+        }
       ],
       "editor/context": [],
       "view/item/context": [
@@ -100,10 +100,10 @@
           "when": "view == couchbase && viewItem == connection"
         },
         {
-					"command": "vscode-couchbase.openDocument",
-					"when": "view == couchbase && viewItem == document",
-					"group": "inline"
-				}
+          "command": "vscode-couchbase.openDocument",
+          "when": "view == couchbase && viewItem == document",
+          "group": "inline"
+        }
       ],
       "view/title": [
         {
