@@ -8,6 +8,7 @@ import { MemFS } from './fileSystemProvider';
 
 
 export async function getDocument(documentNode: DocumentNode) {
+  let uri: string;
   try {
     const options: AxiosRequestConfig = {
       auth: {
@@ -16,8 +17,15 @@ export async function getDocument(documentNode: DocumentNode) {
       },
     };
 
+    if(documentNode.isScopesandCollections){
+      uri = `${documentNode.connection.url}${ENDPOINTS.GET_POOLS}/${documentNode.bucketName}/scopes/${documentNode.scopeName}/collections/${documentNode.collectionName}/docs/${documentNode.documentName}`;
+    }
+    else{
+      uri = `${documentNode.connection.url}${ENDPOINTS.GET_POOLS}/${documentNode.bucketName}/docs/${documentNode.documentName}`;
+    }
+
     const documentResponse = await get(
-      `${documentNode.connection.url}${ENDPOINTS.GET_POOLS}/${documentNode.bucketName}/scopes/${documentNode.scopeName}/collections/${documentNode.collectionName}/docs/${documentNode.documentName}`,
+      uri,
       options
     );
     return documentResponse.data;
