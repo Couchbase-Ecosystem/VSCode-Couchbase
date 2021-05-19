@@ -53,35 +53,57 @@ export class ClusterConnectionNode implements INode {
     }
 
     public async getChildren(): Promise<INode[]> {
+      let isScopesandCollections = true;
+      try {
+        const options: AxiosRequestConfig = {
+          auth: {
+            username: this.connection.username,
+            password: this.connection.password ? this.connection.password : "",
+          },
+        };
 
-        try {
-            const options: AxiosRequestConfig = {
-              auth: {
-                username: this.connection.username,
-                password: this.connection.password ? this.connection.password : "",
-              },
-            };
+        const clusterResponse = await get(
+          `${this.connection.url}${ENDPOINTS.GET_CLUSTER}`,
+          options
+        );
+        if(parseInt(clusterResponse.data.implementationVersion[0]) <= 6){
+          isScopesandCollections = false;
+        }
+      } catch (err) {
+        console.log(err);
+        throw new Error(err);
+      }
 
-            const bucketsResponse = await get(
-              `${this.connection.url}${ENDPOINTS.GET_POOLS}`,
-              options
+      try {
+          const options: AxiosRequestConfig = {
+            auth: {
+              username: this.connection.username,
+              password: this.connection.password ? this.connection.password : "",
+            },
+          };
+
+          const bucketsResponse = await get(
+            `${this.connection.url}${ENDPOINTS.GET_POOLS}`,
+            options
+          );
+    
+          let bucketList: BucketNode[] = [];
+          bucketsResponse.data.forEach((bucket: any) => {
+            const bucketTreeItem = new BucketNode(
+              this.connection,
+              bucket.name,
+              isScopesandCollections,
+              vscode.TreeItemCollapsibleState.None
             );
+            bucketList.push(bucketTreeItem);
+          });
+    
+          return bucketList;
+        } catch (err) {
+          console.log(err);
+          throw new Error(err);
+        }
       
-            let bucketList: BucketNode[] = [];
-            bucketsResponse.data.forEach((bucket: any) => {
-              const bucketTreeItem = new BucketNode(
-                this.connection,
-                bucket.name,
-                vscode.TreeItemCollapsibleState.None
-              );
-              bucketList.push(bucketTreeItem);
-            });
-      
-            return bucketList;
-          } catch (err) {
-            console.log(err);
-            throw new Error(err);
-          }
     }    
         
 

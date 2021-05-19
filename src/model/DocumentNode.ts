@@ -9,6 +9,7 @@ export default class DocumentNode extends vscode.TreeItem{
         public readonly scopeName: string,
         public readonly bucketName: string,
         public readonly collectionName: string,
+        public readonly isScopesandCollections: boolean, 
         public readonly collapsibleState: vscode.TreeItemCollapsibleState
       ) {
         super(documentName, collapsibleState);

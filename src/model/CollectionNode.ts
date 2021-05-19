@@ -32,6 +32,7 @@ export default class CollectionNode implements INode{
         this.scopeName,
         this.bucketName,
         this.collectionName,
+        true,
         vscode.TreeItemCollapsibleState.None
       );
       documentList.push(documentTreeItem);
