@@ -85,7 +85,7 @@ export class ClusterConnectionNode implements INode {
       if (parseInt(clusterResponse.data.implementationVersion[0]) <= 6) {
         isScopesandCollections = false;
       }
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       throw new Error(err);
     }
@@ -115,7 +115,7 @@ export class ClusterConnectionNode implements INode {
       });
 
       return bucketList;
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       throw new Error(err);
     }

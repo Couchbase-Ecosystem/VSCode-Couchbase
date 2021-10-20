@@ -68,7 +68,7 @@ export class BucketNode implements INode {
         });
 
         return scopeList;
-      } catch (err) {
+      } catch (err: any) {
         console.log(err);
         throw new Error(err);
       }
@@ -101,7 +101,7 @@ export class BucketNode implements INode {
         documentList.push(documentTreeItem);
       });
       return documentList;
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       throw new Error(err);
     }
