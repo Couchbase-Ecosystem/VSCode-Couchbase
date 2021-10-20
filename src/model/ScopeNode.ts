@@ -63,7 +63,7 @@ export class ScopeNode implements INode {
           vscode.TreeItemCollapsibleState.None
         );
         collectionList.push(collectionTreeItem);
-      } catch (err) {
+      } catch (err: any) {
         console.log(err);
         throw new Error(err);
       }
