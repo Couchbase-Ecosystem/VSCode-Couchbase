@@ -13,65 +13,61 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-import * as vscode from 'vscode';
-import { IConnection } from './IConnection';
-import { INode } from './INode';
+import * as vscode from "vscode";
+import { IConnection } from "./IConnection";
+import { INode } from "./INode";
 import { AxiosRequestConfig } from "axios";
 import get from "axios";
-import { ENDPOINTS } from '../util/endpoints';
-import CollectionNode from './CollectionNode';
+import { ENDPOINTS } from "../util/endpoints";
+import CollectionNode from "./CollectionNode";
 
+export class ScopeNode implements INode {
+  constructor(
+    private readonly connection: IConnection,
+    private readonly scopeName: string,
+    private readonly bucketName: string,
+    private readonly collections: any[],
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+  ) {}
 
-export class ScopeNode implements INode{
-    constructor(
-        private readonly connection: IConnection,
-        private readonly scopeName: string,
-        private readonly bucketName: string,
-        private readonly collections: any[],
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState
-      ) {}
-    
-      public getTreeItem(): vscode.TreeItem {
-        return {
-            label: `Scope:${this.scopeName}`,
-            collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-            contextValue: "database",
+  public getTreeItem(): vscode.TreeItem {
+    return {
+      label: `Scope:${this.scopeName}`,
+      collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+      contextValue: "database",
+    };
+  }
+
+  public async getChildren(): Promise<INode[]> {
+    let collectionList: CollectionNode[] = [];
+
+    for (const collection of this.collections) {
+      try {
+        const options: AxiosRequestConfig = {
+          auth: {
+            username: this.connection.username,
+            password: this.connection.password ? this.connection.password : "",
+          },
         };
-    }
 
-    public async getChildren(): Promise<INode[]> {
-
-        let collectionList: CollectionNode[] = [];
-
-        for( const collection of this.collections){
-          try {
-            const options: AxiosRequestConfig = {
-              auth: {
-                username: this.connection.username,
-                password: this.connection.password ? this.connection.password : "",
-              },
-            };
-      
-            const documentResponse = await get(
-              `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${collection.name}/docs/`,
-              options
-            );
-            const collectionTreeItem = new CollectionNode(
-              this.connection,
-              this.scopeName,
-              documentResponse.data,
-              this.bucketName,
-              collection.name,
-              vscode.TreeItemCollapsibleState.None
-            );
-            collectionList.push(collectionTreeItem);
-          }
-          
-        catch (err) {
-          console.log(err);
-          throw new Error(err);
-        } 
+        const documentResponse = await get(
+          `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${collection.name}/docs/`,
+          options
+        );
+        const collectionTreeItem = new CollectionNode(
+          this.connection,
+          this.scopeName,
+          documentResponse.data,
+          this.bucketName,
+          collection.name,
+          vscode.TreeItemCollapsibleState.None
+        );
+        collectionList.push(collectionTreeItem);
+      } catch (err) {
+        console.log(err);
+        throw new Error(err);
       }
-        return collectionList;
     }
+    return collectionList;
+  }
 }
