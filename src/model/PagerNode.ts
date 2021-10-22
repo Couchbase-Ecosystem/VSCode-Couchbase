@@ -13,10 +13,29 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-export interface IConnection {
-  readonly url: string;
-  readonly username: string;
-  readonly password?: string;
-  readonly connectionIdentifier: string;
-  readonly queryUrl: string;
+import internal = require("stream");
+import * as vscode from "vscode";
+import { INode } from "./INode";
+
+export class PagerNode implements INode {
+
+  constructor(
+    public readonly limit: number,
+    public readonly offset: number
+  ) { }
+
+  public getTreeItem(): vscode.TreeItem {
+    return {
+      label: `Load more`,
+      collapsibleState: vscode.TreeItemCollapsibleState.None,
+      command: {
+        command: "vscode-couchbase.loadMore",
+        title: "Load more",
+      },
+    };
+  }
+
+  public async getChildren(): Promise<INode[]> {
+    return [];
+  }
 }

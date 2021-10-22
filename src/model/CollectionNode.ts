@@ -20,11 +20,13 @@ import { ENDPOINTS } from "../util/endpoints";
 import get from "axios";
 import { AxiosRequestConfig } from "axios";
 import DocumentNode from "./DocumentNode";
+import { PagerNode } from "./PagerNode";
 
 export default class CollectionNode implements INode {
   constructor(
     private readonly connection: IConnection,
     private readonly scopeName: string,
+    private readonly documentCount: number,
     private readonly documents: any,
     private readonly bucketName: string,
     private readonly collectionName: string,
@@ -33,13 +35,13 @@ export default class CollectionNode implements INode {
 
   public async getTreeItem(): Promise<vscode.TreeItem> {
     return {
-      label: `Collection:${this.collectionName} (${this.documents.rows.length})`,
+      label: `Collection:${this.collectionName} (${this.documentCount})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
     };
   }
 
   public async getChildren(): Promise<INode[]> {
-    let documentList: DocumentNode[] = [];
+    let documentList: INode[] = [];
     this.documents.rows.forEach((document: any) => {
       const documentTreeItem = new DocumentNode(
         document.id,
@@ -52,6 +54,9 @@ export default class CollectionNode implements INode {
       );
       documentList.push(documentTreeItem);
     });
+    if (this.documentCount !== documentList.length) {
+      documentList.push(new PagerNode(10, 0));
+    }
     return documentList;
   }
 }

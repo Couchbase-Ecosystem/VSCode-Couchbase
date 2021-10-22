@@ -64,6 +64,11 @@
         "command": "vscode-couchbase.openDocument",
         "title": "Open Document",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.loadMore",
+        "title": "Load More",
+        "category": "Couchbase"
       }
     ],
     "menus": {
