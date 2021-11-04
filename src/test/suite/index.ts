@@ -45,7 +45,7 @@ export function run(): Promise<void> {
             c();
           }
         });
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
         e(err);
       }

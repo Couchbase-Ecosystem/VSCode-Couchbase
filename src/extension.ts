@@ -122,8 +122,8 @@ export function activate(context: vscode.ExtensionContext) {
           const document = await vscode.workspace.openTextDocument(uri);
           await vscode.window.showTextDocument(document, { preview: false });
           return true;
-        } catch (error) {
-          console.log(error);
+        } catch (err: any) {
+          console.log(err);
         }
       }
     )

@@ -40,7 +40,7 @@ export async function getDocument(documentNode: DocumentNode) {
 
     const documentResponse = await get(uri, options);
     return documentResponse.data;
-  } catch (err) {
+  } catch (err: any) {
     console.log(err);
     throw new Error(err);
   }
