@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
+import * as path from "path";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 
@@ -34,13 +35,14 @@ export default class DocumentNode extends vscode.TreeItem {
 
   public getTreeItem(): vscode.TreeItem {
     return {
-      label: `Document:${this.documentName}`,
+      label: `${this.documentName}`,
       collapsibleState: vscode.TreeItemCollapsibleState.None,
       contextValue: "document",
       command: {
         command: "vscode-couchbase.openDocument",
         title: "Open Document",
       },
+      iconPath: path.join(__filename, "..", "..", "images", "documents-icon.svg"),
     };
   }
 

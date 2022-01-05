@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
+import * as path from "path";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 import { AxiosRequestConfig } from "axios";
@@ -32,9 +33,10 @@ export class ScopeNode implements INode {
 
   public getTreeItem(): vscode.TreeItem {
     return {
-      label: `Scope:${this.scopeName}`,
+      label: `${this.scopeName}`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue: "database",
+      iconPath: path.join(__filename, "..", "..", "images", "scopes-icon.svg"),
     };
   }
 
