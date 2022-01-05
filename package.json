@@ -30,7 +30,7 @@
         {
           "id": "couchbase-activity-bar",
           "title": "Couchbase",
-          "icon": "src/media/couchbase.svg"
+          "icon": "images/couchbase.svg"
         }
       ]
     },
@@ -39,14 +39,14 @@
         "command": "vscode-couchbase.createClusterConnection",
         "title": "Create connection to Couchbase cluster",
         "category": "Couchbase",
-        "icon": "src/media/create.svg"
+        "icon": "images/create.svg"
       },
       {
         "command": "vscode-couchbase.refreshConnection",
         "title": "Refresh Cluster Connection",
         "icon": {
-          "light": "media/couchbase.svg",
-          "dark": "media/couchbase.svg"
+          "light": "images/couchbase.svg",
+          "dark": "images/couchbase.svg"
         },
         "category": "Couchbase"
       },
