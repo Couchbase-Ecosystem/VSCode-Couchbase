@@ -74,10 +74,6 @@
         {
           "command": "vscode-couchbase.useClusterConnection",
           "when": "false"
-        },
-        {
-          "command": "vscode-couchbase.openDocument",
-          "when": "false"
         }
       ],
       "editor/context": [],
@@ -93,11 +89,6 @@
         {
           "command": "vscode-couchbase.useClusterConnection",
           "when": "view == couchbase && viewItem == connection"
-        },
-        {
-          "command": "vscode-couchbase.openDocument",
-          "when": "view == couchbase && viewItem == document",
-          "group": "inline"
         }
       ],
       "view/title": [
