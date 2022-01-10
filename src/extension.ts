@@ -133,8 +133,10 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.loadMore",
-      async (documentNode: PagerNode) => {
+      async (node: PagerNode) => {
         console.log("load more called");
+        node.collection.limit += 10;
+        clusterConnectionTreeProvider.refresh(node.collection);
       }
     )
   );

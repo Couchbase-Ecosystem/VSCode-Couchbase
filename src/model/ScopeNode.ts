@@ -61,7 +61,7 @@ export class ScopeNode implements INode {
         let count = countResponse.data.results[0].count;
 
         const documentResponse = await axios.get(
-          `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${collection.name}/docs?limit=10&offset=0`,
+          `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${collection.name}/docs`,
           options
         );
         const collectionTreeItem = new CollectionNode(
