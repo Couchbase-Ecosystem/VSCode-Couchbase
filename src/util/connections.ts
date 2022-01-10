@@ -91,10 +91,10 @@ export async function addConnection() {
   }
 
   const connectionIdentifier = await vscode.window.showInputBox({
-    prompt: "Enter Connection Identifier (Optional)",
+    prompt: "Enter Connection Identifier",
     placeHolder: "Connection Identifier",
     ignoreFocusOut: true,
-    value: "",
+    value: "default",
   });
   if (!connectionIdentifier) {
     return;
