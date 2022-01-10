@@ -117,7 +117,7 @@ export function activate(context: vscode.ExtensionContext) {
           );
           memFs.writeFile(
             vscode.Uri.parse(`couchbase:/${documentData.meta.id}.json`),
-            Buffer.from(JSON.stringify(documentData, null, 2)),
+            Buffer.from(JSON.parse(JSON.stringify(documentData.json, null, 2))),
             { create: true, overwrite: true }
           );
           const document = await vscode.workspace.openTextDocument(uri);

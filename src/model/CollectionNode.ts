@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
+import * as path from "path";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 import { ENDPOINTS } from "../util/endpoints";
@@ -35,8 +36,9 @@ export default class CollectionNode implements INode {
 
   public async getTreeItem(): Promise<vscode.TreeItem> {
     return {
-      label: `Collection:${this.collectionName} (${this.documentCount})`,
+      label: `${this.collectionName} (${this.documents.rows.length})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+      iconPath: path.join(__filename, "..", "..", "images", "collection-icon.svg"),
     };
   }
 

@@ -33,10 +33,10 @@ export class BucketNode implements INode {
 
   public getTreeItem(): vscode.TreeItem {
     return {
-      label: `Bucket:${this.bucket}`,
+      label: `${this.bucket}`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue: "database",
-      iconPath: path.join(__filename, "..", "..", "..", "media", "schema.gif"),
+      iconPath: path.join(__filename, "..", "..", "images", "bucket-icon.svg"),
     };
   }
 
