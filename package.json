@@ -59,11 +59,6 @@
         "command": "vscode-couchbase.useClusterConnection",
         "title": "Connect to Cluster",
         "category": "Couchbase"
-      },
-      {
-        "command": "vscode-couchbase.openDocument",
-        "title": "Open Document",
-        "category": "Couchbase"
       }
     ],
     "menus": {

@@ -41,6 +41,7 @@ export default class DocumentNode extends vscode.TreeItem {
       command: {
         command: "vscode-couchbase.openDocument",
         title: "Open Document",
+        arguments: [this],
       },
       iconPath: path.join(__filename, "..", "..", "images", "documents-icon.svg"),
     };
