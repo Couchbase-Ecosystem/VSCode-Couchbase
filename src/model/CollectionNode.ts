@@ -21,28 +21,32 @@ import { ENDPOINTS } from "../util/endpoints";
 import get from "axios";
 import { AxiosRequestConfig } from "axios";
 import DocumentNode from "./DocumentNode";
+import { PagerNode } from "./PagerNode";
 
 export default class CollectionNode implements INode {
   constructor(
     private readonly connection: IConnection,
     private readonly scopeName: string,
+    private readonly documentCount: number,
     private readonly documents: any,
     private readonly bucketName: string,
     private readonly collectionName: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public limit: number = 10
   ) {}
 
   public async getTreeItem(): Promise<vscode.TreeItem> {
     return {
-      label: `${this.collectionName} (${this.documents.rows.length})`,
+      label: `${this.collectionName} (${this.documentCount})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       iconPath: path.join(__filename, "..", "..", "images", "collection-icon.svg"),
     };
   }
 
   public async getChildren(): Promise<INode[]> {
-    let documentList: DocumentNode[] = [];
-    this.documents.rows.forEach((document: any) => {
+    let documentList: INode[] = [];
+    // TODO: default limit could be managed as user settings / preference
+    this.documents.rows.slice(0, this.limit).forEach((document: any) => {
       const documentTreeItem = new DocumentNode(
         document.id,
         this.connection,
@@ -54,6 +58,9 @@ export default class CollectionNode implements INode {
       );
       documentList.push(documentTreeItem);
     });
+    if (this.documentCount !== documentList.length) {
+      documentList.push(new PagerNode(this));
+    }
     return documentList;
   }
 }

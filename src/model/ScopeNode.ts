@@ -18,9 +18,10 @@ import * as path from "path";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 import { AxiosRequestConfig } from "axios";
-import get from "axios";
 import { ENDPOINTS } from "../util/endpoints";
 import CollectionNode from "./CollectionNode";
+
+const axios = require("axios").default;
 
 export class ScopeNode implements INode {
   constructor(
@@ -52,13 +53,21 @@ export class ScopeNode implements INode {
           },
         };
 
-        const documentResponse = await get(
-          `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${collection.name}/docs/`,
+        const countResponse = await axios.post(
+          `${this.connection.queryUrl}`,
+          { statement: `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\`;` },
+          options
+        );
+        let count = countResponse.data.results[0].count;
+
+        const documentResponse = await axios.get(
+          `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${collection.name}/docs`,
           options
         );
         const collectionTreeItem = new CollectionNode(
           this.connection,
           this.scopeName,
+          count,
           documentResponse.data,
           this.bucketName,
           collection.name,

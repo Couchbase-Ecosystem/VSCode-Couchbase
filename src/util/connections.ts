@@ -38,6 +38,7 @@ async function saveConnection(connection: IConnection) {
     url,
     username,
     connectionIdentifier,
+    queryUrl: `${url.substr(0, url.lastIndexOf(':'))}:8093/query/service`,
   };
   const password =
     connection.password ||
@@ -105,6 +106,7 @@ export async function addConnection() {
     username,
     password,
     connectionIdentifier,
+    queryUrl: `${url.substr(0, url.lastIndexOf(':'))}:8093/query/service`,
   });
   Memory.state.update("activeConnection", {
     password,

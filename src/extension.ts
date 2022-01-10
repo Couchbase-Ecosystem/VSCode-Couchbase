@@ -17,6 +17,7 @@ import * as vscode from "vscode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import DocumentNode from "./model/DocumentNode";
 import { INode } from "./model/INode";
+import { PagerNode } from "./model/PagerNode";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
 import { addConnection, useConnection } from "./util/connections";
 import { Constants } from "./util/constants";
@@ -125,6 +126,17 @@ export function activate(context: vscode.ExtensionContext) {
         } catch (err: any) {
           console.log(err);
         }
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.loadMore",
+      async (node: PagerNode) => {
+        console.log("load more called");
+        node.collection.limit += 10;
+        clusterConnectionTreeProvider.refresh(node.collection);
       }
     )
   );
