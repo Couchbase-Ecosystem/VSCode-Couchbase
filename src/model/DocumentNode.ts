@@ -43,7 +43,10 @@ export default class DocumentNode extends vscode.TreeItem {
         title: "Open Document",
         arguments: [this],
       },
-      iconPath: path.join(__filename, "..", "..", "images", "documents-icon.svg"),
+      iconPath: {
+        light: path.join(__filename, "..", "..", "images/light", "documents-icon.svg"),
+        dark: path.join(__filename, "..", "..", "images/dark", "documents-icon.svg"),
+      }
     };
   }
 

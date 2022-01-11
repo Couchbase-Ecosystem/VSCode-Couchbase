@@ -37,7 +37,10 @@ export class ScopeNode implements INode {
       label: `${this.scopeName}`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue: "database",
-      iconPath: path.join(__filename, "..", "..", "images", "scopes-icon.svg"),
+      iconPath: {
+        light: path.join(__filename, "..", "..", "images/light", "scopes-icon.svg"),
+        dark: path.join(__filename, "..", "..", "images/dark", "scopes-icon.svg"),
+      }
     };
   }
 

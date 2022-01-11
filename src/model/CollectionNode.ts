@@ -39,7 +39,10 @@ export default class CollectionNode implements INode {
     return {
       label: `${this.collectionName} (${this.documentCount})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      iconPath: path.join(__filename, "..", "..", "images", "collection-icon.svg"),
+      iconPath: {
+        light: path.join(__filename, "..", "..", "images/light", "collection-icon.svg"),
+        dark: path.join(__filename, "..", "..", "images/dark", "collection-icon.svg"),
+      }
     };
   }
 
