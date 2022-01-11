@@ -70,11 +70,6 @@
         "command": "vscode-couchbase.useClusterConnection",
         "title": "Connect to Cluster",
         "category": "Couchbase"
-      },
-      {
-        "command": "vscode-couchbase.loadMore",
-        "title": "Load More",
-        "category": "Couchbase"
       }
     ],
     "menus": {
