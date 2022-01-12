@@ -69,6 +69,7 @@ export async function addConnection() {
     value: "http://127.0.0.1:8091",
   });
   if (!url) {
+    vscode.window.showErrorMessage('Cluster URL is required.');
     return;
   }
   const username = await vscode.window.showInputBox({
@@ -78,6 +79,7 @@ export async function addConnection() {
     value: "Administrator",
   });
   if (!username) {
+    vscode.window.showErrorMessage('Username is required.');
     return;
   }
 
@@ -88,17 +90,18 @@ export async function addConnection() {
     value: "password",
   });
   if (!password) {
+    vscode.window.showErrorMessage('Password is required.');
     return;
   }
 
-  const connectionIdentifier = await vscode.window.showInputBox({
-    prompt: "Enter Connection Identifier",
+  let connectionIdentifier = await vscode.window.showInputBox({
+    prompt: "Enter Connection Identifier (optional)",
     placeHolder: "Connection Identifier",
     ignoreFocusOut: true,
-    value: "default",
+    value: "",
   });
   if (!connectionIdentifier) {
-    return;
+    connectionIdentifier = "";
   }
 
   var { connections, id } = await saveConnection({
