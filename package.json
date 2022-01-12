@@ -55,10 +55,6 @@
       {
         "command": "vscode-couchbase.refreshConnection",
         "title": "Refresh Cluster Connection",
-        "icon": {
-          "light": "images/couchbase.svg",
-          "dark": "images/couchbase.svg"
-        },
         "category": "Couchbase"
       },
       {

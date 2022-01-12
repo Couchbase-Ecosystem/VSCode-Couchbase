@@ -41,17 +41,20 @@ export class ClusterConnectionNode implements INode {
   }
 
   public getTreeItem(): vscode.TreeItem {
-    let id = `Cluster:${this.connection.username}@${this.connection.url}`;
+    let id = `${this.connection.username}@${this.connection.url}`;
     if (this.connection.connectionIdentifier !== "") {
-      id = `Cluster:${this.connection.connectionIdentifier}`;
+      id = `${this.connection.connectionIdentifier}`;
     }
     const activeConnection = Memory.state.get<IConnection>("activeConnection");
 
     return {
-      label: this.equalsConnection(activeConnection) ? `Active:${id}` : id,
+      label: this.equalsConnection(activeConnection) ? `${id}` : id,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue: "connection",
-      // iconPath: path.join(__filename, "..", "media", this.equalsConnection(activeConnection) ? "green.png": 'db-inactive.png'),
+      iconPath: {
+        light: path.join(__filename, "..", "..", "images", this.equalsConnection(activeConnection) ? "": "light", "cb-logo-icon.svg"),
+        dark: path.join(__filename, "..", "..", "images", this.equalsConnection(activeConnection) ? "": "dark", "cb-logo-icon.svg"),
+      }
     };
   }
 
