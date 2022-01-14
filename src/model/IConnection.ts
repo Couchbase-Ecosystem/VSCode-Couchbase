@@ -1,3 +1,5 @@
+import { Cluster } from "couchbase";
+
 /*
  *     Copyright 2011-2020 Couchbase, Inc.
  *
@@ -19,4 +21,5 @@ export interface IConnection {
   readonly password?: string;
   readonly connectionIdentifier: string;
   readonly queryUrl: string;
+  cluster: Cluster | undefined;
 }

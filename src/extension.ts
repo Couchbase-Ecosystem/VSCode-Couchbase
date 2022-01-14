@@ -16,13 +16,14 @@
 import * as vscode from "vscode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import DocumentNode from "./model/DocumentNode";
+import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
 import { addConnection, useConnection } from "./util/connections";
 import { Constants } from "./util/constants";
 import { MemFS } from "./util/fileSystemProvider";
-import { getDocument } from "./util/requests";
+import { getDocument, saveDocument } from "./util/requests";
 import { Global, Memory, WorkSpace } from "./util/util";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -38,6 +39,21 @@ export function activate(context: vscode.ExtensionContext) {
 
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context
+  );
+
+  subscriptions.push(
+    vscode.workspace.onDidSaveTextDocument((document: vscode.TextDocument) => {
+      if (document.languageId === "json" && document.uri.scheme === "couchbase") {
+        const activeConnection = Memory.state.get<IConnection>("activeConnection");
+        if (!activeConnection) {
+          return;
+        }
+
+        saveDocument(activeConnection, document).then(() =>
+          vscode.window.showInformationMessage("Document saved")
+        );
+      }
+    })
   );
 
   const memFs = new MemFS();
@@ -112,12 +128,10 @@ export function activate(context: vscode.ExtensionContext) {
       async (documentNode: DocumentNode) => {
         try {
           let documentData = await getDocument(documentNode);
-          const uri = vscode.Uri.parse(
-            `couchbase:/${documentData.meta.id}.json`
-          );
+          const uri = vscode.Uri.parse(`couchbase:/${documentNode.documentName}.json`);
           memFs.writeFile(
-            vscode.Uri.parse(`couchbase:/${documentData.meta.id}.json`),
-            Buffer.from(JSON.parse(JSON.stringify(documentData.json, null, 2))),
+            uri,
+            Buffer.from(JSON.stringify(documentData, null, 2)),
             { create: true, overwrite: true }
           );
           const document = await vscode.workspace.openTextDocument(uri);

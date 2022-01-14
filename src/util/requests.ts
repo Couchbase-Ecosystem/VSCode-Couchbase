@@ -14,32 +14,14 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
-import get from "axios";
-import { ENDPOINTS } from "./endpoints";
-import { AxiosRequestConfig } from "axios";
 import DocumentNode from "../model/DocumentNode";
+import { IConnection } from "../model/IConnection";
 import { MemFS } from "./fileSystemProvider";
 
 export async function getDocument(documentNode: DocumentNode) {
-  let uri: string;
   try {
-    const options: AxiosRequestConfig = {
-      auth: {
-        username: documentNode.connection.username,
-        password: documentNode.connection.password
-          ? documentNode.connection.password
-          : "",
-      },
-    };
-
-    if (documentNode.isScopesandCollections) {
-      uri = `${documentNode.connection.url}${ENDPOINTS.GET_POOLS}/${documentNode.bucketName}/scopes/${documentNode.scopeName}/collections/${documentNode.collectionName}/docs/${documentNode.documentName}`;
-    } else {
-      uri = `${documentNode.connection.url}${ENDPOINTS.GET_POOLS}/${documentNode.bucketName}/docs/${documentNode.documentName}`;
-    }
-
-    const documentResponse = await get(uri, options);
-    return documentResponse.data;
+    const result = await documentNode.connection.cluster?.bucket(documentNode.bucketName).scope(documentNode.scopeName).collection(documentNode.collectionName).get(documentNode.documentName);
+    return result?.content;
   } catch (err: any) {
     console.log(err);
     throw new Error(err);
@@ -57,4 +39,18 @@ export function saveDocumentToFileSystem(memFS: MemFS, document: any): string {
     }
   );
   return filename;
+}
+
+export async function saveDocument(connection: IConnection, documentNode: vscode.TextDocument) {
+  try {
+    //TODO: how to get bucket, scope and collection?
+    const bucketName = "test";
+    const scopeName = "scope1";
+    const collectionName = "collection1";
+    const documentName = "mike1";
+    await connection.cluster?.bucket(bucketName).scope(scopeName).collection(collectionName).upsert(documentName, JSON.parse(documentNode.getText()));
+  } catch (err: any) {
+    console.log(err);
+    vscode.window.showErrorMessage(err.Message);
+  }
 }

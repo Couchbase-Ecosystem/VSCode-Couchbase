@@ -19,6 +19,7 @@ import { Constants } from "./constants";
 import { Global, Memory } from "./util";
 import { IConnection } from "../model/IConnection";
 import { ClusterConnectionNode } from "../model/ClusterConnectionNode";
+import { Cluster } from "couchbase";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username, connectionIdentifier } = connection;
@@ -39,6 +40,7 @@ async function saveConnection(connection: IConnection) {
     username,
     connectionIdentifier,
     queryUrl: `${url.substr(0, url.lastIndexOf(':'))}:8093/query/service`,
+    cluster: undefined
   };
   const password =
     connection.password ||
@@ -110,6 +112,7 @@ export async function addConnection() {
     password,
     connectionIdentifier,
     queryUrl: `${url.substr(0, url.lastIndexOf(':'))}:8093/query/service`,
+    cluster: undefined
   });
   Memory.state.update("activeConnection", {
     password,

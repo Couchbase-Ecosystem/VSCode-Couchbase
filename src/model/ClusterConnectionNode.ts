@@ -26,8 +26,8 @@ import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider
 import { BucketNode } from "./BucketNode";
 import { ENDPOINTS } from "../util/endpoints";
 
-import get from "axios";
-import { AxiosRequestConfig } from "axios";
+import get, { AxiosRequestConfig } from "axios";
+import { BucketSettings } from "couchbase";
 
 export class ClusterConnectionNode implements INode {
   constructor(
@@ -93,35 +93,23 @@ export class ClusterConnectionNode implements INode {
       throw new Error(err);
     }
 
+    const nodes: INode[] = [];
     try {
-      const options: AxiosRequestConfig = {
-        auth: {
-          username: this.connection.username,
-          password: this.connection.password ? this.connection.password : "",
-        },
-      };
-
-      const bucketsResponse = await get(
-        `${this.connection.url}${ENDPOINTS.GET_POOLS}`,
-        options
-      );
-
-      let bucketList: BucketNode[] = [];
-      bucketsResponse.data.forEach((bucket: any) => {
-        const bucketTreeItem = new BucketNode(
+      let buckets = await this.connection.cluster?.buckets().getAllBuckets();
+      buckets?.forEach((bucket: BucketSettings) => {
+        nodes.push(new BucketNode(
           this.connection,
           bucket.name,
           isScopesandCollections,
           vscode.TreeItemCollapsibleState.None
-        );
-        bucketList.push(bucketTreeItem);
+        ));
       });
-
-      return bucketList;
     } catch (err: any) {
       console.log(err);
       throw new Error(err);
     }
+
+    return nodes;
   }
 
   public async deleteConnection(

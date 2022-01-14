@@ -17,9 +17,6 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
-import { ENDPOINTS } from "../util/endpoints";
-import get from "axios";
-import { AxiosRequestConfig } from "axios";
 import DocumentNode from "./DocumentNode";
 import { PagerNode } from "./PagerNode";
 
