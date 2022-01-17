@@ -30,7 +30,9 @@ export default class CollectionNode implements INode {
     private readonly collectionName: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public limit: number = 10
-  ) {}
+  ) {
+    vscode.workspace.fs.createDirectory(vscode.Uri.parse(`couchbase:/${bucketName}/${scopeName}/${collectionName}`));
+  }
 
   public async getTreeItem(): Promise<vscode.TreeItem> {
     return {

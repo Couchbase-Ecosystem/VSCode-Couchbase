@@ -30,7 +30,9 @@ export class ScopeNode implements INode {
     private readonly bucketName: string,
     private readonly collections: any[],
     public readonly collapsibleState: vscode.TreeItemCollapsibleState
-  ) {}
+  ) {
+    vscode.workspace.fs.createDirectory(vscode.Uri.parse(`couchbase:/${bucketName}/${scopeName}`));
+  }
 
   public getTreeItem(): vscode.TreeItem {
     return {

@@ -42,12 +42,19 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
-    vscode.workspace.onDidSaveTextDocument((document: vscode.TextDocument) => {
+    vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
       if (document.languageId === "json" && document.uri.scheme === "couchbase") {
         const activeConnection = Memory.state.get<IConnection>("activeConnection");
         if (!activeConnection) {
           return;
         }
+
+        const parts = document.uri.path.substring(1).split('/');
+        const bucket = parts[0],
+              scope = parts[1],
+              collection = parts[2],
+              name = parts[3].substring(0, parts[3].indexOf(".json"))
+        await activeConnection.cluster?.bucket(bucket).scope(scope).collection(collection).upsert(name, JSON.parse(document.getText()));
 
         saveDocument(activeConnection, document).then(() =>
           vscode.window.showInformationMessage("Document saved")
@@ -128,7 +135,7 @@ export function activate(context: vscode.ExtensionContext) {
       async (documentNode: DocumentNode) => {
         try {
           let documentData = await getDocument(documentNode);
-          const uri = vscode.Uri.parse(`couchbase:/${documentNode.documentName}.json`);
+          const uri = vscode.Uri.parse(`couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/${documentNode.collectionName}/${documentNode.documentName}.json`);
           memFs.writeFile(
             uri,
             Buffer.from(JSON.stringify(documentData, null, 2)),
