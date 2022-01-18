@@ -24,7 +24,6 @@ import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider"
 import { addConnection, useConnection } from "./util/connections";
 import { Constants } from "./util/constants";
 import { MemFS } from "./util/fileSystemProvider";
-import { getDocument } from "./util/requests";
 import { Global, Memory, WorkSpace } from "./util/util";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -134,11 +133,11 @@ export function activate(context: vscode.ExtensionContext) {
       "vscode-couchbase.openDocument",
       async (documentNode: DocumentNode) => {
         try {
-          let documentData = await getDocument(documentNode);
+          const result = await documentNode.connection.cluster?.bucket(documentNode.bucketName).scope(documentNode.scopeName).collection(documentNode.collectionName).get(documentNode.documentName);
           const uri = vscode.Uri.parse(`couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/${documentNode.collectionName}/${documentNode.documentName}.json`);
           memFs.writeFile(
             uri,
-            Buffer.from(JSON.stringify(documentData, null, 2)),
+            Buffer.from(JSON.stringify(result?.content, null, 2)),
             { create: true, overwrite: true }
           );
           const document = await vscode.workspace.openTextDocument(uri);

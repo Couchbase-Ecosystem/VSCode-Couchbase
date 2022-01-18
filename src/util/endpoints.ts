@@ -13,8 +13,8 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-/* eslint-disable @typescript-eslint/naming-convention */
 
+/* eslint-disable @typescript-eslint/naming-convention */
 export enum ENDPOINTS {
   GET_POOLS = "/pools/default/buckets",
   GET_CLUSTER = "/pools",

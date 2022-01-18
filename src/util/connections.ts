@@ -19,7 +19,6 @@ import { Constants } from "./constants";
 import { Global, Memory } from "./util";
 import { IConnection } from "../model/IConnection";
 import { ClusterConnectionNode } from "../model/ClusterConnectionNode";
-import { Cluster } from "couchbase";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username, connectionIdentifier } = connection;

@@ -1,5 +1,3 @@
-import { Cluster } from "couchbase";
-
 /*
  *     Copyright 2011-2020 Couchbase, Inc.
  *
@@ -15,6 +13,8 @@ import { Cluster } from "couchbase";
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+import { Cluster } from "couchbase";
+
 export interface IConnection {
   readonly url: string;
   readonly username: string;
