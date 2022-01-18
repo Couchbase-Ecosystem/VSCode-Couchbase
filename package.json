@@ -20,6 +20,7 @@
     "url": "https://github.com/couchbaselabs/VSCode-Couchbase.git"
   },
   "preview": true,
+  "icon": "images/couchbase.png",
   "activationEvents": [
     "*"
   ],
