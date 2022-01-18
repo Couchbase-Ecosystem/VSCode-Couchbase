@@ -26,15 +26,13 @@ export class BucketNode implements INode {
     private readonly bucket: string,
     private readonly isScopesandCollections: boolean,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState
-  ) {
-    vscode.workspace.fs.createDirectory(vscode.Uri.parse(`couchbase:/${bucket}`));
-  }
+  ) {}
 
   public getTreeItem(): vscode.TreeItem {
     return {
       label: `${this.bucket}`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      contextValue: "database",
+      contextValue: "bucket",
       iconPath: {
         light: path.join(__filename, "..", "..", "images/light", "bucket-icon.svg"),
         dark: path.join(__filename, "..", "..", "images/dark", "bucket-icon.svg"),

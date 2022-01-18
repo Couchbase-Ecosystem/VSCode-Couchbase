@@ -66,6 +66,21 @@
         "command": "vscode-couchbase.useClusterConnection",
         "title": "Connect to Cluster",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.createDocument",
+        "title": "Create Document",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.removeDocument",
+        "title": "Remove Document",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.refreshCollection",
+        "title": "Refresh Collection",
+        "category": "Couchbase"
       }
     ],
     "menus": {
@@ -96,6 +111,19 @@
         {
           "command": "vscode-couchbase.useClusterConnection",
           "when": "view == couchbase && viewItem == connection"
+        },
+        {
+          "command": "vscode-couchbase.createDocument",
+          "when": "view == couchbase && viewItem == collection"
+        },
+        {
+          "command": "vscode-couchbase.removeDocument",
+          "when": "view == couchbase && viewItem == document"
+        }
+        ,
+        {
+          "command": "vscode-couchbase.refreshCollection",
+          "when": "view == couchbase && viewItem == collection"
         }
       ],
       "view/title": [

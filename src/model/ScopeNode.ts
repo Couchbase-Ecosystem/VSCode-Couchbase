@@ -30,15 +30,13 @@ export class ScopeNode implements INode {
     private readonly bucketName: string,
     private readonly collections: any[],
     public readonly collapsibleState: vscode.TreeItemCollapsibleState
-  ) {
-    vscode.workspace.fs.createDirectory(vscode.Uri.parse(`couchbase:/${bucketName}/${scopeName}`));
-  }
+  ) {}
 
   public getTreeItem(): vscode.TreeItem {
     return {
       label: `${this.scopeName}`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      contextValue: "database",
+      contextValue: "scope",
       iconPath: {
         light: path.join(__filename, "..", "..", "images/light", "scopes-icon.svg"),
         dark: path.join(__filename, "..", "..", "images/dark", "scopes-icon.svg"),
@@ -70,7 +68,6 @@ export class ScopeNode implements INode {
           this.connection,
           this.scopeName,
           count,
-          documentResponse.data,
           this.bucketName,
           collection.name,
           vscode.TreeItemCollapsibleState.None
