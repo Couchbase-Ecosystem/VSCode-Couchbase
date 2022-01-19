@@ -55,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
               collection = parts[2],
               name = parts[3].substring(0, parts[3].indexOf(".json"))
         await activeConnection.cluster?.bucket(bucket).scope(scope).collection(collection).upsert(name, JSON.parse(document.getText()));
-        vscode.window.showInformationMessage("Document saved");
+        vscode.window.setStatusBarMessage("Document saved", 2000);
 
         // TODO: refresh collection to show new docs
       }
