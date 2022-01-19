@@ -53,7 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
         const bucket = parts[0],
               scope = parts[1],
               collection = parts[2],
-              name = parts[3].substring(0, parts[3].indexOf(".json"))
+              name = parts[3].substring(0, parts[3].indexOf(".json"));
         await activeConnection.cluster?.bucket(bucket).scope(scope).collection(collection).upsert(name, JSON.parse(document.getText()));
         vscode.window.setStatusBarMessage("Document saved", 2000);
 

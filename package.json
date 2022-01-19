@@ -171,7 +171,7 @@
     "test-compile": "tsc -p ./",
     "test-watch": "tsc -watch -p ./",
     "pretest": "npm run test-compile && npm run lint",
-    "lint": "eslint src --ext ts",
+    "lint": "eslint src --ext ts --fix",
     "test": "node ./out/test/runTest.js",
     "format": "prettier 'src/**/*.ts' --write",
     "rebuild:electron": "node scripts/rebuildElectron.js"

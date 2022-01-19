@@ -52,7 +52,7 @@ export class BucketNode implements INode {
             this.bucket,
             scope.collections,
             vscode.TreeItemCollapsibleState.None
-          ))
+          ));
         });
       } catch (err: any) {
         console.log(err);
