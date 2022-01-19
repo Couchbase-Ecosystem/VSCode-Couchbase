@@ -160,7 +160,7 @@
     "vscode:prepublish": "yarn run bundle",
     "build:extension": "webpack --mode development --config-name extension",
     "build:webviews": "webpack --mode development --config-name webviews",
-    "bundle": "webpack --mode production",
+    "bundle": "webpack --mode production --devtool hidden-source-map",
     "compile": "webpack",
     "watch": "webpack --watch",
     "clean": "npx rimraf .eslintcache* tsconfig*.tsbuildinfo",
