@@ -20,6 +20,5 @@ export interface IConnection {
   readonly username: string;
   readonly password?: string;
   readonly connectionIdentifier: string;
-  readonly queryUrl: string;
   cluster: Cluster | undefined;
 }
