@@ -120,8 +120,7 @@
         {
           "command": "vscode-couchbase.removeDocument",
           "when": "view == couchbase && viewItem == document"
-        }
-        ,
+        },
         {
           "command": "vscode-couchbase.refreshCollection",
           "when": "view == couchbase && viewItem == collection"
