@@ -9,3 +9,7 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+scripts/
+node_modules/
+.github/
+Makefile
