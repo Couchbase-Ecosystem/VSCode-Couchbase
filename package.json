@@ -157,23 +157,13 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "yarn run bundle",
-    "build:extension": "webpack --mode development --config-name extension",
-    "build:webviews": "webpack --mode development --config-name webviews",
-    "bundle": "webpack --mode production --devtool hidden-source-map",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "clean": "npx rimraf .eslintcache* tsconfig*.tsbuildinfo",
-    "rebuild": "yarn run reset && yarn run build",
-    "reset": "yarn run clean && yarn --frozen-lockfile",
-    "package": "vsce package --yarn",
-    "test-compile": "tsc -p ./",
-    "test-watch": "tsc -watch -p ./",
-    "pretest": "npm run test-compile && npm run lint",
-    "lint": "eslint src --ext ts --fix",
-    "test": "node ./out/test/runTest.js",
     "format": "prettier 'src/**/*.ts' --write",
-    "rebuild:electron": "node scripts/rebuildElectron.js"
+    "lint": "eslint src --ext ts --fix",
+    "package": "vsce package",
+    "pretest": "npm run test-compile && npm run lint",
+    "rebuild:electron": "node scripts/rebuildElectron.js",
+    "test": "node ./out/test/runTest.js",
+    "vscode:prepublish": "webpack --devtool source-map"
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
