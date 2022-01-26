@@ -1,6 +1,6 @@
 {
   "name": "vscode-couchbase",
-  "displayName": "vscode-couchbase",
+  "displayName": "Couchbase",
   "description": "",
   "version": "0.2.0",
   "engines": {
@@ -10,7 +10,7 @@
     "Other"
   ],
   "license": "SEE LICENSE IN LICENSE",
-  "publisher": "Couchbase, Inc.",
+  "publisher": "couchbase",
   "homepage": "https://github.com/couchbaselabs/VSCode-Couchbase",
   "bugs": {
     "url": "https://github.com/couchbaselabs/VSCode-Couchbase/issues"
