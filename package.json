@@ -183,6 +183,7 @@
     }
   },
   "scripts": {
+    "build": "webpack",
     "format": "prettier 'src/**/*.ts' --write",
     "lint": "eslint src --ext ts --fix",
     "package": "vsce package",
