@@ -163,7 +163,8 @@
     "pretest": "npm run test-compile && npm run lint",
     "rebuild:electron": "node scripts/rebuildElectron.js",
     "test": "node ./out/test/runTest.js",
-    "vscode:prepublish": "webpack --devtool source-map"
+    "vscode:prepublish": "webpack --devtool source-map",
+    "watch": "webpack --watch"
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
