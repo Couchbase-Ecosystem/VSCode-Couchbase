@@ -22,17 +22,27 @@
   "preview": true,
   "icon": "images/couchbase.png",
   "activationEvents": [
-    "*"
+    "onFileSystem:couchbase",
+    "onCommand:vscode-couchbase.createClusterConnection",
+    "onCommand:vscode-couchbase.refreshConnection",
+    "onCommand:vscode-couchbase.deleteClusterConnection",
+    "onCommand:vscode-couchbase.useClusterConnection",
+    "onCommand:vscode-couchbase.createDocument",
+    "onCommand:vscode-couchbase.removeDocument",
+    "onCommand:vscode-couchbase.refreshCollection",
+    "onCustomEditor:vscode-couchbase.couchbaseDocument",
+    "onStartupFinished",
+    "onView:couchbase-activity-bar"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "customEditors": [
       {
         "viewType": "vscode-couchbase.couchbaseDocument",
-        "displayName": "Couchbase Document",
+        "displayName": "Couchbase JSON Document Editor",
         "selector": [
           {
-            "filenamePattern": "*.json"
+            "filenamePattern": "couchbase://*.json"
           }
         ]
       }
@@ -92,6 +102,22 @@
         },
         {
           "command": "vscode-couchbase.deleteClusterConnection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.useClusterConnection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.refreshCollection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.createDocument",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.removeDocument",
           "when": "false"
         },
         {
