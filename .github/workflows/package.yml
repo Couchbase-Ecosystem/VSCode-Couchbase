@@ -58,17 +58,17 @@ jobs:
         name: Darwin
         path: ${{ github.workspace }}/out/Darwin
 
-    - name: Retrieve Windows Artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: Windows
-        path: ${{ github.workspace }}/out/Windows
+    # - name: Retrieve Windows Artifact
+    #   uses: actions/download-artifact@v2
+    #   with:
+    #     name: Windows
+    #     path: ${{ github.workspace }}/out/Windows
 
     - name: Package
       run: |
         mkdir -p ${{ github.workspace }}/dist
         cp ${{ github.workspace }}/out/Darwin/libcblite* ${{ github.workspace }}/dist
-        cp ${{ github.workspace }}/out/Windows/cblite.dll ${{ github.workspace }}/dist
+        # cp ${{ github.workspace }}/out/Windows/cblite.dll ${{ github.workspace }}/dist
         npm install
         npm run package
 
