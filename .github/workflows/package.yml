@@ -25,6 +25,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install
+      run: npm install
+
     - name: Compile
       working-directory: ${{ github.workspace }}/scripts
       run: node rebuildElectron.js
