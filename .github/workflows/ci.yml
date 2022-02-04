@@ -29,6 +29,9 @@ jobs:
       working-directory: ${{ github.workspace }}/scripts
       run: node rebuildElectron.js
 
+    - name: which openssl
+      run: which openssl
+
     - name: Save Artifact
       uses: actions/upload-artifact@v2
       with:
