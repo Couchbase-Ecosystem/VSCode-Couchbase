@@ -20,6 +20,7 @@ import { Constants } from "../util/constants";
 import { Global, Memory } from "../util/util";
 import { INode } from "../model/INode";
 import { ClusterConnectionNode } from "../model/ClusterConnectionNode";
+import { Cluster } from "couchbase";
 
 export default class ClusterConnectionTreeProvider
   implements vscode.TreeDataProvider<INode>
@@ -54,10 +55,12 @@ export default class ClusterConnectionTreeProvider
       for (const id of Object.keys(connections)) {
         const password =
           (await keytar.getPassword(Constants.extensionID, id)) || "";
-        const connectionNode = new ClusterConnectionNode(id, {
+        let connection = {
           ...connections[id],
           password,
-        });
+        };
+        connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: connection.password });
+        const connectionNode = new ClusterConnectionNode(id, connection);
         connectionNodes.push(connectionNode);
         const activeConnection = Memory.state.get("activeConnection");
         if (!activeConnection) {

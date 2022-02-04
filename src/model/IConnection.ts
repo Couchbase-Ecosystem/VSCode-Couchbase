@@ -13,10 +13,12 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+import { Cluster } from "couchbase";
+
 export interface IConnection {
   readonly url: string;
   readonly username: string;
   readonly password?: string;
   readonly connectionIdentifier: string;
-  readonly queryUrl: string;
+  cluster: Cluster | undefined;
 }

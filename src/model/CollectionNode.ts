@@ -17,28 +17,27 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
-import { ENDPOINTS } from "../util/endpoints";
-import get from "axios";
-import { AxiosRequestConfig } from "axios";
 import DocumentNode from "./DocumentNode";
 import { PagerNode } from "./PagerNode";
 
 export default class CollectionNode implements INode {
   constructor(
-    private readonly connection: IConnection,
-    private readonly scopeName: string,
-    private readonly documentCount: number,
-    private readonly documents: any,
-    private readonly bucketName: string,
-    private readonly collectionName: string,
+    public readonly connection: IConnection,
+    public readonly scopeName: string,
+    public readonly documentCount: number,
+    public readonly bucketName: string,
+    public readonly collectionName: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public limit: number = 10
-  ) {}
+  ) {
+    vscode.workspace.fs.createDirectory(vscode.Uri.parse(`couchbase:/${bucketName}/${scopeName}/${collectionName}`));
+  }
 
   public async getTreeItem(): Promise<vscode.TreeItem> {
     return {
       label: `${this.collectionName} (${this.documentCount})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+      contextValue: "collection",
       iconPath: {
         light: path.join(__filename, "..", "..", "images/light", "collection-icon.svg"),
         dark: path.join(__filename, "..", "..", "images/dark", "collection-icon.svg"),
@@ -49,9 +48,10 @@ export default class CollectionNode implements INode {
   public async getChildren(): Promise<INode[]> {
     let documentList: INode[] = [];
     // TODO: default limit could be managed as user settings / preference
-    this.documents.rows.slice(0, this.limit).forEach((document: any) => {
+    const result = await this.connection.cluster?.query(`SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`);
+    result?.rows.forEach((documentName: string) => {
       const documentTreeItem = new DocumentNode(
-        document.id,
+        documentName,
         this.connection,
         this.scopeName,
         this.bucketName,
@@ -61,6 +61,9 @@ export default class CollectionNode implements INode {
       );
       documentList.push(documentTreeItem);
     });
+
+    // TODO: add local only (un-synchronized) files to documentList
+
     if (this.documentCount !== documentList.length) {
       documentList.push(new PagerNode(this));
     }

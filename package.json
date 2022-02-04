@@ -1,16 +1,16 @@
 {
   "name": "vscode-couchbase",
-  "displayName": "vscode-couchbase",
+  "displayName": "Couchbase",
   "description": "",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "engines": {
-    "vscode": "^1.55.0"
+    "vscode": "^1.63.1"
   },
   "categories": [
     "Other"
   ],
   "license": "SEE LICENSE IN LICENSE",
-  "publisher": "Couchbase, Inc.",
+  "publisher": "couchbase",
   "homepage": "https://github.com/couchbaselabs/VSCode-Couchbase",
   "bugs": {
     "url": "https://github.com/couchbaselabs/VSCode-Couchbase/issues"
@@ -20,18 +20,29 @@
     "url": "https://github.com/couchbaselabs/VSCode-Couchbase.git"
   },
   "preview": true,
+  "icon": "images/couchbase.png",
   "activationEvents": [
-    "*"
+    "onFileSystem:couchbase",
+    "onCommand:vscode-couchbase.createClusterConnection",
+    "onCommand:vscode-couchbase.refreshConnection",
+    "onCommand:vscode-couchbase.deleteClusterConnection",
+    "onCommand:vscode-couchbase.useClusterConnection",
+    "onCommand:vscode-couchbase.createDocument",
+    "onCommand:vscode-couchbase.removeDocument",
+    "onCommand:vscode-couchbase.refreshCollection",
+    "onCustomEditor:vscode-couchbase.couchbaseDocument",
+    "onStartupFinished",
+    "onView:couchbase-activity-bar"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "customEditors": [
       {
         "viewType": "vscode-couchbase.couchbaseDocument",
-        "displayName": "Couchbase Document",
+        "displayName": "Couchbase JSON Document Editor",
         "selector": [
           {
-            "filenamePattern": "*.json"
+            "filenamePattern": "couchbase://*.json"
           }
         ]
       }
@@ -66,6 +77,21 @@
         "command": "vscode-couchbase.useClusterConnection",
         "title": "Connect to Cluster",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.createDocument",
+        "title": "Create Document",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.removeDocument",
+        "title": "Remove Document",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.refreshCollection",
+        "title": "Refresh Collection",
+        "category": "Couchbase"
       }
     ],
     "menus": {
@@ -76,6 +102,22 @@
         },
         {
           "command": "vscode-couchbase.deleteClusterConnection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.useClusterConnection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.refreshCollection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.createDocument",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.removeDocument",
           "when": "false"
         },
         {
@@ -96,6 +138,18 @@
         {
           "command": "vscode-couchbase.useClusterConnection",
           "when": "view == couchbase && viewItem == connection"
+        },
+        {
+          "command": "vscode-couchbase.createDocument",
+          "when": "view == couchbase && viewItem == collection"
+        },
+        {
+          "command": "vscode-couchbase.removeDocument",
+          "when": "view == couchbase && viewItem == document"
+        },
+        {
+          "command": "vscode-couchbase.refreshCollection",
+          "when": "view == couchbase && viewItem == collection"
         }
       ],
       "view/title": [
@@ -129,40 +183,39 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "test-compile": "tsc -p ./",
-    "test-watch": "tsc -watch -p ./",
+    "build": "webpack",
+    "format": "prettier 'src/**/*.ts' --write",
+    "lint": "eslint src --ext ts --fix",
+    "package": "vsce package",
     "pretest": "npm run test-compile && npm run lint",
-    "lint": "eslint src --ext ts",
+    "rebuild:electron": "node scripts/rebuildElectron.js",
     "test": "node ./out/test/runTest.js",
-    "format": "prettier 'src/**/*.ts' --write"
+    "vscode:prepublish": "webpack --devtool source-map",
+    "watch": "webpack --watch"
   },
   "devDependencies": {
-    "@types/glob": "^7.1.3",
-    "@types/mocha": "^8.0.4",
-    "@types/node": "^12.11.7",
-    "@types/vscode": "^1.55.0",
-    "@typescript-eslint/eslint-plugin": "^4.14.1",
-    "@typescript-eslint/parser": "^4.14.1",
-    "eslint": "^7.19.0",
-    "glob": "^7.1.6",
-    "mocha": "^8.2.1",
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^8.2.3",
+    "@types/node": "^12.20.42",
+    "@types/vscode": "^1.63.1",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "electron-rebuild": "^3.2.7",
+    "eslint": "^7.32.0",
+    "glob": "^7.2.0",
+    "mocha": "^8.4.0",
     "node-loader": "^2.0.0",
-    "prettier": "^2.4.1",
-    "ts-loader": "^8.0.14",
+    "prettier": "^2.5.1",
+    "ts-loader": "^8.3.0",
     "typescript": "^4.1.3",
     "vsce": "^2.6.3",
-    "vscode-test": "^1.5.0",
-    "webpack": "^5.19.0",
-    "webpack-cli": "^4.4.0"
+    "vscode-test": "^1.6.1",
+    "webpack": "^5.66.0",
+    "webpack-cli": "^4.9.1"
   },
   "dependencies": {
-    "@types/circular-json": "^0.4.0",
-    "axios": "^0.21.1",
-    "circular-json": "^0.5.9",
-    "keytar": "^7.6.0"
+    "axios": "^0.21.4",
+    "couchbase": "^3.2.4",
+    "keytar": "^7.7.0"
   }
 }

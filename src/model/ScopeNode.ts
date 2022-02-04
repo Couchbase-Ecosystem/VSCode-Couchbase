@@ -36,7 +36,7 @@ export class ScopeNode implements INode {
     return {
       label: `${this.scopeName}`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      contextValue: "database",
+      contextValue: "scope",
       iconPath: {
         light: path.join(__filename, "..", "..", "images/light", "scopes-icon.svg"),
         dark: path.join(__filename, "..", "..", "images/dark", "scopes-icon.svg"),
@@ -56,13 +56,10 @@ export class ScopeNode implements INode {
           },
         };
 
-        const countResponse = await axios.post(
-          `${this.connection.queryUrl}`,
-          { statement: `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\`;` },
-          options
-        );
-        let count = countResponse.data.results[0].count;
+        const queryResult = await this.connection.cluster?.query(`select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\`;`);
+        const count = queryResult?.rows[0].count;
 
+        // TODO: use query to get doc IDs
         const documentResponse = await axios.get(
           `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${collection.name}/docs`,
           options
@@ -71,7 +68,6 @@ export class ScopeNode implements INode {
           this.connection,
           this.scopeName,
           count,
-          documentResponse.data,
           this.bucketName,
           collection.name,
           vscode.TreeItemCollapsibleState.None

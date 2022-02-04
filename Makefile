@@ -23,7 +23,3 @@ checklicense:
 		else \
 			echo "Check License finished successfully"; \
 		fi
-
-.PHONY: package
-package:
-	./node_modules/vsce/vsce package --yarn
