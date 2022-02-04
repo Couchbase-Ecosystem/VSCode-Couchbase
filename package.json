@@ -119,10 +119,6 @@
         {
           "command": "vscode-couchbase.removeDocument",
           "when": "false"
-        },
-        {
-          "command": "vscode-couchbase.useClusterConnection",
-          "when": "false"
         }
       ],
       "editor/context": [],
