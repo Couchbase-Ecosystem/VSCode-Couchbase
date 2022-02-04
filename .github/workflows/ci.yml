@@ -25,19 +25,19 @@ jobs:
     - name: Install
       run: npm install
 
-    - name: Compile
-      working-directory: ${{ github.workspace }}/scripts
-      run: node rebuildElectron.js
-
     - name: which openssl
       run: which openssl
 
-    - name: Save Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ matrix.folder_name }}
-        path: ${{ github.workspace }}/build
-        retention-days: 1
+    # - name: Compile
+    #   working-directory: ${{ github.workspace }}/scripts
+    #   run: node rebuildElectron.js
+
+    # - name: Save Artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: ${{ matrix.folder_name }}
+    #     path: ${{ github.workspace }}/build
+    #     retention-days: 1
 
   publish:
     name: Publish
