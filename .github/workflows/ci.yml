@@ -33,7 +33,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.folder_name }}
-        path: ${{ github.workspace }}/out/${{ matrix.folder_name }}
+        path: ${{ github.workspace }}/build
         retention-days: 1
 
   publish:
