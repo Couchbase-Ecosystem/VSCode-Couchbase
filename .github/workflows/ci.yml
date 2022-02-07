@@ -29,7 +29,9 @@ jobs:
 
     - name: Compile
       working-directory: ${{ github.workspace }}
-      run: npm run build-native
+      run: |
+        npm install
+        npm run build-native
 
     - name: Save Artifact
       uses: actions/upload-artifact@v2
