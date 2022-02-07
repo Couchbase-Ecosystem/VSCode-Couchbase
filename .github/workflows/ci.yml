@@ -23,6 +23,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+    - name: Get OpenSSL version
+      run: openssl version
+
     - uses: actions/checkout@v2
 
     - name: Install OpenSSL on Windows (vcpkg)
