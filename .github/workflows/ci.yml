@@ -22,29 +22,29 @@ jobs:
         path: ${{ github.workspace }}/build/couchbase_impl.node
         retention-days: 1
 
-  macos:
-    name: Rebuild native module for MacOS
-    runs-on: macos-latest
-    steps:
-    - run: |
-      rm -rf /usr/local/Cellar/openssl
-      ln -sf /usr/local/Cellar/openssl@1.1/1.1.1g /usr/local/opt/openssl
-      ln -sf /usr/local/Cellar/openssl@1.1/1.1.1g/bin/openssl /usr/local/bin/openssl
+  # macos:
+  #   name: Rebuild native module for MacOS
+  #   runs-on: macos-latest
+  #   steps:
+  #   - run: |
+  #     rm -rf /usr/local/Cellar/openssl
+  #     ln -sf /usr/local/Cellar/openssl@1.1/1.1.1g /usr/local/opt/openssl
+  #     ln -sf /usr/local/Cellar/openssl@1.1/1.1.1g/bin/openssl /usr/local/bin/openssl
       
-    - uses: actions/checkout@v2
+  #   - uses: actions/checkout@v2
 
-    - name: Compile
-      working-directory: ${{ github.workspace }}
-      run: |
-        npm install
-        npm run build-native
+  #   - name: Compile
+  #     working-directory: ${{ github.workspace }}
+  #     run: |
+  #       npm install
+  #       npm run build-native
 
-    - name: Save Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: Darwin
-        path: ${{ github.workspace }}/build/couchbase_impl.node
-        retention-days: 1
+  #   - name: Save Artifact
+  #     uses: actions/upload-artifact@v2
+  #     with:
+  #       name: Darwin
+  #       path: ${{ github.workspace }}/build/couchbase_impl.node
+  #       retention-days: 1
 
   windows:
     name: Rebuild native modules for Windows
