@@ -37,7 +37,7 @@ export class ClusterConnectionNode implements INode {
     return {
       label: this.isActive ? `${this.id}` : this.id,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      contextValue: "connection",
+      contextValue: this.isActive ? "active_connection" : "connection",
       iconPath: {
         light: path.join(__filename, "..", "..", "images", this.isActive ? "": "light", "cb-logo-icon.svg"),
         dark: path.join(__filename, "..", "..", "images", this.isActive ? "": "dark", "cb-logo-icon.svg"),

@@ -147,7 +147,7 @@
         },
         {
           "command": "vscode-couchbase.disconnectClusterConnection",
-          "when": "view == couchbase && viewItem == connection"
+          "when": "view == couchbase && viewItem == active_connection"
         },
         {
           "command": "vscode-couchbase.createDocument",
