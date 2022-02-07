@@ -66,17 +66,17 @@ jobs:
         name: Linux
         path: ${{ github.workspace }}/compiled/14.16.0/linux/x64
 
-    - name: Retrieve macOS Artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: Darwin
-        path: ${{ github.workspace }}/compiled/14.16.0/darwin/x64
+    # - name: Retrieve macOS Artifact
+    #   uses: actions/download-artifact@v2
+    #   with:
+    #     name: Darwin
+    #     path: ${{ github.workspace }}/compiled/14.16.0/darwin/x64
 
-    - name: Retrieve Windows Artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: Windows
-        path: ${{ github.workspace }}/compiled/14.16.0/windows/x64
+    # - name: Retrieve Windows Artifact
+    #   uses: actions/download-artifact@v2
+    #   with:
+    #     name: Windows
+    #     path: ${{ github.workspace }}/compiled/14.16.0/windows/x64
 
     - name: Package
       run: |
