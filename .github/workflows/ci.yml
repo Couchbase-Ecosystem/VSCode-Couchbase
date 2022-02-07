@@ -7,7 +7,7 @@ jobs:
     name: Build Native Dependencies
     strategy:
       matrix:
-        kind: ['linux', 'macos', 'windows']
+        kind: ['linux', 'macos']
         include:
           - kind: linux
             os: ubuntu-latest
