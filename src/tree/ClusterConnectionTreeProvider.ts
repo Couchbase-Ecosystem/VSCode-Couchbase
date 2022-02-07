@@ -48,7 +48,11 @@ export default class ClusterConnectionTreeProvider
     if (connections) {
       for (const id of Object.keys(connections)) {
         const connection = connections[id];
-        connectionNodes.push(new ClusterConnectionNode(id, connection));
+        let indetifer = connection.connectionIdentifier;
+        if (!indetifer) {
+          indetifer = id;
+        }
+        connectionNodes.push(new ClusterConnectionNode(indetifer, connection));
       }
     }
     return connectionNodes;
