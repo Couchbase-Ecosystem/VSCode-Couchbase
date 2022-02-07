@@ -17,11 +17,7 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
-import { AxiosRequestConfig } from "axios";
-import { ENDPOINTS } from "../util/endpoints";
 import CollectionNode from "./CollectionNode";
-
-const axios = require("axios").default;
 
 export class ScopeNode implements INode {
   constructor(
@@ -49,21 +45,9 @@ export class ScopeNode implements INode {
 
     for (const collection of this.collections) {
       try {
-        const options: AxiosRequestConfig = {
-          auth: {
-            username: this.connection.username,
-            password: this.connection.password ? this.connection.password : "",
-          },
-        };
-
         const queryResult = await this.connection.cluster?.query(`select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\`;`);
         const count = queryResult?.rows[0].count;
 
-        // TODO: use query to get doc IDs
-        const documentResponse = await axios.get(
-          `${this.connection.url}${ENDPOINTS.GET_POOLS}/${this.bucketName}/scopes/${this.scopeName}/collections/${collection.name}/docs`,
-          options
-        );
         const collectionTreeItem = new CollectionNode(
           this.connection,
           this.scopeName,

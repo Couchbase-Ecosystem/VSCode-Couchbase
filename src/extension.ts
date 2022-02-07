@@ -21,8 +21,7 @@ import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
-import { addConnection, useConnection } from "./util/connections";
-import { Constants } from "./util/constants";
+import { addConnection, getActiveConnection, getConnectionId, removeConnection, setActiveConnection, useConnection } from "./util/connections";
 import { MemFS } from "./util/fileSystemProvider";
 import { Global, Memory, WorkSpace } from "./util/util";
 
@@ -44,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
       if (document.languageId === "json" && document.uri.scheme === "couchbase") {
-        const activeConnection = Memory.state.get<IConnection>("activeConnection");
+        const activeConnection = getActiveConnection();
         if (!activeConnection) {
           return;
         }
@@ -89,16 +88,9 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.deleteClusterConnection",
-      async (connection: ClusterConnectionNode | undefined) => {
-        if (connection) {
-          await connection.deleteConnection(
-            context,
-            clusterConnectionTreeProvider
-          );
-          clusterConnectionTreeProvider.refresh();
-          return;
-        }
-        Global.state.update(Constants.connectionKeys, {});
+      async (node: ClusterConnectionNode) => {
+        await removeConnection(node.connection);
+        clusterConnectionTreeProvider.refresh();
       }
     )
   );
@@ -115,15 +107,23 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.useClusterConnection",
-      async (connection: ClusterConnectionNode) => {
-        await useConnection(connection);
-        clusterConnectionTreeProvider.refresh(connection);
-        const previousConnection =
-          Memory.state.get<INode>("previousConnection");
-        if (previousConnection) {
-          clusterConnectionTreeProvider.refresh(previousConnection);
+      async (node: ClusterConnectionNode) => {
+        await useConnection(node.connection);
+        clusterConnectionTreeProvider.refresh(node);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.disconnectClusterConnection",
+      async (node: ClusterConnectionNode) => {
+        if (!node.isActive) {
+          return;
         }
-        Memory.state.update("previousConnection", connection);
+        node.connection.cluster = undefined;
+        setActiveConnection();
+        clusterConnectionTreeProvider.refresh(node);
       }
     )
   );
