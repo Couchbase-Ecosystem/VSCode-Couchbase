@@ -44,7 +44,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.folder_name }}
-        path: ${{ github.workspace }}/out/${{ matrix.folder_name }}
+        path: ${{ github.workspace }}/build/couchbase_impl.node
         retention-days: 1
 
   publish:
