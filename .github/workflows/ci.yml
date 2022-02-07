@@ -30,6 +30,13 @@ jobs:
       run: vcpkg install openssl:x64-windows
       shell: cmd
 
+    - name: Setup OpenSSL links on MacOS
+      if: startsWith(matrix.os, 'macos')
+      run: |
+        rm -rf /usr/local/Cellar/openssl
+        ln -sf /usr/local/Cellar/openssl@1.1/1.1.1g /usr/local/opt/openssl
+        ln -sf /usr/local/Cellar/openssl@1.1/1.1.1g/bin/openssl /usr/local/bin/openssl
+
     - name: Setup Node v14
       uses: actions/setup-node@v2
       with:
