@@ -1,8 +1,10 @@
 # Change Log
 
-All notable changes to the "vscode-couchbase" extension will be documented in this file.
+## [v0.2.0]
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+- Refactor connection management, fix cluster connection state & commands (#52)
+- Integrate Couchbae Node SDK (#50)
+- Add make command for packaging extension (#48)
 
 ## [v0.1.1]
 
