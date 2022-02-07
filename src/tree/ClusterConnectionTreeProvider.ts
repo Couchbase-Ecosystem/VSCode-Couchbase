@@ -14,13 +14,9 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
-import * as keytar from "keytar";
-import { IConnection } from "../model/IConnection";
-import { Constants } from "../util/constants";
-import { Global, Memory } from "../util/util";
 import { INode } from "../model/INode";
 import { ClusterConnectionNode } from "../model/ClusterConnectionNode";
-import { Cluster } from "couchbase";
+import { getConnections } from "../util/connections";
 
 export default class ClusterConnectionTreeProvider
   implements vscode.TreeDataProvider<INode>
@@ -37,7 +33,7 @@ export default class ClusterConnectionTreeProvider
   }
   getChildren(element?: INode): vscode.ProviderResult<INode[]> {
     if (!element) {
-      return this.getActiveConnections();
+      return this.getConnections();
     }
     return element.getChildren();
   }
@@ -46,29 +42,17 @@ export default class ClusterConnectionTreeProvider
     this._onDidChangeTreeData.fire(element);
   }
 
-  private async getActiveConnections(): Promise<ClusterConnectionNode[]> {
-    const connections = Global.state.get<{ [key: string]: IConnection }>(
-      Constants.connectionKeys
-    );
+  private async getConnections(): Promise<ClusterConnectionNode[]> {
+    const connections = getConnections();
     const connectionNodes = [];
     if (connections) {
       for (const id of Object.keys(connections)) {
-        const password =
-          (await keytar.getPassword(Constants.extensionID, id)) || "";
-        let connection = {
-          ...connections[id],
-          password,
-        };
-        connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: connection.password });
-        const connectionNode = new ClusterConnectionNode(id, connection);
-        connectionNodes.push(connectionNode);
-        const activeConnection = Memory.state.get("activeConnection");
-        if (!activeConnection) {
-          vscode.commands.executeCommand(
-            "vscode-couchbase.useClusterConnection",
-            connectionNode
-          );
+        const connection = connections[id];
+        let indetifer = connection.connectionIdentifier;
+        if (!indetifer) {
+          indetifer = id;
         }
+        connectionNodes.push(new ClusterConnectionNode(indetifer, connection));
       }
     }
     return connectionNodes;

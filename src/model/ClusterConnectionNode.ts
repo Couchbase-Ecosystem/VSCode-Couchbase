@@ -15,85 +15,43 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import * as keytar from "keytar";
-
-import { Memory } from "../util/util";
 
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
-import { Constants } from "../util/constants";
-import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
 import { BucketNode } from "./BucketNode";
-import { ENDPOINTS } from "../util/endpoints";
-
-import get, { AxiosRequestConfig } from "axios";
 import { BucketSettings } from "couchbase";
+import { getActiveConnection } from "../util/connections";
 
 export class ClusterConnectionNode implements INode {
   constructor(
-    private readonly id: string,
-    private readonly connection: IConnection
+    public readonly id: string,
+    public readonly connection: IConnection
   ) {}
-  public connectToNode() {
-    const connection = { ...this.connection };
-    Memory.state.update("activeConnection", connection);
-    return this.id;
-  }
+
+  public isActive: Boolean = false;
 
   public getTreeItem(): vscode.TreeItem {
-    let id = `${this.connection.connectionIdentifier}`;
-    if (!id) {
-      id = `${this.connection.username}@${this.connection.url.substring(this.connection.url.lastIndexOf("://") + 3)}`;
-    }
+    const activeConnection = getActiveConnection();
+    this.isActive = this.connection.connectionIdentifier === activeConnection?.connectionIdentifier;
 
-    const activeConnection = Memory.state.get<IConnection>("activeConnection");
     return {
-      label: this.equalsConnection(activeConnection) ? `${id}` : id,
-      collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      contextValue: "connection",
+      label: this.isActive ? `${this.id}` : this.id,
+      collapsibleState: vscode.TreeItemCollapsibleState.Expanded,
+      contextValue: this.isActive ? "active_connection" : "connection",
       iconPath: {
-        light: path.join(__filename, "..", "..", "images", this.equalsConnection(activeConnection) ? "": "light", "cb-logo-icon.svg"),
-        dark: path.join(__filename, "..", "..", "images", this.equalsConnection(activeConnection) ? "": "dark", "cb-logo-icon.svg"),
+        light: path.join(__filename, "..", "..", "images", this.isActive ? "": "light", "cb-logo-icon.svg"),
+        dark: path.join(__filename, "..", "..", "images", this.isActive ? "": "dark", "cb-logo-icon.svg"),
       }
     };
   }
 
-  private equalsConnection(activeConnection: IConnection | undefined): Boolean {
-    if (!activeConnection) {
-      return false;
-    }
-    if (this.connection.url !== activeConnection.url) {
-      return false;
-    }
-    if (this.connection.username !== activeConnection.username) {
-      return false;
-    }
-    return true;
-  }
-
   public async getChildren(): Promise<INode[]> {
-    let isScopesandCollections = true;
-    try {
-      const options: AxiosRequestConfig = {
-        auth: {
-          username: this.connection.username,
-          password: this.connection.password ? this.connection.password : "",
-        },
-      };
-
-      const clusterResponse = await get(
-        `${this.connection.url}${ENDPOINTS.GET_CLUSTER}`,
-        options
-      );
-      if (parseInt(clusterResponse.data.implementationVersion[0]) <= 6) {
-        isScopesandCollections = false;
-      }
-    } catch (err: any) {
-      console.log(err);
-      throw new Error(err);
-    }
-
     const nodes: INode[] = [];
+    if (!this.isActive) {
+      return nodes;
+    }
+    // only support CB 7.0 for now
+    let isScopesandCollections = true;
     try {
       let buckets = await this.connection.cluster?.buckets().getAllBuckets();
       buckets?.forEach((bucket: BucketSettings) => {
@@ -110,22 +68,5 @@ export class ClusterConnectionNode implements INode {
     }
 
     return nodes;
-  }
-
-  public async deleteConnection(
-    context: vscode.ExtensionContext,
-    treeProvider: ClusterConnectionTreeProvider
-  ) {
-    const connections = context.globalState.get<{ [key: string]: IConnection }>(
-      Constants.connectionKeys
-    );
-    if (connections) {
-      delete connections[this.id];
-    }
-    await context.globalState.update(Constants.connectionKeys, connections);
-
-    await keytar.deletePassword(Constants.extensionID, this.id);
-
-    treeProvider.refresh();
   }
 }

@@ -27,6 +27,7 @@
     "onCommand:vscode-couchbase.refreshConnection",
     "onCommand:vscode-couchbase.deleteClusterConnection",
     "onCommand:vscode-couchbase.useClusterConnection",
+    "onCommand:vscode-couchbase.disconnectClusterConnection",
     "onCommand:vscode-couchbase.createDocument",
     "onCommand:vscode-couchbase.removeDocument",
     "onCommand:vscode-couchbase.refreshCollection",
@@ -79,6 +80,11 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.disconnectClusterConnection",
+        "title": "Disconnect Cluster",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.createDocument",
         "title": "Create Document",
         "category": "Couchbase"
@@ -109,6 +115,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.disconnectClusterConnection",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.refreshCollection",
           "when": "false"
         },
@@ -118,10 +128,6 @@
         },
         {
           "command": "vscode-couchbase.removeDocument",
-          "when": "false"
-        },
-        {
-          "command": "vscode-couchbase.useClusterConnection",
           "when": "false"
         }
       ],
@@ -138,6 +144,10 @@
         {
           "command": "vscode-couchbase.useClusterConnection",
           "when": "view == couchbase && viewItem == connection"
+        },
+        {
+          "command": "vscode-couchbase.disconnectClusterConnection",
+          "when": "view == couchbase && viewItem == active_connection"
         },
         {
           "command": "vscode-couchbase.createDocument",
