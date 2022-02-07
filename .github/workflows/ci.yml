@@ -3,21 +3,9 @@ name: Package VSCode Plugin
 on: [push]
 
 jobs:
-  prepare:
-    name: Build Native Dependencies
-    strategy:
-      matrix:
-        kind: ['linux', 'macos']
-        include:
-          - kind: linux
-            os: ubuntu-latest
-            folder_name: Linux
-          - kind: macos
-            os: macOS-latest
-            folder_name: Darwin
-
-    runs-on: ${{ matrix.os }}
-
+  linux:
+    name: Rebuild native module for Linux
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
 
@@ -30,14 +18,45 @@ jobs:
     - name: Save Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ matrix.folder_name }}
+        name: Linux
         path: ${{ github.workspace }}/build/couchbase_impl.node
         retention-days: 1
+
+  # prepare:
+  #   name: Build Native Dependencies
+  #   strategy:
+  #     matrix:
+  #       kind: ['linux', 'macos']
+  #       include:
+  #         - kind: linux
+  #           os: ubuntu-latest
+  #           folder_name: Linux
+  #         - kind: macos
+  #           os: macOS-latest
+  #           folder_name: Darwin
+
+  #   runs-on: ${{ matrix.os }}
+
+  #   steps:
+  #   - uses: actions/checkout@v2
+
+  #   - name: Compile
+  #     working-directory: ${{ github.workspace }}
+  #     run: |
+  #       npm install
+  #       npm run build-native
+
+  #   - name: Save Artifact
+  #     uses: actions/upload-artifact@v2
+  #     with:
+  #       name: ${{ matrix.folder_name }}
+  #       path: ${{ github.workspace }}/build/couchbase_impl.node
+  #       retention-days: 1
 
   publish:
     name: Publish
     runs-on: ubuntu-latest
-    needs: prepare
+    needs: linux
     steps:
     - uses: actions/checkout@v2
 
