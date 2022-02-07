@@ -1,9 +1,6 @@
 name: Package VSCode Plugin
 
-on:
-  push:
-    tags:
-      - "v*.*.*"
+on: [push]
 
 jobs:
   prepare:
