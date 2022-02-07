@@ -6,6 +6,7 @@ jobs:
   prepare:
     name: Build Native Dependencies
     strategy:
+      fail-fast: false
       matrix:
         kind: ['linux', 'macos', 'windows']
         include:
