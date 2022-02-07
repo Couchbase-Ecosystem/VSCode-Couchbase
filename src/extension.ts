@@ -109,7 +109,7 @@ export function activate(context: vscode.ExtensionContext) {
       "vscode-couchbase.useClusterConnection",
       async (node: ClusterConnectionNode) => {
         await useConnection(node.connection);
-        clusterConnectionTreeProvider.refresh(node);
+        clusterConnectionTreeProvider.refresh();
       }
     )
   );
