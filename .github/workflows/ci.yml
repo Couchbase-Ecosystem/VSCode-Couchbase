@@ -11,15 +11,12 @@ jobs:
         include:
           - kind: linux
             os: ubuntu-latest
-            script: build_native.sh
-            folder_name: Linux 
+            folder_name: Linux
           - kind: macos
             os: macOS-latest
-            script: build_native.sh
             folder_name: Darwin
           - kind: windows
             os: windows-latest
-            script: build_native.ps1
             folder_name: Windows
 
     runs-on: ${{ matrix.os }}
