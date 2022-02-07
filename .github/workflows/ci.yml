@@ -15,9 +15,6 @@ jobs:
           - kind: macos
             os: macOS-latest
             folder_name: Darwin
-          - kind: windows
-            os: windows-latest
-            folder_name: Windows
 
     runs-on: ${{ matrix.os }}
 
