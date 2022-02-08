@@ -23,30 +23,13 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Get OpenSSL version
-      run: openssl version
-
     - uses: actions/checkout@v2
-
-    - name: Install OpenSSL on Windows (vcpkg)
-      if: startsWith(matrix.os, 'windows')
-      run: vcpkg install openssl:x64-windows
-      shell: cmd
-
-    - name: Setup OpenSSL links on MacOS
-      if: startsWith(matrix.os, 'macos')
-      run: |
-        rm -rf /usr/local/Cellar/openssl
-        ln -sf /usr/local/Cellar/openssl@1.1/1.1.1g /usr/local/opt/openssl
-        ln -sf /usr/local/Cellar/openssl@1.1/1.1.1g/bin/openssl /usr/local/bin/openssl
-
-    - name: Setup Node v14
-      uses: actions/setup-node@v2
+    - uses: actions/setup-node@v2
       with:
         node-version: '14.16'
+        cache: 'npm'
 
-    - name: Compile
-      working-directory: ${{ github.workspace }}
+    - name: Compile native bindings
       run: |
         npm install
         npm run build-native
@@ -64,6 +47,10 @@ jobs:
     needs: prepare
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14.16'
+        cache: 'npm'
 
     - name: Retrieve Linux Artifact
       uses: actions/download-artifact@v2
@@ -71,7 +58,7 @@ jobs:
         name: Linux
         path: ${{ github.workspace }}/compiled/14.16.0/linux/x64
 
-    - name: Retrieve macOS Artifact
+    - name: Retrieve MacOS Artifact
       uses: actions/download-artifact@v2
       with:
         name: Darwin
