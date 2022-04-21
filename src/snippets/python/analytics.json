@@ -1,0 +1,22 @@
+{
+    "Create Analytics Query": {
+        "prefix": ["@cbanq"],
+        "body": ["try:","    result = ${1:cluster}.analytics_query(\"${2:SQL++ Query}\")","","    for row in result.rows():","        print(\"Found row: {}\".format(row))","","    print(\"Reported execution time: {}\".format(","        result.metadata().metrics().execution_time()))","","except CouchbaseException as ex:","    import traceback","    traceback.print_exc()"],
+        "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster."
+    },
+    "Analytics Query With Parameters": {
+        "prefix": ["@cbanparamq"],
+        "body": ["try:","    result = ${1:cluster}.analytics_query(\"${2:SQL++ Query}\"),","    #Keep one of the following 2 lines, depending on whether you want named or positional parameters.","    AnalyticsOptions(positional_parameters=[\"${3:value}\"])) # Positional Parameters","    ${4:name}=\"${5:value}\") # Named Parameters","","    for row in result.rows():","        print(\"Found row: {}\".format(row))","","    print(\"Reported execution time: {}\".format(","        result.metadata().metrics().execution_time()))","","except CouchbaseException as ex:","    import traceback","    traceback.print_exc()"],
+        "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster, this uses parameters."
+    },
+    "Analytics Query Example": {
+        "prefix": ["@cbanex"],
+        "body": ["from couchbase.cluster import Cluster, ClusterOptions","from couchbase.auth import PasswordAuthenticator","from couchbase.exceptions import CouchbaseException","","cluster = Cluster.connect(","    \"${1:connection-string}\",","    ClusterOptions(PasswordAuthenticator(\"${2:username}\", \"${3:password}\")))","","try:","    result = cluster.analytics_query(\"${4:SQL++ Query}\")","","    for row in result.rows():","        print(\"Found row: {}\".format(row))","","    print(\"Reported execution time: {}\".format(","        result.metadata().metrics().execution_time()))","","except CouchbaseException as ex:","    import traceback","    traceback.print_exc()"],
+        "description": "Example code that shows connecting to a cluster and running an analytics query on it."
+    },
+    "Analytics Query Import": {
+        "prefix": ["@cbanimp"],
+        "body": ["from couchbase.cluster import Cluster, ClusterOptions, AnalyticsOptions","from couchbase.auth import PasswordAuthenticator","from couchbase.exceptions import CouchbaseException","from couchbase.analytics import "],
+        "description": "Import all necessary Analytics namespaces."
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "Full Text Search": {
+        "prefix": ["@cbfts"],
+        "body": ["matchResult, err := ${1:cluster}.SearchQuery(","    \"${2:search-index}\",","    search.NewMatchQuery(\"${3:query-string}\"),",")","if err != nil {","    panic(err)","}","","for matchResult.Next() {","    //handle results","}","","// always check for errors after iterating","err = matchResult.Err()","if err != nil {","    panic(err)","}"],
+        "description": "Use a query string on the Full Text Search Service of your Couchbase Cluster."
+    },
+    "Full Text Search With all Options and Search Queries": {
+        "prefix": ["@cbftsopts"],
+        "body": ["matchResult, err := ${1:cluster}.SearchQuery(","    \"${2:search-index}\",","    search.${3|NewMatchQuery(match string),NewBooleanFieldQuery(val bool),NewConjunctionQuery(queries ...Query),NewDisjunctionQuery(queries ...Query),NewDocIDQuery(ids ...string),NewGeoBoundingBoxQuery(tlLon\\, tlLat\\, brLon\\, brLat float64),NewGeoDistanceQuery(lon\\, lat float64\\, distance string),NewGeoPolygonQuery(coords []Coordinate),NewMatchPhraseQuery(phrase string),NewMatchQuery(match string),NewPhraseQuery(terms ...string),NewPrefixQuery(prefix string),NewQueryStringQuery(query string),NewRegexpQuery(regexp string),NewSearchSortField(field string),NewTermRangeQuery(term string),NewWildcardQuery(wildcard string)|},","    &gocb.SearchOptions{","        Limit:  ${4:limit},","        Fields: ${5:[]string{string}},","        Facets: ${6:map[string]search.Facet{}},","        ConsistentWith: ${7:consistency},","","    },",")","if err != nil {","    panic(err)","}","","for matchResult.Next() {","    //handle results","}","","// always check for errors after iterating","err = matchResult.Err()","if err != nil {","    panic(err)","}"],
+        "description": "Create a FTS query that has all options shown to you."
+    },
+    "Full Text Search Import": {
+        "prefix": ["@cbftsimp"],
+        "body": ["import (","   \"fmt\"","  \"time\"","","  gocb \"github.com/couchbase/gocb/v2\"","    \"github.com/couchbase/gocb/v2/search\"",")"],
+        "description": "Import all necessary FTS namespaces"
+    },
+    "Full Text Search Example": {
+        "prefix": ["@cbftsex"],
+        "body": ["import (","   \"fmt\"","  \"time\"","","  gocb \"github.com/couchbase/gocb/v2\"","    \"github.com/couchbase/gocb/v2/search\"",")","cluster, err := gocb.Connect(","    \"${1:connectionString}\",","    gocb.ClusterOptions{","        Username: \"${2:username}\",","        Password: \"${3:password}\",","    })","if err != nil {","    panic(err)","}","","matchResult, err := cluster.SearchQuery(","    \"${4:search-index}\",","    search.NewMatchQuery(\"${5:query-string}\"),",")","if err != nil {","    panic(err)","}","","for matchResult.Next() {","    //handle results","}","","// always check for errors after iterating","err = matchResult.Err()","if err != nil {","    panic(err)","}"],
+        "description": "Example code that shows connecting to a cluster and running an FTS query on it."
+    }
+}
