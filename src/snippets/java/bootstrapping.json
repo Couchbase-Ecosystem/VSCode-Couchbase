@@ -6,7 +6,7 @@
     },
     "Connect to Cluster with TLS": {
         "prefix": ["@cbcontls"],
-        "body": ["import com.couchbase.client.java.*;","","ClusterEnvironment env = ClusterEnvironment.builder()","    .securityConfig(SecurityConfig.enableTls(true).trustCertificate(Paths.get(\"${1:/path/to/cluster.cert}\"))).build();","","Cluster ${2:cluster} = Cluster.connect({${3:connectionString},","    ClusterOptions.clusterOptions(${4:username}, ${5:password}).environment(env));","","// get a bucket reference","Bucket ${6:bucket} = ${2:cluster}.bucket(${7:bucketName});","","// get a user defined collection reference","Scope ${8:scope} = ${6:bucket}.scope(${9:scopeName});","Collection ${10:collection} = ${8:scope}.collection(${11:collectionName});"],
+        "body": ["import com.couchbase.client.java.*;","","Cluster ${1:cluster} = Cluster.connect(${2:connectionString},","    ClusterOptions.clusterOptions(${4:username}, ${5:password})","        .environment(env -> {","            env.securityConfig(SecurityConfig","                .enableTls(true)","                .trustCertificate(Paths.get(\"${6:/path/to/certificate.pem}\"))","            );","        }));","","// get a bucket reference","Bucket ${7:bucket} = ${1:cluster}.bucket(${8:bucketName});","","// get a user defined collection reference","Scope ${9:scope} = ${7:bucket}.scope(${10:scopeName});","Collection ${11:collection} = ${9:scope}.collection(${12:collectionName});"],
         "description": "Connect to a cluster using TLS and get a reference to it, a bucket, and a collection."
     },
     "Connect to Cluster DNS SRV": {

@@ -1,7 +1,7 @@
 {
     "Sub Doc Get": {
         "prefix": ["@cbsubget"],
-        "body": ["try {","    LookupInResult result = ${1:collection}.lookupIn(\"${2:document-key}\",","        Arrays.asList(get(\"${3:path}\")), exists(\"${4:path}\")));","} catch (PathNotFoundException e) {","    System.out.println(\"combine: \" + e);","}"],
+        "body": ["try {","    LookupInResult result = ${1:collection}.lookupIn(\"${2:document-key}\",","        Arrays.asList(get(\"${3:path}\")), exists(\"${4:path}\"));","} catch (PathNotFoundException e) {","    System.out.println(\"combine: \" + e);","}"],
         "description": "Get or check the existence of a sub document value by providing document key and path."
     },
     "Sub Doc Upsert": {
