@@ -1,0 +1,32 @@
+{
+    "Create SQL++ Query": {
+        "prefix": ["@cbq"],
+        "body": ["try:","    result = ${1:cluster}.query(","        \"${2:SQL++ Query}\",","        QueryOptions(","            scan_consistency = QueryScanConsistency.REQUEST_PLUS,","            read_only = False,","            metrics = True","            ))","","    for row in result.rows():","        print(\"Found row: {}\".format(row))","","    print(\"Report execution time: {}\".format(","        result.metadata().metrics().execution_time()))","","except CouchbaseException as ex:","    import traceback","    traceback.print_exc()"],
+        "description": "Use SQL++ to Query the Couchbase Cluster."
+    },
+    "SQL++ Query With all Options": {
+        "prefix": ["@cbqopts"],
+        "body": ["try:","    result = ${1:cluster}.query(","        \"${2:SQL++ Query}\",","        QueryOptions(","            scan_consistency = ,","            client_context_id = ,","            positional_parameters = ,","            named_parameters = ,","            priority = ,","            raw = ,","            read_only = ,","            adhoc = ,","            consistent_with = ,","            max_parallelism = ,","            metrics = True,","            pipeline_batch = ,","            pipeline_cap = ,","            profile = ,","            scan_wait = ,","            scan_cap = ,","            query_context = ","            ))","","    for row in result.rows():","        print(\"Found row: {}\".format(row))","","    print(\"Report execution time: {}\".format(","        result.metadata().metrics().execution_time()))","","except CouchbaseException as ex:","    import traceback","    traceback.print_exc()"],
+        "description": "Use SQL++ to Query the Couchbase Cluster, this has all options available."
+    },
+    "SQL++ Query With Parameters": {
+        "prefix": ["@cbqparam"],
+        "body": ["try:","    result = ${1:cluster}.query(","        \"${2:SQL++ Query}\", ","        QueryOptions(","            metrics=True,","            named_parameters={\"${3:name}\": \"${4:value}\"},","            positional_parameters = [\"${5:value}\"],","            ))","","    for row in result.rows():","        print(\"Found row: {}\".format(row))","","    print(\"Report execution time: {}\".format(","        result.metadata().metrics().execution_time()))","","except CouchbaseException as ex:","    import traceback","    traceback.print_exc()"],
+        "description": "Use parameterised SQL++ to query the Couchbase Cluster."
+    },
+    "SQL++ Query with FTS": {
+        "prefix": ["@cbqfts"],
+        "body": ["try:","    result = ${1:cluster}.query(","        \"${2:SELECT ... FROM ... USE INDEX (USING FTS) WHERE ...}\", QueryOptions(","            metrics=True,","            flex_index=True          ","            ))","","    for row in result.rows():","        print(\"Found row: {}\".format(row))","","    print(\"Report execution time: {}\".format(","        result.metadata().metrics().execution_time()))","","except CouchbaseException as ex:","    import traceback","    traceback.print_exc()"],
+        "description": "Use SQL++ to query the Couchbase Cluster with full text search."
+    },
+    "SQL++ Query Import": {
+        "prefix": ["@cbqimp"],
+        "body": ["import uuid","from couchbase.mutation_state import MutationState","from couchbase.cluster import QueryScanConsistency","from couchbase.cluster import Cluster, ClusterOptions, QueryOptions","from couchbase.auth import PasswordAuthenticator","from couchbase.exceptions import CouchbaseException"],
+        "description": "Import all necessary query namespaces"
+    },
+    "SQL++ Query Example": {
+        "prefix": ["@cbqex"],
+        "body": ["from couchbase.cluster import Cluster, ClusterOptions, QueryOptions","from couchbase.auth import PasswordAuthenticator","from couchbase.exceptions import CouchbaseException","","cluster = Cluster.connect(","    \"${1:connection-string}\",","    ClusterOptions(PasswordAuthenticator(\"${2:username}\", \"${3:password}\")))","","try:","    result = cluster.query(","        \"${4:SQL++ Query}\", QueryOptions(metrics=True))","","    for row in result.rows():","        print(\"Found row: {}\".format(row))","","    print(\"Report execution time: {}\".format(","        result.metadata().metrics().execution_time()))","","except CouchbaseException as ex:","    import traceback","    traceback.print_exc()"],
+        "description": "Example code that shows connecting to a cluster and running a query on it."
+    }
+}

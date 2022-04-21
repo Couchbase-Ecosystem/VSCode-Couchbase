@@ -1,0 +1,32 @@
+{
+    "Create SQL++ Query": {
+        "prefix": ["@cbq"],
+        "body": ["QueryOptions qo = QueryOptions.queryOptions();","qo.readonly(false);","qo.metrics(true);","qo.scanConsistency(QueryScanConsistency.REQUEST_PLUS);","","try {","    final QueryResult result = ${18:cluster}.query(\"${19:SQL++ Query}\", qo );","","    for (JsonObject row : result.rowsAsObject()) {","        System.out.println(\"Found row: \" + row);","    }","","    System.out.println(\"Reported execution time: \" + result.metaData().metrics().get().executionTime());","} catch (CouchbaseException ex) {","    ex.printStackTrace();","}"],
+        "description": "Use SQL++ to query the Couchbase Cluster."
+    },
+    "SQL++ Query With all Options": {
+        "prefix": ["@cbqopts"],
+        "body": ["QueryOptions qo = QueryOptions.queryOptions();","qo.clientContextId(${1:String});","qo.parameters(${2:JsonArray});","qo.parameters(${3:JsonObject});","qo.priority(${4:boolean});","qo.raw(${5:String, Object});","qo.readonly(${6:boolean});","qo.adhoc(${7:boolean});","qo.consistentWith(${8:MutationState});","qo.maxParallelism(${9:int});","qo.metrics(${10:boolean});","qo.pipelineBatch(${11:int});","qo.pipelineCap(${12:int});","qo.profile(${13:QueryProfile});","qo.scanWait(${14:Duration});","qo.scanCap(${15:int});","qo.scanConsistency(${16:QueryScanConsistency});","qo.serializer(${17:JsonSerializer});","","try {","    final QueryResult result = ${18:cluster}.query(\"${19:SQL++ Query}\", qo );","","    for (JsonObject row : result.rowsAsObject()) {","        System.out.println(\"Found row: \" + row);","    }","","    System.out.println(\"Reported execution time: \" + result.metaData().metrics().get().executionTime());","} catch (CouchbaseException ex) {","    ex.printStackTrace();","}"],
+        "description": "Use SQL++ to query the Couchbase Cluster, this has all options available."
+    },
+    "SQL++ Query With Parameters": {
+        "prefix": ["@cbqparam"],
+        "body": ["try {","    QueryResult result = ${1:cluster}.query(","        \"${2:SQL++ Query}\",","        //Keep one of the following 2 lines, depending on whether you want named or positional parameters.","        queryOptions().parameters(JsonObject.create().put(\"${3:name}\", \"${4:value}\"))); //Named Parameters","        queryOptions().parameters(JsonArray.from(\"${5:value}\"))); //Positional Parameters","","    for (JsonObject row : result.rowsAsObject()) {","        System.out.println(\"Found row: \" + row);","    }","","    System.out.println(\"Reported execution time: \" + result.metaData().metrics().get().executionTime());","} catch (CouchbaseException ex) {","    ex.printStackTrace();","}"],
+        "description": "Use parameterised SQL++ to query the Couchbase Cluster."
+    },
+    "SQL++ Query with FTS": {
+        "prefix": ["@cbqfts"],
+        "body": ["try {","    QueryResult result = ${1:cluster}.query(","        \"${2:SELECT ... FROM ... USE INDEX (USING FTS) WHERE ...}\",","        queryOptions().flexIndex(true));","","    for (JsonObject row : result.rowsAsObject()) {","        System.out.println(\"Found row: \" + row);","    }","","    System.out.println(\"Reported execution time: \" + result.metaData().metrics().get().executionTime());","} catch (CouchbaseException ex) {","    ex.printStackTrace();","}"],
+        "description": "Use SQL++ to query the Couchbase Cluster with full text search."
+    },
+    "SQL++ Query Import": {
+        "prefix": ["@cbqimp"],
+        "body": ["import static com.couchbase.client.java.query.QueryOptions.queryOptions;","","import java.util.UUID;","import java.util.concurrent.atomic.AtomicInteger;","","import com.couchbase.client.core.error.CouchbaseException;","import com.couchbase.client.java.Bucket;","import com.couchbase.client.java.Cluster;","import com.couchbase.client.java.Collection;","import com.couchbase.client.java.Scope;","import com.couchbase.client.java.json.JsonArray;","import com.couchbase.client.java.json.JsonObject;","import com.couchbase.client.java.kv.MutationResult;","import com.couchbase.client.java.kv.MutationState;","import com.couchbase.client.java.query.QueryOptions;","import com.couchbase.client.java.query.QueryResult;","import com.couchbase.client.java.query.QueryScanConsistency;","import com.couchbase.client.java.query.ReactiveQueryResult;","","import org.reactivestreams.Subscription;","","import reactor.core.publisher.BaseSubscriber;","import reactor.core.publisher.Mono;"],
+        "description": "Import all necessary query namespaces."
+    },
+    "SQL++ Query Example": {
+        "prefix": ["@cbqex"],
+        "body": ["import static com.couchbase.client.java.query.QueryOptions.queryOptions;","import com.couchbase.client.core.error.CouchbaseException;","import com.couchbase.client.java.Cluster;","import com.couchbase.client.java.json.JsonObject;","import com.couchbase.client.java.query.QueryOptions;","import com.couchbase.client.java.query.QueryResult;","","Cluster cluster = Cluster.connect(\"${1:connectionString}\", \"${2:username}\", \"${3:password}\");","","try {","    final QueryResult result = cluster.query(\"${4:SQL++ Query}\",","        queryOptions().metrics(true));","","    for (JsonObject row : result.rowsAsObject()) {","        System.out.println(\"Found row: \" + row);","    }","","    System.out.println(\"Reported execution time: \" + result.metaData().metrics().get().executionTime());","} catch (CouchbaseException ex) {","    ex.printStackTrace();","}"],
+        "description": "Example code that shows connecting to a cluster and running a query on it."
+    }
+}

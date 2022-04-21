@@ -1,0 +1,32 @@
+{
+    "Transaction Example": {
+        "prefix": ["@cbtran"],
+        "body": ["import com.couchbase.client.core.transactions.events.IllegalDocumentStateEvent;","import com.couchbase.client.core.transactions.events.TransactionCleanupAttemptEvent;","import com.couchbase.client.core.transactions.events.TransactionCleanupEndRunEvent;","import com.couchbase.client.core.transactions.events.TransactionEvent;","import com.couchbase.client.core.transactions.log.CoreTransactionLogMessage;","import com.couchbase.client.java.transactions.TransactionKeyspace;","import com.couchbase.client.java.transactions.TransactionQueryOptions;","import com.couchbase.client.java.transactions.TransactionQueryResult;","import com.couchbase.client.java.transactions.TransactionResult;","import com.couchbase.client.java.transactions.config.TransactionsCleanupConfig;","import com.couchbase.client.java.transactions.config.TransactionsConfig;","import com.couchbase.client.java.transactions.config.TransactionsQueryConfig;","import com.couchbase.client.java.transactions.error.TransactionCommitAmbiguousException;","import com.couchbase.client.java.transactions.error.TransactionFailedException;","import com.couchbase.client.java.transactions.log.TransactionLogMessage;","","import static com.couchbase.client.java.transactions.config.SingleQueryTransactionOptions,singleQueryTransactionOptions;","import static com.couchbase.client.java.transactions.config.TransactionOptions.transactionOptions;","","public class ${1:className} {","","    Cluster cluster = Cluster.connect(${2:connectionString}, ${3:username}, ${4:password});","","    // get a bucket reference","    Bucket bucket = cluster.bucket(${5:bucketName});","","    // get a user defined collection reference","    Scope scope = bucket.scope(${6:scopeName});","    Collection collection = scope.collection(${7:collectionName});","","    try {","        var result = cluster.transactions().run((ctx) -> {","            // Getting documents:","            var doc = ctx.get(collection, \"${8:document-key}\");","        });","    } catch (TransactionCommitAmbiguousException e) {","        throw logCommitAmbiguousError(e);","    } catch (TransactionFailedException e) {","        throw logFailure(e);","    }","}"],
+        "description": "Example code that shows connecting to a cluster and running a transaction on it."
+    },
+    "Insert Transaction": {
+        "prefix": ["@cbtranins"],
+        "body": ["try {","    var result = ${1:cluster}.transactions().run((ctx) -> {","        // Inserting a doc:","        ctx.insert(${2:collection}, ${3:\"document-key\"}, ${4:json-document});","    });","} catch (TransactionCommitAmbiguousException e) {","    throw logCommitAmbiguousError(e);","} catch (TransactionFailedException e) {","    throw logFailure(e);","}"],
+        "description": "Perform a synchronous insertion transaction"
+    },
+    "Get Transaction": {
+        "prefix": ["@cbtranget"],
+        "body": ["try {","    var result = ${1:cluster}.transactions().run((ctx) -> {","        // Getting documents:","        var doc = ctx.get(${2:collection}, ${3:\"document-key\"});","    });","} catch (TransactionCommitAmbiguousException e) {","    throw logCommitAmbiguousError(e);","} catch (TransactionFailedException e) {","    throw logFailure(e);","}"],
+        "description": "Perform a synchronous get transaction"
+    },
+    "Replace Transaction": {
+        "prefix": ["@cbtranrep"],
+        "body": ["try {","    var result = ${1:cluster}.transactions().run((ctx) -> {","        // Replacing a doc:","        var doc = ctx.get(${2:collection}, ${3:\"document-key\"});","        ctx.replace(doc, ${4:json-document});","    });","} catch (TransactionCommitAmbiguousException e) {","    throw logCommitAmbiguousError(e);","} catch (TransactionFailedException e) {","    throw logFailure(e);","}"],
+        "description": "Perform a synchronous replace transaction"
+    },
+    "Remove Transaction": {
+        "prefix": ["@cbtranrem"],
+        "body": ["try {","    var result = ${1:cluster}.transactions().run((ctx) -> {","        // Removing a doc:","        var doc = ctx.get(${2:collection}, ${3:\"document-key\"});","        ctx.remove(doc);","    });","} catch (TransactionCommitAmbiguousException e) {","    throw logCommitAmbiguousError(e);","} catch (TransactionFailedException e) {","    throw logFailure(e);","}"],
+        "description": "Perform a synchronous remove transaction"
+    },
+    "Transaction Import": {
+        "prefix": ["@cbtranimp"],
+        "body": ["import com.couchbase.client.core.transactions.events.IllegalDocumentStateEvent;","import com.couchbase.client.core.transactions.events.TransactionCleanupAttemptEvent;","import com.couchbase.client.core.transactions.events.TransactionCleanupEndRunEvent;","import com.couchbase.client.core.transactions.events.TransactionEvent;","import com.couchbase.client.core.transactions.log.CoreTransactionLogMessage;","import com.couchbase.client.java.transactions.TransactionKeyspace;","import com.couchbase.client.java.transactions.TransactionQueryOptions;","import com.couchbase.client.java.transactions.TransactionQueryResult;","import com.couchbase.client.java.transactions.TransactionResult;","import com.couchbase.client.java.transactions.config.TransactionsCleanupConfig;","import com.couchbase.client.java.transactions.config.TransactionsConfig;","import com.couchbase.client.java.transactions.config.TransactionsQueryConfig;","import com.couchbase.client.java.transactions.error.TransactionCommitAmbiguousException;","import com.couchbase.client.java.transactions.error.TransactionFailedException;","import com.couchbase.client.java.transactions.log.TransactionLogMessage;","","import static com.couchbase.client.java.transactions.config.SingleQueryTransactionOptions,singleQueryTransactionOptions;","import static com.couchbase.client.java.transactions.config.TransactionOptions.transactionOptions;"],
+        "description": "Import all necessary transaction namespaces."
+    }
+}
