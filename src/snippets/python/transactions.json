@@ -1,6 +1,6 @@
 {
     "Transaction Example": {
-        "prefix": ["@cbtran"],
+        "prefix": ["@cbtranex"],
         "body": [],
         "description": "Example code that shows connecting to a cluster and running a transaction on it."
     },
