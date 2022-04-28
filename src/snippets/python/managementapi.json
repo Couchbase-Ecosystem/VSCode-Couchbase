@@ -1,7 +1,7 @@
 {
     "Create a Collection Manager": {
         "prefix": ["@cbcolman"],
-        "body": ["# needed for any cluster connection","from couchbase.cluster import Cluster, ClusterOptions","from couchbase.auth import PasswordAuthenticator","","# needed to support SQL++ query","from couchbase.cluster import QueryOptions","","# get a reference to our cluster","cluster = Cluster('${1:connection-string}', ClusterOptions(","    PasswordAuthenticator('${2:username}', '${3:password}')))","","# get a reference to our bucket","bucket = cluster.bucket('${4:bucket-name}')","","coll_manager = bucket.collections()","","collection_spec = CollectionSpec(","    \"${5:collection_name}\",","    scope_name=\"${6:scope_name}\")","","try:","    collection = coll_manager.create_collection(collection_spec)","except CollectionAlreadyExistsException as ex:","    print(ex)","except ScopeNotFoundException as ex:","    print(ex)"],
+        "body": ["coll_manager = ${1:bucket}.collections()","","collection_spec = CollectionSpec(","    \"${2:collection_name}\",","    scope_name=\"${3:scope_name}\")","","try:","    collection = coll_manager.create_collection(collection_spec)","except CollectionAlreadyExistsException as ex:","    print(ex)","except ScopeNotFoundException as ex:","    print(ex)"],
         "description": "Connect to a cluster, and create a collection manager."
     },
     "Create a Collection": {

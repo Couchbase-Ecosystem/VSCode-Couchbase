@@ -1,7 +1,7 @@
 {
     "Create a Collection Manager": {
         "prefix": ["@cbcolman"],
-        "body": ["import com.couchbase.client.java.*;","","Cluster cluster = Cluster.connect(\"${1:connectionString}\", \"${2:username}\", \"${3:password}\");","","// get a bucket reference","Bucket bucket = cluster.bucket(\"${4:bucketName}\");","","CollectionManager collectionMgr = bucket.collections();","","CollectionSpec spec = CollectionSpec.create(\"${5:collectionName}\", \"${6:scopeName}\");","","try {", "  collectionMgr.createCollection(spec);","}","catch (CollectionExistsException e) {","  System.out.println(\"Collection already exists\");","}","catch (ScopeNotFoundException e) {","  System.out.println(\"The specified parent scope doesn't exist\");", "}"],
+        "body": ["CollectionManager collectionMgr = ${1:bucket}.collections();","","CollectionSpec spec = CollectionSpec.create(\"${2:collectionName}\", \"${3:scopeName}\");","","try {", "  collectionMgr.createCollection(spec);","}","catch (CollectionExistsException e) {","  System.out.println(\"Collection already exists\");","}","catch (ScopeNotFoundException e) {","  System.out.println(\"The specified parent scope doesn't exist\");", "}"],
         "description": "Connect to a cluster, and create a collection manager."
     },
     "Create a Collection": {

@@ -1,7 +1,7 @@
 {
     "Create a Collection Manager": {
         "prefix": ["@cbcolman"],
-        "body": ["cluster, err := gocb.Connect(","    \"${1:connectionString}\",","    gocb.ClusterOptions{","        Username: \"${2:username}\",","        Password: \"${3:password}\",","    })","if err != nil {","    panic(err)","}","","// get a bucket reference","bucket := cluster.Bucket(\"${4:bucketName}\")","","// We wait until the bucket is definitely connected and setup.","err = bucket.WaitUntilReady(5*time.Second, nil)","if err != nil {","    panic(err)","}","","collections := bucket.Collections()", "","collection := gocb.CollectionSpec{","    Name:      \"${5:collectionName}\",","    ScopeName: \"${6:scopeName}\",","}","","err = collections.CreateCollection(collection, nil)","if err != nil {","    if errors.Is(err, gocb.ErrCollectionExists) {","        fmt.Println(\"Collection already exists\")","    } else {","        panic(err)","    }","}"],
+        "body": ["collections := ${1:bucket}.Collections()", "","collection := gocb.CollectionSpec{","    Name:      \"${2:collectionName}\",","    ScopeName: \"${3:scopeName}\",","}","","err = collections.CreateCollection(collection, nil)","if err != nil {","    if errors.Is(err, gocb.ErrCollectionExists) {","        fmt.Println(\"Collection already exists\")","    } else {","        panic(err)","    }","}"],
         "description": "Connect to a cluster, and create a collection manager."
     },
     "Create a Collection": {
