@@ -222,6 +222,23 @@ export function activate(context: vscode.ExtensionContext) {
       clusterConnectionTreeProvider.refresh(node);
     })
   );
+
+  //These are the snippets
+  const testSnippet = vscode.languages.registerCompletionItemProvider('python', {
+
+
+    provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
+
+      const snippetCompletion = new vscode.CompletionItem("@cbbabar");
+      snippetCompletion.insertText = new vscode.SnippetString('not good enough snippet\nline2\n${1:aaaj}');
+      const docs : any = new vscode.MarkdownString("Inserts a snippet that lets you select a.");
+      snippetCompletion.documentation = docs;
+      
+      return [snippetCompletion]
+
+  }})
+
+  subscriptions.push(testSnippet);
 }
 
 // this method is called when your extension is deactivated

@@ -33,7 +33,8 @@
     "onCommand:vscode-couchbase.refreshCollection",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
-    "onView:couchbase-activity-bar"
+    "onView:couchbase-activity-bar",
+    "onCustomEditor:vscode-couchbase.getConnectionID"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -97,6 +98,11 @@
       {
         "command": "vscode-couchbase.refreshCollection",
         "title": "Refresh Collection",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.getConnectionID",
+        "title": "Get Connection ID",
         "category": "Couchbase"
       }
     ],
