@@ -31,7 +31,7 @@
     },
     "Create an Index": {
         "prefix": ["@cbcrind"],
-        "body": ["queryManager := ${1:cluster}.QueryIndexes()","err := queryManager.CreateIndex(\"${2:bucketName}\" , \"${3:indexName}\" , ${4:fields []string}, ${5:opts *CreateQueryIndexOptions})","if err != nil {","    panic(err)","}"],
+        "body": ["queryManager := ${1:cluster}.QueryIndexes()","err := queryManager.CreateIndex(\"${2:bucketName}\" , \"${3:indexName}\" , ${4:[]string{string\\}}, ${5:&CreateQueryIndexOptions{\\}})","if err != nil {","    panic(err)","}"],
         "description": "Create a new index, this will create a new index manager."
     },
     "Create a User": {
