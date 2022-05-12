@@ -6,7 +6,7 @@
     },
     "Analytics Query With Parameters": {
         "prefix": ["@cbanparamq"],
-        "body": ["try:","    result = ${1:cluster}.analytics_query(\"${2:SQL++ Query}\"),","    #Keep one of the following 2 lines, depending on whether you want named or positional parameters.","    AnalyticsOptions(positional_parameters=[\"${3:value}\"])) # Positional Parameters","    ${4:name}=\"${5:value}\") # Named Parameters","","    for row in result.rows():","        print(\"Found row: {}\".format(row))","","    print(\"Reported execution time: {}\".format(","        result.metadata().metrics().execution_time()))","","except CouchbaseException as ex:","    import traceback","    traceback.print_exc()"],
+        "body": ["try:","    #Keep one of the following 2 sections, depending on whether you want named or positional parameters.","    result = ${1:cluster}.analytics_query(","        \"${2:SQL++ Query}\",","        ${3:name}=\"${4:value}\") # Named Parameters","        AnalyticsOptions(positional_parameters=[\"${4:value}\"])) # Positional Parameters","","        ","    for row in result.rows():","        print(\"Found row: {}\".format(row))","","    print(\"Reported execution time: {}\".format(","        result.metadata().metrics().execution_time()))","","except CouchbaseException as ex:","    import traceback","    traceback.print_exc()"],
         "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster, this uses parameters."
     },
     "Analytics Query Example": {
@@ -16,7 +16,7 @@
     },
     "Analytics Query Import": {
         "prefix": ["@cbanimp"],
-        "body": ["from couchbase.cluster import Cluster, ClusterOptions, AnalyticsOptions","from couchbase.auth import PasswordAuthenticator","from couchbase.exceptions import CouchbaseException","from couchbase.analytics import "],
+        "body": ["from couchbase.cluster import Cluster, ClusterOptions, AnalyticsOptions","from couchbase.auth import PasswordAuthenticator","from couchbase.exceptions import CouchbaseException","from couchbase.analytics import AnalyticsScanConsistency"],
         "description": "Import all necessary Analytics namespaces."
     }
 }
