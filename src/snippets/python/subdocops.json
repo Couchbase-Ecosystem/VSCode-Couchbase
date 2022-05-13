@@ -16,7 +16,7 @@
     },
     "Array Operations": {
         "prefix": ["@cbsubarrops"],
-        "body": ["#Append to an array","${1:collection}.mutate_in(","    \"${2:document-key}\", (SD.array_append(","                    \"${3:path}\", ${4:value})))","","#Prepend to an array","${1:collection}.mutate_in(","    \"${2:document-key}\", [","        SD.array_prepend(","            \"${5:path}\", ${6:value})])","","#Insert into an array","${1:collection}.mutate_in(\"${2:document-key}\", [SD.array_insert(\"${7:path[index]}\", \"${8:value}\")])"],
+        "body": ["# Append to an array","${1:collection}.mutate_in(","    \"${2:document-key}\", (SD.array_append(","        \"${3:path}\", ${4:value})))","","# Prepend to an array","${1:collection}.mutate_in(","    \"${2:document-key}\", [","        SD.array_prepend(","            \"${5:path}\", ${6:value})])","","# Insert into an array","${1:collection}.mutate_in(\"${2:document-key}\", [SD.array_insert(\"${7:path[index]}\", \"${8:value}\")])"],
         "description": "Example code showing different array operations."
     },
     "Sub Doc Upsert": {
@@ -26,7 +26,7 @@
     },
     "Array Append": {
         "prefix": ["@cbsubarrapp"],
-        "body": ["${1:collection}.mutate_in(","    \"${2:document-key}\", (SD.array_append(","                    \"${3:path}\", ${4:value})))"],
+        "body": ["${1:collection}.mutate_in(","    \"${2:document-key}\", (SD.array_append(","        \"${3:path}\", ${4:value})))"],
         "description": "Append a value to an existing array in a document."
     },
     "Array Prepend": {
