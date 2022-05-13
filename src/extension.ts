@@ -223,22 +223,33 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  //These are the snippets
+  //Start of snippets
   const testSnippet = vscode.languages.registerCompletionItemProvider('python', {
-
 
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
 
-      const snippetCompletion = new vscode.CompletionItem("@cbbabar");
-      snippetCompletion.insertText = new vscode.SnippetString('not good enough snippet\nline2\n${1:aaaj}');
-      const docs : any = new vscode.MarkdownString("Inserts a snippet that lets you select a.");
-      snippetCompletion.documentation = docs;
+      const snippetCompletion = new vscode.CompletionItem("cbbabar"); //This is the snippet prefix
+      
+      let connectionString : String = "default-connection-string";
+      const connection = Memory.state.get<IConnection>("activeConnection");
+
+      //If there is an active connection then it will use those connection values in the snippet
+      if (connection) {
+        let { url, username, connectionIdentifier } = connection;
+        connectionString = username+"@"+url;
+      }
+
+      //snippetCompletion.range = {inserting : {vscode.range.start(0), vscode.range.end(0)}, replacing : {start:0, end:0}}
+      snippetCompletion.insertText = new vscode.SnippetString("bootstrapping snippet\n${1:"+connectionString+"}"); //This is the snippet body
+      snippetCompletion.documentation = new vscode.MarkdownString("Inserts a snippet that lets you select a."); //This is the snippet description
       
       return [snippetCompletion]
 
-  }})
+  }},"@")
 
   subscriptions.push(testSnippet);
+  //End of snippets
+
 }
 
 // this method is called when your extension is deactivated
