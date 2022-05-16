@@ -11,7 +11,7 @@
     },
     "Full Text Search Import": {
         "prefix": ["@cbftsimp"],
-        "body": ["from couchbase.cluster import Cluster, ClusterOptions","from couchbase.auth import PasswordAuthenticator","from couchbase.exceptions import CouchbaseException","import couchbase.search as search"],
+        "body": ["from couchbase.cluster import Cluster","from couchbase.options import (ClusterOptions, ClusterTimeoutOptions, SearchOptions)","from couchbase.auth import PasswordAuthenticator","from couchbase.exceptions import CouchbaseException","import couchbase.search as search"],
         "description": "Import all necessary FTS namespaces"
     },
     "Full Text Search Example": {
