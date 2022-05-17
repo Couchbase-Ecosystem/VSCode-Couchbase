@@ -20,10 +20,10 @@ jobs:
         run: npm i -g vsce
         
       - name: Update release number
-        run: vsce package patch --out "releases/"
+        run: vsce package patch 
         
-      - name: Create package
-        run: vsce package --out "releases/"
+     # - name: Create package
+     #   run: vsce package --out "releases/"
         
-      - name: remove artifact file
-        run: rm releases/couchbase-sdk-snippets-patch.vsix
+     # - name: remove artifact file
+     #   run: rm releases/couchbase-sdk-snippets-patch.vsix
