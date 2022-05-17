@@ -6,7 +6,7 @@
     },
     "Analytics Query With Parameters": {
         "prefix": ["@cbanparamq"],
-        "body": ["try {","    final AnalyticsResult result = ${1:cluster}.analyticsQuery(","        \"${2:SQL++ Query}\",","        analyticsOptions().parameters(JsonArray.from(\"${3:parameters}\")) //keep this line for positional parameters","        analyticsOptions().parameters(JsonObject.create().put(${3:parameters}) //keep this line for named parameters","    );","","    for (JsonObject row : result.rowsAsObject()) {","        System.out.println(\"Found row: \" + row);","    }","","    System.out.println(\"Reported execution time: \"","        + result.metaData().metrics().executionTime());","","    System.out.println();","","} catch (CouchbaseException ex) {","    ex.printStackTrace();","}"],
+        "body": ["try {","    final AnalyticsResult result = ${1:cluster}.analyticsQuery(","        \"${2:SQL++ Query}\",","        analyticsOptions().parameters(JsonArray.from(\"${3:parameters}\")) //keep this line for positional parameters","        analyticsOptions().parameters(JsonObject.create().put(${3:parameters})) //keep this line for named parameters","    );","","    for (JsonObject row : result.rowsAsObject()) {","        System.out.println(\"Found row: \" + row);","    }","","    System.out.println(\"Reported execution time: \"","        + result.metaData().metrics().executionTime());","","    System.out.println();","","} catch (CouchbaseException ex) {","    ex.printStackTrace();","}"],
         "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster, this uses parameters."
     },
     "Analytics Query Example": {
