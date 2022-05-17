@@ -23,7 +23,9 @@ jobs:
      #   run: rm -f package-lock.json
         
       - name: Update release number
-        run: vsce package patch 
+        run: git config --global user.email "you@example.com"
+             git config --global user.name "Your Name"
+             vsce package patch 
         
      # - name: Create package
      #   run: vsce package --out "releases/"
