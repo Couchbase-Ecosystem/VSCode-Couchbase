@@ -29,7 +29,7 @@ jobs:
         run:  git config --global user.name "Your Name"
         
       - name: Update release number
-        run: vsce package patch 
+        run: vsce package patch --out "releases/"
         
      # - name: Create package
      #   run: vsce package --out "releases/"
