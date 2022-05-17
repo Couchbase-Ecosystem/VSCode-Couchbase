@@ -22,10 +22,14 @@ jobs:
      # - name: Delete package-lock.log file 
      #   run: rm -f package-lock.json
         
-      - name: Update release number
+      - name: git config email
         run: git config --global user.email "you@example.com"
-             git config --global user.name "Your Name"
-             vsce package patch 
+        
+      - name: Git config username
+        run:  git config --global user.name "Your Name"
+        
+      - name: Update release number
+        run: vsce package patch 
         
      # - name: Create package
      #   run: vsce package --out "releases/"
