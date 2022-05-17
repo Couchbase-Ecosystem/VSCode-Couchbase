@@ -19,8 +19,8 @@ jobs:
       - name: Install vsce
         run: npm i -g vsce
 
-      - name: Delete package-lock.log file 
-        run: rm -f package-lock.json
+     # - name: Delete package-lock.log file 
+     #   run: rm -f package-lock.json
         
       - name: Update release number
         run: vsce package patch 
