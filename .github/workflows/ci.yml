@@ -29,7 +29,12 @@ jobs:
         run:  git config --global user.name "Your Name"
         
       - name: Update release number
-        run: vsce package patch --out ${{ github.workspace }}
+        run: vsce package
+        
+      - name: Publish
+        uses: softprops/action-gh-release@v1
+        with:
+          files: "vscode-couchbase*"
         
      # - name: Create package
      #   run: vsce package --out "releases/"
