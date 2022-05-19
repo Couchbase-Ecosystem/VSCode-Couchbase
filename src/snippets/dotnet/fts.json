@@ -1,22 +1,22 @@
 {
     "Full Text Search": {
         "prefix": ["@cbfts"],
-        "body": ["try {","    var result = ${1:cluster}.SearchQuery(","        \"${2:search-index}\",","        new MatchQuery(\"${3:query-string}\"),","    );","","    foreach (var hit in result.Hits)","    {","        // handle results","    }","}","catch (CouchbaseException) {","    // handle exception","}"],
+        "body": ["try {","    var result = ${1:cluster}.SearchQueryAsync(","        \"${2:search-index}\",","        new MatchQuery(\"${3:query-string}\"),","    );","","    foreach (var hit in result.Hits)","    {","        // handle results","    }","}","catch (CouchbaseException) {","    // handle exception","}"],
         "description": "Use a query string on the Full Text Search Service of your Couchbase Cluster."
     },
-    "Full Text Search With all Options and Search Queries": {
+    "Full Text Search With common Options and Search Queries": {
         "prefix": ["@cbftsopts"],
-        "body": ["var result = ${1:cluster}.SearchQuery(","    \"${2:search-index}\",","    new ${3|ConjunctionQuery(params ISearchQuery[] queries),DisjunctionQuery(params ISearchQuery[] queries),GeoPolygonQuery(List<Coordinate> coordinates),TermRangeQuery(string term),BooleanFieldQuery(bool fieldMatch),DocIdQuery(params string[] docIds),MatchPhraseQuery(string matchPhrase),MatchQuery(string match),PhraseQuery(params string[] terms),PrefixQuery(string prefix),QueryStringQuery(string query),RegexpQuery(string regex),TermQuery(string term),WildcardQuery(string wildcard)|}),","    options => options.Limit(${4:10});","    options => options.WithConsistency(${5:ScanConsistency.RequestPlus});","",");"],
+        "body": ["var result = ${1:cluster}.SearchQueryAsync(","    \"${2:search-index}\",","    new ${3|ConjunctionQuery(params ISearchQuery[] queries),DisjunctionQuery(params ISearchQuery[] queries),GeoPolygonQuery(List<Coordinate> coordinates),TermRangeQuery(string term),BooleanFieldQuery(bool fieldMatch),DocIdQuery(params string[] docIds),MatchPhraseQuery(string matchPhrase),MatchQuery(string match),PhraseQuery(params string[] terms),PrefixQuery(string prefix),QueryStringQuery(string query),RegexpQuery(string regex),TermQuery(string term),WildcardQuery(string wildcard)|},","    options => {","        options.Limit(${4:10});","        options.ScanConsistency(${5:SearchScanConsistency.RequestPlus});","    }","",");"],
         "description": "Create a FTS query that has all options shown to you."
     },
     "Full Text Search Import": {
         "prefix": ["@cbftsimp"],
-        "body": ["using Couchbase;","using Couchbase.Fts;","using System.Threading.Tasks;","using System;","using System.Collections.Generic;"],
+        "body": ["using Couchbase;","using Couchbase.Search;","using System.Threading.Tasks;","using System;","using System.Collections.Generic;","using Couchbase.Search.Queries.Simple;"],
         "description": "Import all necessary FTS namespaces"
     },
     "Full Text Search Example": {
         "prefix": ["@cbftsex"],
-        "body": ["using Couchbase;","using Couchbase.Fts;","using System.Threading.Tasks;","using System;","using System.Collections.Generic;","","var cluster = await Cluster.ConnectAsync(\"${1:connection-string}\", \"${2:username}\", \"${3:password}\");","","try {","    var result = cluster.SearchQuery(","        \"${4:search-index}\",","        new MatchQuery(\"${5:query-string}\"),","    );","","    foreach (var hit in result.Hits)","    {","        // handle results","    }","}","catch (CouchbaseException) {","    // handle exception","}"],
+        "body": ["using Couchbase;","using Couchbase.Search.Queries.Simple;","","var cluster = await Cluster.ConnectAsync(\"${1:connection-string}\", \"${2:username}\", \"${3:password}\");","","try {","    var result = cluster.SearchQueryAsync(","        \"${4:search-index}\",","        new MatchQuery(\"${5:query-string}\")","    );","","    foreach (var hit in result.Hits)","    {","        // handle results","    }","}","catch (CouchbaseException) {","    // handle exception","}"],
         "description": "Example code that shows connecting to a cluster and running an FTS query on it."
     }
 }

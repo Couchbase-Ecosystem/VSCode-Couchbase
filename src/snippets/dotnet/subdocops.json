@@ -1,11 +1,11 @@
 {
     "Sub Doc Get": {
         "prefix": ["@cbsubget"],
-        "body": ["try {","    var result = await ${1:collection}.LookupInAsync(\"${2:document-key}\", specs => {","        specs.Get(\"${3:path}\");","        specs.Exists(\"${3:path}\");","    });","","    string content = result.ContentAs<string>(0);","    bool exists = result.ContentAs<bool>(1);","}","catch (DocumentNotFoundException) {","    // handle exception"],
+        "body": ["try {","    var result = await ${1:collection}.LookupInAsync(\"${2:document-key}\", specs => {","        specs.Get(\"${3:path}\");","        specs.Exists(\"${3:path}\");","    });","","    string content = result.ContentAs<string>(0);","    bool exists = result.ContentAs<bool>(1);","}","catch (DocumentNotFoundException) {","    // handle exception","}"],
         "description": "Get or check the existence of a sub document value by providing document key and path."
     },
     "Sub Doc Upsert": {
-        "prefix": ["@cbsubupsert"],
+        "prefix": ["@cbsubups"],
         "body": ["await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>","    specs.Upsert(\"${3:path}\", \"${4:value}\")",");"],
         "description": "Modify the value of an existing path or create it if it does not exist."
     },
@@ -16,7 +16,7 @@
     },
     "Sub Doc Remove": {
         "prefix": ["@cbsubrem"],
-        "body": ["try {","    await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs => {","        specs.Remove(\"${3:path}\");","    });","}","catch (DocumentDoesNotExistsException) {","    // handle exception","}"],
+        "body": ["try {","    await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs => {","        specs.Remove(\"${3:path}\");","    });","}","catch (DocumentNotFoundException) {","    // handle exception","}"],
         "description": "Remove the value of an existing path."
     },
     "Array Operations": {
