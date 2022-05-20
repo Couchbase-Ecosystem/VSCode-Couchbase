@@ -37,7 +37,6 @@ jobs:
       - name: Publish
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: "0.2.0"
           files: "vscode-couchbase*"
         
      # - name: Create package
