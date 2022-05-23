@@ -8,10 +8,5 @@
         "prefix": ["@cbcontls"],
         "body": ["const couchbase = require('couchbase')","","async function main() {","  const ${1:cluster} = await couchbase.connect('${2:connection-string}', {","    trustStorePath: '${3:/path/to/ca/certificates.pem}',","    username: '${4:Administrator}',","    password: '${5:password}',","  })","","  // get a reference to our bucket","  const ${6:bucket} = ${1:cluster}.bucket('${7:bucket-name}')","","  // get a reference to a collection","  const ${8:collection} = ${6:bucket}.scope('${9:scope-name}').collection('${10:collection-name}')","}"],
         "description": "Connect to a cluster using TLS and get a reference to it, a bucket, and a collection."
-    },
-    "Connect to Cluster DNS SRV": {
-        "prefix": ["@cbcondns"],
-        "body": ["const couchbase = require('couchbase')","","async function main() {","  const ${1:cluster} = await couchbase.connect('${2:couchbase://mysrvrecord.hostname.com}', {","    username: '${3:Administrator}',","    password: '${4:password}',","  })","","  // get a reference to our bucket","  const ${5:bucket} = ${1:cluster}.bucket('${6:bucket-name}')","","  // get a reference to a collection","  const ${7:collection} = ${5:bucket}.scope('${8:scope-name}').collection('${9:collection-name}')","}"],
-        "description": "Connect to a cluster using DNS SRV and get a reference to it, a bucket, and a collection."
     }
 }
