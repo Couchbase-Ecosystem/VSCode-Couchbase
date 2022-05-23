@@ -1,7 +1,7 @@
 {
     "Create Analytics Query": {
         "prefix": ["@cbanq"],
-        "body": ["results, err := cluster.AnalyticsQuery(\"${2:SQL++ Query}\", &gocb.AnalyticsOptions{","    ScanConsistency: gocb.QueryScanConsistency${4:RequestPlus},","})","if err != nil {","    panic(err)","}","","var output interface{}","for results.Next() {","    err := results.Row(&output)","    if err != nil {","        panic(err)","    }","    fmt.Println(output)","}","","// always check for errors after iterating.","err = results.Err()","if err != nil {","    panic(err)","}"],
+        "body": ["results, err := cluster.AnalyticsQuery(\"${2:SQL++ Query}\", &gocb.AnalyticsOptions{","    ScanConsistency: gocb.AnalyticsScanConsistency${4:RequestPlus},","})","if err != nil {","    panic(err)","}","","var output interface{}","for results.Next() {","    err := results.Row(&output)","    if err != nil {","        panic(err)","    }","    fmt.Println(output)","}","","// always check for errors after iterating.","err = results.Err()","if err != nil {","    panic(err)","}"],
         "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster."
     },
     "Analytics Query With Parameters": {
