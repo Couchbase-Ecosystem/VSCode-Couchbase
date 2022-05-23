@@ -1,12 +1,12 @@
 {
     "Connect to Cluster": {
         "prefix": ["@cbcon"],
-        "body": ["using System.Threading.Tasks;","using Couchbase;","","var ${1:cluster} = await Cluster.ConnectAsync(\"${2:connection-string}\", \"${3:username}\", \"${4:password}\");","","// get a bucket reference","var ${5:bucket} = await ${1:cluster}.BucketAsync(\"${6:bucket-name}\");","","// get a user-defined collection reference","var ${7:scope} = await ${5:bucket}.ScopeAsync(\"${8:scope-name}\");","var ${9:collection} = await ${7:scope}.CollectionAsync(\"${10:collection-name}\");"],
+        "body": ["using Couchbase;","","var ${1:cluster} = await Cluster.ConnectAsync(\"${2:connection-string}\", \"${3:username}\", \"${4:password}\");","","// get a bucket reference","var ${5:bucket} = await ${1:cluster}.BucketAsync(\"${6:bucket-name}\");","","// get a user-defined collection reference","var ${7:scope} = await ${5:bucket}.ScopeAsync(\"${8:scope-name}\");","var ${9:collection} = await ${7:scope}.CollectionAsync(\"${10:collection-name}\");"],
         "description": "Connect to a cluster and get a reference to it, a bucket, and a collection."
     },
     "Connect to Cluster with TLS": {
         "prefix": ["@cbcontls"],
-        "body": ["using System.Threading.Tasks;","using Couchbase;","","var ${1:cluster} = await Cluster.ConnectAsync(new ClusterOptions","    {","        EnableTls = true","    }","    .WithConnectionString(\"${2:connection-string}\")","    .WithCredentials(\"${3:username}\", \"${4:password}\"));","","// get a bucket reference","var ${5:bucket} = await ${1:cluster}.BucketAsync(\"${6:bucket-name}\");","","// get a user-defined collection reference","var ${7:scope} = await ${5:bucket}.ScopeAsync(\"${8:scope-name}\");","var ${9:collection} = await ${7:scope}.CollectionAsync(\"${10:collection-name}\");"],
+        "body": ["using Couchbase;","","var ${1:cluster} = await Cluster.ConnectAsync(new ClusterOptions","    {","        EnableTls = true","    }","    .WithConnectionString(\"${2:connection-string}\")","    .WithCredentials(\"${3:username}\", \"${4:password}\"));","","// get a bucket reference","var ${5:bucket} = await ${1:cluster}.BucketAsync(\"${6:bucket-name}\");","","// get a user-defined collection reference","var ${7:scope} = await ${5:bucket}.ScopeAsync(\"${8:scope-name}\");","var ${9:collection} = await ${7:scope}.CollectionAsync(\"${10:collection-name}\");"],
         "description": "Connect to a cluster using TLS and get a reference to it, a bucket, and a collection."
     }
 }
