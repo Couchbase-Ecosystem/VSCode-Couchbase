@@ -31,12 +31,12 @@
     },
     "Create an Index": {
         "prefix": ["@cbcrind"],
-        "body": ["try {","    IQueryIndexManager indexMgr = ${1:cluster}.QueryIndexes();","    indexMgr.CreateIndexAsync(\"${2:bucketName}\", \"${3:indexName}\", ${4:fields}, ${5:options = null})","}","catch (IndexExistsException) {","    Console.WriteLine(\"Index already exists\");","}","catch (IndexFailureException) {","    Console.WriteLine(\"Index creation failed\");","}"],
+        "body": ["try {","    IQueryIndexManager indexMgr = ${1:cluster}.QueryIndexes;","    await indexMgr.CreateIndexAsync(","        \"${2:bucketName}\", ","        \"${3:indexName}\", ","        new[] { \"${4:fields}\" }, ","        new CreateQueryIndexOptions()","            .ScopeName(\"${5:scope-name}\")","            .CollectionName(\"${6:collection-name}\")","    );","}","catch (IndexExistsException) {","    Console.WriteLine(\"Index already exists\");","}","catch (IndexFailureException) {","    Console.WriteLine(\"Index creation failed\");","}"],
         "description": "Create a new index, this will create a new index manager."
     },
     "Create a User": {
         "prefix": ["@cbupsuser"],
-        "body": ["User user = new User(\"${1:username}\") {","    Password = \"${2:password}\",","    DisplayName = \"${3:display name}\",","    Roles = new List<Role>() {","        // Roles required for the reading of data from the bucket","        new Role(\"data_reader\", \"*\"),","        new Role(\"query_select\", \"*\"),","        // Roles required for the writing of data into the bucket.","        new Role(\"data_writer\", \"${4:Bucket Name}\"),","        new Role(\"query_insert\", \"${4:Bucket Name}\"),","        new Role(\"query_delete\", \"${4:Bucket Name}\"),","        // Role required for the creation of indexes on the bucket.","        new Role(\"query_manage_index\", \"${4:Bucket Name}\")","    }","};","","await ${5:cluster}.Users.UpsertUserAsync(user);"],
+        "body": ["using Couchbase.Management.Users;","","User user = new User(\"${1:username}\") {","    Password = \"${2:password}\",","    DisplayName = \"${3:display name}\",","    Roles = new List<Role>() {","        // Roles required for the reading of data from the bucket","        new Role(\"data_reader\", \"*\"),","        new Role(\"query_select\", \"*\"),","        // Roles required for the writing of data into the bucket.","        new Role(\"data_writer\", \"${4:Bucket Name}\"),","        new Role(\"query_insert\", \"${4:Bucket Name}\"),","        new Role(\"query_delete\", \"${4:Bucket Name}\"),","        // Role required for the creation of indexes on the bucket.","        new Role(\"query_manage_index\", \"${4:Bucket Name}\")","    }","};","","await ${5:cluster}.Users.UpsertUserAsync(user);"],
         "description": "Add a user to your Couchbase Cluster."
     }
 }
