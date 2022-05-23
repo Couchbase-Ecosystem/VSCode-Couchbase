@@ -1,7 +1,7 @@
 {
     "Create a Collection Manager": {
         "prefix": ["@cbcolman"],
-        "body": ["const couchbase = require('couchbase')","","const cluster = await couchbase.connect('${1:connection-string}', {","  username: '${2:Administrator}',","  password: '${3:password}',","})","","// get a reference to our bucket","const bucket = cluster.bucket('${4:bucket-name}')","","const collectionMgr = bucket.collections()","","try {","  var collectionSpec = new couchbase.CollectionSpec({","    name: '${5:collection-name}',","    scopeName: '${6:scope-name}',","  })","","  await collectionMgr.createCollection(collectionSpec)","} catch (e) {","  if (e instanceof couchbase.CollectionExistsError) {","    console.log('The collection already exists')","  } else if (e instanceof couchbase.ScopeNotFoundError) {","    console.log('The scope does not exist')","  } else {","    throw e","  }","}"],
+        "body": [ "const collectionMgr = ${1:bucket}.collections()","","try {","  var collectionSpec = new couchbase.CollectionSpec({","    name: '${2:collection-name}',","    scopeName: '${3:scope-name}',","  })","","  await collectionMgr.createCollection(collectionSpec)","} catch (e) {","  if (e instanceof couchbase.CollectionExistsError) {","    console.log('The collection already exists')","  } else if (e instanceof couchbase.ScopeNotFoundError) {","    console.log('The scope does not exist')","  } else {","    throw e","  }","}"],
         "description": "Connect to a cluster, and create a collection manager."
     },
     "Create a Collection": {

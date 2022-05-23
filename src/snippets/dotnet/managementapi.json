@@ -1,7 +1,7 @@
 {
     "Create a Collection Manager": {
         "prefix": ["@cbcolman"],
-        "body": ["using Couchbase;","using Couchbase.Management.Collections;","using Couchbase.Core.Exceptions;","","var cluster = await Cluster.ConnectAsync(\"${1:connection-string}\", \"${2:username}\", \"${3:password}\");","","// get a bucket reference","var bucket = await cluster.BucketAsync(\"${4:bucket-name}\");","","ICouchbaseCollectionManager collectionMgr = bucket.Collections;","","var spec = new CollectionSpec(\"${5:scope-name}\", \"${6:collection-name}\");","","try {","    await collectionMgr.CreateCollectionAsync(spec);","}","catch (CollectionExistsException) {","    Console.WriteLine(\"Collection already exists\");","}","catch (ScopeNotFoundException) {","    Console.WriteLine(\"The specified parent scope doesn't exist\");","}"],
+        "body": ["ICouchbaseCollectionManager collectionMgr = ${1:bucket}.Collections;","","var spec = new CollectionSpec(\"${2:scope-name}\", \"${3:collection-name}\");","","try {","    await collectionMgr.CreateCollectionAsync(spec);","}","catch (CollectionExistsException) {","    Console.WriteLine(\"Collection already exists\");","}","catch (ScopeNotFoundException) {","    Console.WriteLine(\"The specified parent scope doesn't exist\");","}"],
         "description": "Connect to a cluster, and create a collection manager."
     },
     "Create a Collection": {

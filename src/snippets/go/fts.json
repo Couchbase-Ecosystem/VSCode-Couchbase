@@ -1,7 +1,7 @@
 {
     "Full Text Search": {
         "prefix": ["@cbfts"],
-        "body": ["matchResult, err := ${1:cluster}.SearchQuery(","    \"${2:search-index}\",","    search.NewMatchQuery(\"${3:query-string}\"),",")","if err != nil {","    panic(err)","}","","for matchResult.Next() {","    //handle results","}","","// always check for errors after iterating","err = matchResult.Err()","if err != nil {","    panic(err)","}"],
+        "body": ["matchResult, err := ${1:cluster}.SearchQuery(","    \"${2:search-index}\",","    search.NewMatchQuery(\"${3:query-string}\"),","    &gocb.SearchOptions{","        Limit:  ${4:10},","        Fields: []string{\"${5:description}\"},","    },",")","if err != nil {","    panic(err)","}","","for matchResult.Next() {","    //handle results","}","","// always check for errors after iterating","err = matchResult.Err()","if err != nil {","    panic(err)","}"],
         "description": "Use a query string on the Full Text Search Service of your Couchbase Cluster."
     },
     "Full Text Search With all Options and Search Queries": {
@@ -11,12 +11,12 @@
     },
     "Full Text Search Import": {
         "prefix": ["@cbftsimp"],
-        "body": ["import (","   \"fmt\"","  \"time\"","","  gocb \"github.com/couchbase/gocb/v2\"","    \"github.com/couchbase/gocb/v2/search\"",")"],
+        "body": ["import (","    \"fmt\"","    \"time\"","","    gocb \"github.com/couchbase/gocb/v2\"","    \"github.com/couchbase/gocb/v2/search\"",")"],
         "description": "Import all necessary FTS namespaces"
     },
     "Full Text Search Example": {
         "prefix": ["@cbftsex"],
-        "body": ["import (","   \"fmt\"","  \"time\"","","  gocb \"github.com/couchbase/gocb/v2\"","    \"github.com/couchbase/gocb/v2/search\"",")","cluster, err := gocb.Connect(","    \"${1:connectionString}\",","    gocb.ClusterOptions{","        Username: \"${2:username}\",","        Password: \"${3:password}\",","    })","if err != nil {","    panic(err)","}","","matchResult, err := cluster.SearchQuery(","    \"${4:search-index}\",","    search.NewMatchQuery(\"${5:query-string}\"),",")","if err != nil {","    panic(err)","}","","for matchResult.Next() {","    //handle results","}","","// always check for errors after iterating","err = matchResult.Err()","if err != nil {","    panic(err)","}"],
+        "body": ["package main","","import (","    gocb \"github.com/couchbase/gocb/v2\"","    \"github.com/couchbase/gocb/v2/search\"",")","","func main() {","    cluster, err := gocb.Connect(","        \"${1:connectionString}\",","        gocb.ClusterOptions{","            Username: \"${2:username}\",","            Password: \"${3:password}\",","        })","    if err != nil {","        panic(err)","    }","    ","    matchResult, err := cluster.SearchQuery(","        \"${4:search-index}\",","        search.NewMatchQuery(\"${5:query-string}\"),","        &gocb.SearchOptions{","            Limit:  ${6:10},","            Fields: []string{\"${7:description}\"},","        },","    )","    if err != nil {","        panic(err)","    }","    ","    for matchResult.Next() {","        //handle results","    }","    ","    // always check for errors after iterating","    err = matchResult.Err()","    if err != nil {","        panic(err)","    }","}"],
         "description": "Example code that shows connecting to a cluster and running an FTS query on it."
     }
 }

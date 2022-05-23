@@ -1,6 +1,6 @@
 {
     "Transaction Example": {
-        "prefix": ["@cbtran"],
+        "prefix": ["@cbtranex"],
         "body": ["import {","    Bucket,","    Cluster,","    Collection,","    connect,","    DurabilityLevel,","    QueryProfileMode,","    QueryResult,","    Scope,","    TransactionCommitAmbiguousError,","    TransactionFailedError,","    TransactionQueryOptions","} from 'couchbase'","","async function main() {","    const cluster = await couchbase.connect('${1:connection-string}', {","        username: '${2:Administrator}',","        password: '${3:password}',","    })","","    // get a reference to our bucket","    const bucket = cluster.bucket('${4:bucket-name}')","","    // get a reference to a collection","    const collection = bucket.scope('${5:scope-name}').collection('${6:collection-name}')","","    try {","        await cluster.transactions().run(async (ctx) => {","            // Getting documents:","            const doc = await ctx.get(collection, '${7:document-key}')","        })","    } catch (error) {","        if (error instanceof TransactionFailedError) {","          console.error('Transaction did not reach commit point', error)","        }","","        if (error instanceof TransactionCommitAmbiguousError) {","          console.error('Transaction possibly committed', error)","        }","    }","}"],
         "description": "Example code that shows connecting to a cluster and running a transaction on it."
     },

@@ -1,7 +1,7 @@
 {
     "Create a Collection Manager": {
         "prefix": ["@cbcolman"],
-        "body": ["cluster, err := gocb.Connect(","    \"${1:connectionString}\",","    gocb.ClusterOptions{","        Username: \"${2:username}\",","        Password: \"${3:password}\",","    })","if err != nil {","    panic(err)","}","","// get a bucket reference","bucket := cluster.Bucket(\"${4:bucketName}\")","","// We wait until the bucket is definitely connected and setup.","err = bucket.WaitUntilReady(5*time.Second, nil)","if err != nil {","    panic(err)","}","","collections := bucket.Collections()", "","collection := gocb.CollectionSpec{","    Name:      \"${5:collectionName}\",","    ScopeName: \"${6:scopeName}\",","}","","err = collections.CreateCollection(collection, nil)","if err != nil {","    if errors.Is(err, gocb.ErrCollectionExists) {","        fmt.Println(\"Collection already exists\")","    } else {","        panic(err)","    }","}"],
+        "body": ["collections := ${1:bucket}.Collections()", "","collection := gocb.CollectionSpec{","    Name:      \"${2:collectionName}\",","    ScopeName: \"${3:scopeName}\",","}","","err = collections.CreateCollection(collection, nil)","if err != nil {","    if errors.Is(err, gocb.ErrCollectionExists) {","        fmt.Println(\"Collection already exists\")","    } else {","        panic(err)","    }","}"],
         "description": "Connect to a cluster, and create a collection manager."
     },
     "Create a Collection": {
@@ -31,12 +31,12 @@
     },
     "Create an Index": {
         "prefix": ["@cbcrind"],
-        "body": ["queryManager := ${1:cluster}.QueryIndexes()","err := queryManager.CreateIndex(\"${2:bucketName}\" , \"${3:indexName}\" , ${4:fields})","if err != nil {","    panic(err)","}"],
+        "body": ["queryManager := ${1:cluster}.QueryIndexes()","err := queryManager.CreateIndex(\"${2:bucketName}\" , \"${3:indexName}\" , ${4:[]string{string\\}}, ${5:&CreateQueryIndexOptions{\\}})","if err != nil {","    panic(err)","}"],
         "description": "Create a new index, this will create a new index manager."
     },
     "Create a User": {
         "prefix": ["@cbupsuser"],
-        "body": ["userMgr := ${1:cluster}.Users()","user := gocb.User{","    Username:    ${2:username},","    DisplayName: \"${3:displayName}\",","    Roles: []gocb.Role{","        // Roles required for the reading of data from the bucket","        {","            Name:   \"data_reader\",","            Bucket: \"*\",","        },","        {","            Name:   \"query_select\",","            Bucket: \"*\",","        },","        // Roles required for the writing of data into the bucket.","        {","            Name:   \"data_writer\",","            Bucket: \"${4:bucketName}\",","        },","        {","            Name:   \"query_insert\",","            Bucket: \"${4:bucketName}\",","        },","        {","            Name:   \"query_delete\",","            Bucket: \"${4:bucketName}\",","        },","        // Role required for the creation of indexes on the bucket.","        {","            Name:   \"query_manage_index\",","            Bucket: \"${4:bucketName}\",","        },","    },","    Password: ${5:password},","}","","err = userMgr.UpsertUser(user, nil)","if err != nil {","    panic(err)","}"],
+        "body": ["userMgr := ${1:cluster}.Users()","user := gocb.User{","    Username:    \"${2:username}\",","    DisplayName: \"${3:displayName}\",","    Roles: []gocb.Role{","        // Roles required for the reading of data from the bucket","        {","            Name:   \"data_reader\",","            Bucket: \"*\",","        },","        {","            Name:   \"query_select\",","            Bucket: \"*\",","        },","        // Roles required for the writing of data into the bucket.","        {","            Name:   \"data_writer\",","            Bucket: \"${4:bucketName}\",","        },","        {","            Name:   \"query_insert\",","            Bucket: \"${4:bucketName}\",","        },","        {","            Name:   \"query_delete\",","            Bucket: \"${4:bucketName}\",","        },","        // Role required for the creation of indexes on the bucket.","        {","            Name:   \"query_manage_index\",","            Bucket: \"${4:bucketName}\",","        },","    },","    Password: \"${5:password}\",","}","","err = userMgr.UpsertUser(user, nil)","if err != nil {","    panic(err)","}"],
         "description": "Add a user to your Couchbase Cluster."
     }
 }

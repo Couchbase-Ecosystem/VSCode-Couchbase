@@ -1,12 +1,12 @@
 {
     "Create SQL++ Query": {
         "prefix": ["@cbq"],
-        "body": ["query := \"${1:SQL++ Query}\"","results, err := ${2:cluster}.Query(query, &gocb.QueryOptions{","    ReadOnly:        false,","    Metrics:         true,","    ScanConsistency: gocb.QueryScanConsistencyRequestPlus,","})","if err != nil {","    panic(err)","}","","for results.Next() {","    // handle results","}","","// always check for errors after iterating","err = results.Err()","if err != nil {","    panic(err)","}"],
+        "body": ["query := \"${1:SQL++ Query}\"","results, err := ${2:cluster}.Query(query, &gocb.QueryOptions{","    Metrics:         true,","    ScanConsistency: gocb.QueryScanConsistencyRequestPlus,","})","if err != nil {","    panic(err)","}","","for results.Next() {","    // handle results","}","","// always check for errors after iterating","err = results.Err()","if err != nil {","    panic(err)","}"],
         "description": "Use SQL++ to Query the Couchbase Cluster."
     },
     "SQL++ Query With all Options": {
         "prefix": ["@cbqopts"],
-        "body": ["query := \"${1:SQL++ Query}\"","results, err := ${2:cluster}.Query(query, &gocb.QueryOptions{","    ClientContextID: ${3}","    PositionalParameters: ${4}","    NamedParameters: ${5}","    Raw: ${6}","    ReadOnly: ${7}","    Adhoc: ${8}","    ConsistentWith: ${9}","    MaxParallelism: ${10}","    Metrics: ${11}","    PipelineBatch: ${12}","    PipelineCap: ${13}","    Profile: ${14}","    ScanWait: ${15}","    ScanCap: ${16}","    ScanConsistency: ${17}","})","if err != nil {","    panic(err)","}","","for results.Next() {","    // handle results","}","","// always check for errors after iterating","err = results.Err()","if err != nil {","    panic(err)","}"],
+        "body": ["query := \"${1:SQL++ Query}\"","results, err := ${2:cluster}.Query(query, &gocb.QueryOptions{","    ClientContextID: ${3:\"\"},","    PositionalParameters: []interface{}{${4}},","    NamedParameters: ${5:map[string]interface{\\}{\\}},","    Raw: ${6:map[string]interface{\\}{\\}},","    Readonly: ${7:false},","    Adhoc: ${8:false},","    ConsistentWith: ${9:MutationState},","    MaxParallelism: ${10:0},","    Metrics: ${11:true},","    PipelineBatch: ${12:0},","    PipelineCap: ${13:0},","    Profile: ${14:QueryProfileMode},","    ScanWait: ${15:time.Duration},","    ScanCap: ${16:0},","    ScanConsistency: gocb.QueryScanConsistency${17:RequestPlus},","})","if err != nil {","    panic(err)","}","","for results.Next() {","    // handle results","}","","// always check for errors after iterating","err = results.Err()","if err != nil {","    panic(err)","}"],
         "description": "Use SQL++ to Query the Couchbase Cluster, this has all options available."
     },
     "SQL++ Query With Parameters": {
@@ -16,17 +16,17 @@
     },
     "SQL++ Query with FTS": {
         "prefix": ["@cbqfts"],
-        "body": ["query := \"${1:SELECT ... FROM ... USE INDEX (USING FTS) WHERE ...}\"","results, err := ${2:cluster}.Query(query, &gocb.QueryOptions{ FlexIndex : true }})","","if err != nil {","    panic(err)","}","","for results.Next() {","    // handle results","}","","// always check for errors after iterating","err = results.Err()","if err != nil {","    panic(err)","}"],
+        "body": ["query := \"${1:SELECT ... FROM ... USE INDEX (USING FTS) WHERE ...}\"","results, err := ${2:cluster}.Query(query, &gocb.QueryOptions{ FlexIndex : true })","","if err != nil {","    panic(err)","}","","for results.Next() {","    // handle results","}","","// always check for errors after iterating","err = results.Err()","if err != nil {","    panic(err)","}"],
         "description": "Use SQL++ to query the Couchbase Cluster with full text search."
     },
     "SQL++ Query Import": {
         "prefix": ["@cbqimp"],
-        "body": ["import (","    \"fmt\"","    \"time\"","","    \"github.com/couchbase/gocb/v2\"",")"],
+        "body": ["import (","    \"fmt\"","    \"time\"","","    gocb \"github.com/couchbase/gocb/v2\"",")"],
         "description": "Import all necessary query namespaces."
     },
     "SQL++ Query Example": {
         "prefix": ["@cbqex"],
-        "body": ["package main","","import (","    \"github.com/couchbase/gocb/v2\"",")","","func main() {","    cluster, err := gocb.Connect(","        \"${1:connectionString}\",","        gocb.ClusterOptions{","            Username: \"${2:username}\",","            Password: \"${3:password}\",","        })","    if err != nil {","        panic(err)","    }","","    query := \"${4:SQL++ Query}\"","    results, err := cluster.Query(query, nil)","","    if err != nil {","        panic(err)","    }","","    for results.Next() {","        // handle results","    }","","    // always check for errors after iterating","    err = results.Err()","    if err != nil {","        panic(err)","    }","}",""],
+        "body": ["package main","","import (","    gocb \"github.com/couchbase/gocb/v2\"",")","","func main() {","    cluster, err := gocb.Connect(","        \"${1:connectionString}\",","        gocb.ClusterOptions{","            Username: \"${2:username}\",","            Password: \"${3:password}\",","        })","    if err != nil {","        panic(err)","    }","","    query := \"${4:SQL++ Query}\"","    results, err := cluster.Query(query, nil)","","    if err != nil {","        panic(err)","    }","","    for results.Next() {","        // handle results","    }","","    // always check for errors after iterating","    err = results.Err()","    if err != nil {","        panic(err)","    }","}",""],
         "description": "Example code that shows connecting to a cluster and running a query on it."
     }
 }
