@@ -1,0 +1,22 @@
+{
+    "Create Analytics Query": {
+        "prefix": ["@cbanq"],
+        "body": ["try","{","    var result = await ${1:cluster}.AnalyticsQueryAsync<dynamic>(\"${2:SQL++ Query}\");","","    Console.WriteLine($\"Elapsed time: {result.MetaData.Metrics.ElapsedTime}\");","    Console.WriteLine($\"Execution time: {result.MetaData.Metrics.ExecutionTime}\");","    Console.WriteLine($\"Result count: {result.MetaData.Metrics.ResultCount}\");","    Console.WriteLine($\"Error count: {result.MetaData.Metrics.ErrorCount}\");","","    if (result.Rows.Any()) // check there are results","    {","        foreach (var row in result.Rows)","        {","            // handle results","        }","    }","}","catch (AnalyticsException exception)","{","    foreach (var error in exception.Errors)","    {","        Console.WriteLine($\"Error: {error.Message}\");","    }","}"],
+        "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster."
+    },
+    "Analytics Query With Parameters": {
+        "prefix": ["@cbanparamq"],
+        "body": ["try","{","    var result = await ${1:cluster}.AnalyticsQueryAsync<dynamic>(\"${2:SQL++ Query}\")","        //Keep one of the following 2 lines, depending on whether you want named or positional parameters.","        .AddPositionalParameter(\"${3:parameters}\"); //Positional parameters","        .AddNamedParameter(${3:parameters}); //Named parameters","","    if (result.Rows.Any()) // check there are results","    {","        foreach (var row in result.Rows)","        {","            // handle results","        }","    }","}","catch (AnalyticsException exception)","{","    foreach (var error in exception.Errors)","    {","        Console.WriteLine($\"Error: {error.Message}\");","    }","}"],
+        "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster, this uses parameters."
+    },
+    "Analytics Query Example": {
+        "prefix": ["@cbanex"],
+        "body": ["using Couchbase;","using Couchbase.Analytics;","using System.Threading.Tasks;","using System;","","var cluster = await Cluster.ConnectAsync(\"${1:connection-string}\", \"${2:username}\", \"${3:password}\");","","try","{","    var result = await cluster.AnalyticsQueryAsync<dynamic>(\"${4:SQL++ Query}\");","","    if (result.Rows.Any()) // check there are results","    {","        foreach (var row in result.Rows)","        {","            // handle results","        }","    }","}","catch (AnalyticsException exception)","{","    foreach (var error in exception.Errors)","    {","        Console.WriteLine($\"Error: {error.Message}\");","    }","}"],
+        "description": "Example code that shows connecting to a cluster and running an analytics query on it."
+    },
+    "Analytics Query Import": {
+        "prefix": ["@cbanimp"],
+        "body": ["using Couchbase;","using Couchbase.Analytics;","using System.Threading.Tasks;","using System;","using System.Collections.Generic;"],
+        "description": "Import all necessary Analytics namespaces."
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "Create Analytics Query": {
+        "prefix": ["@cbanq"],
+        "body": ["results, err := cluster.AnalyticsQuery(\"${2:SQL++ Query}\", &gocb.AnalyticsOptions{","    ScanConsistency: gocb.AnalyticsScanConsistency${4:RequestPlus},","})","if err != nil {","    panic(err)","}","","var output interface{}","for results.Next() {","    err := results.Row(&output)","    if err != nil {","        panic(err)","    }","    fmt.Println(output)","}","","// always check for errors after iterating.","err = results.Err()","if err != nil {","    panic(err)","}"],
+        "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster."
+    },
+    "Analytics Query With Parameters": {
+        "prefix": ["@cbanparamq"],
+        "body": ["//Named Parameters, remove this section to use positional parameters","query := \"${1:SQL++ Query}\"","params := map[string]interface{}{\"${2:name}\": \"${3:value}\"}","results, err := cluster.AnalyticsQuery(query, &gocb.AnalyticsOptions{NamedParameters: params})","","//Positional Parameters, remove this section to use named parameters","query := \"${1:SQL++ Query}\"","results, err := cluster.AnalyticsQuery(query, &gocb.AnalyticsOptions{PositionalParameters: []interface{}{\"${3:value}\"}})","","var output interface{}","for results.Next() {","    err := results.Row(&output)","    if err != nil {","        panic(err)","    }","    fmt.Println(output)","}","","// always check for errors after iterating.","err = results.Err()","if err != nil {","    panic(err)","}"],
+        "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster, this uses parameters."
+    },
+    "Analytics Query Example": {
+        "prefix": ["@cbanex"],
+        "body": ["package main","","import (","    \"fmt\"","    \"time\"","","    gocb \"github.com/couchbase/gocb/v2\"",")","","func main() {","","    ${1:cluster}, err := gocb.Connect(","        \"${2:connectionString}\",","        gocb.ClusterOptions{","            Username: \"${3:username}\",","            Password: \"${4:password}\",","        })","    if err != nil {","        panic(err)","    }","","    err = cluster.WaitUntilReady(5*time.Second, nil)","    if err != nil {","        panic(err)","    }","","    results, err := cluster.AnalyticsQuery(\"${4:SQL++ Query}\", nil)","    if err != nil {","        panic(err)","    }","","    var output interface{}","    for results.Next() {","        err := results.Row(&output)","        if err != nil {","            panic(err)","        }","        fmt.Println(output)","    }","","    // always check for errors after iterating.","    err = results.Err()","    if err != nil {","        panic(err)","    }","}",""],
+        "description": "Example code that shows connecting to a cluster and running an analytics query on it."
+    },
+    "Analytics Query Import": {
+        "prefix": ["@cbanimp"],
+        "body": ["import (","    \"fmt\"","    \"time\"","","    gocb \"github.com/couchbase/gocb/v2\"",")"],
+        "description": "Import all necessary Analytics namespaces."
+    }
+}

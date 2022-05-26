@@ -1,0 +1,32 @@
+{
+    "Transaction Example": {
+        "prefix": ["@cbtranex"],
+        "body": ["from datetime import timedelta","","# needed for any cluster connection","from couchbase.auth import PasswordAuthenticator","from couchbase.cluster import Cluster","# needed for options -- cluster, timeout","from couchbase.options import (ClusterOptions)","","from couchbase.exceptions import (TransactionCommitAmbiguous,","                                  TransactionFailed)","","# Update this to your cluster","endpoint = \"${1:connection-string}\"","username = \"${2:username}\"","password = \"${3:password}\"","bucket_name = \"${4:bucket-name}\"","# User Input ends here.","","# Connect options - authentication","auth = PasswordAuthenticator(username, password)","","# get a reference to our cluster","cluster = Cluster('couchbase://{}'.format(endpoint),","                  ClusterOptions(auth))","","# get a reference to our bucket","bucket = cluster.bucket(bucket_name)","","collection = bucket.scope(\"${5:scope}\").collection(\"${6:collection}\")","","","def txn_example(ctx):","    # get a doc","    doc = ctx.get(collection, '${7:document-key}')","","try:","    cluster.transactions.run(txn_example)","except TransactionFailed as ex:","    print(f'Transaction did not reach commit point.  Error: {ex}')","except TransactionCommitAmbiguous as ex:","    print(f'Transaction possibly committed.  Error: {ex}')"],
+        "description": "Example code that shows connecting to a cluster and running a transaction on it."
+    },
+    "Insert Transaction": {
+        "prefix": ["@cbtranins"],
+        "body": ["def txn_insert(ctx):","    # insert doc","    ctx.insert(${1:collection}, '${2:document-key}', ${3:document})","","","try:","    cluster.transactions.run(txn_insert)","except TransactionFailed as ex:","    print(f'Transaction did not reach commit point.  Error: {ex}')","except TransactionCommitAmbiguous as ex:","    print(f'Transaction possibly committed.  Error: {ex}')"],
+        "description": "Perform an insertion transaction"
+    },
+    "Get Transaction": {
+        "prefix": ["@cbtranget"],
+        "body": ["def txn_get(ctx):","    # get a doc","    doc = ctx.get(${1:collection}, '${2:document-key}')","","","try:","    cluster.transactions.run(txn_get)","except TransactionFailed as ex:","    print(f'Transaction did not reach commit point.  Error: {ex}')","except TransactionCommitAmbiguous as ex:","    print(f'Transaction possibly committed.  Error: {ex}')"],
+        "description": "Perform a get transaction"
+    },
+    "Replace Transaction": {
+        "prefix": ["@cbtranrep"],
+        "body": ["def txn_replace(ctx):","    # replace a doc","    doc = ctx.get(${1:collection}, '${2:document-key}')","    ctx.replace(doc, ${3:document})","","","try:","    cluster.transactions.run(txn_replace)","except TransactionFailed as ex:","    print(f'Transaction did not reach commit point.  Error: {ex}')","except TransactionCommitAmbiguous as ex:","    print(f'Transaction possibly committed.  Error: {ex}')"],
+        "description": "Perform a replace transaction"
+    },
+    "Remove Transaction": {
+        "prefix": ["@cbtranrem"],
+        "body": ["def txn_remove(ctx):","    # remove a doc","    doc = ctx.get(${1:collection}, '${2:document-key}')","    ctx.remove(doc)","","","try:","    cluster.transactions.run(txn_remove)","except TransactionFailed as ex:","    print(f'Transaction did not reach commit point.  Error: {ex}')","except TransactionCommitAmbiguous as ex:","    print(f'Transaction possibly committed.  Error: {ex}')"],
+        "description": "Perform a remove transaction"
+    },
+    "Transaction Import": {
+        "prefix": ["@cbtranimp"],
+        "body": ["import sys","import traceback","from typing import TYPE_CHECKING","","from couchbase.auth import PasswordAuthenticator","from couchbase.cluster import Cluster","from couchbase.durability import DurabilityLevel, ServerDurability","from couchbase.exceptions import (DocumentNotFoundException,","                                  TransactionCommitAmbiguous,","                                  TransactionFailed)","from couchbase.n1ql import QueryProfile","from couchbase.options import (ClusterOptions, TransactionConfig,","                               TransactionQueryOptions)","","if TYPE_CHECKING:","    from couchbase.transactions import AttemptContext"],
+        "description": "Import all necessary transaction namespaces."
+    }
+}
