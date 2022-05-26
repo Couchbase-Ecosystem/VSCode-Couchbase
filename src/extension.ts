@@ -228,8 +228,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
 
-      const snippetCompletion = new vscode.CompletionItem("cbbabar"); //This is the snippet prefix
-      
+      const snippetCompletion = new vscode.CompletionItem("cbbabar", vscode.CompletionItemKind.Snippet); //This is the snippet prefix
+
       let connectionString : String = "default-connection-string";
       const connection = Memory.state.get<IConnection>("activeConnection");
 
@@ -239,13 +239,21 @@ export function activate(context: vscode.ExtensionContext) {
         connectionString = username+"@"+url;
       }
 
-      //snippetCompletion.range = {inserting : {vscode.range.start(0), vscode.range.end(0)}, replacing : {start:0, end:0}}
-      snippetCompletion.insertText = new vscode.SnippetString("bootstrapping snippet\n${1:"+connectionString+"}"); //This is the snippet body
+      var replaceRange = new vscode.Range(position.line+1,position.character,position.line,position.character);
+      var insertRange = new vscode.Range(position.line,position.character,position.line,position.character);
+      snippetCompletion.range = {replacing : replaceRange, inserting : insertRange};
+      //snippetCompletion.insertText = new vscode.SnippetString("bootstrapping snippet\n${1:"+connectionString+"}"); 
+      snippetCompletion.insertText = new vscode.SnippetString("a"); 
+      //This is the snippet body
+
       snippetCompletion.documentation = new vscode.MarkdownString("Inserts a snippet that lets you select a."); //This is the snippet description
       
       return [snippetCompletion]
 
   }},"@")
+
+
+  
 
   subscriptions.push(testSnippet);
   //End of snippets
