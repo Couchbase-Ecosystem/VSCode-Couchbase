@@ -1,0 +1,47 @@
+{
+    "Upsert Document": {
+        "prefix": ["@cbotups"],
+        "body": [],
+        "description": "Upsert a document to a collection with durability options."
+    },
+    "Insert Document": {
+        "prefix": ["@cbotins"],
+        "body": [],
+        "description": "Insert a document into a collection."
+    },
+    "Replace Document": {
+        "prefix": ["@cbotrep"],
+        "body": [],
+        "description": "Replace a document in a collection."
+    },
+    "Get Document": {
+        "prefix": ["@cbotget"],
+        "body": [],
+        "description": "Use a key to get a document from a collection."
+    },
+    "Remove Document": {
+        "prefix": ["@cbotrem"],
+        "body": [],
+        "description": "Use a key to remove a document from a collection."
+    },
+    "KV Import": {
+        "prefix": ["@cbotkvimp"],
+        "body": [],
+        "description": "Import all necessary KV namespace."
+    },
+    "KV Example": {
+        "prefix": ["@cbotkvex"],
+        "body": [],
+        "description": "Example code that shows: inserting, upserting, getting, replacing, and removing a document. Along with all required imports."
+    },
+    "JSON Transcoder": {
+        "prefix": ["@cbottranscoder"],
+        "body": [],
+        "description": "Example code that shows how to use the default transcoder on an upsert operation."
+    },
+    "Document Expiration": {
+        "prefix": ["@cbotsetexp"],
+        "body": [],
+        "description": "Use Document Expiration"
+    }
+}

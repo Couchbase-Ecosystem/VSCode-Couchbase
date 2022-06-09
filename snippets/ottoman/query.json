@@ -1,0 +1,32 @@
+{
+    "Create SQL++ Query": {
+        "prefix": ["@cbotq"],
+        "body": [],
+        "description": "Use SQL++ to Query the Couchbase Cluster."
+    },
+    "SQL++ Query With all Options": {
+        "prefix": ["@cbotqopts"],
+        "body": [],
+        "description": "Use SQL++ to Query the Couchbase Cluster, this has all options available."
+    },
+    "SQL++ Query With Parameters": {
+        "prefix": ["@cbotqparam"],
+        "body": [],
+        "description": "Use parameterised SQL++ to query the Couchbase Cluster."
+    },
+    "SQL++ Query with FTS": {
+        "prefix": ["@cbotqfts"],
+        "body": [],
+        "description": "Use SQL++ to query the Couchbase Cluster with full text search."
+    },
+    "SQL++ Query Import": {
+        "prefix": ["@cbotqimp"],
+        "body": [],
+        "description": "Import all necessary query namespaces"
+    },
+    "SQL++ Query Example": {
+        "prefix": ["@cbotqex"],
+        "body": [],
+        "description": "Example code that shows connecting to a cluster and running a query on it."
+    }
+}

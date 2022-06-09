@@ -1,0 +1,12 @@
+{
+    "Connect to Cluster": {
+        "prefix": ["@cbotcon"],
+        "body": [],
+        "description": "Connect to a cluster and get a reference to it, a bucket, and a collection."
+    },
+    "Connect to Cluster with TLS": {
+        "prefix": ["@cbotcontls"],
+        "body": [],
+        "description": "Connect to a cluster using TLS and get a reference to it, a bucket, and a collection."
+    }
+}
