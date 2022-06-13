@@ -41,7 +41,7 @@
     },
     "Document Expiration": {
         "prefix": ["@cbotsetexp"],
-        "body": [],
+        "body": ["await ${1:document}.save(options = {","  maxExpiry: '${2:expiry}'","});"],
         "description": "Use Document Expiration"
     }
 }
