@@ -6,7 +6,7 @@
     },
     "Connect to Cluster with TLS": {
         "prefix": ["@cbotcontls"],
-        "body": ["const { connect, start, close } = require('ottoman');","","const connect = async () => {","  await connect({","    connectionString: '${1:couchbase://localhost}',","    bucketName: '${2:bucketName}',","    username: '${3:Administrator}',","    password: '${4:password}'","    trustStorePath: '${5:/path/to/certificate.pem}'","  });","  ","  await start();","","  await close();","}","","connect();"],
+        "body": ["const { connect, start, close } = require('ottoman');","","const connect = async () => {","  await connect({","    connectionString: '${1:couchbase://localhost}',","    bucketName: '${2:bucketName}',","    username: '${3:Administrator}',","    password: '${4:password}',","    trustStorePath: '${5:/path/to/certificate.pem}'","  });","  ","  await start();","","  await close();","}","","connect();"],
         "description": "Connect to a cluster using TLS and get a reference to it, a bucket, and a collection."
     }
 }
