@@ -1,7 +1,7 @@
 {
     "Connect to Cluster": {
         "prefix": ["@cbotcon"],
-        "body": ["const { connect, start, close } = require('ottoman');","","const connect = async () => {","  await connect({","    connectionString: '${1:couchbase://localhost}',","    bucketName: '${2:bucketName}',","    username: '${3:Administrator}',","    password: '${4:password}'","  });","  ","  await start();","","  await close();","}","","connect();"],
+        "body": ["const { connect, start, close } = require('ottoman');","","const connectToCluster = async () => {","  await connect({","    connectionString: '${1:couchbase://localhost}',","    bucketName: '${2:bucketName}',","    username: '${3:Administrator}',","    password: '${4:password}'","  });","  ","  await start();","","  await close();","}","","connectToCluster();"],
         "description": "Connect to a cluster and get a reference to it, a bucket, and a collection."
     },
     "Connect to Cluster with TLS": {
