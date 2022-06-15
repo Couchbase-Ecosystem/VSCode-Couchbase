@@ -21,7 +21,7 @@
     },
     "SQL++ Query Import": {
         "prefix": ["@cbotqimp"],
-        "body": [],
+        "body": ["const { connect, start, close } = require('ottoman');"],
         "description": "Import all necessary query namespaces"
     },
     "SQL++ Query Example": {
