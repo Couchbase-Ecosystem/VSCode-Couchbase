@@ -1,12 +1,12 @@
 {
     "Connect to Cluster": {
         "prefix": ["@cbotcon"],
-        "body": ["const { connect, start, close } = require('ottoman');","","const connectToCluster = async () => {","  await connect({","    connectionString: '${1:couchbase://localhost}',","    bucketName: '${2:bucketName}',","    username: '${3:Administrator}',","    password: '${4:password}'","  });","  ","  await start();","","  await close();","}","","connectToCluster();"],
+        "body": ["const { Ottoman } = require('ottoman')","const ottoman = new Ottoman({collectionName: '${1:collection_name'}})","","async function main(){","  var connection = await ottoman.connect({","    connectionString: '${2:couchbase://localhost}',","    bucketName: '${3:bucket_name}',","    username: '${4:Administrator}',","    password: '${5:password}',","  });","","  await ottoman.start();","","  await ottoman.close();","}","","main();"],
         "description": "Connect to a cluster and get a reference to it, a bucket, and a collection."
     },
     "Connect to Cluster with TLS": {
         "prefix": ["@cbotcontls"],
-        "body": ["const { connect, start, close } = require('ottoman');","","const connect = async () => {","  await connect({","    connectionString: '${1:couchbase://localhost}',","    bucketName: '${2:bucketName}',","    username: '${3:Administrator}',","    password: '${4:password}',","    trustStorePath: '${5:/path/to/certificate.pem}'","  });","  ","  await start();","","  await close();","}","","connect();"],
+        "body": ["const { Ottoman } = require('ottoman')","const ottoman = new Ottoman({collectionName: '${1:collection_name'}})","","async function main(){","  var connection = await ottoman.connect({","    connectionString: '${2:couchbase://localhost}',","    bucketName: '${3:bucket_name}',","    username: '${4:Administrator}',","    password: '${5:password}',","    trustStorePath: '${6:/path/to/certificate.pem}',","  });","","  await ottoman.start();","","  await ottoman.close();","}","","main();"],
         "description": "Connect to a cluster using TLS and get a reference to it, a bucket, and a collection."
     }
 }
