@@ -1,0 +1,47 @@
+{
+    "Sub Doc Get": {
+        "prefix": ["@cbsubget"],
+        "body": [],
+        "description": "Get a sub document value by providing document and attribute keys."
+    },
+    "Check Path Exists": {
+        "prefix": ["@cbcheckpath"],
+        "body": [],
+        "description": "Check if a path exists for a given document key."
+    },
+    "Sub Doc Upsert": {
+        "prefix": ["@cbsubupsert"],
+        "body": [],
+        "description": "Modify the value of an existing path or create it if it does not exist."
+    },
+    "Array Append": {
+        "prefix": ["@cbsubarrapp"],
+        "body": [],
+        "description": "Append a value to an existing array in a document."
+    },
+    "Array Prepend": {
+        "prefix": ["@cbsubarrpre"],
+        "body": [],
+        "description": "Prepend a value to an existing array in a document."
+    },
+    "Array Add Unique": {
+        "prefix": ["@cbsubarradd"],
+        "body": [],
+        "description": "Treat an existing array like a unique set and add a value."
+    },
+    "Array Insert At": {
+        "prefix": ["@cbsubarrins"],
+        "body": [],
+        "description": "Insert a new element into an array at a specific position."
+    },
+    "Sub Doc Incrementation": {
+        "prefix": ["@cbsubinc"],
+        "body": [],
+        "description": "Increment a numeric value inside a document."
+    },
+    "Sub Doc Decrementation": {
+        "prefix": ["@cbsubdec"],
+        "body": [],
+        "description": "Decrement a numeric value inside a document."
+    }
+}

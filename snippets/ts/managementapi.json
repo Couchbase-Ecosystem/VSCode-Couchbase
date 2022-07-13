@@ -1,0 +1,42 @@
+{
+    "Create a Collection Manager": {
+        "prefix": ["@cbcolman"],
+        "body": [],
+        "description": "Connect to a cluster, and create a collection manager."
+    },
+    "Create a Collection": {
+        "prefix": ["@cbcrcol"],
+        "body": [],
+        "description": "Create a new collection, this will create a new collection manager."
+    },    
+    "Create a Collection Reference": {
+        "prefix": ["@cbcol"],
+        "body": [],
+        "description": "Create a reference to an existing collection."
+    },
+    "Create a Scope": {
+        "prefix": ["@cbcrscope"],
+        "body": [],
+        "description": "Create a new scope, this will create a new collection manager."
+    },
+    "Create a Bucket": {
+        "prefix": ["@cbcrbuck"],
+        "body": [],
+        "description": "Create a new bucket on an existing cluster reference."
+    },
+    "Create a Bucket Reference": {
+        "prefix": ["@cbbuck"],
+        "body": [],
+        "description": "Create a reference to an existing bucket."
+    },
+    "Create an Index": {
+        "prefix": ["@cbcrind"],
+        "body": [],
+        "description": "Create a new index, this will create a new index manager."
+    },
+    "Create a User": {
+        "prefix": ["@cbupsuser"],
+        "body": [],
+        "description": "Add a user to your Couchbase Cluster."
+    }
+}

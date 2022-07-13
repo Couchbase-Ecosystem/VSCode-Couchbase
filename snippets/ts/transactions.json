@@ -1,0 +1,32 @@
+{
+    "Transaction Example": {
+        "prefix": ["@cbtranex"],
+        "body": [],
+        "description": "Example code that shows connecting to a cluster and running a transaction on it."
+    },
+    "Insert Transaction": {
+        "prefix": ["@cbtranins"],
+        "body": [],
+        "description": "Perform an insertion transaction"
+    },
+    "Get Transaction": {
+        "prefix": ["@cbtranget"],
+        "body": [],
+        "description": "Perform a get transaction"
+    },
+    "Replace Transaction": {
+        "prefix": ["@cbtranrep"],
+        "body": [],
+        "description": "Perform a replace transaction"
+    },
+    "Remove Transaction": {
+        "prefix": ["@cbtranrem"],
+        "body": [],
+        "description": "Perform a remove transaction"
+    },
+    "Transaction Import": {
+        "prefix": ["@cbtranimp"],
+        "body": [],
+        "description": "Import all necessary transaction namespaces."
+    }
+}

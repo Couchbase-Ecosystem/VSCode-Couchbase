@@ -1,0 +1,22 @@
+{
+    "Create Analytics Query": {
+        "prefix": ["@cbanq"],
+        "body": [],
+        "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster."
+    },
+    "Analytics Query With Parameters": {
+        "prefix": ["@cbanparamq"],
+        "body": [],
+        "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster, this uses parameters."
+    },
+    "Analytics Query Example": {
+        "prefix": ["@cbanex"],
+        "body": [],
+        "description": "Example code that shows connecting to a cluster and running an analytics query on it."
+    },
+    "Analytics Query Import": {
+        "prefix": ["@cbanimp"],
+        "body": [],
+        "description": "Import all necessary Analytics namespaces."
+    }
+}
