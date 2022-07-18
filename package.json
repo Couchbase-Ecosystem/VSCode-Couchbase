@@ -21,6 +21,42 @@
   },
   "preview": true,
   "icon": "images/couchbase.png",
+  "scripts": {
+    "build": "webpack",
+    "format": "prettier 'src/**/*.ts' --write",
+    "lint": "eslint src --ext ts --fix",
+    "package": "vsce package",
+    "pretest": "npm run test-compile && npm run lint",
+    "rebuild:electron": "node scripts/rebuildElectron.js",
+    "test": "node ./out/test/runTest.js",
+    "vscode:prepublish": "webpack --devtool source-map",
+    "watch": "webpack --watch"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^8.2.3",
+    "@types/node": "^12.20.42",
+    "@types/vscode": "^1.63.1",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "@vscode/test-electron": "^2.1.5",
+    "electron-rebuild": "^3.2.7",
+    "eslint": "^7.32.0",
+    "glob": "^7.2.0",
+    "mocha": "^9.2.2",
+    "node-loader": "^2.0.0",
+    "prettier": "^2.5.1",
+    "ts-loader": "^8.3.0",
+    "typescript": "^4.1.3",
+    "vsce": "^2.6.3",
+    "webpack": "^5.66.0",
+    "webpack-cli": "^4.9.1"
+  },
+  "dependencies": {
+    "axios": "^0.21.4",
+    "couchbase": "^3.2.5",
+    "keytar": "^7.7.0"
+  },
   "activationEvents": [
     "onFileSystem:couchbase",
     "onCommand:vscode-couchbase.createClusterConnection",
@@ -38,46 +74,166 @@
   "main": "./dist/extension.js",
   "contributes": {
     "snippets": [
-      {"language": "java","path": "./snippets/java/managementapi.json"},
-      {"language": "java","path": "./snippets/java/kvops.json"},
-      {"language": "java","path": "./snippets/java/subdocops.json"},
-      {"language": "java","path": "./snippets/java/query.json"},
-      {"language": "java","path": "./snippets/java/analytics.json"},
-      {"language": "java","path": "./snippets/java/fts.json"},
-      {"language": "java","path": "./snippets/java/bootstrapping.json"},
-      {"language": "java","path": "./snippets/java/transactions.json"},
-      {"language": "python","path": "./snippets/python/managementapi.json"},
-      {"language": "python","path": "./snippets/python/kvops.json"},
-      {"language": "python","path": "./snippets/python/subdocops.json"},
-      {"language": "python","path": "./snippets/python/query.json"},
-      {"language": "python","path": "./snippets/python/analytics.json"},
-      {"language": "python","path": "./snippets/python/fts.json"},
-      {"language": "python","path": "./snippets/python/bootstrapping.json"},
-      {"language": "python","path": "./snippets/python/transactions.json"},
-      {"language": "javascript","path": "./snippets/js/managementapi.json"},
-      {"language": "javascript","path": "./snippets/js/kvops.json"},
-      {"language": "javascript","path": "./snippets/js/subdocops.json"},
-      {"language": "javascript","path": "./snippets/js/query.json"},
-      {"language": "javascript","path": "./snippets/js/analytics.json"},
-      {"language": "javascript","path": "./snippets/js/fts.json"},
-      {"language": "javascript","path": "./snippets/js/bootstrapping.json"},
-      {"language": "javascript","path": "./snippets/js/transactions.json"},
-      {"language": "go","path": "./snippets/go/managementapi.json"},
-      {"language": "go","path": "./snippets/go/kvops.json"},
-      {"language": "go","path": "./snippets/go/subdocops.json"},
-      {"language": "go","path": "./snippets/go/query.json"},
-      {"language": "go","path": "./snippets/go/analytics.json"},
-      {"language": "go","path": "./snippets/go/fts.json"},
-      {"language": "go","path": "./snippets/go/bootstrapping.json"},
-      {"language": "go","path": "./snippets/go/transactions.json"},
-      {"language": "csharp","path": "./snippets/dotnet/managementapi.json"},
-      {"language": "csharp","path": "./snippets/dotnet/kvops.json"},
-      {"language": "csharp","path": "./snippets/dotnet/subdocops.json"},
-      {"language": "csharp","path": "./snippets/dotnet/query.json"},
-      {"language": "csharp","path": "./snippets/dotnet/analytics.json"},
-      {"language": "csharp","path": "./snippets/dotnet/fts.json"},
-      {"language": "csharp","path": "./snippets/dotnet/bootstrapping.json"},
-      {"language": "csharp","path": "./snippets/dotnet/transactions.json"}
+      {
+        "language": "java",
+        "path": "./snippets/java/managementapi.json"
+      },
+      {
+        "language": "java",
+        "path": "./snippets/java/kvops.json"
+      },
+      {
+        "language": "java",
+        "path": "./snippets/java/subdocops.json"
+      },
+      {
+        "language": "java",
+        "path": "./snippets/java/query.json"
+      },
+      {
+        "language": "java",
+        "path": "./snippets/java/analytics.json"
+      },
+      {
+        "language": "java",
+        "path": "./snippets/java/fts.json"
+      },
+      {
+        "language": "java",
+        "path": "./snippets/java/bootstrapping.json"
+      },
+      {
+        "language": "java",
+        "path": "./snippets/java/transactions.json"
+      },
+      {
+        "language": "python",
+        "path": "./snippets/python/managementapi.json"
+      },
+      {
+        "language": "python",
+        "path": "./snippets/python/kvops.json"
+      },
+      {
+        "language": "python",
+        "path": "./snippets/python/subdocops.json"
+      },
+      {
+        "language": "python",
+        "path": "./snippets/python/query.json"
+      },
+      {
+        "language": "python",
+        "path": "./snippets/python/analytics.json"
+      },
+      {
+        "language": "python",
+        "path": "./snippets/python/fts.json"
+      },
+      {
+        "language": "python",
+        "path": "./snippets/python/bootstrapping.json"
+      },
+      {
+        "language": "python",
+        "path": "./snippets/python/transactions.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/js/managementapi.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/js/kvops.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/js/subdocops.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/js/query.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/js/analytics.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/js/fts.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/js/bootstrapping.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/js/transactions.json"
+      },
+      {
+        "language": "go",
+        "path": "./snippets/go/managementapi.json"
+      },
+      {
+        "language": "go",
+        "path": "./snippets/go/kvops.json"
+      },
+      {
+        "language": "go",
+        "path": "./snippets/go/subdocops.json"
+      },
+      {
+        "language": "go",
+        "path": "./snippets/go/query.json"
+      },
+      {
+        "language": "go",
+        "path": "./snippets/go/analytics.json"
+      },
+      {
+        "language": "go",
+        "path": "./snippets/go/fts.json"
+      },
+      {
+        "language": "go",
+        "path": "./snippets/go/bootstrapping.json"
+      },
+      {
+        "language": "go",
+        "path": "./snippets/go/transactions.json"
+      },
+      {
+        "language": "csharp",
+        "path": "./snippets/dotnet/managementapi.json"
+      },
+      {
+        "language": "csharp",
+        "path": "./snippets/dotnet/kvops.json"
+      },
+      {
+        "language": "csharp",
+        "path": "./snippets/dotnet/subdocops.json"
+      },
+      {
+        "language": "csharp",
+        "path": "./snippets/dotnet/query.json"
+      },
+      {
+        "language": "csharp",
+        "path": "./snippets/dotnet/analytics.json"
+      },
+      {
+        "language": "csharp",
+        "path": "./snippets/dotnet/fts.json"
+      },
+      {
+        "language": "csharp",
+        "path": "./snippets/dotnet/bootstrapping.json"
+      },
+      {
+        "language": "csharp",
+        "path": "./snippets/dotnet/transactions.json"
+      }
     ],
     "customEditors": [
       {
@@ -233,41 +389,5 @@
         }
       }
     }
-  },
-  "scripts": {
-    "build": "webpack",
-    "format": "prettier 'src/**/*.ts' --write",
-    "lint": "eslint src --ext ts --fix",
-    "package": "vsce package",
-    "pretest": "npm run test-compile && npm run lint",
-    "rebuild:electron": "node scripts/rebuildElectron.js",
-    "test": "node ./out/test/runTest.js",
-    "vscode:prepublish": "webpack --devtool source-map",
-    "watch": "webpack --watch"
-  },
-  "devDependencies": {
-    "@types/glob": "^7.2.0",
-    "@types/mocha": "^8.2.3",
-    "@types/node": "^12.20.42",
-    "@types/vscode": "^1.63.1",
-    "@typescript-eslint/eslint-plugin": "^4.33.0",
-    "@typescript-eslint/parser": "^4.33.0",
-    "electron-rebuild": "^3.2.7",
-    "eslint": "^7.32.0",
-    "glob": "^7.2.0",
-    "mocha": "^9.2.2",
-    "node-loader": "^2.0.0",
-    "prettier": "^2.5.1",
-    "ts-loader": "^8.3.0",
-    "typescript": "^4.1.3",
-    "vsce": "^2.6.3",
-    "vscode-test": "^1.6.1",
-    "webpack": "^5.66.0",
-    "webpack-cli": "^4.9.1"
-  },
-  "dependencies": {
-    "axios": "^0.21.4",
-    "couchbase": "^3.2.4",
-    "keytar": "^7.7.0"
   }
 }
