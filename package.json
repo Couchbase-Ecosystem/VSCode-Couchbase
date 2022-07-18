@@ -387,7 +387,7 @@
   },
   "dependencies": {
     "axios": "^0.21.4",
-    "couchbase": "^3.2.4",
+    "couchbase": "^3.2.5",
     "keytar": "^7.7.0"
   }
 }
