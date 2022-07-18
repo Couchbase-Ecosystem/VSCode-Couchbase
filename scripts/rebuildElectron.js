@@ -25,7 +25,7 @@ Promise.resolve()
   .then(_ => {
     return rebuild({
       buildPath: ROOT_DIR,
-      electronVersion: '17.2.0'
+      electronVersion: '18.3.5'
     });
   })
   .then(_ => {
