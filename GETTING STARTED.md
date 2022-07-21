@@ -17,7 +17,7 @@ To install the VSIX file do the following:
 
 6. Congratulations, you have now installed the Couchbase Visual Studio Code Extension. 
 
-## Early Workflow
+## Early Workflow Example
 
 Let's connect to an existing cluster that has the `travel-sample` bucket present. We will use a get operation and run a query on this cluster. 
 
