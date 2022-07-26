@@ -20,7 +20,7 @@
         "description": "Example code showing different array operations."
     },
     "Sub Doc Upsert": {
-        "prefix": ["@cbsubupsert"],
+        "prefix": ["@cbsubups"],
         "body": ["await ${1:collection}.mutateIn('${2:document-key}', [","  couchbase.MutateInSpec.upsert('${3:path}', '${4:value}'),","])"],
         "description": "Modify the value of an existing path or create it if it does not exist."
     },
