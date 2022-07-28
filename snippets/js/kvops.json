@@ -36,7 +36,7 @@
     },
     "JSON Transcoder": {
         "prefix": ["@cbtranscoder"],
-        "body": ["//Our sdk supports other transcoders. It may be useful to adapt this snippet to use one of them, or make your own. ","//Visit our documentation for additional details.","try {","    await ${1:collection}.upsert('${2:key}', ${3:value},","        { transcoder: new DefaultTranscoder() },","    ).catch((e) => console.log(e));","} catch (e) {","    console.log(\"try/catch: \");","    console.log(e);","    return h.response(e.toString());","}"],
+        "body": ["//Our sdk supports other transcoders. It may be useful to adapt this snippet to use one of them, or make your own. ","//Visit our documentation for additional details.","try {","    await ${1:collection}.upsert('${2:key}', ${3:value},","        { transcoder: new DefaultTranscoder() },","    ).catch((e) => console.log(e));","} catch (e) {","    console.log(\"try/catch: \");","    console.log(e);","    return e.response(e.toString());","}"],
         "description": "Example code that shows how to use the default transcoder on an upsert operation."
     },
     "Document Expiration": {
