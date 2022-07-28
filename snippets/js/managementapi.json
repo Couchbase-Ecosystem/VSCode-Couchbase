@@ -1,9 +1,4 @@
 {
-    "Create a Collection Manager": {
-        "prefix": ["@cbcolman"],
-        "body": [ "const collectionMgr = ${1:bucket}.collections()","","try {","  var collectionSpec = new couchbase.CollectionSpec({","    name: '${2:collection-name}',","    scopeName: '${3:scope-name}',","  })","","  await collectionMgr.createCollection(collectionSpec)","} catch (e) {","  if (e instanceof couchbase.CollectionExistsError) {","    console.log('The collection already exists')","  } else if (e instanceof couchbase.ScopeNotFoundError) {","    console.log('The scope does not exist')","  } else {","    throw e","  }","}"],
-        "description": "Connect to a cluster, and create a collection manager."
-    },
     "Create a Collection": {
         "prefix": ["@cbcrcol"],
         "body": ["const collectionMgr = ${1:bucket}.collections()","","try {","  var collectionSpec = new couchbase.CollectionSpec({","    name: '${2:collection-name}',","    scopeName: '${3:scope-name}',","  })","","  await collectionMgr.createCollection(collectionSpec)","} catch (e) {","  if (e instanceof couchbase.CollectionExistsError) {","    console.log('The collection already exists')","  } else if (e instanceof couchbase.ScopeNotFoundError) {","    console.log('The scope does not exist')","  } else {","    throw e","  }","}"],

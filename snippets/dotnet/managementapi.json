@@ -1,9 +1,4 @@
 {
-    "Create a Collection Manager": {
-        "prefix": ["@cbcolman"],
-        "body": ["ICouchbaseCollectionManager collectionMgr = ${1:bucket}.Collections;","","var spec = new CollectionSpec(\"${2:scope-name}\", \"${3:collection-name}\");","","try {","    await collectionMgr.CreateCollectionAsync(spec);","}","catch (CollectionExistsException) {","    Console.WriteLine(\"Collection already exists\");","}","catch (ScopeNotFoundException) {","    Console.WriteLine(\"The specified parent scope doesn't exist\");","}"],
-        "description": "Connect to a cluster, and create a collection manager."
-    },
     "Create a Collection": {
         "prefix": ["@cbcrcol"],
         "body": ["ICouchbaseCollectionManager collectionMgr = ${1:bucket}.Collections;","","var spec = new CollectionSpec(\"${2:scope-name}\", \"${3:collection-name}\");","","try {","    await collectionMgr.CreateCollectionAsync(spec);","}","catch (CollectionExistsException) {","    Console.WriteLine(\"Collection already exists\");","}","catch (ScopeNotFoundException) {","    Console.WriteLine(\"The specified parent scope doesn't exist\");","}"],

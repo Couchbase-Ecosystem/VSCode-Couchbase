@@ -1,9 +1,4 @@
 {
-    "Create a Collection Manager": {
-        "prefix": ["@cbcolman"],
-        "body": ["CollectionManager collectionMgr = ${1:bucket}.collections();","","CollectionSpec spec = CollectionSpec.create(\"${2:collectionName}\", \"${3:scopeName}\");","","try {", "  collectionMgr.createCollection(spec);","}","catch (CollectionExistsException e) {","  System.out.println(\"Collection already exists\");","}","catch (ScopeNotFoundException e) {","  System.out.println(\"The specified parent scope doesn't exist\");", "}"],
-        "description": "Connect to a cluster, and create a collection manager."
-    },
     "Create a Collection": {
         "prefix": ["@cbcrcol"],
         "body": ["CollectionManager collectionMgr = ${1:bucket}.collections();","","CollectionSpec spec = CollectionSpec.create(\"${2:collectionName}\", \"${3:scopeName}\");","","try {", "  collectionMgr.createCollection(spec);","}","catch (CollectionExistsException e) {","  System.out.println(\"Collection already exists\");","}","catch (ScopeNotFoundException e) {","  System.out.println(\"The specified parent scope doesn't exist\");", "}"],
