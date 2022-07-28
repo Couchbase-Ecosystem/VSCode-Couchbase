@@ -6,7 +6,7 @@
     },
     "Analytics Query With Parameters": {
         "prefix": ["@cbanparamq"],
-        "body": ["try {","    var result = await ${1:cluster}.analyticsQuery('${2:SQL++ Query}'),","    // Keep one of the following 2 lines, depending on whether you want named or positional parameters.","    { parameters: ['${3:value}'] } // Positional Parameters","    { parameters: { ${4:name}: '${5:value}' } } // Named Parameters","","    result.rows.forEach((row) => {","        // handle results","    })","} catch (e) {","    throw e","}"],
+        "body": ["try {","    var result = await ${1:cluster}.analyticsQuery('${2:SQL++ Query}',","    // Keep one of the following 2 lines, depending on whether you want named or positional parameters.","    { parameters: ['${3:value}'] }) // Positional Parameters","    { parameters: { ${4:name}: '${5:value}' } }) // Named Parameters","","    result.rows.forEach((row) => {","        // handle results","    })","} catch (e) {","    throw e","}"],
         "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster, this uses parameters."
     },
     "Analytics Query Example": {
