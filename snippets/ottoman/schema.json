@@ -1,0 +1,17 @@
+{
+    "Create Index": {
+        "prefix": ["@cbotcrindx"],
+        "body": [],
+        "description": ""
+    },
+    "Create N1QL Index With Options": {
+        "prefix": ["@cbotcrindx2"],
+        "body": [],
+        "description": ""
+    },
+    "Generate Model": {
+        "prefix": ["@cbotgenmodel"],
+        "body": [],
+        "description": ""
+    }
+}

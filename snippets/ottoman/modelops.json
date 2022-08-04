@@ -1,0 +1,72 @@
+{
+    "Create Many": {
+        "prefix": ["@cbotcm"],
+        "body": [],
+        "description": ""
+    },
+    "Find": {
+        "prefix": ["@cbotf"],
+        "body": [],
+        "description": ""
+    },
+    "Find With Ignore Case": {
+        "prefix": ["@cbotfwigc"],
+        "body": [],
+        "description": ""
+    },
+    "Find With Limit": {
+        "prefix": ["@cbotfwlmt"],
+        "body": [],
+        "description": ""
+    },
+    "Find With Select": {
+        "prefix": ["@cbotfwsel"],
+        "body": [],
+        "description": ""
+    },
+    "Find By ID": {
+        "prefix": ["@cbotfbi"],
+        "body": [],
+        "description": ""
+    },
+    "Find By ID With Select": {
+        "prefix": ["@cbotfbiwsel"],
+        "body": [],
+        "description": ""
+    },
+    "Remove Many": {
+        "prefix": ["@cbotrm"],
+        "body": [],
+        "description": ""
+    },
+    "Remove By ID": {
+        "prefix": ["@cbotrmbi"],
+        "body": [],
+        "description": ""
+    },
+    "Update By ID": {
+        "prefix": ["@cbotupdbi"],
+        "body": [],
+        "description": ""
+    },
+    "Replace By ID": {
+        "prefix": ["@cbotrepbi"],
+        "body": [],
+        "description": ""
+    },
+    "Find One": {
+        "prefix": ["cbotfone"],
+        "body": [],
+        "description": ""
+    },
+    "Find One With Select Fields": {
+        "prefix": ["cbotfonesel"],
+        "body": [],
+        "description": ""
+    },
+    "Upsert": {
+        "prefix": ["cbotupsert"],
+        "body": [],
+        "description": ""
+    }
+}
