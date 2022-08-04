@@ -1,12 +1,12 @@
 {
     "Connect to Cluster": {
         "prefix": ["@cbotcon"],
-        "body": ["const { Ottoman } = require('ottoman')","const ottoman = new Ottoman({collectionName: '${1:collection_name'}})","","async function main(){","  var connection = await ottoman.connect({","    connectionString: '${2:couchbase://localhost}',","    bucketName: '${3:bucket_name}',","    username: '${4:Administrator}',","    password: '${5:password}',","  });","","  await ottoman.start();","","  await ottoman.close();","}","","main();"],
+        "body": ["import { Ottoman } from 'ottoman';","","const ottoman = new Ottoman();","","const main = async () => {","  await ottoman.connect({","    connectionString: '${2:couchbase://localhost}',","    bucketName: '${3:bucket_name}',","    username: '${4:Administrator}',","    password: '${5:password}',","  });","","  await ottoman.start();","}","","main();"],
         "description": "Connect to a cluster and get a reference to it, a bucket, and a collection."
     },
     "Connect to Cluster with TLS": {
         "prefix": ["@cbotcontls"],
-        "body": ["const { Ottoman } = require('ottoman')","const ottoman = new Ottoman({collectionName: '${1:collection_name'}})","","async function main(){","  var connection = await ottoman.connect({","    connectionString: '${2:couchbase://localhost}',","    bucketName: '${3:bucket_name}',","    username: '${4:Administrator}',","    password: '${5:password}',","    trustStorePath: '${6:/path/to/certificate.pem}',","  });","","  await ottoman.start();","","  await ottoman.close();","}","","main();"],
+        "body": ["import { Ottoman, CertificateAuthenticator } from 'ottoman';","const ottoman = new Ottoman();","","const main = async () => {","  await ottoman.connect({","    connectionString: '${2:couchbase://localhost}',","    bucketName: '${3:bucket_name}',","    username: '${4:Administrator}',","    password: '${5:password}',","authenticator: new CertificateAuthenticator(","    '${6:/path/to/client/certificate.pem}',","    '${7:/path/to/client/key.pem}'","  ),","    trustStorePath: '${8:/path/to/certificate.pem}',","  });","","  await ottoman.start();","}","","main();"],
         "description": "Connect to a cluster using TLS and get a reference to it, a bucket, and a collection."
     }
 }
