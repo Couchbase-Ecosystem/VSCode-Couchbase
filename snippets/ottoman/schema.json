@@ -11,7 +11,7 @@
     },
     "Generate Model": {
         "prefix": ["@cbotgenmodel"],
-        "body": ["const { model, Schema } = require('ottoman');","","const ${1:schema} = new Schema({","  ${2:field1}: { type: ${3|Boolean,String,Date,Number|}, required: true },","  ${4:field2}: { type: ${5|Boolean,String,Date,Number|}, required: true },","  ${6:field3}: { type: ${7|Boolean,String,Date,Number|}, required: true },","","});","const ${8:Model} = model('${9:modelname}', schema);","","module.exports = {","  ${8:Model}","}"],
+        "body": ["const { model, Schema } = require('ottoman');","","const ${1:schema} = new Schema({","  ${2:field1}: { type: ${3|Boolean,String,Date,Number|}, required: true },","  ${4:field2}: { type: ${5|Boolean,String,Date,Number|}, required: true },","  ${6:field3}: { type: ${7|Boolean,String,Date,Number|}, required: true },","","});","const ${8:Model} = model('${9:modelname}', ${1:schema});","","module.exports = {","  ${8:Model}","}"],
         "description": "Generate a model"
     }
 }
