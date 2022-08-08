@@ -1,32 +1,138 @@
 {
     "Transaction Example": {
-        "prefix": ["@cbtranex"],
-        "body": ["import * as couchbase from 'couchbase'","","async function main() {","    const ${1:cluster}: couchbase.Cluster = await couchbase.connect('${2:connection-string}', {","        username: '${3:username}',","        password: '${4:password}',","    })","","    // get a reference to our bucket","    const ${5:bucket}: couchbase.Bucket = ${1:cluster}.bucket('${6:bucket-name}')","","    // get a reference to a collection","    const ${7:collection}: couchbase.Collection = ${5:bucket}.scope('${8:scope-name}').collection('${9:collection-name}')","","    try {","        await cluster.transactions().run(async (ctx) => {","            // Getting documents:","            const doc: couchbase.TransactionGetResult = await ctx.get(collection, '${7:document-key}')","        })","    } catch (error) {","        if (error instanceof couchbase.TransactionFailedError) {","          console.error('Transaction did not reach commit point', error)","        }","","        if (error instanceof couchbase.TransactionCommitAmbiguousError) {","          console.error('Transaction possibly committed', error)","        }","    }","}"],
+        "prefix": [
+            "@cbtranex"
+        ],
+        "body": [
+            "import * as couchbase from 'couchbase'",
+            "",
+            "async function main() {",
+            "    const ${1:cluster}: couchbase.Cluster = await couchbase.connect('${2:connection-string}', {",
+            "        username: '${3:username}',",
+            "        password: '${4:password}',",
+            "    })",
+            "",
+            "    // get a reference to our bucket",
+            "    const ${5:bucket}: couchbase.Bucket = ${1:cluster}.bucket('${6:bucket-name}')",
+            "",
+            "    // get a reference to a collection",
+            "    const ${7:collection}: couchbase.Collection = ${5:bucket}.scope('${8:scope-name}').collection('${9:collection-name}')",
+            "",
+            "    try {",
+            "        await cluster.transactions().run(async (ctx) => {",
+            "            // Getting documents:",
+            "            const doc: couchbase.TransactionGetResult = await ctx.get(collection, '${7:document-key}')",
+            "        })",
+            "    } catch (error) {",
+            "        if (error instanceof couchbase.TransactionFailedError) {",
+            "          console.error('Transaction did not reach commit point', error)",
+            "        }",
+            "",
+            "        if (error instanceof couchbase.TransactionCommitAmbiguousError) {",
+            "          console.error('Transaction possibly committed', error)",
+            "        }",
+            "    }",
+            "}"
+        ],
         "description": "Example code that shows connecting to a cluster and running a transaction on it."
     },
     "Insert Transaction": {
-        "prefix": ["@cbtranins"],
-        "body": ["try {","    await cluster.transactions().run(async (ctx) => {","        // Inserting a doc:","        await ctx.insert(${1:collection}, '${2:document-key}', ${3:document})","    })","} catch (error) {","    if (error instanceof couchbase.TransactionFailedError) {","      console.error('Transaction did not reach commit point', error)","    }","","    if (error instanceof couchbase.TransactionCommitAmbiguousError) {","      console.error('Transaction possibly committed', error)","    }","}"],
+        "prefix": [
+            "@cbtranins"
+        ],
+        "body": [
+            "try {",
+            "    await cluster.transactions().run(async (ctx) => {",
+            "        // Inserting a doc:",
+            "        await ctx.insert(${1:collection}, '${2:document-key}', ${3:document})",
+            "    })",
+            "} catch (error) {",
+            "    if (error instanceof couchbase.TransactionFailedError) {",
+            "      console.error('Transaction did not reach commit point', error)",
+            "    }",
+            "",
+            "    if (error instanceof couchbase.TransactionCommitAmbiguousError) {",
+            "      console.error('Transaction possibly committed', error)",
+            "    }",
+            "}"
+        ],
         "description": "Perform an insertion transaction"
     },
     "Get Transaction": {
-        "prefix": ["@cbtranget"],
-        "body": ["try {","    await cluster.transactions().run(async (ctx) => {","        // Getting documents:","        const doc: couchbase.TransactionGetResult = await ctx.get(${1:collection}, '${2:document-key}')","    })","} catch (error) {","    if (error instanceof couchbase.TransactionFailedError) {","      console.error('Transaction did not reach commit point', error)","    }","","    if (error instanceof couchbase.TransactionCommitAmbiguousError) {","      console.error('Transaction possibly committed', error)","    }","}"],
+        "prefix": [
+            "@cbtranget"
+        ],
+        "body": [
+            "try {",
+            "    await cluster.transactions().run(async (ctx) => {",
+            "        // Getting documents:",
+            "        const doc: couchbase.TransactionGetResult = await ctx.get(${1:collection}, '${2:document-key}')",
+            "    })",
+            "} catch (error) {",
+            "    if (error instanceof couchbase.TransactionFailedError) {",
+            "      console.error('Transaction did not reach commit point', error)",
+            "    }",
+            "",
+            "    if (error instanceof couchbase.TransactionCommitAmbiguousError) {",
+            "      console.error('Transaction possibly committed', error)",
+            "    }",
+            "}"
+        ],
         "description": "Perform a get transaction"
     },
     "Replace Transaction": {
-        "prefix": ["@cbtranrep"],
-        "body": ["try {","    await cluster.transactions().run(async (ctx) => {","        // Replacing a doc:","        const doc: couchbase.TransactionGetResult = await ctx.get(${1:collection}, '${2:document-key}')","        await ctx.replace(doc, ${3:document})","    })","} catch (error) {","    if (error instanceof couchbase.TransactionFailedError) {","      console.error('Transaction did not reach commit point', error)","    }","","    if (error instanceof couchbase.TransactionCommitAmbiguousError) {","      console.error('Transaction possibly committed', error)","    }","}"],
+        "prefix": [
+            "@cbtranrep"
+        ],
+        "body": [
+            "try {",
+            "    await cluster.transactions().run(async (ctx) => {",
+            "        // Replacing a doc:",
+            "        const doc: couchbase.TransactionGetResult = await ctx.get(${1:collection}, '${2:document-key}')",
+            "        await ctx.replace(doc, ${3:document})",
+            "    })",
+            "} catch (error) {",
+            "    if (error instanceof couchbase.TransactionFailedError) {",
+            "      console.error('Transaction did not reach commit point', error)",
+            "    }",
+            "",
+            "    if (error instanceof couchbase.TransactionCommitAmbiguousError) {",
+            "      console.error('Transaction possibly committed', error)",
+            "    }",
+            "}"
+        ],
         "description": "Perform a replace transaction"
     },
     "Remove Transaction": {
-        "prefix": ["@cbtranrem"],
-        "body": ["try {","    await cluster.transactions().run(async (ctx) => {","        // Removing a doc:","        const doc: couchbase.TransactionGetResult = await ctx.get(${1:collection}, '${2:document-key}')","        await ctx.remove(doc)","    })","} catch (error) {","    if (error instanceof couchbase.TransactionFailedError) {","      console.error('Transaction did not reach commit point', error)","    }","","    if (error instanceof couchbase.TransactionCommitAmbiguousError) {","      console.error('Transaction possibly committed', error)","    }","}"],
+        "prefix": [
+            "@cbtranrem"
+        ],
+        "body": [
+            "try {",
+            "    await cluster.transactions().run(async (ctx) => {",
+            "        // Removing a doc:",
+            "        const doc: couchbase.TransactionGetResult = await ctx.get(${1:collection}, '${2:document-key}')",
+            "        await ctx.remove(doc)",
+            "    })",
+            "} catch (error) {",
+            "    if (error instanceof couchbase.TransactionFailedError) {",
+            "      console.error('Transaction did not reach commit point', error)",
+            "    }",
+            "",
+            "    if (error instanceof couchbase.TransactionCommitAmbiguousError) {",
+            "      console.error('Transaction possibly committed', error)",
+            "    }",
+            "}"
+        ],
         "description": "Perform a remove transaction"
     },
     "Transaction Import": {
-        "prefix": ["@cbtranimp"],
-        "body": ["import * as couchbase from 'couchbase'"],
+        "prefix": [
+            "@cbtranimp"
+        ],
+        "body": [
+            "import * as couchbase from 'couchbase'"
+        ],
         "description": "Import all necessary transaction namespaces."
     }
 }
