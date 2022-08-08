@@ -1,17 +1,48 @@
 {
     "Create Index": {
-        "prefix": ["@cbotcrindx"],
-        "body": ["${1:Schema}.index.${2:name} = {","  by : ${3:field},","  type : ${4:indexType }","}"],
+        "prefix": [
+            "@cbotcrindx"
+        ],
+        "body": [
+            "${1:Schema}.index.${2:name} = {",
+            "  by : ${3:field},",
+            "  type : ${4:indexType }",
+            "}"
+        ],
         "description": ""
     },
     "Create N1QL Index With Options": {
-        "prefix": ["@cbotcrindx2"],
-        "body": ["${1:Schema}.index.${2:name} = {","  by : ${3:field},","  options : ${4:filter},","  type : ${5|'n1ql','refdoc'|}","}"],
+        "prefix": [
+            "@cbotcrindx2"
+        ],
+        "body": [
+            "${1:Schema}.index.${2:name} = {",
+            "  by : ${3:field},",
+            "  options : ${4:filter},",
+            "  type : ${5|'n1ql','refdoc'|}",
+            "}"
+        ],
         "description": ""
     },
     "Generate Model": {
-        "prefix": ["@cbotgenmodel"],
-        "body": ["const { model, Schema } = require('ottoman');","","const ${1:schema} = new Schema({","  ${2:field1}: { type: ${3|Boolean,String,Date,Number|}, required: true },","  ${4:field2}: { type: ${5|Boolean,String,Date,Number|}, required: true },","  ${6:field3}: { type: ${7|Boolean,String,Date,Number|}, required: true },","","});","const ${8:Model} = model('${9:modelname}', ${1:schema});","","module.exports = {","  ${8:Model}","}"],
+        "prefix": [
+            "@cbotgenmodel"
+        ],
+        "body": [
+            "const { model, Schema } = require('ottoman');",
+            "",
+            "const ${1:schema} = new Schema({",
+            "  ${2:field1}: { type: ${3|Boolean,String,Date,Number|}, required: true },",
+            "  ${4:field2}: { type: ${5|Boolean,String,Date,Number|}, required: true },",
+            "  ${6:field3}: { type: ${7|Boolean,String,Date,Number|}, required: true },",
+            "",
+            "});",
+            "const ${8:Model} = model('${9:modelname}', ${1:schema});",
+            "",
+            "module.exports = {",
+            "  ${8:Model}",
+            "}"
+        ],
         "description": "Generate a model"
     }
 }

@@ -1,72 +1,205 @@
 {
     "Create Many": {
-        "prefix": ["@cbotcm"],
-        "body": ["var document_array = [{","    ${1:field}:${2:item}","}, {","    ${3:field}:${4:item}","}];","","try {","  const result = await ${5:Model}.createMany(document_array);","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotcm"
+        ],
+        "body": [
+            "var document_array = [{",
+            "    ${1:field}:${2:item}",
+            "}, {",
+            "    ${3:field}:${4:item}",
+            "}];",
+            "",
+            "try {",
+            "  const result = await ${5:Model}.createMany(document_array);",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Upsert multiple documents to the cluster"
     },
     "Find": {
-        "prefix": ["@cbotf"],
-        "body": ["try {","  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} });","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotf"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} });",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Find documents based on a filter"
     },
     "Find With Ignore Case": {
-        "prefix": ["@cbotfwigc"],
-        "body": ["try {","  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { ignoreCase:true });","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotfwigc"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { ignoreCase:true });",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Find documents based on a filter with the option to ignore case"
     },
     "Find With Limit": {
-        "prefix": ["@cbotfwlmt"],
-        "body": ["try {","  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { limit:${4:10} });","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotfwlmt"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { limit:${4:10} });",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Find documents based on a filter, while using a limit"
     },
     "Find With Select": {
-        "prefix": ["@cbotfwsel"],
-        "body": ["try {","  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { select: '${4:field1}, ${5:field2}' });","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotfwsel"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { select: '${4:field1}, ${5:field2}' });",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Find documents and select fields"
     },
     "Find By ID": {
-        "prefix": ["@cbotfbi"],
-        "body": ["try {","  const result = await ${1:Model}.findById(${2:id});","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotfbi"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.findById(${2:id});",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Find a document using its ID"
     },
     "Find By ID With Select": {
-        "prefix": ["@cbotfbiwsel"],
-        "body": ["try {","  const result = await ${1:Model}.findById(${2:id}, { select: '${3:field1}, ${4:field2}' });","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotfbiwsel"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.findById(${2:id}, { select: '${3:field1}, ${4:field2}' });",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Find a document using its ID and select fields"
     },
     "Remove Many": {
-        "prefix": ["@cbotrm"],
-        "body": ["var remove_array = [{","  ${1:field}:${2:item}","}, {","  ${3:field}:${4:item}","}];","","try {","  const result = await ${5:Model}.removeMany(remove_array);","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotrm"
+        ],
+        "body": [
+            "var remove_array = [{",
+            "  ${1:field}:${2:item}",
+            "}, {",
+            "  ${3:field}:${4:item}",
+            "}];",
+            "",
+            "try {",
+            "  const result = await ${5:Model}.removeMany(remove_array);",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Remove many documents"
     },
     "Remove By ID": {
-        "prefix": ["@cbotrmbi"],
-        "body": ["try {","  const result = await ${1:Model}.removeById(${2:id});","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotrmbi"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.removeById(${2:id});",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Remove a document using its ID"
     },
     "Update By ID": {
-        "prefix": ["@cbotupdbi"],
-        "body": ["const doc = {","  ${1:field}: ${2:item}","}","try {","  const result = await ${3:Model}.updateById(${4:id}, doc);","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotupdbi"
+        ],
+        "body": [
+            "const doc = {",
+            "  ${1:field}: ${2:item}",
+            "}",
+            "try {",
+            "  const result = await ${3:Model}.updateById(${4:id}, doc);",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Update a document using its ID"
     },
     "Replace By ID": {
-        "prefix": ["@cbotrepbi"],
-        "body": ["const doc = {","  ${1:field}: ${2:item},","}","try {","  const result = await ${3:Model}.replaceById(${4:id}, doc);","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotrepbi"
+        ],
+        "body": [
+            "const doc = {",
+            "  ${1:field}: ${2:item},",
+            "}",
+            "try {",
+            "  const result = await ${3:Model}.replaceById(${4:id}, doc);",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": ""
     },
     "Find One": {
-        "prefix": ["@cbotfone"],
-        "body": ["try {","  const result = await ${1:Model}.findOne( { ${2:field} : ${3:filter} });","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotfone"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.findOne( { ${2:field} : ${3:filter} });",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Find one document with a filter"
     },
     "Find One With Select Fields": {
-        "prefix": ["@cbotfonesel"],
-        "body": ["try {","  const result = await ${1:Model}.findOne( { ${2:field} : ${3:filter} } , { select: '${4:field1}, ${5:field2}' });","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotfonesel"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.findOne( { ${2:field} : ${3:filter} } , { select: '${4:field1}, ${5:field2}' });",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Find one document with a filter and select fields"
     },
     "Upsert": {
-        "prefix": ["@cbotupsert"],
-        "body": ["const doc = {","  ${1:field}: ${2:item},","}","try {","  const result = await ${3:Model}.findOneAndUpdate( { ${4:field} : ${5:filter} }, doc , {new: true, upsert: true});","} catch (e) {","  console.log(e)","}"],
+        "prefix": [
+            "@cbotupsert"
+        ],
+        "body": [
+            "const doc = {",
+            "  ${1:field}: ${2:item},",
+            "}",
+            "try {",
+            "  const result = await ${3:Model}.findOneAndUpdate( { ${4:field} : ${5:filter} }, doc , {new: true, upsert: true});",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
         "description": "Upsert a document using Model.findOneAndUpdate"
     }
 }

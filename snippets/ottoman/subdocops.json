@@ -1,46 +1,64 @@
 {
     "Sub Doc Get": {
-        "prefix": ["@cbotsubget"],
+        "prefix": [
+            "@cbotsubget"
+        ],
         "body": [],
         "description": "Get or check the existence of a sub document value by providing document key and path."
     },
     "Sub Doc Insert": {
-        "prefix": ["@cbotsubins"],
+        "prefix": [
+            "@cbotsubins"
+        ],
         "body": [],
         "description": "Add a new value to a path that does not exist."
     },
     "Sub Doc Remove": {
-        "prefix": ["@cbotsubrem"],
+        "prefix": [
+            "@cbotsubrem"
+        ],
         "body": [],
         "description": "Remove the value of an existing path."
     },
     "Array Operations": {
-        "prefix": ["@cbotsubarrops"],
+        "prefix": [
+            "@cbotsubarrops"
+        ],
         "body": [],
         "description": "Example code showing different array operations."
     },
     "Sub Doc Upsert": {
-        "prefix": ["@cbotsubupsert"],
+        "prefix": [
+            "@cbotsubupsert"
+        ],
         "body": [],
         "description": "Modify the value of an existing path or create it if it does not exist."
     },
     "Array Append": {
-        "prefix": ["@cbotsubarrapp"],
+        "prefix": [
+            "@cbotsubarrapp"
+        ],
         "body": [],
         "description": "Append a value to an existing array in a document."
     },
     "Array Prepend": {
-        "prefix": ["@cbotsubarrpre"],
+        "prefix": [
+            "@cbotsubarrpre"
+        ],
         "body": [],
         "description": "Prepend a value to an existing array in a document."
     },
     "Array Add Unique": {
-        "prefix": ["@cbotsubarradd"],
+        "prefix": [
+            "@cbotsubarradd"
+        ],
         "body": [],
         "description": "Treat an existing array like a unique set and add a value."
     },
     "Array Insert At": {
-        "prefix": ["@cbotsubarrins"],
+        "prefix": [
+            "@cbotsubarrins"
+        ],
         "body": [],
         "description": "Insert a new element into an array at a specific position."
     }

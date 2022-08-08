@@ -1,32 +1,84 @@
 {
     "Create SQL++ Query": {
-        "prefix": ["@cbotq"],
-        "body": ["const query_params = {","  //define query parameters in here","};","const query = new Query(query_params, '${1:collection}').build();","console.log(query);"],
+        "prefix": [
+            "@cbotq"
+        ],
+        "body": [
+            "const query_params = {",
+            "  //define query parameters in here",
+            "};",
+            "const query = new Query(query_params, '${1:collection}').build();",
+            "console.log(query);"
+        ],
         "description": "Use SQL++ to Query the Couchbase Cluster."
     },
     "SQL++ Query With all Options": {
-        "prefix": ["@cbotqopts"],
+        "prefix": [
+            "@cbotqopts"
+        ],
         "body": [],
         "description": "Use SQL++ to Query the Couchbase Cluster, this has all options available."
     },
     "SQL++ Query With Parameters": {
-        "prefix": ["@cbotqparam"],
-        "body": ["const query_params = {","  //define query parameters in here","};","const function_parameters = [{ \\$field: '${1:parameter}' }];","const query = new Query(query_params, '${2:collection}')","  .select(function_parameters)","  .build();","console.log(query);"],
+        "prefix": [
+            "@cbotqparam"
+        ],
+        "body": [
+            "const query_params = {",
+            "  //define query parameters in here",
+            "};",
+            "const function_parameters = [{ \\$field: '${1:parameter}' }];",
+            "const query = new Query(query_params, '${2:collection}')",
+            "  .select(function_parameters)",
+            "  .build();",
+            "console.log(query);"
+        ],
         "description": "Use parameterised SQL++ to query the Couchbase Cluster."
     },
     "SQL++ Query with FTS": {
-        "prefix": ["@cbotqfts"],
+        "prefix": [
+            "@cbotqfts"
+        ],
         "body": [],
         "description": "Use SQL++ to query the Couchbase Cluster with full text search."
     },
     "SQL++ Query Import": {
-        "prefix": ["@cbotqimp"],
-        "body": ["const { connect, start, close } = require('ottoman');"],
+        "prefix": [
+            "@cbotqimp"
+        ],
+        "body": [
+            "const { connect, start, close } = require('ottoman');"
+        ],
         "description": "Import all necessary query namespaces"
     },
     "SQL++ Query Example": {
-        "prefix": ["@cbotqex"],
-        "body": ["const { connect, start, close } = require('ottoman');","","const connectToCluster = async () => {","  await connect({","    connectionString: '${1:couchbase://localhost}',","    bucketName: '${2:bucketName}',","    username: '${3:Administrator}',","    password: '${4:password}'","  });","  ","  await start();","","  const query_params = {","    //define query parameters in here","  };","  const query = new Query(query_params, '${5:collection}').build();","  console.log(query);","","  await close();","}","","connectToCluster();"],
+        "prefix": [
+            "@cbotqex"
+        ],
+        "body": [
+            "const { connect, start, close } = require('ottoman');",
+            "",
+            "const connectToCluster = async () => {",
+            "  await connect({",
+            "    connectionString: '${1:couchbase://localhost}',",
+            "    bucketName: '${2:bucketName}',",
+            "    username: '${3:Administrator}',",
+            "    password: '${4:password}'",
+            "  });",
+            "  ",
+            "  await start();",
+            "",
+            "  const query_params = {",
+            "    //define query parameters in here",
+            "  };",
+            "  const query = new Query(query_params, '${5:collection}').build();",
+            "  console.log(query);",
+            "",
+            "  await close();",
+            "}",
+            "",
+            "connectToCluster();"
+        ],
         "description": "Example code that shows connecting to a cluster and running a query on it."
     }
 }

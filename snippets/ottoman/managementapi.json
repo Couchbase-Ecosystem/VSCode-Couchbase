@@ -1,36 +1,116 @@
 {
     "Create a Collection": {
-        "prefix": ["@cbotcrcol"],
-        "body": ["const collectionMgr = ottoman.collectionManager()","","try {","  var collectionSpec = new couchbase.CollectionSpec({","    name: '${2:collection-name}',","    scopeName: '${3:scope-name}',","  })","","  await collectionMgr.createCollection(collectionSpec)","} catch (e) {","  if (e instanceof couchbase.CollectionExistsError) {","    console.log('The collection already exists')","  } else if (e instanceof couchbase.ScopeNotFoundError) {","    console.log('The scope does not exist')","  } else {","    throw e","  }","}"],
+        "prefix": [
+            "@cbotcrcol"
+        ],
+        "body": [
+            "const collectionMgr = ottoman.collectionManager()",
+            "",
+            "try {",
+            "  var collectionSpec = new couchbase.CollectionSpec({",
+            "    name: '${2:collection-name}',",
+            "    scopeName: '${3:scope-name}',",
+            "  })",
+            "",
+            "  await collectionMgr.createCollection(collectionSpec)",
+            "} catch (e) {",
+            "  if (e instanceof couchbase.CollectionExistsError) {",
+            "    console.log('The collection already exists')",
+            "  } else if (e instanceof couchbase.ScopeNotFoundError) {",
+            "    console.log('The scope does not exist')",
+            "  } else {",
+            "    throw e",
+            "  }",
+            "}"
+        ],
         "description": "Create a new collection, this will create a new collection manager."
-    },    
+    },
     "Create a Collection Reference": {
-        "prefix": ["@cbotcol"],
-        "body": ["const ${1:collection} = ottoman.getCollection('${2:collectionName}', '${3:scopeName}')"],
+        "prefix": [
+            "@cbotcol"
+        ],
+        "body": [
+            "const ${1:collection} = ottoman.getCollection('${2:collectionName}', '${3:scopeName}')"
+        ],
         "description": "Create a reference to an existing collection."
     },
     "Create a Scope": {
-        "prefix": ["@cbotcrscope"],
-        "body": ["const collectionMgr = ottoman.collectionManager()","","try {","  await collectionMgr.createScope('${1:scope-name}')","} catch (e) {","  if (e instanceof couchbase.ScopeExistsError) {","    console.log('The scope already exists')","  } else {","    throw e","  }","}"],
+        "prefix": [
+            "@cbotcrscope"
+        ],
+        "body": [
+            "const collectionMgr = ottoman.collectionManager()",
+            "",
+            "try {",
+            "  await collectionMgr.createScope('${1:scope-name}')",
+            "} catch (e) {",
+            "  if (e instanceof couchbase.ScopeExistsError) {",
+            "    console.log('The scope already exists')",
+            "  } else {",
+            "    throw e",
+            "  }",
+            "}"
+        ],
         "description": "Create a new scope, this will create a new collection manager."
     },
     "Create a Bucket": {
-        "prefix": ["@cbotcrbuck"],
-        "body": ["try {","  const bucketMgr = ottoman.BucketManager;","","  await bucketMgr.createBucket({","    name: '${2:bucket-name}',","    flushEnabled: ${3:false},","    replicaIndex: ${4:false},","    ramQuotaMB: ${5:200},","    numReplicas: ${6:1},","    bucketType: couchbase.BucketType.${7:Couchbase},","  })","","} catch (e) {","  if (e instanceof couchbase.BucketExistsError) {","    console.log('The bucket already exists')","  } else {","    throw e","  }","}"],
+        "prefix": [
+            "@cbotcrbuck"
+        ],
+        "body": [
+            "try {",
+            "  const bucketMgr = ottoman.BucketManager;",
+            "",
+            "  await bucketMgr.createBucket({",
+            "    name: '${2:bucket-name}',",
+            "    flushEnabled: ${3:false},",
+            "    replicaIndex: ${4:false},",
+            "    ramQuotaMB: ${5:200},",
+            "    numReplicas: ${6:1},",
+            "    bucketType: couchbase.BucketType.${7:Couchbase},",
+            "  })",
+            "",
+            "} catch (e) {",
+            "  if (e instanceof couchbase.BucketExistsError) {",
+            "    console.log('The bucket already exists')",
+            "  } else {",
+            "    throw e",
+            "  }",
+            "}"
+        ],
         "description": "Create a new bucket on an existing cluster reference."
     },
     "Create a Bucket Reference": {
-        "prefix": ["@cbotbuck"],
+        "prefix": [
+            "@cbotbuck"
+        ],
         "body": [],
         "description": "Create a reference to an existing bucket."
     },
     "Create an Index": {
-        "prefix": ["@cbotcrind"],
-        "body": ["try {","  indexMgr = ottoman.queryIndexManager()","  indexMgr.createIndex('${2:bucketName}', '${3:indexName}', ${4:fields})","} catch (e) {","  if (e instanceof couchbase.IndexExistsError) {","    console.log('The index already exists')","  } else if (e instanceof couchbase.IndexFailureError){","    console.log('Index creation failed')","  } else {","    throw e","  }","}"],
+        "prefix": [
+            "@cbotcrind"
+        ],
+        "body": [
+            "try {",
+            "  indexMgr = ottoman.queryIndexManager()",
+            "  indexMgr.createIndex('${2:bucketName}', '${3:indexName}', ${4:fields})",
+            "} catch (e) {",
+            "  if (e instanceof couchbase.IndexExistsError) {",
+            "    console.log('The index already exists')",
+            "  } else if (e instanceof couchbase.IndexFailureError){",
+            "    console.log('Index creation failed')",
+            "  } else {",
+            "    throw e",
+            "  }",
+            "}"
+        ],
         "description": "Create a new index, this will create a new index manager."
     },
     "Create a User": {
-        "prefix": ["@cbotupsuser"],
+        "prefix": [
+            "@cbotupsuser"
+        ],
         "body": [],
         "description": "Add a user to your Couchbase Cluster."
     }
