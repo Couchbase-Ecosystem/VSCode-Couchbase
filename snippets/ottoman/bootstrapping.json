@@ -4,7 +4,7 @@
             "@cbotcon"
         ],
         "body": [
-            "import { Ottoman } from 'ottoman';",
+            "const { Ottoman } = require('ottoman');",
             "",
             "const ottoman = new Ottoman();",
             "",

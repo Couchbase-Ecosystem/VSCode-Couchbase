@@ -4,14 +4,15 @@
             "@cbotcm"
         ],
         "body": [
-            "var document_array = [{",
-            "    ${1:field}:${2:item}",
+            "var docs = [{",
+            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
             "}, {",
-            "    ${3:field}:${4:item}",
+            "    ${7:field}:${8:item},${9:field2}:${10:item2}, ${11:field3}:${12:item3}",
             "}];",
             "",
             "try {",
-            "  const result = await ${5:Model}.createMany(document_array);",
+            "  const result = await ${13:Model}.createMany(docs);",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -25,6 +26,7 @@
         "body": [
             "try {",
             "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} });",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -33,11 +35,12 @@
     },
     "Find With Ignore Case": {
         "prefix": [
-            "@cbotfwigc"
+            "@cbotfig"
         ],
         "body": [
             "try {",
             "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { ignoreCase:true });",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -46,11 +49,12 @@
     },
     "Find With Limit": {
         "prefix": [
-            "@cbotfwlmt"
+            "@cbotflim"
         ],
         "body": [
             "try {",
             "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { limit:${4:10} });",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -59,11 +63,12 @@
     },
     "Find With Select": {
         "prefix": [
-            "@cbotfwsel"
+            "@cbotfsel"
         ],
         "body": [
             "try {",
             "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { select: '${4:field1}, ${5:field2}' });",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -72,11 +77,12 @@
     },
     "Find By ID": {
         "prefix": [
-            "@cbotfbi"
+            "@cbotfid"
         ],
         "body": [
             "try {",
             "  const result = await ${1:Model}.findById(${2:id});",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -85,11 +91,12 @@
     },
     "Find By ID With Select": {
         "prefix": [
-            "@cbotfbiwsel"
+            "@cbotfidsel"
         ],
         "body": [
             "try {",
             "  const result = await ${1:Model}.findById(${2:id}, { select: '${3:field1}, ${4:field2}' });",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -101,14 +108,15 @@
             "@cbotrm"
         ],
         "body": [
-            "var remove_array = [{",
-            "  ${1:field}:${2:item}",
+            "var docs = [{",
+            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
             "}, {",
-            "  ${3:field}:${4:item}",
+            "    ${7:field}:${8:item},${9:field2}:${10:item2}, ${11:field3}:${12:item3}",
             "}];",
             "",
             "try {",
-            "  const result = await ${5:Model}.removeMany(remove_array);",
+            "  const result = await ${13:Model}.removeMany(docs);",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -117,11 +125,12 @@
     },
     "Remove By ID": {
         "prefix": [
-            "@cbotrmbi"
+            "@cbotrmid"
         ],
         "body": [
             "try {",
             "  const result = await ${1:Model}.removeById(${2:id});",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -130,14 +139,15 @@
     },
     "Update By ID": {
         "prefix": [
-            "@cbotupdbi"
+            "@cbotupdid"
         ],
         "body": [
             "const doc = {",
-            "  ${1:field}: ${2:item}",
+            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
             "}",
             "try {",
-            "  const result = await ${3:Model}.updateById(${4:id}, doc);",
+            "  const result = await ${7:Model}.updateById(${8:id}, doc);",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -146,27 +156,29 @@
     },
     "Replace By ID": {
         "prefix": [
-            "@cbotrepbi"
+            "@cbotrepid"
         ],
         "body": [
             "const doc = {",
-            "  ${1:field}: ${2:item},",
+            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
             "}",
             "try {",
-            "  const result = await ${3:Model}.replaceById(${4:id}, doc);",
+            "  const result = await ${7:Model}.replaceById(${8:id}, doc);",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
         ],
-        "description": ""
+        "description": "Replace a document using its ID"
     },
     "Find One": {
         "prefix": [
-            "@cbotfone"
+            "@cbotf"
         ],
         "body": [
             "try {",
             "  const result = await ${1:Model}.findOne( { ${2:field} : ${3:filter} });",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -175,11 +187,12 @@
     },
     "Find One With Select Fields": {
         "prefix": [
-            "@cbotfonesel"
+            "@cbotfsel"
         ],
         "body": [
             "try {",
             "  const result = await ${1:Model}.findOne( { ${2:field} : ${3:filter} } , { select: '${4:field1}, ${5:field2}' });",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -188,14 +201,15 @@
     },
     "Upsert": {
         "prefix": [
-            "@cbotupsert"
+            "@cbotups"
         ],
         "body": [
             "const doc = {",
-            "  ${1:field}: ${2:item},",
+            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
             "}",
             "try {",
-            "  const result = await ${3:Model}.findOneAndUpdate( { ${4:field} : ${5:filter} }, doc , {new: true, upsert: true});",
+            "  const result = await ${7:Model}.findOneAndUpdate( { ${8:field} : ${9:filter} }, doc , {new: true, upsert: true});",
+            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
