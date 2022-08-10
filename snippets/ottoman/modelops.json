@@ -209,5 +209,34 @@
             "}"
         ],
         "description": "Upsert a document using Model.findOneAndUpdate"
+    },
+    "Find With Populate": {
+        "prefix": [
+            "@cbotfpop"
+        ],
+        "body": [
+            "try {",
+            "  const options = { select: '${1}', populate: '*', lean: ${2:false}, populateMaxDeep: ${3:2} };",
+            "  const result = await ${4:Model}.findById('${5:id}', options);",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Find a document and populate nested documents"
+    },
+    "Update Many": {
+        "prefix": [
+            "@cbotupdm"
+        ],
+        "body": [
+            "try {",
+            "  var result = await {1:Model}.updateMany(${2:filter}, ${3:docs});",
+            "  console.log(' Update Results : ' + JSON.stringify(result, null, 2) + '\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Update all documents matching the given condition"
     }
 }
