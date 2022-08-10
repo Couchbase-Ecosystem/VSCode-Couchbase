@@ -7,12 +7,12 @@
             "var docs = [{",
             "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
             "}, {",
-            "    ${7:field}:${8:item},${9:field2}:${10:item2}, ${11:field3}:${12:item3}",
+            "    ${1:field}:${8:item},${3:field2}:${10:item2}, ${5:field3}:${12:item3}",
             "}];",
             "",
             "try {",
             "  const result = await ${13:Model}.createMany(docs);",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Create Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -26,7 +26,7 @@
         "body": [
             "try {",
             "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} });",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -40,7 +40,7 @@
         "body": [
             "try {",
             "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { ignoreCase:true });",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -54,7 +54,7 @@
         "body": [
             "try {",
             "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { limit:${4:10} });",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -68,7 +68,7 @@
         "body": [
             "try {",
             "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { select: '${4:field1}, ${5:field2}' });",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -82,7 +82,7 @@
         "body": [
             "try {",
             "  const result = await ${1:Model}.findById(${2:id});",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -96,7 +96,7 @@
         "body": [
             "try {",
             "  const result = await ${1:Model}.findById(${2:id}, { select: '${3:field1}, ${4:field2}' });",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -108,15 +108,9 @@
             "@cbotrm"
         ],
         "body": [
-            "var docs = [{",
-            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
-            "}, {",
-            "    ${7:field}:${8:item},${9:field2}:${10:item2}, ${11:field3}:${12:item3}",
-            "}];",
-            "",
             "try {",
-            "  const result = await ${13:Model}.removeMany(docs);",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  const result = await ${1:Model}.removeMany( { $(2:filter) } );",
+            "  console.log(' Remove Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -130,7 +124,7 @@
         "body": [
             "try {",
             "  const result = await ${1:Model}.removeById(${2:id});",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Remove Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -142,12 +136,12 @@
             "@cbotupdid"
         ],
         "body": [
-            "const doc = {",
+            "var doc = {",
             "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
             "}",
             "try {",
             "  const result = await ${7:Model}.updateById(${8:id}, doc);",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Update Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -159,12 +153,12 @@
             "@cbotrepid"
         ],
         "body": [
-            "const doc = {",
+            "var doc = {",
             "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
             "}",
             "try {",
             "  const result = await ${7:Model}.replaceById(${8:id}, doc);",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Replace Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -178,7 +172,7 @@
         "body": [
             "try {",
             "  const result = await ${1:Model}.findOne( { ${2:field} : ${3:filter} });",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -192,7 +186,7 @@
         "body": [
             "try {",
             "  const result = await ${1:Model}.findOne( { ${2:field} : ${3:filter} } , { select: '${4:field1}, ${5:field2}' });",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"
@@ -204,12 +198,12 @@
             "@cbotups"
         ],
         "body": [
-            "const doc = {",
+            "var doc = {",
             "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
             "}",
             "try {",
             "  const result = await ${7:Model}.findOneAndUpdate( { ${8:field} : ${9:filter} }, doc , {new: true, upsert: true});",
-            "  console.log(' Find Reslts : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "  console.log(' Upsert Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
             "}"

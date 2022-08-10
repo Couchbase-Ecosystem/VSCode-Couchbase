@@ -37,10 +37,10 @@
             "  ${6:field3}: { type: ${7|String,Number,Boolean,Date|}, required: true },",
             "",
             "});",
-            "const ${8:userModel} = ottoman.model('${9:modelname}', ${1:schema}, {collectionName : '${9:modelname}s', scopeName : '${10:_default}', idKey: '${11:__id}'});",
+            "const ${8:model} = ottoman.model('${9:modelname}', ${1:schema}, {collectionName : '${9:modelname}s', scopeName : '${10:_default}', idKey: '${11:__id}'});",
             "",
             "module.exports = {",
-            "  ${8:userModel}",
+            "  ${8:model}",
             "}"
         ],
         "description": "Generate a model"
