@@ -19,6 +19,24 @@
         ],
         "description": "Upsert multiple documents to the cluster"
     },
+    "Create": {
+        "prefix": [
+            "@cbotc"
+        ],
+        "body": [
+            "var doc = {",
+            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
+            "};",
+            "",
+            "try {",
+            "  const result = await ${7:Model}.create(doc);",
+            "  console.log(' Create Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Upsert a document to the cluster"
+    },
     "Find": {
         "prefix": [
             "@cbotf"
@@ -238,5 +256,21 @@
             "}"
         ],
         "description": "Update all documents matching the given condition"
+    },
+    "Query": {
+        "prefix": [
+            "@cbotq"
+        ],
+        "body": [
+            "try{",
+            "  var result = await ottoman.query('${1:SQL++ Query}');",
+            "  console.log(' Query Results : ' + JSON.stringify(result, null, 2) + '\n');",
+            "}catch (e){",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Query your couchbase cluster"
     }
 }
+
+
