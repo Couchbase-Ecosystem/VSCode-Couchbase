@@ -2,6 +2,10 @@
 
 This is a Visual Studio Code extension for Couchbase.  At the moment it is work in progress.
 
+*This is not an officially supported Couchbase project, however we welcome contributions from the community via GitHub features such as the Issues tab.*
+
+*You are also welcome to post on [our forum](https://forums.couchbase.com/c/php-sdk) or join our [Discord](https://discord.com/invite/sQ5qbPZuTh) server.*
+
 ## How to Install
 
 Please download our extension on the Visual Studio Code extension marketplace or download the source code and package your own vsix file. 
