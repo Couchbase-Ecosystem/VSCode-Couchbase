@@ -44,5 +44,23 @@
             "}"
         ],
         "description": "Generate a model"
+    },
+    "Model Field": {
+        "prefix": [
+            "@cbotfield"
+        ],
+        "body": [
+            "${2:field}: { type: ${3|String,Number,Boolean,Date|}, required: true },"
+        ],
+        "description": "Generate a model field"
+    },
+    "Model Field with all Options": {
+        "prefix": [
+            "@cbotfieldopts"
+        ],
+        "body": [
+            "${2:field}: { type: ${3|String,Number,Boolean,Date|}, required: ${4:true}, min:${5}, max:${6}, enum:[${7}], default:${8}},"
+        ],
+        "description": "Generate a model field with common options shown"
     }
 }
