@@ -4,10 +4,10 @@
             "@cbcrcol"
         ],
         "body": [
-            "const collectionMgr: couchbase.CollectionManager = ${1:bucket}.collections()",
+            "const collectionMgr = ${1:bucket}.collections()",
             "",
             "try {",
-            "    var collectionSpec: couchbase.CollectionSpec = {",
+            "    var collectionSpec = {",
             "        name: '${2:collection-name}',",
             "        scopeName: '${3:scope-name}',",
             "        maxExpiry: ${4:0}",
@@ -31,7 +31,7 @@
             "@cbcol"
         ],
         "body": [
-            "const ${1:collection}: couchbase.Collection = ${2:scope}.collection('${3:collectionName}')"
+            "const ${1:collection} = ${2:scope}.collection('${3:collectionName}')"
         ],
         "description": "Create a reference to an existing collection."
     },
@@ -40,7 +40,7 @@
             "@cbcrscope"
         ],
         "body": [
-            "const collectionMgr: couchbase.CollectionManager = ${1:bucket}.collections()",
+            "const collectionMgr = ${1:bucket}.collections()",
             "",
             "try {",
             "    await collectionMgr.createScope('${2:scope-name}')",
@@ -60,7 +60,7 @@
         ],
         "body": [
             "try {",
-            "    const bucketMgr: couchbase.BucketManager = ${1:cluster}.buckets()",
+            "    const bucketMgr = ${1:cluster}.buckets()",
             "",
             "    await bucketMgr.createBucket({",
             "        name: '${2:bucket-name}',",
@@ -94,7 +94,7 @@
             "@cbbuck"
         ],
         "body": [
-            "const ${1:bucket}: couchbase.Bucket = ${2:cluster}.bucket('${3:bucketName}')"
+            "const ${1:bucket} = ${2:cluster}.bucket('${3:bucketName}')"
         ],
         "description": "Create a reference to an existing bucket."
     },
@@ -104,7 +104,7 @@
         ],
         "body": [
             "try {",
-            "    var indexMgr: couchbase.QueryIndexManager = ${1:cluster}.queryIndexes()",
+            "    var indexMgr = ${1:cluster}.queryIndexes()",
             "    indexMgr.createIndex('${2:bucketName}', '${3:indexName}', [${4:'fields'}])",
             "} catch (e) {",
             "    if (e instanceof couchbase.IndexExistsError) {",
