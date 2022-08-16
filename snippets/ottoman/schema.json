@@ -73,7 +73,7 @@
             "}",
             "",
             "${3:Schema}.index.${6:name} = {",
-            "  by : ${7:field},",
+            "  by : ${7:_type},",
             "  options : ${8:filter},",
             "  type : ${9|'n1ql','refdoc'|}",
             "}"
