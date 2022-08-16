@@ -24,7 +24,7 @@
         ],
         "description": ""
     },
-    "Generate Model": {
+    "Generate Model and Schema": {
         "prefix": [
             "@cbotgenmodel"
         ],
@@ -43,7 +43,42 @@
             "  ${8:model}",
             "}"
         ],
-        "description": "Generate a model"
+        "description": "Generate a model and a schema"
+    },
+    "Generate Schema": {
+        "prefix": [
+            "@cbotschema"
+        ],
+        "body": [
+            "const { model, Schema } = require('ottoman');",
+            "",
+            "const ${1:schema} = new Schema({",
+            "  ${2:field1}: { type: ${3|String,Number,Boolean,Date|}, required: true },",
+            "  ${4:field2}: { type: ${5|String,Number,Boolean,Date|}, required: true },",
+            "  ${6:field3}: { type: ${7|String,Number,Boolean,Date|}, required: true },",
+            "",
+            "});"
+        ],
+        "description": "Generate a schema"
+    },
+    "Generate Model and SQL++ Index": {
+        "prefix": [
+            "@cbotmodel"
+        ],
+        "body": [
+            "const ${1:model} = ottoman.model('${2:modelname}', ${3:schema}, {collectionName : '${2:modelname}s', scopeName : '${4:_default}', idKey: '${5:__id}'});",
+            "",
+            "module.exports = {",
+            "  ${1:model}",
+            "}",
+            "",
+            "${3:Schema}.index.${6:name} = {",
+            "  by : ${7:field},",
+            "  options : ${8:filter},",
+            "  type : ${9|'n1ql','refdoc'|}",
+            "}"
+        ],
+        "description": "Generate a model and an SQL++ index"
     },
     "Model Field": {
         "prefix": [

@@ -127,7 +127,7 @@
         ],
         "body": [
             "try {",
-            "  const result = await ${1:Model}.removeMany( { $(2:filter) } );",
+            "  const result = await ${1:Model}.removeMany( { ${2:filter} } );",
             "  console.log(' Remove Results : ' + JSON.stringify(result, null, 2) + '\\n');",
             "} catch (e) {",
             "  console.log(e)",
@@ -185,7 +185,7 @@
     },
     "Find One": {
         "prefix": [
-            "@cbotf"
+            "@cbotfone"
         ],
         "body": [
             "try {",
@@ -199,7 +199,7 @@
     },
     "Find One With Select Fields": {
         "prefix": [
-            "@cbotfsel"
+            "@cbotfonesel"
         ],
         "body": [
             "try {",
