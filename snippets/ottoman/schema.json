@@ -6,7 +6,7 @@
         "body": [
             "${1:Schema}.index.${2:name} = {",
             "  by : ${3:field},",
-            "  type : ${4:indexType }",
+            "  type : ${4|'n1ql','refdoc'|}",
             "}"
         ],
         "description": ""
@@ -39,11 +39,17 @@
             "});",
             "const ${8:model} = ottoman.model('${9:modelname}', ${1:schema}, {collectionName : '${9:modelname}s', scopeName : '${10:_default}', idKey: '${11:__id}'});",
             "",
+            "${1:Schema}.index.${12:name} = {",
+            "  by : ${13:_type},",
+            "  options : ${14:filter},",
+            "  type : ${15|'n1ql','refdoc'|}",
+            "}",
+            "",
             "module.exports = {",
             "  ${8:model}",
             "}"
         ],
-        "description": "Generate a model and a schema"
+        "description": "Generate a model, a schema, and an SQL++ index"
     },
     "Generate Schema": {
         "prefix": [
@@ -70,15 +76,9 @@
             "",
             "module.exports = {",
             "  ${1:model}",
-            "}",
-            "",
-            "${3:Schema}.index.${6:name} = {",
-            "  by : ${7:_type},",
-            "  options : ${8:filter},",
-            "  type : ${9|'n1ql','refdoc'|}",
             "}"
         ],
-        "description": "Generate a model and an SQL++ index"
+        "description": "Generate a model"
     },
     "Model Field": {
         "prefix": [
