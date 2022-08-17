@@ -56,7 +56,7 @@
             "    })",
             "",
             "    try {",
-            "        var result = await cluster.analyticsQuery('${4:SQL++ Query}')",
+            "        var result = await cluster.analyticsQuery('${5:SQL++ Query}')",
             "",
             "        result.rows.forEach((row) => {",
             "            // handle results",
