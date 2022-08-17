@@ -1,7 +1,22 @@
 {
     "Full Text Search": {
-        "prefix": ["@cbfts"],
-        "body": ["async function ftsMatchWord(term) {","    return await ${1:cluster}.searchQuery(","        '${2:search-index}',","        couchbase.SearchQuery.match(term)","    )","}","","result = await ftsMatchWord(${3:term})","","result.rows.forEach((hit, index) => {","    //handle results","})"],
+        "prefix": [
+            "@cbfts"
+        ],
+        "body": [
+            "async function ftsMatchWord(term) {",
+            "    return await ${1:cluster}.searchQuery(",
+            "        '${2:search-index}',",
+            "        couchbase.SearchQuery.match(term)",
+            "    )",
+            "}",
+            "",
+            "result = await ftsMatchWord(${3:term})",
+            "",
+            "result.rows.forEach((hit, index) => {",
+            "    //handle results",
+            "})"
+        ],
         "description": "Use a query string on the Full Text Search Service of your Couchbase Cluster."
     },
     "Full Text Search With all Options and Search Queries": {
@@ -38,8 +53,32 @@
         "description": "Import all necessary FTS namespaces"
     },
     "Full Text Search Example": {
-        "prefix": ["@cbftsex"],
-        "body": ["const couchbase = require('couchbase')","","async function main() {","  const cluster = await couchbase.connect('${1:connection-string}', {","    username: '${2:Administrator}',","    password: '${3:password}',","  })","","  result = ftsMatchWord(cluster, ${4:term})","","  result.rows.forEach((hit, index) => {","    //handle results","  })","}","","async function ftsMatchWord(cluster, term) {","    return await cluster.searchQuery(","        '${5:search-index}',","        couchbase.SearchQuery.match(term)","    )","}"],
+        "prefix": [
+            "@cbftsex"
+        ],
+        "body": [
+            "const couchbase = require('couchbase')",
+            "",
+            "async function main() {",
+            "  const cluster = await couchbase.connect('${1:connection-string}', {",
+            "    username: '${2:Administrator}',",
+            "    password: '${3:password}',",
+            "  })",
+            "",
+            "  result = ftsMatchWord(cluster, ${4:term})",
+            "",
+            "  result.rows.forEach((hit, index) => {",
+            "    //handle results",
+            "  })",
+            "}",
+            "",
+            "async function ftsMatchWord(cluster, term) {",
+            "    return await cluster.searchQuery(",
+            "        '${5:search-index}',",
+            "        couchbase.SearchQuery.match(term)",
+            "    )",
+            "}"
+        ],
         "description": "Example code that shows connecting to a cluster and running an FTS query on it."
     }
 }
