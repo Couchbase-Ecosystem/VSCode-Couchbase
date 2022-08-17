@@ -194,7 +194,7 @@
             "} catch (e) {",
             "    console.log(\"try/catch: \");",
             "    console.log(e);",
-            "    return h.response(e.toString());",
+            "    return e.response(e.toString());",
             "}"
         ],
         "description": "Example code that shows how to use the default transcoder on an upsert operation."

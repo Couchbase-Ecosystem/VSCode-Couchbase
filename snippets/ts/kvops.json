@@ -1,0 +1,187 @@
+{
+    "Upsert Document": {
+        "prefix": [
+            "@cbups"
+        ],
+        "body": [
+            "try {",
+            "    const key: string = `${${1:doc}.type}_${${1:doc}.id}`",
+            "    const result = await ${2:collection}.upsert(key, ${1:doc})",
+            "    console.log('Upsert Result: ')",
+            "    console.log(result)",
+            "} catch (error) {",
+            "    console.error(error)",
+            "}"
+        ],
+        "description": "Create a JSON object and upsert it to a collection."
+    },
+    "Insert Document": {
+        "prefix": [
+            "@cbins"
+        ],
+        "body": [
+            "try {",
+            "    const key: string = `${${1:doc}.type}_${${1:doc}.id}`",
+            "    const result = await ${2:collection}.insert(key, ${1:doc})",
+            "    console.log('Insert Result: ')",
+            "    console.log(result)",
+            "} catch (error) {",
+            "    console.error(error)",
+            "}"
+        ],
+        "description": "Create a JSON object and insert it to a collection, this will fail if a document with the same key already exists."
+    },
+    "Replace Document": {
+        "prefix": [
+            "@cbrep"
+        ],
+        "body": [
+            "try {",
+            "    const key: string = `${${1:doc}.type}_${${1:doc}.id}`",
+            "    const result = await ${2:collection}.replace(key, ${1:doc})",
+            "    console.log('Replace Result: ')",
+            "    console.log(result)",
+            "} catch (error) {",
+            "    console.error(error)",
+            "}"
+        ],
+        "description": "Use an existing JsonObject document replace an existing document in a collection, this will retry if there is a cas mismatch."
+    },
+    "Get Document": {
+        "prefix": [
+            "@cbget"
+        ],
+        "body": [
+            "try {",
+            "    const result = await ${1:collection}.get(${2:key})",
+            "    console.log('Get Result: ')",
+            "    console.log(result)",
+            "} catch (error) {",
+            "    console.error(error)",
+            "}"
+        ],
+        "description": "Use a key to get a JSON object from a collection and assign it to a JSON object, this will fail if no document with the specified key exists."
+    },
+    "Remove Document": {
+        "prefix": [
+            "@cbrem"
+        ],
+        "body": [
+            "try {",
+            "    const result = await ${1:collection}.remove(${2:key})",
+            "    console.log('Remove Result: ')",
+            "    console.log(result)",
+            "} catch (error) {",
+            "    console.error(error)",
+            "}"
+        ],
+        "description": "Use a key to remove a document from a collection, this will fail if no document with the specified key exists."
+    },
+    "KV Import": {
+        "prefix": [
+            "@cbkvimp"
+        ],
+        "body": [
+            "import * as couchbase from 'couchbase'"
+        ],
+        "description": "Import all necessary KV namespace."
+    },
+    "KV Example": {
+        "prefix": [
+            "@cbkvex"
+        ],
+        "body": [
+            "import * as couchbase from 'couchbase'",
+            "",
+            "//Insert a document",
+            "var document = {'foo': 'bar'}",
+            "try {",
+            "    const key: string = `${1:document-key}`",
+            "    const result = await ${2:collection}.insert(key, document)",
+            "    console.log('Insert Result: ')",
+            "    console.log(result)",
+            "} catch (error) {",
+            "    console.error(error)",
+            "}",
+            "",
+            "//Upsert a document",
+            "var document2 = {'bar': 'foo'}",
+            "try {",
+            "    const key: string = `${1:document-key}`",
+            "    const result = await ${2:collection}.upsert(key, document)",
+            "    console.log('Upsert Result: ')",
+            "    console.log(result)",
+            "} catch (error) {",
+            "    console.error(error)",
+            "}",
+            "",
+            "//Get a document",
+            "try {",
+            "    const result = await ${2:collection}.get(`${1:key})`)",
+            "    console.log('Get Result: ')",
+            "    console.log(result)",
+            "} catch (error) {",
+            "    console.error(error)",
+            "}",
+            "",
+            "//Replace a document",
+            "var document3 = {'foobar': 'barfoo'}",
+            "try {",
+            "    const key: string = `${1:document-key}`",
+            "    const result = await ${2:collection}.replace(key, document)",
+            "    console.log('Replace Result: ')",
+            "    console.log(result)",
+            "} catch (error) {",
+            "    console.error(error)",
+            "}",
+            "",
+            "//Remove a document",
+            "try {",
+            "    const result = await ${2:collection}.remove(`${1:key}`)",
+            "    console.log('Remove Result: ')",
+            "    console.log(result)",
+            "} catch (error) {",
+            "    console.error(error)",
+            "}"
+        ],
+        "description": "Example code that shows: inserting, upserting, getting, replacing, and removing a document. Along with all required imports."
+    },
+    "JSON Transcoder": {
+        "prefix": [
+            "@cbtranscoder"
+        ],
+        "body": [
+            "//Our sdk supports other transcoders. It may be useful to adapt this snippet to use one of them, or make your own. ",
+            "//Visit our documentation for additional details.",
+            "try {",
+            "    await ${1:collection}.upsert('${2:key}', ${3:value},",
+            "        { transcoder: new couchbase.DefaultTranscoder() },",
+            "    ).catch((e) => console.log(e));",
+            "} catch (e) {",
+            "    console.log(\"try/catch: \");",
+            "    console.log(e);",
+            "    return e.response(e.toString());",
+            "}"
+        ],
+        "description": "Example code that shows how to use the default transcoder on an upsert operation."
+    },
+    "Document Expiration": {
+        "prefix": [
+            "@cbsetexp"
+        ],
+        "body": [
+            "try {",
+            "    const result = await ${1:collection}.touch(\"${2:document-key}\", ${3:100},  // 100 seconds",
+            "        { timeout: 5000 } // 5 seconds",
+            "    );",
+            "} catch (e) {",
+            "    if (e instanceof couchbase.DocumentNotFoundError) {",
+            "        console.log('Document not found...')",
+            "    } else {",
+            "        throw e",
+            "    }",
+            "}"
+        ],
+        "description": "Use Document Expiration"
+    }
+}

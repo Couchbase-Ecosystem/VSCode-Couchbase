@@ -75,6 +75,38 @@
   "contributes": {
     "snippets": [
       {
+        "language": "typescript",
+        "path": "./snippets/ts/managementapi.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/kvops.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/subdocops.json"
+      },
+      { 
+        "language": "typescript",
+        "path": "./snippets/ts/query.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/analytics.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/fts.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/bootstrapping.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/transactions.json"
+      },
+      {
         "language": "java",
         "path": "./snippets/java/managementapi.json"
       },

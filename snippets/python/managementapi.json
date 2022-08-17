@@ -1,24 +1,4 @@
 {
-    "Create a Collection Manager": {
-        "prefix": [
-            "@cbcolman"
-        ],
-        "body": [
-            "coll_manager = ${1:bucket}.collections()",
-            "",
-            "collection_spec = CollectionSpec(",
-            "    \"${2:collection_name}\",",
-            "    scope_name=\"${3:scope_name}\")",
-            "",
-            "try:",
-            "    collection = coll_manager.create_collection(collection_spec)",
-            "except CollectionAlreadyExistsException as ex:",
-            "    print(ex)",
-            "except ScopeNotFoundException as ex:",
-            "    print(ex)"
-        ],
-        "description": "Connect to a cluster, and create a collection manager."
-    },
     "Create a Collection": {
         "prefix": [
             "@cbcrcol"
