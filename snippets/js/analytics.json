@@ -1,7 +1,25 @@
 {
     "Create Analytics Query": {
-        "prefix": ["@cbanq"],
-        "body": ["try {","    var result = await ${1:cluster}.analyticsQuery('${2:SQL++ Query}')","","    result.rows.forEach((row) => {","        // handle results","    })","","    console.log('Elapsed time: %d', result.meta.metrics.elapsedTime)","    console.log('Execution time: %d', result.meta.metrics.executionTime)","    console.log('Result count: %d', result.meta.metrics.resultCount)","    console.log('Error count: %d', result.meta.metrics.errorCount)","","} catch (e) {","    throw e","}"],
+        "prefix": [
+            "@cbanq"
+        ],
+        "body": [
+            "try {",
+            "    var result = await ${1:cluster}.analyticsQuery('${2:SQL++ Query}')",
+            "",
+            "    result.rows.forEach((row) => {",
+            "        // handle results",
+            "    })",
+            "",
+            "    console.log('Elapsed time: %d', result.meta.metrics.elapsedTime)",
+            "    console.log('Execution time: %d', result.meta.metrics.executionTime)",
+            "    console.log('Result count: %d', result.meta.metrics.resultCount)",
+            "    console.log('Error count: %d', result.meta.metrics.errorCount)",
+            "",
+            "} catch (e) {",
+            "    throw e",
+            "}"
+        ],
         "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster."
     },
     "Analytics Query With Parameters": {
@@ -10,13 +28,38 @@
         "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster, this uses parameters."
     },
     "Analytics Query Example": {
-        "prefix": ["@cbanex"],
-        "body": ["const couchbase = require('couchbase')","","async function main() {","    const cluster = await couchbase.connect('${1:connectionString}', {","        username: '${2:username}',","        password: '${3:password}',","    })","","    try {","        var result = await cluster.analyticsQuery('${4:SQL++ Query}')","","        result.rows.forEach((row) => {","            // handle results","        })","    } catch (e) {","        throw e","    }","}"],
+        "prefix": [
+            "@cbanex"
+        ],
+        "body": [
+            "const couchbase = require('couchbase')",
+            "",
+            "async function main() {",
+            "    const cluster = await couchbase.connect('${1:connectionString}', {",
+            "        username: '${2:username}',",
+            "        password: '${3:password}',",
+            "    })",
+            "",
+            "    try {",
+            "        var result = await cluster.analyticsQuery('${4:SQL++ Query}')",
+            "",
+            "        result.rows.forEach((row) => {",
+            "            // handle results",
+            "        })",
+            "    } catch (e) {",
+            "        throw e",
+            "    }",
+            "}"
+        ],
         "description": "Example code that shows connecting to a cluster and running an analytics query on it."
     },
     "Analytics Query Import": {
-        "prefix": ["@cbanimp"],
-        "body": ["const couchbase = require('couchbase')"],
+        "prefix": [
+            "@cbanimp"
+        ],
+        "body": [
+            "const couchbase = require('couchbase')"
+        ],
         "description": "Import all necessary Analytics namespaces."
     }
 }

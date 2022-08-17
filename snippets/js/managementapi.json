@@ -1,37 +1,140 @@
 {
     "Create a Collection": {
-        "prefix": ["@cbcrcol"],
-        "body": ["const collectionMgr = ${1:bucket}.collections()","","try {","  var collectionSpec = new couchbase.CollectionSpec({","    name: '${2:collection-name}',","    scopeName: '${3:scope-name}',","  })","","  await collectionMgr.createCollection(collectionSpec)","} catch (e) {","  if (e instanceof couchbase.CollectionExistsError) {","    console.log('The collection already exists')","  } else if (e instanceof couchbase.ScopeNotFoundError) {","    console.log('The scope does not exist')","  } else {","    throw e","  }","}"],
+        "prefix": [
+            "@cbcrcol"
+        ],
+        "body": [
+            "const collectionMgr = ${1:bucket}.collections()",
+            "",
+            "try {",
+            "  var collectionSpec = new couchbase.CollectionSpec({",
+            "    name: '${2:collection-name}',",
+            "    scopeName: '${3:scope-name}',",
+            "  })",
+            "",
+            "  await collectionMgr.createCollection(collectionSpec)",
+            "} catch (e) {",
+            "  if (e instanceof couchbase.CollectionExistsError) {",
+            "    console.log('The collection already exists')",
+            "  } else if (e instanceof couchbase.ScopeNotFoundError) {",
+            "    console.log('The scope does not exist')",
+            "  } else {",
+            "    throw e",
+            "  }",
+            "}"
+        ],
         "description": "Create a new collection, this will create a new collection manager."
-    },    
+    },
     "Create a Collection Reference": {
-        "prefix": ["@cbcol"],
-        "body": ["const ${1:collection} = ${2:scope}.collection('${3:collectionName}')"],
+        "prefix": [
+            "@cbcol"
+        ],
+        "body": [
+            "const ${1:collection} = ${2:scope}.collection('${3:collectionName}')"
+        ],
         "description": "Create a reference to an existing collection."
     },
     "Create a Scope": {
-        "prefix": ["@cbcrscope"],
-        "body": ["const collectionMgr = ${1:bucket}.collections()","","try {","  await collectionMgr.createScope('${1:scope-name}')","} catch (e) {","  if (e instanceof couchbase.ScopeExistsError) {","    console.log('The scope already exists')","  } else {","    throw e","  }","}"],
+        "prefix": [
+            "@cbcrscope"
+        ],
+        "body": [
+            "const collectionMgr = ${1:bucket}.collections()",
+            "",
+            "try {",
+            "  await collectionMgr.createScope('${1:scope-name}')",
+            "} catch (e) {",
+            "  if (e instanceof couchbase.ScopeExistsError) {",
+            "    console.log('The scope already exists')",
+            "  } else {",
+            "    throw e",
+            "  }",
+            "}"
+        ],
         "description": "Create a new scope, this will create a new collection manager."
     },
     "Create a Bucket": {
-        "prefix": ["@cbcrbuck"],
-        "body": ["try {","  const bucketMgr = ${1:cluster}.buckets()","","  await bucketMgr.createBucket({","    name: '${2:bucket-name}',","    flushEnabled: ${3:false},","    replicaIndex: ${4:false},","    ramQuotaMB: ${5:200},","    numReplicas: ${6:1},","    bucketType: couchbase.BucketType.${7:Couchbase},","  })","","} catch (e) {","  if (e instanceof couchbase.BucketExistsError) {","    console.log('The bucket already exists')","  } else {","    throw e","  }","}"],
+        "prefix": [
+            "@cbcrbuck"
+        ],
+        "body": [
+            "try {",
+            "  const bucketMgr = ${1:cluster}.buckets()",
+            "",
+            "  await bucketMgr.createBucket({",
+            "    name: '${2:bucket-name}',",
+            "    flushEnabled: ${3:false},",
+            "    replicaIndex: ${4:false},",
+            "    ramQuotaMB: ${5:200},",
+            "    numReplicas: ${6:1},",
+            "    bucketType: couchbase.BucketType.${7:Couchbase},",
+            "  })",
+            "",
+            "} catch (e) {",
+            "  if (e instanceof couchbase.BucketExistsError) {",
+            "    console.log('The bucket already exists')",
+            "  } else {",
+            "    throw e",
+            "  }",
+            "}"
+        ],
         "description": "Create a new bucket on an existing cluster reference."
     },
     "Create a Bucket Reference": {
-        "prefix": ["@cbbuck"],
-        "body": ["const ${1:bucket} = ${2:cluster}.bucket('${3:bucketName}')"],
+        "prefix": [
+            "@cbbuck"
+        ],
+        "body": [
+            "const ${1:bucket} = ${2:cluster}.bucket('${3:bucketName}')"
+        ],
         "description": "Create a reference to an existing bucket."
     },
     "Create an Index": {
-        "prefix": ["@cbcrind"],
-        "body": ["try {","  indexMgr = ${1:cluster}.queryIndexes()","  indexMgr.createIndex('${2:bucketName}', '${3:indexName}', ${4:fields})","} catch (e) {","  if (e instanceof couchbase.IndexExistsError) {","    console.log('The index already exists')","  } else if (e instanceof couchbase.IndexFailureError){","    console.log('Index creation failed')","  } else {","    throw e","  }","}"],
+        "prefix": [
+            "@cbcrind"
+        ],
+        "body": [
+            "try {",
+            "  indexMgr = ${1:cluster}.queryIndexes()",
+            "  indexMgr.createIndex('${2:bucketName}', '${3:indexName}', ${4:fields})",
+            "} catch (e) {",
+            "  if (e instanceof couchbase.IndexExistsError) {",
+            "    console.log('The index already exists')",
+            "  } else if (e instanceof couchbase.IndexFailureError){",
+            "    console.log('Index creation failed')",
+            "  } else {",
+            "    throw e",
+            "  }",
+            "}"
+        ],
         "description": "Create a new index, this will create a new index manager."
     },
     "Create a User": {
-        "prefix": ["@cbupsuser"],
-        "body": ["const userMgr = ${1:cluster}.users();","","await userMgr.upsertUser({","    username: \"${2:username}\",","    password: \"${3:password}\",","    displayName: \"${4:Display Name}\",","    roles: [","        // Roles required for the reading of data from the bucket","        { name: \"data_reader\", bucket: \"*\" },","        { name: \"query_select\", bucket: \"*\" },","","        // Roles required for the writing of data into the bucket. ","        { name: \"data_writer\", bucket: \"${5:bucket name}\" },","        { name: \"query_insert\", bucket: \"${5:bucket name}\" },","        { name: \"query_delete\", bucket: \"${5:bucket name}\" },","","        // Role required for the creation of indexes on the bucket.","        { name: \"query_manage_index\", bucket: \"${5:bucket name}\" }","    ]","})"],
+        "prefix": [
+            "@cbupsuser"
+        ],
+        "body": [
+            "const userMgr = ${1:cluster}.users();",
+            "",
+            "await userMgr.upsertUser({",
+            "    username: \"${2:username}\",",
+            "    password: \"${3:password}\",",
+            "    displayName: \"${4:Display Name}\",",
+            "    roles: [",
+            "        // Roles required for the reading of data from the bucket",
+            "        { name: \"data_reader\", bucket: \"*\" },",
+            "        { name: \"query_select\", bucket: \"*\" },",
+            "",
+            "        // Roles required for the writing of data into the bucket. ",
+            "        { name: \"data_writer\", bucket: \"${5:bucket name}\" },",
+            "        { name: \"query_insert\", bucket: \"${5:bucket name}\" },",
+            "        { name: \"query_delete\", bucket: \"${5:bucket name}\" },",
+            "",
+            "        // Role required for the creation of indexes on the bucket.",
+            "        { name: \"query_manage_index\", bucket: \"${5:bucket name}\" }",
+            "    ]",
+            "})"
+        ],
         "description": "Add a user to your Couchbase Cluster."
     }
 }

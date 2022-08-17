@@ -1,37 +1,116 @@
 {
     "Create a Collection": {
-        "prefix": ["@cbcrcol"],
-        "body": ["CollectionManager collectionMgr = ${1:bucket}.collections();","","CollectionSpec spec = CollectionSpec.create(\"${2:collectionName}\", \"${3:scopeName}\");","","try {", "  collectionMgr.createCollection(spec);","}","catch (CollectionExistsException e) {","  System.out.println(\"Collection already exists\");","}","catch (ScopeNotFoundException e) {","  System.out.println(\"The specified parent scope doesn't exist\");", "}"],
+        "prefix": [
+            "@cbcrcol"
+        ],
+        "body": [
+            "CollectionManager collectionMgr = ${1:bucket}.collections();",
+            "",
+            "CollectionSpec spec = CollectionSpec.create(\"${2:collectionName}\", \"${3:scopeName}\");",
+            "",
+            "try {",
+            "  collectionMgr.createCollection(spec);",
+            "}",
+            "catch (CollectionExistsException e) {",
+            "  System.out.println(\"Collection already exists\");",
+            "}",
+            "catch (ScopeNotFoundException e) {",
+            "  System.out.println(\"The specified parent scope doesn't exist\");",
+            "}"
+        ],
         "description": "Create a new collection, this will create a new collection manager."
-    },    
+    },
     "Create a Collection Reference": {
-        "prefix": ["@cbcol"],
-        "body": ["Scope scope = ${1:bucket}.scope(\"${2:scopeName}\");","Collection ${3:collection} = scope.collection(\"${4:collectionName}\");"],
+        "prefix": [
+            "@cbcol"
+        ],
+        "body": [
+            "Scope scope = ${1:bucket}.scope(\"${2:scopeName}\");",
+            "Collection ${3:collection} = scope.collection(\"${4:collectionName}\");"
+        ],
         "description": "Create a reference to an existing collection."
     },
     "Create a Scope": {
-        "prefix": ["@cbcrscope"],
-        "body": ["try {","    CollectionManager collectionMgr = ${1:bucket}.collections();","    collectionMgr.createScope(\"${2:scopeName}\");", "}", "catch (ScopeExistsException e) {","    System.out.println(\"Scope already exists\");", "}"],
+        "prefix": [
+            "@cbcrscope"
+        ],
+        "body": [
+            "try {",
+            "    CollectionManager collectionMgr = ${1:bucket}.collections();",
+            "    collectionMgr.createScope(\"${2:scopeName}\");",
+            "}",
+            "catch (ScopeExistsException e) {",
+            "    System.out.println(\"Scope already exists\");",
+            "}"
+        ],
         "description": "Create a new scope, this will create a new collection manager."
     },
     "Create a Bucket": {
-        "prefix": ["@cbcrbuck"],
-        "body": ["try {","    ${1:cluster}.buckets()","        .createBucket(BucketSettings.create(\"${2:bucketName}\")","            .bucketType(BucketType.COUCHBASE)","            .ramQuotaMB($3)","            .numReplicas($4)","            .replicaIndexes($5)", "            .flushEnabled($6));","}","catch (BucketExistsException  e) {","    System.out.println(\"Bucket already exists\");","}"],
+        "prefix": [
+            "@cbcrbuck"
+        ],
+        "body": [
+            "try {",
+            "    ${1:cluster}.buckets()",
+            "        .createBucket(BucketSettings.create(\"${2:bucketName}\")",
+            "            .bucketType(BucketType.COUCHBASE)",
+            "            .ramQuotaMB($3)",
+            "            .numReplicas($4)",
+            "            .replicaIndexes($5)",
+            "            .flushEnabled($6));",
+            "}",
+            "catch (BucketExistsException  e) {",
+            "    System.out.println(\"Bucket already exists\");",
+            "}"
+        ],
         "description": "Create a new bucket on an existing cluster reference."
     },
     "Create a Bucket Reference": {
-        "prefix": ["@cbbuck"],
-        "body": ["Bucket ${1:bucket} = ${2:cluster}.bucket(\"${3:bucketName}\");"],
+        "prefix": [
+            "@cbbuck"
+        ],
+        "body": [
+            "Bucket ${1:bucket} = ${2:cluster}.bucket(\"${3:bucketName}\");"
+        ],
         "description": "Create a reference to an existing bucket."
     },
     "Create an Index": {
-        "prefix": ["@cbcrind"],
-        "body": ["try{","    QueryIndexManager indexManager = Cluster.queryIndexes();","    indexManager.createIndex(\"${1:bucketName}\", \"${2:indexName}\", ${3:fields});","}","catch(IndexExistsException e){","    System.out.println(\"Index already exists\");","}","catch(IndexFailureException e){","    System.out.println(\"Index creation failed\");","}"],
+        "prefix": [
+            "@cbcrind"
+        ],
+        "body": [
+            "try{",
+            "    QueryIndexManager indexManager = Cluster.queryIndexes();",
+            "    indexManager.createIndex(\"${1:bucketName}\", \"${2:indexName}\", ${3:fields});",
+            "}",
+            "catch(IndexExistsException e){",
+            "    System.out.println(\"Index already exists\");",
+            "}",
+            "catch(IndexFailureException e){",
+            "    System.out.println(\"Index creation failed\");",
+            "}"
+        ],
         "description": "Create a new index, this will create a new index manager."
     },
     "Create a User": {
-        "prefix": ["@cbupsuser"],
-        "body": ["User user = new User(\"${1:username}\").password(\"${2:password}\").displayName(\"${3:displayName}\");","user.roles(","    // Roles required for the reading of data from the bucket","    new Role(\"data_reader\", \"*\"),","    new Role(\"query_select\", \"*\"),","    // Roles required for the writing of data into the bucket.","    new Role(\"data_writer\", \"${4:bucketName}\"),","    new Role(\"query_insert\", \"${4:bucketName}\"),","    new Role(\"query_delete\", \"${4:bucketName}\"),","    // Role required for the creation of indexes on the bucket.","    new Role(\"query_manage_index\", \"${4:bucketName}\"));","","cluster.users().upsertUser(user);"],
+        "prefix": [
+            "@cbupsuser"
+        ],
+        "body": [
+            "User user = new User(\"${1:username}\").password(\"${2:password}\").displayName(\"${3:displayName}\");",
+            "user.roles(",
+            "    // Roles required for the reading of data from the bucket",
+            "    new Role(\"data_reader\", \"*\"),",
+            "    new Role(\"query_select\", \"*\"),",
+            "    // Roles required for the writing of data into the bucket.",
+            "    new Role(\"data_writer\", \"${4:bucketName}\"),",
+            "    new Role(\"query_insert\", \"${4:bucketName}\"),",
+            "    new Role(\"query_delete\", \"${4:bucketName}\"),",
+            "    // Role required for the creation of indexes on the bucket.",
+            "    new Role(\"query_manage_index\", \"${4:bucketName}\"));",
+            "",
+            "cluster.users().upsertUser(user);"
+        ],
         "description": "Add a user to your Couchbase Cluster."
     }
 }

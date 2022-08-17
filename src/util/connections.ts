@@ -148,9 +148,9 @@ export async function removeConnection(connection: IConnection) {
   }
   const connections = getConnections();
   if (!connections) {
-    return
+    return;
   }
-  
+
   const connectionId = getConnectionId(connection);
   let answer = await vscode.window.showInformationMessage(`Are you sure you want to remove cluser connection [${connectionId}]?`, ...["Yes", "No"]);
   if (answer !== "Yes") {
