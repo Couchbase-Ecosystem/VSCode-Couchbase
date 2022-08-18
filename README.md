@@ -41,7 +41,7 @@ Please visit [SNIPPETS.md](SNIPPETS.md) to see a list of our snippets with descr
 
 ### Authoring Snippets
 
-For more information about creating snippets for a new language, or editing the current snippets, please see [AUTHORING SNIPPETS.md]('AUTHORING SNIPPETS.md') 
+For more information about creating snippets for a new language, or editing the current snippets, please see [AUTHORING SNIPPETS.md](AUTHORING SNIPPETS.md) 
 
 ## Database Browser
 
