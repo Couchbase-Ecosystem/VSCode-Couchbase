@@ -9,7 +9,7 @@
             "  type : ${4|'n1ql','refdoc'|}",
             "}"
         ],
-        "description": ""
+        "description": "Generate an Index on your schema"
     },
     "Create N1QL Index With Options": {
         "prefix": [
@@ -22,9 +22,9 @@
             "  type : ${5|'n1ql','refdoc'|}",
             "}"
         ],
-        "description": ""
+        "description": "Generate an SQL++ Index on your schema"
     },
-    "Generate Model and Schema": {
+    "Generate Model, Schema, and SQL++ Index": {
         "prefix": [
             "@cbotgenmodel"
         ],
@@ -67,7 +67,7 @@
         ],
         "description": "Generate a schema"
     },
-    "Generate Model and SQL++ Index": {
+    "Generate Model": {
         "prefix": [
             "@cbotmodel"
         ],
