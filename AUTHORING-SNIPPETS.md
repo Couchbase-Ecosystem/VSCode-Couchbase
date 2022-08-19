@@ -75,6 +75,8 @@ Place this into our existing JSON file, it should now look something like this:
 }
 ```
 
+### Description
+
 Now, lets give our snippet a description. We will use "Print a string to the console"
 
 ## Adding a contribute
