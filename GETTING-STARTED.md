@@ -19,7 +19,7 @@ To install the VSIX file do the following:
 
 ## Early Workflow Example
 
-Let's connect to an existing cluster that has the `travel-sample` bucket present. We will use a get operation and run a query on this cluster. 
+This tutorial assumes that you have a couchbase cluster set up with the `travel-sample` bucket present.vWe will use a get operation and run a query on this cluster. 
 
 We will use the Couchbase Node.js SDK for this example, but if you are unfamiliar with it then feel free to use any of our other supported SDKs. The snippet shortcuts will be the same, but file extensions and code will be different from what is displayed. 
 
