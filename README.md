@@ -39,6 +39,10 @@ These are useful when developing with supported Couchbase SDKs. These are:
 
 Please visit [SNIPPETS.md](SNIPPETS.md) to see a list of our snippets with descriptions and documentation for each of them.
 
+### Authoring Snippets
+
+For more information about creating snippets for a new language, or editing the current snippets, please see [AUTHORING-SNIPPETS.md](AUTHORING-SNIPPETS.md) 
+
 ## Database Browser
 
 This is a work in progress.
