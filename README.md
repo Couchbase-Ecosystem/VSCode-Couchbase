@@ -39,9 +39,10 @@ This Visual Studio Code extension has two features.
 These are useful when developing with supported Couchbase SDKs. These are: 
  * Java - [Link to Documentation](https://docs.couchbase.com/java-sdk/current/hello-world/overview.html), 
  * .NET - [Link to Documentation](https://docs.couchbase.com/dotnet-sdk/current/hello-world/overview.html), 
- * Node.js - [Link to Documentation](https://docs.couchbase.com/nodejs-sdk/current/hello-world/overview.html), 
+ * Node.js/Typescript - [Link to Documentation](https://docs.couchbase.com/nodejs-sdk/current/hello-world/overview.html), 
  * Python - [Link to Documentation](https://docs.couchbase.com/python-sdk/current/hello-world/overview.html),
  * Go - [Link to Documentation](https://docs.couchbase.com/go-sdk/current/hello-world/overview.html).
+ * Ottoman - [Link to Documentation](https://docs.couchbase.com/go-sdk/current/hello-world/overview.html).
 
 Please visit [SNIPPETS.md](SNIPPETS.md) to see a list of our snippets with descriptions and documentation for each of them.
 
