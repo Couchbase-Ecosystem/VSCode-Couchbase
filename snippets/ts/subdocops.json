@@ -5,7 +5,7 @@
         ],
         "body": [
             "try {",
-            "    var result = await ${1:collection}.lookupIn('${2:document-key}', [",
+            "    const result = await ${1:collection}.lookupIn('${2:document-key}', [",
             "        couchbase.LookupInSpec.get('${3:path}'),",
             "        couchbase.LookupInSpec.exists('${4:path}'),",
             "    ])",

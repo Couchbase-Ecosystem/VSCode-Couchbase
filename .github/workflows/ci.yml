@@ -1,0 +1,47 @@
+name: Package VSCode Plugin
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16.15.0
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install the dependencies
+        run: npm i
+
+      - name: Install vsce
+        run: npm i -g vsce
+
+     # - name: Delete package-lock.log file 
+     #   run: rm -f package-lock.json
+        
+      - name: git config email
+        run: git config --global user.email "you@example.com"
+        
+      - name: Git config username
+        run:  git config --global user.name "Your Name"
+        
+      - name: Update release number
+        run: vsce package
+        
+      - name: Publish
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          files: "vscode-couchbase*"
+        
+     # - name: Create package
+     #   run: vsce package --out "releases/"
+        
+     # - name: remove artifact file
+     #   run: rm releases/couchbase-sdk-snippets-patch.vsix

@@ -47,16 +47,16 @@
             "@cbanex"
         ],
         "body": [
-            "const couchbase = require('couchbase')",
+            "import * as couchbase from 'couchbase'",
             "",
             "async function main() {",
-            "    const cluster = await couchbase.connect('${1:connectionString}', {",
-            "        username: '${2:username}',",
-            "        password: '${3:password}',",
+            "    const cluster = await couchbase.connect('${2:connection-string}', {",
+            "        username: '${3:username}',",
+            "        password: '${4:password}',",
             "    })",
             "",
             "    try {",
-            "        var result = await cluster.analyticsQuery('${4:SQL++ Query}')",
+            "        var result = await cluster.analyticsQuery('${5:SQL++ Query}')",
             "",
             "        result.rows.forEach((row) => {",
             "            // handle results",
@@ -73,7 +73,7 @@
             "@cbanimp"
         ],
         "body": [
-            "const couchbase = require('couchbase')"
+            "import * as couchbase from 'couchbase'"
         ],
         "description": "Import all necessary Analytics namespaces."
     }

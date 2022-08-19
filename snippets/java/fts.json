@@ -1,22 +1,91 @@
 {
     "Full Text Search": {
-        "prefix": ["@cbfts"],
-        "body": ["try {","    final SearchResult result = ${1:cluster}.searchQuery(\"${2:search-index}\", SearchQuery.queryString(\"${3:query-string}\"));","","    for (SearchRow row : result.rows()) {","        System.out.println(\"Found row: \" + row);","    }","","    System.out.println(\"Reported total rows: \" + result.metaData().metrics().totalRows());","} catch (CouchbaseException ex) {","    ex.printStackTrace();","}"],
+        "prefix": [
+            "@cbfts"
+        ],
+        "body": [
+            "try {",
+            "    final SearchResult result = ${1:cluster}.searchQuery(\"${2:search-index}\", SearchQuery.queryString(\"${3:query-string}\"));",
+            "",
+            "    for (SearchRow row : result.rows()) {",
+            "        System.out.println(\"Found row: \" + row);",
+            "    }",
+            "",
+            "    System.out.println(\"Reported total rows: \" + result.metaData().metrics().totalRows());",
+            "} catch (CouchbaseException ex) {",
+            "    ex.printStackTrace();",
+            "}"
+        ],
         "description": "Use a query string on the Full Text Search Service of your Couchbase Cluster."
     },
     "Full Text Search With all Options and Search Queries": {
-        "prefix": ["@cbftsopts"],
-        "body": ["try {","    SearchResult result = ${1:cluster}.searchQuery(\"${2:search-index}\", SearchQuery.${3|queryString(String query),queryString(String query),match(String match),matchPhrase(String matchPhrase),prefix(String prefix),regexp(String regexp),termRange(),numericRange(),dateRange(),disjuncts(SearchQuery…​ queries),conjuncts(SearchQuery…​ queries),wildcard(String wildcard),docId(String…​ docIds),booleanField(boolean value),term(String term),phrase(String…​ terms),matchAll(),matchNone(),geoBoundingBox(double topLeftLon \\, double topLeftLat \\, double bottomRightLon \\, double bottomRightLat),geoDistance(double locationLon \\, double locationLat \\, String distance)|},","        searchOptions().skip(${4:int}).limit(${5:int}).explain(${6:boolean}).scanConsistency(${7:SearchScanConsistency}).consistentWith(${8:MutationState}).highlight(${9:HighlightStyle, String…}​).sort(${10:Object}).facets(${11:Map<String, SearchFacet>}).fields(${12:String…​}).serializer(${13:JsonSerializer}).raw(${14:String, Object}).collections(${15:String…​}));","","    for (SearchRow row : result.rows()) {","        System.out.println(\"Found row: \" + row);","    }","","    System.out.println(\"Reported total rows: \" + result.metaData().metrics().totalRows());",""    ,"} catch (CouchbaseException ex) {","    ex.printStackTrace();","}"],
+        "prefix": [
+            "@cbftsopts"
+        ],
+        "body": [
+            "try {",
+            "    SearchResult result = ${1:cluster}.searchQuery(\"${2:search-index}\", SearchQuery.${3|queryString(String query),queryString(String query),match(String match),matchPhrase(String matchPhrase),prefix(String prefix),regexp(String regexp),termRange(),numericRange(),dateRange(),disjuncts(SearchQuery…​ queries),conjuncts(SearchQuery…​ queries),wildcard(String wildcard),docId(String…​ docIds),booleanField(boolean value),term(String term),phrase(String…​ terms),matchAll(),matchNone(),geoBoundingBox(double topLeftLon \\, double topLeftLat \\, double bottomRightLon \\, double bottomRightLat),geoDistance(double locationLon \\, double locationLat \\, String distance)|},",
+            "        searchOptions().skip(${4:int}).limit(${5:int}).explain(${6:boolean}).scanConsistency(${7:SearchScanConsistency}).consistentWith(${8:MutationState}).highlight(${9:HighlightStyle, String…}​).sort(${10:Object}).facets(${11:Map<String, SearchFacet>}).fields(${12:String…​}).serializer(${13:JsonSerializer}).raw(${14:String, Object}).collections(${15:String…​}));",
+            "",
+            "    for (SearchRow row : result.rows()) {",
+            "        System.out.println(\"Found row: \" + row);",
+            "    }",
+            "",
+            "    System.out.println(\"Reported total rows: \" + result.metaData().metrics().totalRows());",
+            "",
+            "} catch (CouchbaseException ex) {",
+            "    ex.printStackTrace();",
+            "}"
+        ],
         "description": "Create a FTS query that has all available search queries and options shown to you. You can substitute the search query with any of the commented ones."
     },
     "Full Text Search Import": {
-        "prefix": ["@cbftsimp"],
-        "body": ["import static com.couchbase.client.java.search.SearchOptions.searchOptions;","","import com.couchbase.client.core.error.CouchbaseException;","import com.couchbase.client.java.Bucket;","import com.couchbase.client.java.Cluster;","import com.couchbase.client.java.Collection;","import com.couchbase.client.java.Scope;","import com.couchbase.client.java.json.JsonObject;","import com.couchbase.client.java.kv.MutationResult;","import com.couchbase.client.java.kv.MutationState;","import com.couchbase.client.java.search.HighlightStyle;","import com.couchbase.client.java.search.SearchQuery;","import com.couchbase.client.java.search.facet.SearchFacet;","import com.couchbase.client.java.search.result.ReactiveSearchResult;","import com.couchbase.client.java.search.result.SearchResult;","import com.couchbase.client.java.search.result.SearchRow;","import com.couchbase.client.java.search.sort.SearchSort;"],
+        "prefix": [
+            "@cbftsimp"
+        ],
+        "body": [
+            "import static com.couchbase.client.java.search.SearchOptions.searchOptions;",
+            "",
+            "import com.couchbase.client.core.error.CouchbaseException;",
+            "import com.couchbase.client.java.Bucket;",
+            "import com.couchbase.client.java.Cluster;",
+            "import com.couchbase.client.java.Collection;",
+            "import com.couchbase.client.java.Scope;",
+            "import com.couchbase.client.java.json.JsonObject;",
+            "import com.couchbase.client.java.kv.MutationResult;",
+            "import com.couchbase.client.java.kv.MutationState;",
+            "import com.couchbase.client.java.search.HighlightStyle;",
+            "import com.couchbase.client.java.search.SearchQuery;",
+            "import com.couchbase.client.java.search.facet.SearchFacet;",
+            "import com.couchbase.client.java.search.result.ReactiveSearchResult;",
+            "import com.couchbase.client.java.search.result.SearchResult;",
+            "import com.couchbase.client.java.search.result.SearchRow;",
+            "import com.couchbase.client.java.search.sort.SearchSort;"
+        ],
         "description": "Import all necessary FTS namespaces"
     },
     "Full Text Search Example": {
-        "prefix": ["@cbftsex"],
-        "body": ["import com.couchbase.client.core.error.CouchbaseException;","import com.couchbase.client.java.*;","","Cluster cluster = Cluster.connect(${1:connectionString}, ${2:username}, ${3:password});","","try {","    final SearchResult result = cluster.searchQuery(\"${4:search-index}\", SearchQuery.queryString(\"${5:query-string}\"));","","    for (SearchRow row : result.rows()) {","        System.out.println(\"Found row: \" + row);","    }","","    System.out.println(\"Reported total rows: \" + result.metaData().metrics().totalRows());","} catch (CouchbaseException ex) {","    ex.printStackTrace();","}"],
+        "prefix": [
+            "@cbftsex"
+        ],
+        "body": [
+            "import com.couchbase.client.core.error.CouchbaseException;",
+            "import com.couchbase.client.java.*;",
+            "",
+            "Cluster cluster = Cluster.connect(${1:connectionString}, ${2:username}, ${3:password});",
+            "",
+            "try {",
+            "    final SearchResult result = cluster.searchQuery(\"${4:search-index}\", SearchQuery.queryString(\"${5:query-string}\"));",
+            "",
+            "    for (SearchRow row : result.rows()) {",
+            "        System.out.println(\"Found row: \" + row);",
+            "    }",
+            "",
+            "    System.out.println(\"Reported total rows: \" + result.metaData().metrics().totalRows());",
+            "} catch (CouchbaseException ex) {",
+            "    ex.printStackTrace();",
+            "}"
+        ],
         "description": "Example code that shows connecting to a cluster and running an FTS query on it."
     }
 }
