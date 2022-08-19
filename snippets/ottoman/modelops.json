@@ -1,0 +1,274 @@
+{
+    "Create Many": {
+        "prefix": [
+            "@cbotcm"
+        ],
+        "body": [
+            "var docs = [{",
+            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
+            "}, {",
+            "    ${1:field}:${8:item},${3:field2}:${10:item2}, ${5:field3}:${12:item3}",
+            "}];",
+            "",
+            "try {",
+            "  const result = await ${13:Model}.createMany(docs);",
+            "  console.log(' Create Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Upsert multiple documents to the cluster"
+    },
+    "Create": {
+        "prefix": [
+            "@cbotc"
+        ],
+        "body": [
+            "var doc = {",
+            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
+            "};",
+            "",
+            "try {",
+            "  const result = await ${7:Model}.create(doc);",
+            "  console.log(' Create Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Upsert a document to the cluster"
+    },
+    "Find": {
+        "prefix": [
+            "@cbotf"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} });",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Find documents based on a filter"
+    },
+    "Find With Ignore Case": {
+        "prefix": [
+            "@cbotfig"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { ignoreCase:true });",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Find documents based on a filter with the option to ignore case"
+    },
+    "Find With Limit": {
+        "prefix": [
+            "@cbotflim"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { limit:${4:10} });",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Find documents based on a filter, while using a limit"
+    },
+    "Find With Select": {
+        "prefix": [
+            "@cbotfsel"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.find( { ${2:field} : ${3:filter} } , { select: '${4:field1}, ${5:field2}' });",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Find documents and select fields"
+    },
+    "Find By ID": {
+        "prefix": [
+            "@cbotfid"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.findById(${2:id});",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Find a document using its ID"
+    },
+    "Find By ID With Select": {
+        "prefix": [
+            "@cbotfidsel"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.findById(${2:id}, { select: '${3:field1}, ${4:field2}' });",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Find a document using its ID and select fields"
+    },
+    "Remove Many": {
+        "prefix": [
+            "@cbotrm"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.removeMany( { ${2:filter} } );",
+            "  console.log(' Remove Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Remove many documents"
+    },
+    "Remove By ID": {
+        "prefix": [
+            "@cbotrmid"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.removeById(${2:id});",
+            "  console.log(' Remove Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Remove a document using its ID"
+    },
+    "Update By ID": {
+        "prefix": [
+            "@cbotupdid"
+        ],
+        "body": [
+            "var doc = {",
+            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
+            "}",
+            "try {",
+            "  const result = await ${7:Model}.updateById(${8:id}, doc);",
+            "  console.log(' Update Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Update a document using its ID"
+    },
+    "Replace By ID": {
+        "prefix": [
+            "@cbotrepid"
+        ],
+        "body": [
+            "var doc = {",
+            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
+            "}",
+            "try {",
+            "  const result = await ${7:Model}.replaceById(${8:id}, doc);",
+            "  console.log(' Replace Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Replace a document using its ID"
+    },
+    "Find One": {
+        "prefix": [
+            "@cbotfone"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.findOne( { ${2:field} : ${3:filter} });",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Find one document with a filter"
+    },
+    "Find One With Select Fields": {
+        "prefix": [
+            "@cbotfonesel"
+        ],
+        "body": [
+            "try {",
+            "  const result = await ${1:Model}.findOne( { ${2:field} : ${3:filter} } , { select: '${4:field1}, ${5:field2}' });",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Find one document with a filter and select fields"
+    },
+    "Upsert": {
+        "prefix": [
+            "@cbotups"
+        ],
+        "body": [
+            "var doc = {",
+            "    ${1:field}:${2:item}, ${3:field2}:${4:item2}, ${5:field3}:${6:item3}",
+            "}",
+            "try {",
+            "  const result = await ${7:Model}.findOneAndUpdate( { ${8:field} : ${9:filter} }, doc , {new: true, upsert: true});",
+            "  console.log(' Upsert Results : ' + JSON.stringify(result, null, 2) + '\\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Upsert a document using Model.findOneAndUpdate"
+    },
+    "Find With Populate": {
+        "prefix": [
+            "@cbotfpop"
+        ],
+        "body": [
+            "try {",
+            "  const options = { select: '${1}', populate: '*', lean: ${2:false}, populateMaxDeep: ${3:2} };",
+            "  const result = await ${4:Model}.findById('${5:id}', options);",
+            "  console.log(' Find Results : ' + JSON.stringify(result, null, 2) + '\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Find a document and populate nested documents"
+    },
+    "Update Many": {
+        "prefix": [
+            "@cbotupdm"
+        ],
+        "body": [
+            "try {",
+            "  var result = await {1:Model}.updateMany(${2:filter}, ${3:docs});",
+            "  console.log(' Update Results : ' + JSON.stringify(result, null, 2) + '\n');",
+            "} catch (e) {",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Update all documents matching the given condition"
+    },
+    "Query": {
+        "prefix": [
+            "@cbotq"
+        ],
+        "body": [
+            "try{",
+            "  var result = await ottoman.query('${1:SQL++ Query}');",
+            "  console.log(' Query Results : ' + JSON.stringify(result, null, 2) + '\n');",
+            "}catch (e){",
+            "  console.log(e)",
+            "}"
+        ],
+        "description": "Query your couchbase cluster"
+    }
+}

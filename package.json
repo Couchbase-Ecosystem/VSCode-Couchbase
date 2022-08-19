@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -74,6 +74,50 @@
   "main": "./dist/extension.js",
   "contributes": {
     "snippets": [
+      {
+        "language": "javascript",
+        "path": "./snippets/ottoman/bootstrapping.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/ottoman/modelops.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/ottoman/schema.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/managementapi.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/kvops.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/subdocops.json"
+      },
+      { 
+        "language": "typescript",
+        "path": "./snippets/ts/query.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/analytics.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/fts.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/bootstrapping.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/ts/transactions.json"
+      },
       {
         "language": "java",
         "path": "./snippets/java/managementapi.json"

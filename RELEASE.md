@@ -11,3 +11,5 @@ To create a new release for this extension the following steps need to be follow
 6. Create a new tag using `git tag <tag name>`
     e.g. `git tag v1.0.0` would create a tag, and subsequently a release, labelled v1.0.0.
 7. Run `git push origin --tags`, this will trigger a github action that should build the release.
+
+The github workflow file can be found [here](.github/workflows/ci.yml)

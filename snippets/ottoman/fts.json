@@ -1,0 +1,30 @@
+{
+    "Full Text Search": {
+        "prefix": [
+            "@cbotfts"
+        ],
+        "body": [],
+        "description": "Use a query string on the Full Text Search Service of your Couchbase Cluster."
+    },
+    "Full Text Search With all Options and Search Queries": {
+        "prefix": [
+            "@cbotftsopts"
+        ],
+        "body": [],
+        "description": "Create a FTS query that has all options shown to you."
+    },
+    "Full Text Search Import": {
+        "prefix": [
+            "@cbotftsimp"
+        ],
+        "body": [],
+        "description": "Import all necessary FTS namespaces"
+    },
+    "Full Text Search Example": {
+        "prefix": [
+            "@cbotftsex"
+        ],
+        "body": [],
+        "description": "Example code that shows connecting to a cluster and running an FTS query on it."
+    }
+}

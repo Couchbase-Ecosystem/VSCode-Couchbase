@@ -1,47 +1,131 @@
 {
     "Sub Doc Get": {
-        "prefix": ["@cbsubget"],
-        "body": ["try {","    var result = await ${1:collection}.LookupInAsync(\"${2:document-key}\", specs => {","        specs.Get(\"${3:path}\");","        specs.Exists(\"${3:path}\");","    });","","    string content = result.ContentAs<string>(0);","    bool exists = result.ContentAs<bool>(1);","}","catch (DocumentNotFoundException) {","    // handle exception","}"],
+        "prefix": [
+            "@cbsubget"
+        ],
+        "body": [
+            "try {",
+            "    var result = await ${1:collection}.LookupInAsync(\"${2:document-key}\", specs => {",
+            "        specs.Get(\"${3:path}\");",
+            "        specs.Exists(\"${3:path}\");",
+            "    });",
+            "",
+            "    string content = result.ContentAs<string>(0);",
+            "    bool exists = result.ContentAs<bool>(1);",
+            "}",
+            "catch (DocumentNotFoundException) {",
+            "    // handle exception",
+            "}"
+        ],
         "description": "Get or check the existence of a sub document value by providing document key and path."
     },
     "Sub Doc Upsert": {
-        "prefix": ["@cbsubups"],
-        "body": ["await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>","    specs.Upsert(\"${3:path}\", \"${4:value}\")",");"],
+        "prefix": [
+            "@cbsubups"
+        ],
+        "body": [
+            "await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>",
+            "    specs.Upsert(\"${3:path}\", \"${4:value}\")",
+            ");"
+        ],
         "description": "Modify the value of an existing path or create it if it does not exist."
     },
     "Sub Doc Insert": {
-        "prefix": ["@cbsubins"],
-        "body": ["try {","    await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>","        specs.Insert(\"${3:path}\", \"${4:value}\")","    );","}","catch (DocumentExistsException) {","    // handle exception","}"],
+        "prefix": [
+            "@cbsubins"
+        ],
+        "body": [
+            "try {",
+            "    await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>",
+            "        specs.Insert(\"${3:path}\", \"${4:value}\")",
+            "    );",
+            "}",
+            "catch (DocumentExistsException) {",
+            "    // handle exception",
+            "}"
+        ],
         "description": "Add a new value to a path that does not exist."
     },
     "Sub Doc Remove": {
-        "prefix": ["@cbsubrem"],
-        "body": ["try {","    await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs => {","        specs.Remove(\"${3:path}\");","    });","}","catch (DocumentNotFoundException) {","    // handle exception","}"],
+        "prefix": [
+            "@cbsubrem"
+        ],
+        "body": [
+            "try {",
+            "    await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs => {",
+            "        specs.Remove(\"${3:path}\");",
+            "    });",
+            "}",
+            "catch (DocumentNotFoundException) {",
+            "    // handle exception",
+            "}"
+        ],
         "description": "Remove the value of an existing path."
     },
     "Array Operations": {
-        "prefix": ["@cbsubarrops"],
-        "body": ["//Append to an array","await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>","    specs.ArrayAppend(\"${3:path}\", new [] {${4:value}})",");","","//Prepend to an array","await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>","    specs.ArrayPrepend(\"${5:path}\", new [] {${6:value}})",");","","//Insert into an array","await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>","    specs.ArrayInsert(\"${7:path[index]}\", new[] {${8:value}})",");"],
+        "prefix": [
+            "@cbsubarrops"
+        ],
+        "body": [
+            "//Append to an array",
+            "await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>",
+            "    specs.ArrayAppend(\"${3:path}\", new [] {${4:value}})",
+            ");",
+            "",
+            "//Prepend to an array",
+            "await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>",
+            "    specs.ArrayPrepend(\"${5:path}\", new [] {${6:value}})",
+            ");",
+            "",
+            "//Insert into an array",
+            "await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>",
+            "    specs.ArrayInsert(\"${7:path[index]}\", new[] {${8:value}})",
+            ");"
+        ],
         "description": "Example code showing different array operations."
     },
     "Array Append": {
-        "prefix": ["@cbsubarrapp"],
-        "body": ["await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>","    specs.ArrayAppend(\"${3:path}\", new [] {${4:value}})",");"],
+        "prefix": [
+            "@cbsubarrapp"
+        ],
+        "body": [
+            "await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>",
+            "    specs.ArrayAppend(\"${3:path}\", new [] {${4:value}})",
+            ");"
+        ],
         "description": "Append a value to an existing array in a document."
     },
     "Array Prepend": {
-        "prefix": ["@cbsubarrpre"],
-        "body": ["await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>","    specs.ArrayPrepend(\"${3:path}\", new [] {${4:value}})",");"],
+        "prefix": [
+            "@cbsubarrpre"
+        ],
+        "body": [
+            "await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>",
+            "    specs.ArrayPrepend(\"${3:path}\", new [] {${4:value}})",
+            ");"
+        ],
         "description": "Prepend a value to an existing array in a document."
     },
     "Array Add Unique": {
-        "prefix": ["@cbsubarradd"],
-        "body": ["await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>","    specs.ArrayAddUnique(\"${3:path}\", ${4:value})",");"],
+        "prefix": [
+            "@cbsubarradd"
+        ],
+        "body": [
+            "await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>",
+            "    specs.ArrayAddUnique(\"${3:path}\", ${4:value})",
+            ");"
+        ],
         "description": "Treat an existing array like a unique set and add a value."
     },
     "Array Insert At": {
-        "prefix": ["@cbsubarrins"],
-        "body": ["await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>","    specs.ArrayInsert(\"${3:path[index]}\", new[] {${4:value}})",");"],
+        "prefix": [
+            "@cbsubarrins"
+        ],
+        "body": [
+            "await ${1:collection}.MutateInAsync(\"${2:document-key}\", specs =>",
+            "    specs.ArrayInsert(\"${3:path[index]}\", new[] {${4:value}})",
+            ");"
+        ],
         "description": "Insert a new element into an array at a specific position."
     }
 }

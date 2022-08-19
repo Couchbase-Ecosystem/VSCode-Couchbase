@@ -1,6 +1,14 @@
 # Snippets
 
-| Category | Name  | Shortcut  | Description  | Java Docs  | .NET Docs  | Node Docs  | Python Docs  | Go Docs  |
+We have snippets created for the following languages and SDKs: Java, .NET, Node.js, Python, Go, Ottoman, Spring Data, and Typescript. 
+
+When using the snippets for Spring Data the prefixes are different, they begin with @cbsd, rather than @cb. This is due to Spring Data and Java sharing the same file extensions. 
+
+The snippets for ottoman are listed at the bottom of this page. Due to how development is done using ottoman we required a different set of snippets to the rest of the supported languages. They also begin with @cbot, rather than @cb. This is due to Ottoman and Node.js sharing the same file extensions. 
+
+## Java, .NET, Node/TS, Python, Go
+
+| Category | Name  | Shortcut  | Description  | Java Docs  | .NET Docs  | Node/TS Docs  | Python Docs  | Go Docs  |
 | :-----: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | Bootstrapping |  |  |  |  |  |  |  |  |
 |  | Connect to Cluster | @cbcon | Connect to a cluster and get a refernece to it, a bucket, and a collection | [Y](https://docs.couchbase.com/java-sdk/current/hello-world/start-using-sdk.html) | [Y](https://docs.couchbase.com/dotnet-sdk/current/hello-world/start-using-sdk.html) | [Y](https://docs.couchbase.com/nodejs-sdk/current/hello-world/start-using-sdk.html) | [Y](https://docs.couchbase.com/python-sdk/current/hello-world/start-using-sdk.html) | [Y](https://docs.couchbase.com/go-sdk/current/hello-world/start-using-sdk.html) |
@@ -59,3 +67,40 @@
 |  | Replace Transaction | @cbcrscope | Perform a replace transaction | [Y](https://docs.couchbase.com/java-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) | [Y](https://docs.couchbase.com/dotnet-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) | [Y](https://docs.couchbase.com/nodejs-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) | N | [Y](https://docs.couchbase.com/go-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) |
 |  | Remove Transaction | @cbcrbuck | Perform a remove transaction | [Y](https://docs.couchbase.com/java-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) | [Y](https://docs.couchbase.com/dotnet-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) | [Y](https://docs.couchbase.com/nodejs-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) | N | [Y](https://docs.couchbase.com/go-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) |
 |  | Import | @cbbuck | Import all necessary transaction namespaces. | [Y](https://docs.couchbase.com/java-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) | [Y](https://docs.couchbase.com/dotnet-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) | [Y](https://docs.couchbase.com/nodejs-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) | N | [Y](https://docs.couchbase.com/go-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html) |
+
+
+
+## Ottoman
+
+| Category         | Name                           | Shortcut       | Description                                                                           |
+|------------------|--------------------------------|----------------|---------------------------------------------------------------------------------------|
+| Bootstrapping    |                                |                |                                                                                       |
+|                  | Connect to Cluster             | @cbcon         | Connect to a cluster and get a reference to it, a bucket, and a collection.           |
+|                  | Connect to Cluster With TLS    | @cbcontls      | Connect to a cluster using TLS and get a reference to it, a bucket, and a collection. |
+| Model Operations |                                |                |                                                                                       |
+|                  | Create Many                    | @cbotcm        | Upsert multiple documents to the cluster                                              |
+|                  | Create                         | @cbotc         | Upsert a document to the cluster                                                      |
+|                  | Find                           | @cbotf         | Find documents based on a filter                                                      |
+|                  | Find with Ignore Case          | @cbotfig       | Find documents based on a filter with the option to ignore case                       |
+|                  | Find with Limit                | @cbotlim       | Find documents based on a filter, while using a limit                                 |
+|                  | Find with Select               | @cbotfsel      | Find documents and select fields                                                      |
+|                  | Find by ID                     | @cbotfid       | Find a document using its ID                                                          |
+|                  | Find by ID with Select         | @cbotfidsel    | Find a document using its ID and select fields                                        |
+|                  | Remove Many                    | @cbotrm        | Remove many documents                                                                 |
+|                  | Remove by ID                   | @cbotrmid      | Remove a document using its ID                                                        |
+|                  | Update by ID                   | @cbotupdid     | Update a document using its ID                                                        |
+|                  | Replace by ID                  | @cbotrepid     | Replace a document using its ID                                                       |
+|                  | Find One                       | @cbotfone      | Find one document with a filter                                                       |
+|                  | Find One with Select Fields    | @cbotfonesel   | Find one document with a filter and select fields                                     |
+|                  | Upsert                         | @cbotups       | Upsert a document using Model.findOneAndUpdate                                        |
+|                  | Find and Populate              | @cbotfpop      | Find a document and populate nested documents                                         |
+|                  | Update Many                    | @cbotupdm      | Update all documents matching the given condition                                     |
+|                  | Query                          | @cbotq         | Query your couchbase cluster                                                          |
+| Schema           |                                |                |                                                                                       |
+|                  | Create Index                   | @cbotind       | Generate an Index on your schema                                                      |
+|                  | Create N1QL Index with Options | @cbotnqlind    | Generate an SQL++ Index on your schema                                                |
+|                  | Generate Model and Schema      | @cbotgenmodel  | Generate a model, a schema, and an SQL++ index                                        |
+|                  | Generate Schema                | @cbotschema    | Generate a schema                                                                     |
+|                  | Generate Model                 | @cbotmodel     | Generate a model                                                                      |
+|                  | Model Field                    | @cbotfield     | Generate a model field                                                                |
+|                  | Model Field with all Options   | @cbotfieldopts | Generate a model field with common options shown                                      |

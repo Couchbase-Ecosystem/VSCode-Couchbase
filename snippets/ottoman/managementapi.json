@@ -1,10 +1,10 @@
 {
     "Create a Collection": {
         "prefix": [
-            "@cbcrcol"
+            "@cbotcrcol"
         ],
         "body": [
-            "const collectionMgr = ${1:bucket}.collections()",
+            "const collectionMgr = ottoman.collectionManager()",
             "",
             "try {",
             "  var collectionSpec = new couchbase.CollectionSpec({",
@@ -27,19 +27,19 @@
     },
     "Create a Collection Reference": {
         "prefix": [
-            "@cbcol"
+            "@cbotcol"
         ],
         "body": [
-            "const ${1:collection} = ${2:scope}.collection('${3:collectionName}')"
+            "const ${1:collection} = ottoman.getCollection('${2:collectionName}', '${3:scopeName}')"
         ],
         "description": "Create a reference to an existing collection."
     },
     "Create a Scope": {
         "prefix": [
-            "@cbcrscope"
+            "@cbotcrscope"
         ],
         "body": [
-            "const collectionMgr = ${1:bucket}.collections()",
+            "const collectionMgr = ottoman.collectionManager()",
             "",
             "try {",
             "  await collectionMgr.createScope('${1:scope-name}')",
@@ -55,11 +55,11 @@
     },
     "Create a Bucket": {
         "prefix": [
-            "@cbcrbuck"
+            "@cbotcrbuck"
         ],
         "body": [
             "try {",
-            "  const bucketMgr = ${1:cluster}.buckets()",
+            "  const bucketMgr = ottoman.BucketManager;",
             "",
             "  await bucketMgr.createBucket({",
             "    name: '${2:bucket-name}',",
@@ -82,20 +82,18 @@
     },
     "Create a Bucket Reference": {
         "prefix": [
-            "@cbbuck"
+            "@cbotbuck"
         ],
-        "body": [
-            "const ${1:bucket} = ${2:cluster}.bucket('${3:bucketName}')"
-        ],
+        "body": [],
         "description": "Create a reference to an existing bucket."
     },
     "Create an Index": {
         "prefix": [
-            "@cbcrind"
+            "@cbotcrind"
         ],
         "body": [
             "try {",
-            "  indexMgr = ${1:cluster}.queryIndexes()",
+            "  indexMgr = ottoman.queryIndexManager()",
             "  indexMgr.createIndex('${2:bucketName}', '${3:indexName}', ${4:fields})",
             "} catch (e) {",
             "  if (e instanceof couchbase.IndexExistsError) {",
@@ -111,30 +109,9 @@
     },
     "Create a User": {
         "prefix": [
-            "@cbupsuser"
+            "@cbotupsuser"
         ],
-        "body": [
-            "const userMgr = ${1:cluster}.users();",
-            "",
-            "await userMgr.upsertUser({",
-            "    username: \"${2:username}\",",
-            "    password: \"${3:password}\",",
-            "    displayName: \"${4:Display Name}\",",
-            "    roles: [",
-            "        // Roles required for the reading of data from the bucket",
-            "        { name: \"data_reader\", bucket: \"*\" },",
-            "        { name: \"query_select\", bucket: \"*\" },",
-            "",
-            "        // Roles required for the writing of data into the bucket. ",
-            "        { name: \"data_writer\", bucket: \"${5:bucket name}\" },",
-            "        { name: \"query_insert\", bucket: \"${5:bucket name}\" },",
-            "        { name: \"query_delete\", bucket: \"${5:bucket name}\" },",
-            "",
-            "        // Role required for the creation of indexes on the bucket.",
-            "        { name: \"query_manage_index\", bucket: \"${5:bucket name}\" }",
-            "    ]",
-            "})"
-        ],
+        "body": [],
         "description": "Add a user to your Couchbase Cluster."
     }
 }

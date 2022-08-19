@@ -1,47 +1,128 @@
 {
     "Sub Doc Get": {
-        "prefix": ["@cbsubget"],
-        "body": ["try:","    result = ${1:collection}.lookup_in(","        \"${2:document-key}\",","        [SD.get(\"${3:path}\"),","         SD.exists(\"${3:path}\")])","","    print(\"{0}\".format(result.content_as[str](0)))","    print(\"Path exists: {}.\".format(result.exists(1)))","except PathNotFoundException:","    print(\"Path not found, cannot use get.\")"],
+        "prefix": [
+            "@cbsubget"
+        ],
+        "body": [
+            "try:",
+            "    result = ${1:collection}.lookup_in(",
+            "        \"${2:document-key}\",",
+            "        [SD.get(\"${3:path}\"),",
+            "         SD.exists(\"${3:path}\")])",
+            "",
+            "    print(\"{0}\".format(result.content_as[str](0)))",
+            "    print(\"Path exists: {}.\".format(result.exists(1)))",
+            "except PathNotFoundException:",
+            "    print(\"Path not found, cannot use get.\")"
+        ],
         "description": "Get or check the existence of a sub document value by providing document key and path."
     },
     "Sub Doc Insert": {
-        "prefix": ["@cbsubins"],
-        "body": ["try:","    ${1:collection}.mutate_in(","        \"${2:document-key}\", [","            SD.insert(","                \"${3:path}\",","                \"${4:value}\")])","except PathExistsException:","    print(\"Path exists, cannot use insert.\")"],
+        "prefix": [
+            "@cbsubins"
+        ],
+        "body": [
+            "try:",
+            "    ${1:collection}.mutate_in(",
+            "        \"${2:document-key}\", [",
+            "            SD.insert(",
+            "                \"${3:path}\",",
+            "                \"${4:value}\")])",
+            "except PathExistsException:",
+            "    print(\"Path exists, cannot use insert.\")"
+        ],
         "description": "Add a new value to a path that does not exist."
     },
     "Sub Doc Remove": {
-        "prefix": ["@cbsubrem"],
-        "body": ["try:","    ${1:collection}.mutate_in(","        \"${2:document-key}\",","        (SD.remove(\"${3:path}\")))","except PathNotFoundException:","    print(\"Path not found, cannot use remove.\")"],
+        "prefix": [
+            "@cbsubrem"
+        ],
+        "body": [
+            "try:",
+            "    ${1:collection}.mutate_in(",
+            "        \"${2:document-key}\",",
+            "        (SD.remove(\"${3:path}\")))",
+            "except PathNotFoundException:",
+            "    print(\"Path not found, cannot use remove.\")"
+        ],
         "description": "Remove the value of an existing path."
     },
     "Array Operations": {
-        "prefix": ["@cbsubarrops"],
-        "body": ["# Append to an array","${1:collection}.mutate_in(","    \"${2:document-key}\", (SD.array_append(","        \"${3:path}\", ${4:value})))","","# Prepend to an array","${1:collection}.mutate_in(","    \"${2:document-key}\", [","        SD.array_prepend(","            \"${5:path}\", ${6:value})])","","# Insert into an array","${1:collection}.mutate_in(\"${2:document-key}\", [SD.array_insert(\"${7:path[index]}\", \"${8:value}\")])"],
+        "prefix": [
+            "@cbsubarrops"
+        ],
+        "body": [
+            "# Append to an array",
+            "${1:collection}.mutate_in(",
+            "    \"${2:document-key}\", (SD.array_append(",
+            "        \"${3:path}\", ${4:value})))",
+            "",
+            "# Prepend to an array",
+            "${1:collection}.mutate_in(",
+            "    \"${2:document-key}\", [",
+            "        SD.array_prepend(",
+            "            \"${5:path}\", ${6:value})])",
+            "",
+            "# Insert into an array",
+            "${1:collection}.mutate_in(\"${2:document-key}\", [SD.array_insert(\"${7:path[index]}\", \"${8:value}\")])"
+        ],
         "description": "Example code showing different array operations."
     },
     "Sub Doc Upsert": {
-        "prefix": ["@cbsubupsert"],
-        "body": ["${1:collection}.mutate_in(\"${2:document-key}\", [SD.upsert(\"${3:path}\", \"${4:value}\")])"],
+        "prefix": [
+            "@cbsubupsert"
+        ],
+        "body": [
+            "${1:collection}.mutate_in(\"${2:document-key}\", [SD.upsert(\"${3:path}\", \"${4:value}\")])"
+        ],
         "description": "Modify the value of an existing path or create it if it does not exist."
     },
     "Array Append": {
-        "prefix": ["@cbsubarrapp"],
-        "body": ["${1:collection}.mutate_in(","    \"${2:document-key}\", (SD.array_append(","        \"${3:path}\", ${4:value})))"],
+        "prefix": [
+            "@cbsubarrapp"
+        ],
+        "body": [
+            "${1:collection}.mutate_in(",
+            "    \"${2:document-key}\", (SD.array_append(",
+            "        \"${3:path}\", ${4:value})))"
+        ],
         "description": "Append a value to an existing array in a document."
     },
     "Array Prepend": {
-        "prefix": ["@cbsubarrpre"],
-        "body": ["${1:collection}.mutate_in(","    \"${2:document-key}\", [","        SD.array_prepend(","            \"${3:path}\", ${4:value})])"],
+        "prefix": [
+            "@cbsubarrpre"
+        ],
+        "body": [
+            "${1:collection}.mutate_in(",
+            "    \"${2:document-key}\", [",
+            "        SD.array_prepend(",
+            "            \"${3:path}\", ${4:value})])"
+        ],
         "description": "Prepend a value to an existing array in a document."
     },
     "Array Add Unique": {
-        "prefix": ["@cbsubarradd"],
-        "body": ["try:","    ${1:collection}.mutate_in(","        \"${2:document-key}\", [","            SD.array_addunique(","                \"${3:path}\", ${4:value})])","    print('Success!')","except PathExistsException:","    print('Path already exists.')"],
+        "prefix": [
+            "@cbsubarradd"
+        ],
+        "body": [
+            "try:",
+            "    ${1:collection}.mutate_in(",
+            "        \"${2:document-key}\", [",
+            "            SD.array_addunique(",
+            "                \"${3:path}\", ${4:value})])",
+            "    print('Success!')",
+            "except PathExistsException:",
+            "    print('Path already exists.')"
+        ],
         "description": "Treat an existing array like a unique set and add a value."
     },
     "Array Insert At": {
-        "prefix": ["@cbsubarrins"],
-        "body": ["${1:collection}.mutate_in(\"${2:document-key}\", [SD.array_insert(\"${3:path[index]}\", \"${4:value}\")])"],
+        "prefix": [
+            "@cbsubarrins"
+        ],
+        "body": [
+            "${1:collection}.mutate_in(\"${2:document-key}\", [SD.array_insert(\"${3:path[index]}\", \"${4:value}\")])"
+        ],
         "description": "Insert a new element into an array at a specific position."
     }
 }
