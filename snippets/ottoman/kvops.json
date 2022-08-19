@@ -1,0 +1,133 @@
+{
+    "Upsert Document": {
+        "prefix": [
+            "@cbotups"
+        ],
+        "body": [
+            "await ${1:document}.save();"
+        ],
+        "description": "Upsert a document to a collection"
+    },
+    "Insert Document": {
+        "prefix": [
+            "@cbotins"
+        ],
+        "body": [
+            "await ${1:document}.save(true);"
+        ],
+        "description": "Insert a document into a collection."
+    },
+    "Replace Document": {
+        "prefix": [
+            "@cbotrep"
+        ],
+        "body": [
+            "const result = await ${1:model}.replaceById('${2:key}', ${3:document});"
+        ],
+        "description": "Replace a document in a collection."
+    },
+    "Get Document": {
+        "prefix": [
+            "@cbotget"
+        ],
+        "body": [
+            "const document = ${1:model}.findById('${2:key}')"
+        ],
+        "description": "Use a key to get a document from a collection."
+    },
+    "Remove Document": {
+        "prefix": [
+            "@cbotrem"
+        ],
+        "body": [
+            "const document = ${1:model}.findById('${2:key}')",
+            "",
+            "await document.remove();"
+        ],
+        "description": "Use a key to remove a document from a collection."
+    },
+    "KV Import": {
+        "prefix": [
+            "@cbotkvimp"
+        ],
+        "body": [
+            "const model  = require('ottoman');"
+        ],
+        "description": "Import all necessary KV namespace."
+    },
+    "KV Example": {
+        "prefix": [
+            "@cbotkvex"
+        ],
+        "body": [
+            "const model  = require('ottoman');",
+            "",
+            "const kvopex = async () => {",
+            "",
+            "    //Create a new model to represent a user. Create an instance of this model called 'user'",
+            "    const User = model('User', { name: String });",
+            "    var user = new User({ name: 'Jane Doe' });",
+            "",
+            "    //insert user into the database",
+            "    await user.save(true);",
+            "",
+            "    //upsert a new version of user into the database",
+            "    var user = new User({ name: 'Jane Doe 2' });",
+            "    await user.save();",
+            "",
+            "    //get the value of user",
+            "    var key = user.id",
+            "    var document = User.findById(key)",
+            "",
+            "    //replace user with a new document",
+            "    var user = new User({ name: 'Jane Doe 3'});",
+            "    await User.replaceById(key, user);",
+            "",
+            "    //remove user from the database",
+            "    var key = user.id",
+            "    var document = User.findById(key)",
+            "    await document.remove();",
+            "",
+            "}",
+            "",
+            "kvopex();"
+        ],
+        "description": "Example code that shows: inserting, upserting, getting, replacing, and removing a document. Along with all required imports."
+    },
+    "JSON Transcoder": {
+        "prefix": [
+            "@cbottranscoder"
+        ],
+        "body": [
+            "const { connect, start, close } = require('ottoman');",
+            "",
+            "const connect = async () => {",
+            "  await connect({",
+            "    connectionString: '${1:couchbase://localhost}',",
+            "    bucketName: '${2:bucketName}',",
+            "    username: '${3:Administrator}',",
+            "    password: '${4:password}',",
+            "    transcoder: ${5:transcoder}",
+            "  });",
+            "  ",
+            "  await start();",
+            "",
+            "  await close();",
+            "}",
+            "",
+            "connect();"
+        ],
+        "description": "Example code that shows how to use the default transcoder when connecting to a cluster."
+    },
+    "Document Expiration": {
+        "prefix": [
+            "@cbotsetexp"
+        ],
+        "body": [
+            "await ${1:document}.save(options = {",
+            "  maxExpiry: '${2:expiry}'",
+            "});"
+        ],
+        "description": "Use Document Expiration"
+    }
+}

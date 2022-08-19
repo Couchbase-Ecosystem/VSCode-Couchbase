@@ -75,6 +75,18 @@
   "contributes": {
     "snippets": [
       {
+        "language": "javascript",
+        "path": "./snippets/ottoman/bootstrapping.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/ottoman/modelops.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/ottoman/schema.json"
+      },
+      {
         "language": "typescript",
         "path": "./snippets/ts/managementapi.json"
       },
