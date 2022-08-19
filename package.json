@@ -85,7 +85,7 @@
       {
         "language": "javascript",
         "path": "./snippets/ottoman/schema.json"
-      }
+      },
       {
         "language": "typescript",
         "path": "./snippets/ts/managementapi.json"
