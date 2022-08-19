@@ -20,6 +20,8 @@ If you would like to package it yourself here, download the source code and run 
 3. In Visual Studio Code navigate to the extensions tab, and click 'install from vsix',
 4. Select the vsix file that you generated in step 2. 
 
+Feel free to read our [GETTING-STARTED.md](GETTING-STARTED.md) for more information.
+
 ## Contributing
 
 Please visit our [CONTRIBUTING.md](CONTRIBUTING.md) for information on contributing to this project.
