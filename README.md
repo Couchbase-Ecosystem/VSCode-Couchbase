@@ -8,12 +8,16 @@ This is a Visual Studio Code extension for Couchbase.  At the moment it is work 
 
 ## How to Install
 
-Please download our extension on the Visual Studio Code extension marketplace or download the source code and package your own vsix file. 
+Please visit the [releases tab](https://github.com/couchbaselabs/VSCode-Couchbase/releases) and download the most recent release. Once you've downloaded that:
 
-To do this run the following commands:
+1. In Visual Studio Code navigate to the extensions tab, and click 'install from vsix',
+2. Select the vsix file that you just downloaded.
+
+If you would like to package it yourself here, download the source code and run the following commands:
+
 1. `npm install -g vsce`,
 2. `vsce package`,
-3. In Visual Studio Code navigate to the extensions tab and click 'install from vsix',
+3. In Visual Studio Code navigate to the extensions tab, and click 'install from vsix',
 4. Select the vsix file that you generated in step 2. 
 
 ## Contributing
