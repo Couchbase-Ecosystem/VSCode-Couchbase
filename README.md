@@ -42,7 +42,7 @@ These are useful when developing with supported Couchbase SDKs. These are:
  * Node.js/Typescript - [Link to Documentation](https://docs.couchbase.com/nodejs-sdk/current/hello-world/overview.html), 
  * Python - [Link to Documentation](https://docs.couchbase.com/python-sdk/current/hello-world/overview.html),
  * Go - [Link to Documentation](https://docs.couchbase.com/go-sdk/current/hello-world/overview.html).
- * Ottoman - [Link to Documentation](https://docs.couchbase.com/go-sdk/current/hello-world/overview.html).
+ * Ottoman - [Link to Documentation](https://ottomanjs.com/guides/quick-start.html).
 
 Please visit [SNIPPETS.md](SNIPPETS.md) to see a list of our snippets with descriptions and documentation for each of them.
 
