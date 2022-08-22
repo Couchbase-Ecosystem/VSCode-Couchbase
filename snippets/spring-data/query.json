@@ -1,0 +1,32 @@
+{
+    "Create SQL++ Query": {
+        "prefix": ["@cbsdq"],
+        "body": ["public static N1QLQuery buildQuery(N1QLExpression expression, QueryScanConsistency scanConsistency) {","    QueryOptions opts = QueryOptions.queryOptions().scanConsistency(scanConsistency);","","    return new N1QLQuery(expression, opts);","}","","N1QLQuery query = buildQuery(${1:expression}, ${2:scanConsistency});","${3:CouchbaseTemplate}.findByQuery(${4:Model}.class).matching(query);"],
+        "description": "Use SQL++ to Query the Couchbase Cluster."
+    },
+    "SQL++ Query With Common Options": {
+        "prefix": ["@cbsdqopts"],
+        "body": ["public static N1QLQuery buildQueryOpts(N1QLExpression expression, JsonValue queryPlaceholderValues,","QueryScanConsistency scanConsistency, String clientContextId, boolean readonly, boolean adhoc, MutationState consistentWith, int maxParallelism, boolean metrics, int pipelineBatch, int pipelineCap, QueryProfile profile, Duration scanWait, int scanCap, JsonSerializer serializer) {","","    QueryOptions opts = QueryOptions.queryOptions();","    opts.clientContextId(clientContextId);","    opts.readonly(readonly);","    opts.adhoc(adhoc);","    opts.consistentWith(consistentWith);","    opts.maxParallelism(maxParallelism);","    opts.metrics(metrics);","    opts.pipelineBatch(pipelineBatch);","    opts.pipelineCap(pipelineCap);","    opts.profile(profile);","    opts.scanWait(scanWait);","    opts.scanCap(scanCap);","    opts.scanConsistency(scanConsistency);","    opts.serializer(serializer);","","","    // put the placeholders in the options","    if (queryPlaceholderValues instanceof JsonObject && !((JsonObject) queryPlaceholderValues).isEmpty()) {","        opts.parameters((JsonObject) queryPlaceholderValues);","    } else if (queryPlaceholderValues instanceof JsonArray && !((JsonArray) queryPlaceholderValues).isEmpty()) {","        opts.parameters((JsonArray) queryPlaceholderValues);","    }","","    return new N1QLQuery(expression, opts);","}","","","N1QLQuery query = buildQueryOpts(${1:expression}, ${2:queryPlaceholderValues}, ${3:scanConsistency}, ${4:clientContextId}, ${5:readonly}, ${6:adhoc}, ${7:consistentWith}, ${8:maxParallelism}, ${9:metrics}, ${10:pipelineBatch}, ${11:pipelineCap}, ${12:profile}, ${13:scanWait}, ${14:scanCap}, ${15:serializer});","${16:CouchbaseTemplate}.findByQuery(${17:Model}.class).matching(query);"],
+        "description": "Use SQL++ to Query the Couchbase Cluster, this has all options available."
+    },
+    "SQL++ Query With Parameters": {
+        "prefix": ["@cbsdqparam"],
+        "body": ["public static N1QLQuery buildQueryParams(N1QLExpression expression, JsonValue queryPlaceholderValues,","QueryScanConsistency scanConsistency) {","    QueryOptions opts = QueryOptions.queryOptions().scanConsistency(scanConsistency);","","    // put the placeholders in the options","    if (queryPlaceholderValues instanceof JsonObject && !((JsonObject) queryPlaceholderValues).isEmpty()) {","        opts.parameters((JsonObject) queryPlaceholderValues);","    } else if (queryPlaceholderValues instanceof JsonArray && !((JsonArray) queryPlaceholderValues).isEmpty()) {","        opts.parameters((JsonArray) queryPlaceholderValues);","    }","","    return new N1QLQuery(expression, opts);","}","","N1QLQuery query = buildQueryParams(${1:expression}, ${2:queryPlaceholderValues}, ${3:scanConsistency});","${4:CouchbaseTemplate}.findByQuery(${5:Model}.class).matching(query);"],
+        "description": "Use parameterised SQL++ to query the Couchbase Cluster."
+    },
+    "SQL++ Query with FTS": {
+        "prefix": ["@cbsdqfts"],
+        "body": [],
+        "description": "Use SQL++ to query the Couchbase Cluster with full text search."
+    },
+    "SQL++ Query Import": {
+        "prefix": ["@cbsdqimp"],
+        "body": ["import java.time.Duration;","","import org.springframework.beans.factory.annotation.Autowired;","import org.springframework.data.couchbase.core.CouchbaseTemplate;","import org.springframework.data.couchbase.core.query.N1QLExpression;","import org.springframework.data.couchbase.core.query.N1QLQuery;","import org.springframework.data.couchbase.core.query.Query;","import org.springframework.data.couchbase.core.query.QueryCriteria;","","import com.couchbase.client.core.deps.com.fasterxml.jackson.annotation.JsonValue;","import com.couchbase.client.java.codec.JsonSerializer;","import com.couchbase.client.java.json.JsonArray;","import com.couchbase.client.java.json.JsonObject;","import com.couchbase.client.java.kv.MutationState;","import com.couchbase.client.java.query.QueryOptions;","import com.couchbase.client.java.query.QueryProfile;","import com.couchbase.client.java.query.QueryScanConsistency;","import com.couchbase.client.java.search.SearchScanConsistency;"],
+        "description": "Import all necessary query namespaces"
+    },
+    "SQL++ Query Example": {
+        "prefix": ["@cbsdqex"],
+        "body": ["package ${1:package name};","","import org.springframework.beans.factory.annotation.Autowired;","import org.springframework.data.couchbase.core.CouchbaseTemplate;","import org.springframework.data.couchbase.core.query.N1QLExpression;","import org.springframework.data.couchbase.core.query.N1QLQuery;","","import com.couchbase.client.java.query.QueryOptions;","import com.couchbase.client.java.query.QueryScanConsistency;","","public class queryExample {","","    @Autowired","    private static CouchbaseTemplate template;","    ","    public static void main(String[] args) {","    ","        N1QLExpression expression = N1QLExpression.x(\"${2:SQL++ Query}\");","","        N1QLQuery query = buildQuery(expression, QueryScanConsistency.REQUEST_PLUS);","        template.findByQuery(${3:Model}.class).matching(query);","        ","    }","","    public static N1QLQuery buildQuery(N1QLExpression expression, QueryScanConsistency scanConsistency) {","        QueryOptions opts = QueryOptions.queryOptions().scanConsistency(scanConsistency);","    ","        return new N1QLQuery(expression, opts);","    }","    ","}"],
+        "description": "Example code that shows connecting to a cluster and running a query on it."
+    }
+}
