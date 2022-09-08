@@ -1,0 +1,12 @@
+{
+    "Connect to Cluster": {
+        "prefix": ["@cbsdcon"],
+        "body": ["@Configuration","public class Config extends AbstractCouchbaseConfiguration {","","    @Override","    public String getConnectionString() {","        return \"${1:couchbase://127.0.0.1}\";","    }","","    @Override","    public String getUserName() {","        return \"${2:Administrator}\";","    }","","    @Override","    public String getPassword() {","        return \"${3:password}\";","    }","","    @Override","    public String getBucketName() {","        return \"${4:travel-sample}\";","    }","}"],
+        "description": "Connect to a cluster and get a reference to it, a bucket, and a collection."
+    },
+    "Connect to Cluster with TLS": {
+        "prefix": ["@cbsdcontls"],
+        "body": [],
+        "description": "Connect to a cluster using TLS and get a reference to it, a bucket, and a collection."
+    }
+}

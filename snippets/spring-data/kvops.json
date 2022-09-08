@@ -1,0 +1,47 @@
+{
+    "Upsert Document": {
+        "prefix": ["@cbsdups"],
+        "body": ["${1:CouchbaseTemplate}.upsertById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(${5:document});"],
+        "description": "Upsert a document to a collection."
+    },
+    "Insert Document": {
+        "prefix": ["@cbsdins"],
+        "body": ["${1:CouchbaseTemplate}.insertById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(${5:document});"],
+        "description": "Insert a document into a collection."
+    },
+    "Replace Document": {
+        "prefix": ["@cbsdrep"],
+        "body": ["${1:CouchbaseTemplate}.replaceById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(${5:document});"],
+        "description": "Replace a document in a collection."
+    },
+    "Get Document": {
+        "prefix": ["@cbsdget"],
+        "body": ["${1:Model} found = ${2:CouchbaseTemplate}.findById(${1:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(${5:documentId});"],
+        "description": "Use a key to get a document from a collection."
+    },
+    "Remove Document": {
+        "prefix": ["@cbsdrem"],
+        "body": ["${1:CouchbaseTemplate}.removeById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(${5:documentId});"],
+        "description": "Use a key to remove a document from a collection."
+    },
+    "KV Import": {
+        "prefix": ["@cbsdkvimp"],
+        "body": ["import org.springframework.beans.factory.annotation.Autowired;","import org.springframework.data.couchbase.core.CouchbaseTemplate;"],
+        "description": "Import all necessary KV namespace."
+    },
+    "KV Example": {
+        "prefix": ["@cbsdkvex"],
+        "body": ["@Autowired","private static CouchbaseTemplate template;","","public static void ${1:main}(String[] args) {","","    //Insert a document","    ${2:Model} doc1 = new ${2:Model}();","","    template.insertById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(doc1);","","    //Upsert a document","    ${2:Model} doc2 = new ${2:Model}(\"documentID\", \"firstname2\", \"lastname\");","","    template.upsertById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(doc2);","","    //Get a document","    ${2:Model} found = template.findById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(\"documentID\");","","    //Replace a document","    ${2:Model} doc3 = new ${2:Model}(\"documentID\", \"firstname3\", \"lastname\");","","    template.replaceById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(doc3);","","    //Remove a document","    template.removeById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(\"documentID\");","}"],
+        "description": "Example code that shows: inserting, upserting, getting, replacing, and removing a document. Along with all required imports."
+    },
+    "JSON Transcoder": {
+        "prefix": ["@cbsdtranscoder"],
+        "body": ["private final Transcoder valueTranscoder;","private CouchbaseCacheConfiguration(final Transcoder valueTranscoder) {","    this.valueTranscoder = valueTranscoder;","}"],
+        "description": "Example code that shows how to use a transcoder with CouchbaseCacheConfiguration."
+    },
+    "Document Expiration": {
+        "prefix": ["@cbsdsetexp"],
+        "body": ["//Upsert a document with expiry","CouchbaseDocument doc = new CouchbaseDocument(\"${1:documentId}\", ${2:expiration});","","${3:CouchbaseTemplate}.upsertById(CouchbaseDocument.class).inScope(\"${4:scopeName}\").inCollection(\"${5:collectionName}\").one(doc);"],
+        "description": "Use Document Expiration to upsert a document"
+    }
+}
