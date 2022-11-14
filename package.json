@@ -28,7 +28,8 @@
     "package": "vsce package",
     "pretest": "npm run test-compile && npm run lint",
     "rebuild:electron": "node scripts/rebuildElectron.js",
-    "rebuild:cmake": "mkdir -p build && cmake-js rebuild -d node_modules/couchbase -o build",
+    "rebuild": "cmake-js rebuild -d node_modules/couchbase -O build",
+    "clean": "cmake-js clean",
     "test": "node ./out/test/runTest.js",
     "vscode:prepublish": "webpack --devtool source-map",
     "watch": "webpack --watch"
@@ -56,7 +57,7 @@
   },
   "dependencies": {
     "axios": "^0.21.4",
-    "couchbase": "^4.1.3",
+    "couchbase": "^4.2.0",
     "keytar": "^7.7.0"
   },
   "cmake-js": {
