@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "axios": "^0.21.4",
-    "couchbase": "^3.2.5",
+    "couchbase": "^3.2.6",
     "keytar": "^7.7.0"
   },
   "activationEvents": [
@@ -98,7 +98,7 @@
         "language": "typescript",
         "path": "./snippets/ts/subdocops.json"
       },
-      { 
+      {
         "language": "typescript",
         "path": "./snippets/ts/query.json"
       },
