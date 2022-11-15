@@ -14,12 +14,14 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
+import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
 import DocumentNode from "./model/DocumentNode";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
+import { ScopeNode } from "./model/ScopeNode";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
 import {
   addConnection,
@@ -259,6 +261,63 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         clusterConnectionTreeProvider.refresh(node);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.createScope",
+      async (node: BucketNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+
+        const scopeName = await vscode.window.showInputBox({
+          prompt: "Scope name",
+          placeHolder: "scope name",
+          ignoreFocusOut: true,
+          value: "",
+        });
+        if (!scopeName) {
+          vscode.window.showErrorMessage("Scope name is required.");
+          return;
+        }
+
+        const collectionManager = await node.connection.cluster
+          ?.bucket(node.bucketName)
+          .collections();
+        await collectionManager?.createScope(scopeName);
+
+        clusterConnectionTreeProvider.refresh();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.removeScope",
+      async (node: ScopeNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+
+        let answer = await vscode.window.showInformationMessage(
+          "Do you want to do this?",
+          ...["Yes", "No"]
+        );
+        if (answer !== "Yes") {
+          return;
+        }
+
+        const collectionManager = await node.connection.cluster
+          ?.bucket(node.bucketName)
+          .collections();
+        await collectionManager?.dropScope(node.scopeName);
+
+        clusterConnectionTreeProvider.refresh();
       }
     )
   );

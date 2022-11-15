@@ -22,21 +22,33 @@ import { ScopeSpec } from "couchbase";
 
 export class BucketNode implements INode {
   constructor(
-    private readonly connection: IConnection,
-    private readonly bucket: string,
-    private readonly isScopesandCollections: boolean,
+    public readonly connection: IConnection,
+    public readonly bucketName: string,
+    public readonly isScopesandCollections: boolean,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState
   ) {}
 
   public getTreeItem(): vscode.TreeItem {
     return {
-      label: `${this.bucket}`,
+      label: `${this.bucketName}`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue: "bucket",
       iconPath: {
-        light: path.join(__filename, "..", "..", "images/light", "bucket-icon.svg"),
-        dark: path.join(__filename, "..", "..", "images/dark", "bucket-icon.svg"),
-      } 
+        light: path.join(
+          __filename,
+          "..",
+          "..",
+          "images/light",
+          "bucket-icon.svg"
+        ),
+        dark: path.join(
+          __filename,
+          "..",
+          "..",
+          "images/dark",
+          "bucket-icon.svg"
+        ),
+      },
     };
   }
 
@@ -44,15 +56,20 @@ export class BucketNode implements INode {
     const nodes: INode[] = [];
     if (this.isScopesandCollections) {
       try {
-        let scopes = await this.connection.cluster?.bucket(this.bucket).collections().getAllScopes();
+        let scopes = await this.connection.cluster
+          ?.bucket(this.bucketName)
+          .collections()
+          .getAllScopes();
         scopes?.forEach((scope: ScopeSpec) => {
-          nodes.push(new ScopeNode(
-            this.connection,
-            scope.name,
-            this.bucket,
-            scope.collections,
-            vscode.TreeItemCollapsibleState.None
-          ));
+          nodes.push(
+            new ScopeNode(
+              this.connection,
+              scope.name,
+              this.bucketName,
+              scope.collections,
+              vscode.TreeItemCollapsibleState.None
+            )
+          );
         });
       } catch (err: any) {
         console.log(err);

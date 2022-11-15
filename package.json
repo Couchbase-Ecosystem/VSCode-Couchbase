@@ -67,6 +67,8 @@
     "onCommand:vscode-couchbase.createDocument",
     "onCommand:vscode-couchbase.removeDocument",
     "onCommand:vscode-couchbase.refreshCollection",
+    "onCommand:vscode-couchbase.createScope",
+    "onCommand:vscode-couchbase.removeScope",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
     "onView:couchbase-activity-bar"
@@ -340,6 +342,16 @@
         "command": "vscode-couchbase.refreshCollection",
         "title": "Refresh Collection",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.createScope",
+        "title": "Create Scope",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.removeScope",
+        "title": "Remove Scope",
+        "category": "Couchbase"
       }
     ],
     "menus": {
@@ -402,6 +414,14 @@
         {
           "command": "vscode-couchbase.refreshCollection",
           "when": "view == couchbase && viewItem == collection"
+        },
+        {
+          "command": "vscode-couchbase.createScope",
+          "when": "view == couchbase && viewItem == bucket"
+        },
+        {
+          "command": "vscode-couchbase.removeScope",
+          "when": "view == couchbase && viewItem == scope"
         }
       ],
       "view/title": [
