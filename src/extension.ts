@@ -321,6 +321,69 @@ export function activate(context: vscode.ExtensionContext) {
       }
     )
   );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.createCollection",
+      async (node: ScopeNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+
+        const collectionName = await vscode.window.showInputBox({
+          prompt: "Collection name",
+          placeHolder: "collection name",
+          ignoreFocusOut: true,
+          value: "",
+        });
+        if (!collectionName) {
+          vscode.window.showErrorMessage("Collection name is required.");
+          return;
+        }
+
+        const collectionManager = await node.connection.cluster
+          ?.bucket(node.bucketName)
+          .collections();
+        await collectionManager?.createCollection({
+          name: collectionName,
+          scopeName: node.scopeName,
+        });
+
+        clusterConnectionTreeProvider.refresh();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.removeCollection",
+      async (node: CollectionNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+
+        let answer = await vscode.window.showInformationMessage(
+          "Do you want to do this?",
+          ...["Yes", "No"]
+        );
+        if (answer !== "Yes") {
+          return;
+        }
+
+        const collectionManager = await node.connection.cluster
+          ?.bucket(node.bucketName)
+          .collections();
+        await collectionManager?.dropCollection(
+          node.collectionName,
+          node.scopeName
+        );
+
+        clusterConnectionTreeProvider.refresh();
+      }
+    )
+  );
 }
 
 // this method is called when your extension is deactivated
