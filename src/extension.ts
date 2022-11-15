@@ -246,7 +246,7 @@ export function activate(context: vscode.ExtensionContext) {
         );
         memFs.delete(uri);
 
-        // TODO: refresh collection
+        clusterConnectionTreeProvider.refresh();
       }
     )
   );
