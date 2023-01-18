@@ -22,7 +22,7 @@
   "preview": true,
   "icon": "images/couchbase.png",
   "scripts": {
-    "build": "webpack --mode development",
+    "build": "webpack",
     "format": "prettier 'src/**/*.ts' --write",
     "lint": "eslint src --ext ts --fix",
     "package": "vsce package",
@@ -62,7 +62,7 @@
   },
   "cmake-js": {
     "runtime": "electron",
-    "runtimeVersion": "19.0.17"
+    "runtimeVersion": "19.1.8"
   },
   "activationEvents": [
     "onFileSystem:couchbase",
