@@ -17,6 +17,7 @@ import * as vscode from "vscode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
 import DocumentNode from "./model/DocumentNode";
+import { DocumentNotFoundError } from "couchbase";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
@@ -179,17 +180,33 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      const uri = vscode.Uri.parse(`couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`);
-      memFs.writeFile(
-        uri,
-        Buffer.from("{}"),
-        { create: true, overwrite: true }
-      );
+        const uri = vscode.Uri.parse(`couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`);
+        try {
+          const result = await node.connection.cluster
+            ?.bucket(node.bucketName)
+            .scope(node.scopeName)
+            .collection(node.collectionName)
+            .get(documentName);
+          memFs.writeFile(
+            uri,
+            Buffer.from(JSON.stringify(result?.content, null, 2)),
+            { create: true, overwrite: true }
+          );
+        } catch (err: any) {
+          if (err instanceof DocumentNotFoundError) {
+            memFs.writeFile(uri, Buffer.from("{}"), {
+              create: true,
+              overwrite: true,
+            });
+          } else {
+            console.log(err);
+          }
+        }
       const document = await vscode.workspace.openTextDocument(uri);
       await vscode.window.showTextDocument(document, { preview: false });
 
       clusterConnectionTreeProvider.refresh(node);
-    })
+      })
   );
 
   subscriptions.push(
