@@ -176,37 +176,39 @@ export function activate(context: vscode.ExtensionContext) {
         value: "",
       });
       if (!documentName) {
-        vscode.window.showErrorMessage('Document name is required.');
+        vscode.window.showErrorMessage("Document name is required.");
         return;
       }
 
-        const uri = vscode.Uri.parse(`couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`);
-        try {
-          const result = await node.connection.cluster
-            ?.bucket(node.bucketName)
-            .scope(node.scopeName)
-            .collection(node.collectionName)
-            .get(documentName);
-          memFs.writeFile(
-            uri,
-            Buffer.from(JSON.stringify(result?.content, null, 2)),
-            { create: true, overwrite: true }
-          );
-        } catch (err: any) {
-          if (err instanceof DocumentNotFoundError) {
-            memFs.writeFile(uri, Buffer.from("{}"), {
-              create: true,
-              overwrite: true,
-            });
-          } else {
-            console.log(err);
-          }
+      const uri = vscode.Uri.parse(
+        `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
+      );
+      let documentContent = Buffer.from("{}");
+      // Try block is trying to retrieve the document with the same key first
+      // If returns an error go to catch block create a new empty document
+      try {
+        const result = await node.connection.cluster
+          ?.bucket(node.bucketName)
+          .scope(node.scopeName)
+          .collection(node.collectionName)
+          .get(documentName);
+        documentContent = Buffer.from(
+          JSON.stringify(result?.content, null, 2)
+        );
+      } catch (err: any) {
+        if (!(err instanceof DocumentNotFoundError)) {
+          console.log(err);
         }
+      }
+      memFs.writeFile(uri, documentContent, {
+        create: true,
+        overwrite: true,
+      });
       const document = await vscode.workspace.openTextDocument(uri);
       await vscode.window.showTextDocument(document, { preview: false });
 
       clusterConnectionTreeProvider.refresh(node);
-      })
+    })
   );
 
   subscriptions.push(
