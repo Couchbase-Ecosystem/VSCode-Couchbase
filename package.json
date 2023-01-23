@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "axios": "^0.21.4",
-    "couchbase": "^3.2.5",
+    "couchbase": "^3.2.6",
     "keytar": "^7.7.0"
   },
   "activationEvents": [
@@ -67,6 +67,12 @@
     "onCommand:vscode-couchbase.createDocument",
     "onCommand:vscode-couchbase.removeDocument",
     "onCommand:vscode-couchbase.refreshCollection",
+    "onCommand:vscode-couchbase.createScope",
+    "onCommand:vscode-couchbase.removeScope",
+    "onCommand:vscode-couchbase.refreshScopes",
+    "onCommand:vscode-couchbase.createCollection",
+    "onCommand:vscode-couchbase.removeCollection",
+    "onCommand:vscode-couchbase.refreshCollections",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
     "onView:couchbase-activity-bar"
@@ -98,7 +104,7 @@
         "language": "typescript",
         "path": "./snippets/ts/subdocops.json"
       },
-      { 
+      {
         "language": "typescript",
         "path": "./snippets/ts/query.json"
       },
@@ -338,7 +344,37 @@
       },
       {
         "command": "vscode-couchbase.refreshCollection",
-        "title": "Refresh Collection",
+        "title": "Refresh Documents",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.createScope",
+        "title": "Create Scope",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.removeScope",
+        "title": "Remove Scope",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.refreshScopes",
+        "title": "Refresh Scopes",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.createCollection",
+        "title": "Create Collection",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.removeCollection",
+        "title": "Remove Collection",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.refreshCollections",
+        "title": "Refresh Collections",
         "category": "Couchbase"
       }
     ],
@@ -402,6 +438,30 @@
         {
           "command": "vscode-couchbase.refreshCollection",
           "when": "view == couchbase && viewItem == collection"
+        },
+        {
+          "command": "vscode-couchbase.createScope",
+          "when": "view == couchbase && viewItem == bucket"
+        },
+        {
+          "command": "vscode-couchbase.removeScope",
+          "when": "view == couchbase && viewItem == scope"
+        },
+        {
+          "command": "vscode-couchbase.refreshScopes",
+          "when": "view == couchbase && viewItem == bucket"
+        },
+        {
+          "command": "vscode-couchbase.createCollection",
+          "when": "view == couchbase && viewItem == scope"
+        },
+        {
+          "command": "vscode-couchbase.removeCollection",
+          "when": "view == couchbase && viewItem == collection"
+        },
+        {
+          "command": "vscode-couchbase.refreshCollections",
+          "when": "view == couchbase && viewItem == scope"
         }
       ],
       "view/title": [
