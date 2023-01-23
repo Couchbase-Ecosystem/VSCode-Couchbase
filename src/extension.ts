@@ -324,6 +324,15 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
+      "vscode-couchbase.refreshScopes",
+      async (node: BucketNode) => {
+        clusterConnectionTreeProvider.refresh(node);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
       "vscode-couchbase.createCollection",
       async (node: ScopeNode) => {
         const connection = Memory.state.get<IConnection>("activeConnection");
@@ -381,6 +390,15 @@ export function activate(context: vscode.ExtensionContext) {
         );
 
         clusterConnectionTreeProvider.refresh();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.refreshCollections",
+      async (node: ScopeNode) => {
+        clusterConnectionTreeProvider.refresh(node);
       }
     )
   );

@@ -69,8 +69,10 @@
     "onCommand:vscode-couchbase.refreshCollection",
     "onCommand:vscode-couchbase.createScope",
     "onCommand:vscode-couchbase.removeScope",
+    "onCommand:vscode-couchbase.refreshScopes",
     "onCommand:vscode-couchbase.createCollection",
     "onCommand:vscode-couchbase.removeCollection",
+    "onCommand:vscode-couchbase.refreshCollections",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
     "onView:couchbase-activity-bar"
@@ -342,7 +344,7 @@
       },
       {
         "command": "vscode-couchbase.refreshCollection",
-        "title": "Refresh Collection",
+        "title": "Refresh Documents",
         "category": "Couchbase"
       },
       {
@@ -356,6 +358,11 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.refreshScopes",
+        "title": "Refresh Scopes",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.createCollection",
         "title": "Create Collection",
         "category": "Couchbase"
@@ -363,6 +370,11 @@
       {
         "command": "vscode-couchbase.removeCollection",
         "title": "Remove Collection",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.refreshCollections",
+        "title": "Refresh Collections",
         "category": "Couchbase"
       }
     ],
@@ -436,12 +448,20 @@
           "when": "view == couchbase && viewItem == scope"
         },
         {
+          "command": "vscode-couchbase.refreshScopes",
+          "when": "view == couchbase && viewItem == bucket"
+        },
+        {
           "command": "vscode-couchbase.createCollection",
           "when": "view == couchbase && viewItem == scope"
         },
         {
           "command": "vscode-couchbase.removeCollection",
           "when": "view == couchbase && viewItem == collection"
+        },
+        {
+          "command": "vscode-couchbase.refreshCollections",
+          "when": "view == couchbase && viewItem == scope"
         }
       ],
       "view/title": [
