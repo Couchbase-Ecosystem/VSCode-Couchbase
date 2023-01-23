@@ -72,7 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
             .upsert(name, JSON.parse(document.getText()));
           vscode.window.setStatusBarMessage("Document saved", 2000);
 
-          // TODO: refresh collection to show new docs
+          clusterConnectionTreeProvider.refresh();
         }
       }
     )
