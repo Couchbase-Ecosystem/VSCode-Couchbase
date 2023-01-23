@@ -290,7 +290,7 @@ export function activate(context: vscode.ExtensionContext) {
           .collections();
         await collectionManager?.createScope(scopeName);
 
-        clusterConnectionTreeProvider.refresh();
+        clusterConnectionTreeProvider.refresh(node);
       }
     )
   );
@@ -350,7 +350,7 @@ export function activate(context: vscode.ExtensionContext) {
           scopeName: node.scopeName,
         });
 
-        clusterConnectionTreeProvider.refresh();
+        clusterConnectionTreeProvider.refresh(node);
       }
     )
   );
