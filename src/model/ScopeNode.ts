@@ -21,10 +21,10 @@ import CollectionNode from "./CollectionNode";
 
 export class ScopeNode implements INode {
   constructor(
-    private readonly connection: IConnection,
-    private readonly scopeName: string,
-    private readonly bucketName: string,
-    private readonly collections: any[],
+    public readonly connection: IConnection,
+    public readonly scopeName: string,
+    public readonly bucketName: string,
+    public readonly collections: any[],
     public readonly collapsibleState: vscode.TreeItemCollapsibleState
   ) {}
 
@@ -34,9 +34,21 @@ export class ScopeNode implements INode {
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue: "scope",
       iconPath: {
-        light: path.join(__filename, "..", "..", "images/light", "scopes-icon.svg"),
-        dark: path.join(__filename, "..", "..", "images/dark", "scopes-icon.svg"),
-      }
+        light: path.join(
+          __filename,
+          "..",
+          "..",
+          "images/light",
+          "scopes-icon.svg"
+        ),
+        dark: path.join(
+          __filename,
+          "..",
+          "..",
+          "images/dark",
+          "scopes-icon.svg"
+        ),
+      },
     };
   }
 
@@ -45,7 +57,9 @@ export class ScopeNode implements INode {
 
     for (const collection of this.collections) {
       try {
-        const queryResult = await this.connection.cluster?.query(`select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\`;`);
+        const queryResult = await this.connection.cluster?.query(
+          `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\`;`
+        );
         const count = queryResult?.rows[0].count;
 
         const collectionTreeItem = new CollectionNode(
