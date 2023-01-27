@@ -18,6 +18,7 @@ import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
 import DocumentNode from "./model/DocumentNode";
+import { DocumentNotFoundError } from "couchbase";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
@@ -193,30 +194,46 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
 
-        const documentName = await vscode.window.showInputBox({
-          prompt: "Document name",
-          placeHolder: "name",
-          ignoreFocusOut: true,
-          value: "",
-        });
-        if (!documentName) {
-          vscode.window.showErrorMessage("Document name is required.");
-          return;
-        }
-
-        const uri = vscode.Uri.parse(
-          `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
-        );
-        memFs.writeFile(uri, Buffer.from("{}"), {
-          create: true,
-          overwrite: true,
-        });
-        const document = await vscode.workspace.openTextDocument(uri);
-        await vscode.window.showTextDocument(document, { preview: false });
-
-        clusterConnectionTreeProvider.refresh(node);
+      const documentName = await vscode.window.showInputBox({
+        prompt: "Document name",
+        placeHolder: "name",
+        ignoreFocusOut: true,
+        value: "",
+      });
+      if (!documentName) {
+        vscode.window.showErrorMessage("Document name is required.");
+        return;
       }
-    )
+
+      const uri = vscode.Uri.parse(
+        `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
+      );
+      let documentContent = Buffer.from("{}");
+      // Try block is trying to retrieve the document with the same key first
+      // If returns an error go to catch block create a new empty document
+      try {
+        const result = await node.connection.cluster
+          ?.bucket(node.bucketName)
+          .scope(node.scopeName)
+          .collection(node.collectionName)
+          .get(documentName);
+        documentContent = Buffer.from(
+          JSON.stringify(result?.content, null, 2)
+        );
+      } catch (err: any) {
+        if (!(err instanceof DocumentNotFoundError)) {
+          console.log(err);
+        }
+      }
+      memFs.writeFile(uri, documentContent, {
+        create: true,
+        overwrite: true,
+      });
+      const document = await vscode.workspace.openTextDocument(uri);
+      await vscode.window.showTextDocument(document, { preview: false });
+
+      clusterConnectionTreeProvider.refresh(node);
+    })
   );
 
   subscriptions.push(
