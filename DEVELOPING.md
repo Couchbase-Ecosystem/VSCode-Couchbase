@@ -32,4 +32,4 @@ We're currently building for Node 16.14, so an Apple M1 binding file would look 
 
 Normally the Couchbase Node SDK relies on the application host to have OpenSSL installed and the SDK will dynamically link to it. However, Electron utilises BoringSSL instead and dynamic binding doesn't seem to work correctly. To build a binding file that works, we instead have to disable dynamic OpenSSL linking in the Couchbase Node SDK to it's staticaly linked instead.
 
-We should not have to statically link OpenSSL and BoringSSL should have the same API surface & be interchangeable for OpenSSL. Issue #97 is tracking investigation into resolve this.
+We should not have to statically link OpenSSL and BoringSSL should have the same API surface & be interchangeable for OpenSSL. Issue [#97](https://github.com/couchbaselabs/VSCode-Couchbase/issues/97) is tracking investigation into resolve this.
