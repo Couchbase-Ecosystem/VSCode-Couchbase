@@ -28,7 +28,7 @@ We're currently building for Node 16.14, so an Apple M1 binding file would look 
 *Note*: In the future, CI could be used to build this matrix and compose the binding files into the correct structure.
 
 
-### OpenSSL / BoringSSL
+### OpenSSL static vs dynaminc linking
 
 Normally the Couchbase Node SDK relies on the application host to have OpenSSL installed and the SDK will dynamically link to it. However, Electron utilises BoringSSL instead and dynamic binding doesn't seem to work correctly. To build a binding file that works, we instead have to disable dynamic OpenSSL linking in the Couchbase Node SDK to it's staticaly linked instead.
 
