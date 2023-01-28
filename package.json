@@ -27,7 +27,10 @@
     "lint": "eslint src --ext ts --fix",
     "package": "vsce package",
     "pretest": "npm run test-compile && npm run lint",
-    "rebuild:electron": "node scripts/rebuildElectron.js",
+    "rebuild": "npm run rebuild:openssl && npm run rebuild:cmake && npm run rebuild:binding",
+    "rebuild:openssl": "sed -i '' 's/COUCHBASE_CXX_CLIENT_POST_LINKED_OPENSSL ON/COUCHBASE_CXX_CLIENT_POST_LINKED_OPENSSL OFF/' node_modules/couchbase/CMakeLists.txt",
+    "rebuild:cmake": "cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8",
+    "rebuild:binding": "mkdir -p ./build && cp node_modules/couchbase/build/Release/couchbase_impl.node ./build",
     "test": "node ./out/test/runTest.js",
     "vscode:prepublish": "webpack --devtool source-map",
     "watch": "webpack --watch"
@@ -40,6 +43,7 @@
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vscode/test-electron": "^2.1.5",
+    "cmake-js": "^7.1.1",
     "electron-rebuild": "^3.2.7",
     "eslint": "^7.32.0",
     "glob": "^7.2.0",
@@ -54,7 +58,7 @@
   },
   "dependencies": {
     "axios": "^0.21.4",
-    "couchbase": "^3.2.6",
+    "couchbase": "^4.2.0",
     "keytar": "^7.7.0"
   },
   "activationEvents": [
