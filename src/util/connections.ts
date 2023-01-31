@@ -79,7 +79,7 @@ export async function addConnection() {
     prompt: "Enter Cluter Connection URL",
     placeHolder: "URL",
     ignoreFocusOut: true,
-    value: "http://127.0.0.1:8091",
+    value: "couchbase://localhost",
   });
   if (!url) {
     vscode.window.showErrorMessage('Cluster URL is required.');
