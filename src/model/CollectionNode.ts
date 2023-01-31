@@ -19,6 +19,7 @@ import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 import DocumentNode from "./DocumentNode";
 import { PagerNode } from "./PagerNode";
+import { PlanningFailureError } from "couchbase";
 
 export default class CollectionNode implements INode {
   constructor(
@@ -55,7 +56,8 @@ export default class CollectionNode implements INode {
       result = await this.connection.cluster?.query(
         `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
       );
-    } catch {
+    } catch (err) {
+      if (err instanceof PlanningFailureError) {
       vscode.window
         .showInformationMessage(
           "No primary index found for this collection. Would you like to create one?",
@@ -72,6 +74,7 @@ export default class CollectionNode implements INode {
             );
           }
         });
+      }
     }
     result?.rows.forEach((documentName: string) => {
       const documentTreeItem = new DocumentNode(
