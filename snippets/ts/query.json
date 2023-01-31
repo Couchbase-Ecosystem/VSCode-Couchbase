@@ -1,0 +1,165 @@
+{
+    "Create SQL++ Query": {
+        "prefix": [
+            "@cbq"
+        ],
+        "body": [
+            "async function query() {",
+            "    const query: string = `",
+            "    ${1:query}",
+            "    `;",
+            "    const options = { ",
+            "        scanConsistency: couchbase.QueryScanConsistency.RequestPlus,",
+            "        readOnly: false,",
+            "        metrics: true",
+            "    }",
+            "",
+            "    try {",
+            "      let result = await ${20:cluster}.query(query, options)",
+            "      console.log(\"Result:\", result)",
+            "      return result",
+            "    } catch (error) {",
+            "      console.error('Query failed: ', error)",
+            "    }",
+            "}"
+        ],
+        "description": "Use SQL++ to Query the Couchbase Cluster."
+    },
+    "SQL++ Query With all Options": {
+        "prefix": [
+            "@cbqopts"
+        ],
+        "body": [
+            "async function queryOptions() {",
+            "    const query: string = `",
+            "    ${1:query}",
+            "    `;",
+            "    const options = { ",
+            "        parameters: ${2}",
+            "        scanConsistency: ${3}",
+            "        consistentWith: ${4}",
+            "        adhoc: ${5}",
+            "        flexIndex: ${6}",
+            "        preserveExpiry: ${7}",
+            "        clientContextId: ${8}",
+            "        maxParallelism: ${9}",
+            "        pipelineBatch: ${10}",
+            "        pipelineCap: ${11}",
+            "        scanWait: ${12}",
+            "        scanCap: ${13}",
+            "        readOnly: ${14}",
+            "        profile: ${15}",
+            "        metrics: ${16}",
+            "        queryContext: ${17}",
+            "        raw: ${18}",
+            "        timeout: ${19}",
+            "    }",
+            "",
+            "    try {",
+            "      let result = await ${20:cluster}.query(query, options)",
+            "      console.log(\"Result:\", result)",
+            "      return result",
+            "    } catch (error) {",
+            "      console.error('Query failed: ', error)",
+            "    }",
+            "}"
+        ],
+        "description": "Use SQL++ to Query the Couchbase Cluster, this has all options available."
+    },
+    "SQL++ Query With Parameters": {
+        "prefix": [
+            "@cbqparam"
+        ],
+        "body": [
+            "//positional parameters",
+            "async function queryPlaceholders() {",
+            "    const query: string = `",
+            "    ${1:SQL++ Query}",
+            "    `;",
+            "    const options = { parameters: ['${2:value}'] }",
+            "",
+            "    try {",
+            "        let result = await ${3:cluster}.query(query, options)",
+            "        console.log(\"Result:\", result)",
+            "        return result",
+            "    } catch (error) {",
+            "        console.error('Query failed: ', error)",
+            "    }",
+            "}",
+            "",
+            "//named parameters",
+            "async function queryNamed() {",
+            "    const query: string = `",
+            "    ${1:SQL++ Query}",
+            "    `;",
+            "    const options = { parameters: { ${4:name}: '${5:value}' } }",
+            "",
+            "    try {",
+            "        let result = await ${3:cluster}.query(query, options)",
+            "        console.log(\"Result:\", result)",
+            "        return result",
+            "    } catch (error) {",
+            "        console.error('Query failed: ', error)",
+            "    }",
+            "}"
+        ],
+        "description": "Use parameterised SQL++ to query the Couchbase Cluster."
+    },
+    "SQL++ Query with FTS": {
+        "prefix": [
+            "@cbqfts"
+        ],
+        "body": [
+            "const query: string = `",
+            "${1:SELECT ... FROM ... USE INDEX (USING FTS) WHERE ...}",
+            "`;",
+            "const options = { flexIndex: true }",
+            "",
+            "try {",
+            "    let result = await ${5:cluster}.query(query, options)",
+            "    console.log(\"Result:\", result)",
+            "    return result",
+            "} catch (error) {",
+            "    console.error('Query failed: ', error)",
+            "}"
+        ],
+        "description": "Use SQL++ to query the Couchbase Cluster with full text search."
+    },
+    "SQL++ Query Import": {
+        "prefix": [
+            "@cbqimp"
+        ],
+        "body": [
+            "import * as couchbase from 'couchbase'"
+        ],
+        "description": "Import all necessary query namespaces"
+    },
+    "SQL++ Query Example": {
+        "prefix": [
+            "@cbqex"
+        ],
+        "body": [
+            "import * as couchbase from 'couchbase'",
+            "",
+            "async function main() {",
+            "    const cluster = await couchbase.connect('${2:connection-string}', {",
+            "        username: '${3:username}',",
+            "        password: '${4:password}',",
+            "    })",
+            "",
+            "    const query: string = `",
+            "    ${5:SQL++ Query}",
+            "    `;",
+            "",
+            "    try {",
+            "        let result = await cluster.query(query)",
+            "        console.log(\"Result:\", result)",
+            "        return result",
+            "    } catch (error) {",
+            "        console.error('Query failed: ', error)",
+            "    }",
+            "}"
+        ],
+        "description": "Example code that shows connecting to a cluster and running a query on it."
+    }
+}

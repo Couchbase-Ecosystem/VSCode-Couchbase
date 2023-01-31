@@ -1,0 +1,172 @@
+{
+    "Sub Doc Get": {
+        "prefix": [
+            "@cbsubget"
+        ],
+        "body": [
+            "ops := []gocb.LookupInSpec{",
+            "    gocb.GetSpec(\"${1:path}\", nil),",
+            "    gocb.ExistsSpec(\"${1:path}\", nil),",
+            "}",
+            "multiLookupResult, err := ${2:collection}.LookupIn(\"${3:document-key}\", ops, &gocb.LookupInOptions{",
+            "    Timeout: 50 * time.Millisecond,",
+            "})",
+            "if err != nil {",
+            "    panic(err)",
+            "}",
+            "",
+            "var multiContent string",
+            "err = multiLookupResult.ContentAt(0, &multiContent)",
+            "if err != nil {",
+            "    panic(err)",
+            "}",
+            "multiExists := multiLookupResult.Exists(1)",
+            "",
+            "fmt.Println(multiContent)",
+            "fmt.Printf(\"Path exists? %t\\n\", multiExists)"
+        ],
+        "description": "Get or check the existence of a sub document value by providing document key and path."
+    },
+    "Sub Doc Insert": {
+        "prefix": [
+            "@cbsubins"
+        ],
+        "body": [
+            "mops := []gocb.MutateInSpec{",
+            "    gocb.InsertSpec(\"${1:path}\", \"${2:value}\", &gocb.InsertSpecOptions{}),",
+            "}",
+            "insertResult, err := ${3:collection}.MutateIn(\"${4:document-key}\", mops, &gocb.MutateInOptions{})",
+            "if err != nil {",
+            "    panic(err)",
+            "}"
+        ],
+        "description": "Add a new value to a path that does not exist."
+    },
+    "Sub Doc Remove": {
+        "prefix": [
+            "@cbsubrem"
+        ],
+        "body": [
+            "mops := []gocb.MutateInSpec{",
+            "    gocb.RemoveSpec(\"${1:path}\", nil),",
+            "}",
+            "multiMutateResult, err := ${2:collection}.MutateIn(\"${3:document-key}\", mops, &gocb.MutateInOptions{})",
+            "if err != nil {",
+            "    panic(err)",
+            "}"
+        ],
+        "description": "Remove the value of an existing path."
+    },
+    "Array Operations": {
+        "prefix": [
+            "@cbsubarrops"
+        ],
+        "body": [
+            "//Append to an array",
+            "mops := []gocb.MutateInSpec{",
+            "    gocb.ArrayAppendSpec(\"${3:path}\", ${4:value}, nil),",
+            "}",
+            "arrayAppendResult, err := ${1:collection}.MutateIn(\"${2:document-key}\", mops, &gocb.MutateInOptions{})",
+            "if err != nil {",
+            "    panic(err)",
+            "}",
+            "",
+            "//Prepend to an array",
+            "mops := []gocb.MutateInSpec{",
+            "    gocb.ArrayPrependSpec(\"${5:path}\", ${6:value}, nil),",
+            "}",
+            "arrayPrependResult, err := ${1:collection}.MutateIn(\"${2:document-key}\", mops, &gocb.MutateInOptions{})",
+            "if err != nil {",
+            "    panic(err)",
+            "}",
+            "",
+            "//Insert into an array",
+            "mops := []gocb.MutateInSpec{",
+            "    gocb.ArrayInsertSpec(\"${7:path[index]}\", \"${8:value}\", &gocb.ArrayInsertSpecOptions{}),",
+            "}",
+            "arrayInsertResult, err := ${1:collection}.MutateIn(\"${2:document-key}\", mops, &gocb.MutateInOptions{})",
+            "if err != nil {",
+            "    panic(err)",
+            "}"
+        ],
+        "description": "Example code showing different array operations."
+    },
+    "Sub Doc Upsert": {
+        "prefix": [
+            "@cbsubups"
+        ],
+        "body": [
+            "mops := []gocb.MutateInSpec{",
+            "    gocb.UpsertSpec(\"${1:path}\", \"${2:value}\", &gocb.UpsertSpecOptions{}),",
+            "}",
+            "upsertResult, err := ${3:collection}.MutateIn(\"${4:document-key}\", mops, &gocb.MutateInOptions{",
+            "    Timeout: ${5:10050} * time.Millisecond,",
+            "})",
+            "if err != nil {",
+            "    panic(err)",
+            "}"
+        ],
+        "description": "Modify the value of an existing path or create it if it does not exist."
+    },
+    "Array Append": {
+        "prefix": [
+            "@cbsubarrapp"
+        ],
+        "body": [
+            "mops := []gocb.MutateInSpec{",
+            "    gocb.ArrayAppendSpec(\"${1:path}\", ${2:value}, nil),",
+            "}",
+            "arrayAppendResult, err := ${3:collection}.MutateIn(\"${4:document-key}\", mops, &gocb.MutateInOptions{})",
+            "if err != nil {",
+            "    panic(err)",
+            "}"
+        ],
+        "description": "Append a value to an existing array in a document."
+    },
+    "Array Prepend": {
+        "prefix": [
+            "@cbsubarrpre"
+        ],
+        "body": [
+            "mops := []gocb.MutateInSpec{",
+            "    gocb.ArrayPrependSpec(\"${1:path}\", ${2:value}, nil),",
+            "}",
+            "arrayPrependResult, err := ${3:collection}.MutateIn(\"${4:document-key}\", mops, &gocb.MutateInOptions{})",
+            "if err != nil {",
+            "    panic(err)",
+            "}"
+        ],
+        "description": "Prepend a value to an existing array in a document."
+    },
+    "Array Add Unique": {
+        "prefix": [
+            "@cbsubarradd"
+        ],
+        "body": [
+            "mops := []gocb.MutateInSpec{",
+            "    gocb.ArrayAddUniqueSpec(\"${1:path}\", ${2:value}, &gocb.ArrayAddUniqueSpecOptions{}),",
+            "}",
+            "arrayAddUniqueResult, err := ${3:collection}.MutateIn(\"${4:document-key}\", mops, &gocb.MutateInOptions{})",
+            "if err != nil {",
+            "    panic(err)",
+            "}",
+            "fmt.Println(arrayAddUniqueResult.Cas())"
+        ],
+        "description": "Treat an existing array like a unique set and add a value."
+    },
+    "Array Insert At": {
+        "prefix": [
+            "@cbsubarrins"
+        ],
+        "body": [
+            "mops := []gocb.MutateInSpec{",
+            "    gocb.ArrayInsertSpec(\"${1:path[index]}\", \"${2:value}\", &gocb.ArrayInsertSpecOptions{}),",
+            "}",
+            "arrayInsertResult, err := ${3:collection}.MutateIn(\"${4:document-key}\", mops, &gocb.MutateInOptions{})",
+            "if err != nil {",
+            "    panic(err)",
+            "}"
+        ],
+        "description": "Insert a new element into an array at a specific position."
+    }
+}

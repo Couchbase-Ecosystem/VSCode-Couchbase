@@ -14,14 +14,23 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
+import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
 import DocumentNode from "./model/DocumentNode";
+import { DocumentNotFoundError } from "couchbase";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
+import { ScopeNode } from "./model/ScopeNode";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
-import { addConnection, getActiveConnection, getConnectionId, removeConnection, setActiveConnection, useConnection } from "./util/connections";
+import {
+  addConnection,
+  getActiveConnection,
+  removeConnection,
+  setActiveConnection,
+  useConnection,
+} from "./util/connections";
 import { MemFS } from "./util/fileSystemProvider";
 import { Global, Memory, WorkSpace } from "./util/util";
 
@@ -41,24 +50,33 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
-    vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
-      if (document.languageId === "json" && document.uri.scheme === "couchbase") {
-        const activeConnection = getActiveConnection();
-        if (!activeConnection) {
-          return;
+    vscode.workspace.onDidSaveTextDocument(
+      async (document: vscode.TextDocument) => {
+        if (
+          document.languageId === "json" &&
+          document.uri.scheme === "couchbase"
+        ) {
+          const activeConnection = getActiveConnection();
+          if (!activeConnection) {
+            return;
+          }
+
+          const parts = document.uri.path.substring(1).split("/");
+          const bucket = parts[0],
+            scope = parts[1],
+            collection = parts[2],
+            name = parts[3].substring(0, parts[3].indexOf(".json"));
+          await activeConnection.cluster
+            ?.bucket(bucket)
+            .scope(scope)
+            .collection(collection)
+            .upsert(name, JSON.parse(document.getText()));
+          vscode.window.setStatusBarMessage("Document saved", 2000);
+
+          clusterConnectionTreeProvider.refresh();
         }
-
-        const parts = document.uri.path.substring(1).split('/');
-        const bucket = parts[0],
-              scope = parts[1],
-              collection = parts[2],
-              name = parts[3].substring(0, parts[3].indexOf(".json"));
-        await activeConnection.cluster?.bucket(bucket).scope(scope).collection(collection).upsert(name, JSON.parse(document.getText()));
-        vscode.window.setStatusBarMessage("Document saved", 2000);
-
-        // TODO: refresh collection to show new docs
       }
-    })
+    )
   );
 
   const memFs = new MemFS();
@@ -133,8 +151,14 @@ export function activate(context: vscode.ExtensionContext) {
       "vscode-couchbase.openDocument",
       async (documentNode: DocumentNode) => {
         try {
-          const result = await documentNode.connection.cluster?.bucket(documentNode.bucketName).scope(documentNode.scopeName).collection(documentNode.collectionName).get(documentNode.documentName);
-          const uri = vscode.Uri.parse(`couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/${documentNode.collectionName}/${documentNode.documentName}.json`);
+          const result = await documentNode.connection.cluster
+            ?.bucket(documentNode.bucketName)
+            .scope(documentNode.scopeName)
+            .collection(documentNode.collectionName)
+            .get(documentNode.documentName);
+          const uri = vscode.Uri.parse(
+            `couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/${documentNode.collectionName}/${documentNode.documentName}.json`
+          );
           memFs.writeFile(
             uri,
             Buffer.from(JSON.stringify(result?.content, null, 2)),
@@ -162,11 +186,13 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
-    vscode.commands.registerCommand("vscode-couchbase.createDocument", async (node: CollectionNode) => {
-      const connection = Memory.state.get<IConnection>("activeConnection");
-      if (!connection) {
-        return;
-      }
+    vscode.commands.registerCommand(
+      "vscode-couchbase.createDocument",
+      async (node: CollectionNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
 
       const documentName = await vscode.window.showInputBox({
         prompt: "Document name",
@@ -175,16 +201,34 @@ export function activate(context: vscode.ExtensionContext) {
         value: "",
       });
       if (!documentName) {
-        vscode.window.showErrorMessage('Document name is required.');
+        vscode.window.showErrorMessage("Document name is required.");
         return;
       }
 
-      const uri = vscode.Uri.parse(`couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`);
-      memFs.writeFile(
-        uri,
-        Buffer.from("{}"),
-        { create: true, overwrite: true }
+      const uri = vscode.Uri.parse(
+        `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
       );
+      let documentContent = Buffer.from("{}");
+      // Try block is trying to retrieve the document with the same key first
+      // If returns an error go to catch block create a new empty document
+      try {
+        const result = await node.connection.cluster
+          ?.bucket(node.bucketName)
+          .scope(node.scopeName)
+          .collection(node.collectionName)
+          .get(documentName);
+        documentContent = Buffer.from(
+          JSON.stringify(result?.content, null, 2)
+        );
+      } catch (err: any) {
+        if (!(err instanceof DocumentNotFoundError)) {
+          console.log(err);
+        }
+      }
+      memFs.writeFile(uri, documentContent, {
+        create: true,
+        overwrite: true,
+      });
       const document = await vscode.workspace.openTextDocument(uri);
       await vscode.window.showTextDocument(document, { preview: false });
 
@@ -193,34 +237,187 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
-    vscode.commands.registerCommand("vscode-couchbase.removeDocument", async (node: DocumentNode) => {
-      const connection = Memory.state.get<IConnection>("activeConnection");
-      if (!connection) {
-        return;
+    vscode.commands.registerCommand(
+      "vscode-couchbase.removeDocument",
+      async (node: DocumentNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+
+        let answer = await vscode.window.showInformationMessage(
+          "Do you want to do this?",
+          ...["Yes", "No"]
+        );
+        if (answer !== "Yes") {
+          return;
+        }
+        await connection.cluster
+          ?.bucket(node.bucketName)
+          .scope(node.scopeName)
+          .collection(node.collectionName)
+          .remove(node.documentName);
+
+        const uri = vscode.Uri.parse(
+          `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${node.documentName}.json`
+        );
+        memFs.delete(uri);
+
+        clusterConnectionTreeProvider.refresh();
       }
-
-      let answer = await vscode.window.showInformationMessage("Do you want to do this?", ...["Yes", "No"]);
-      if (answer !== "Yes") {
-        return;
-      }
-      await connection.cluster?.bucket(node.bucketName).scope(node.scopeName).collection(node.collectionName).remove(node.documentName);
-
-      const uri = vscode.Uri.parse(`couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${node.documentName}.json`);
-      memFs.delete(uri);
-
-      // TODO: refresh collection
-    })
+    )
   );
 
   subscriptions.push(
-    vscode.commands.registerCommand("vscode-couchbase.refreshCollection", async (node: CollectionNode) => {
-      const connection = Memory.state.get<IConnection>("activeConnection");
-      if (!connection) {
-        return;
-      }
+    vscode.commands.registerCommand(
+      "vscode-couchbase.refreshCollection",
+      async (node: CollectionNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
 
-      clusterConnectionTreeProvider.refresh(node);
-    })
+        clusterConnectionTreeProvider.refresh(node);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.createScope",
+      async (node: BucketNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+
+        const scopeName = await vscode.window.showInputBox({
+          prompt: "Scope name",
+          placeHolder: "scope name",
+          ignoreFocusOut: true,
+          value: "",
+        });
+        if (!scopeName) {
+          vscode.window.showErrorMessage("Scope name is required.");
+          return;
+        }
+
+        const collectionManager = await node.connection.cluster
+          ?.bucket(node.bucketName)
+          .collections();
+        await collectionManager?.createScope(scopeName);
+
+        clusterConnectionTreeProvider.refresh(node);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.removeScope",
+      async (node: ScopeNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+
+        let answer = await vscode.window.showInformationMessage(
+          "Do you want to do this?",
+          ...["Yes", "No"]
+        );
+        if (answer !== "Yes") {
+          return;
+        }
+
+        const collectionManager = await node.connection.cluster
+          ?.bucket(node.bucketName)
+          .collections();
+        await collectionManager?.dropScope(node.scopeName);
+
+        clusterConnectionTreeProvider.refresh();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.refreshScopes",
+      async (node: BucketNode) => {
+        clusterConnectionTreeProvider.refresh(node);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.createCollection",
+      async (node: ScopeNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+
+        const collectionName = await vscode.window.showInputBox({
+          prompt: "Collection name",
+          placeHolder: "collection name",
+          ignoreFocusOut: true,
+          value: "",
+        });
+        if (!collectionName) {
+          vscode.window.showErrorMessage("Collection name is required.");
+          return;
+        }
+
+        const collectionManager = await node.connection.cluster
+          ?.bucket(node.bucketName)
+          .collections();
+        await collectionManager?.createCollection({
+          name: collectionName,
+          scopeName: node.scopeName,
+        });
+
+        clusterConnectionTreeProvider.refresh(node);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.removeCollection",
+      async (node: CollectionNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+
+        let answer = await vscode.window.showInformationMessage(
+          "Do you want to do this?",
+          ...["Yes", "No"]
+        );
+        if (answer !== "Yes") {
+          return;
+        }
+
+        const collectionManager = await node.connection.cluster
+          ?.bucket(node.bucketName)
+          .collections();
+        await collectionManager?.dropCollection(
+          node.collectionName,
+          node.scopeName
+        );
+
+        clusterConnectionTreeProvider.refresh();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.refreshCollections",
+      async (node: ScopeNode) => {
+        clusterConnectionTreeProvider.refresh(node);
+      }
+    )
   );
 }
 

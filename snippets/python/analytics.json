@@ -1,0 +1,101 @@
+{
+    "Create Analytics Query": {
+        "prefix": [
+            "@cbanq"
+        ],
+        "body": [
+            "try:",
+            "    result = ${1:cluster}.analytics_query(\"${2:SQL++ Query}\")",
+            "",
+            "    for row in result.rows():",
+            "        print(\"Found row: {}\".format(row))",
+            "",
+            "    print(\"Reported execution time: {}\".format(",
+            "        result.metadata().metrics().execution_time()))",
+            "",
+            "except CouchbaseException as ex:",
+            "    import traceback",
+            "    traceback.print_exc()"
+        ],
+        "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster."
+    },
+    "Analytics Query With Parameters": {
+        "prefix": [
+            "@cbanparamq"
+        ],
+        "body": [
+            "try:",
+            "    # Keep one of the following 2 sections, depending on whether you want named or positional parameters.",
+            "    result = ${1:cluster}.analytics_query(",
+            "        \"${2:SQL++ Query}\",",
+            "        ${3:name}=\"${4:value}\")  # Named Parameters",
+            "        AnalyticsOptions(positional_parameters=[\"${4:value}\"]))  # Positional Parameters",
+            "",
+            "    for row in result.rows():",
+            "        print(\"Found row: {}\".format(row))",
+            "",
+            "    print(\"Reported execution time: {}\".format(",
+            "        result.metadata().metrics().execution_time()))",
+            "",
+            "except CouchbaseException as ex:",
+            "    import traceback",
+            "    traceback.print_exc()"
+        ],
+        "description": "Use SQL++ to Query the Analytics Service on the Couchbase Cluster, this uses parameters."
+    },
+    "Analytics Query Example": {
+        "prefix": [
+            "@cbanex"
+        ],
+        "body": [
+            "from datetime import timedelta",
+            "",
+            "# needed for any cluster connection",
+            "from couchbase.auth import PasswordAuthenticator",
+            "from couchbase.cluster import Cluster",
+            "from couchbase.exceptions import CouchbaseException",
+            "# needed for options -- cluster, timeout, analytics",
+            "from couchbase.options import (ClusterOptions, AnalyticsOptions)",
+            "",
+            "# Update this to your cluster",
+            "endpoint = \"${1:connection-string}\"",
+            "username = \"${2:username}\"",
+            "password = \"${3:password}\"",
+            "# User Input ends here.",
+            "",
+            "# Connect options - authentication",
+            "auth = PasswordAuthenticator(username, password)",
+            "",
+            "# get a reference to our cluster",
+            "cluster = Cluster('couchbase://{}'.format(endpoint),",
+            "                  ClusterOptions(auth))",
+            "",
+            "try:",
+            "    result = cluster.analytics_query(\"${4:SQL++ Query}\")",
+            "",
+            "    for row in result.rows():",
+            "        print(\"Found row: {}\".format(row))",
+            "",
+            "    print(\"Reported execution time: {}\".format(",
+            "        result.metadata().metrics().execution_time()))",
+            "",
+            "except CouchbaseException as ex:",
+            "    import traceback",
+            "    traceback.print_exc()"
+        ],
+        "description": "Example code that shows connecting to a cluster and running an analytics query on it."
+    },
+    "Analytics Query Import": {
+        "prefix": [
+            "@cbanimp"
+        ],
+        "body": [
+            "from couchbase.cluster import Cluster",
+            "from couchbase.options import ClusterOptions, AnalyticsOptions",
+            "from couchbase.auth import PasswordAuthenticator",
+            "from couchbase.exceptions import CouchbaseException",
+            "from couchbase.analytics import AnalyticsScanConsistency"
+        ],
+        "description": "Import all necessary Analytics namespaces."
+    }
+}

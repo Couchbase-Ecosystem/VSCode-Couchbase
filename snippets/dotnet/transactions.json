@@ -1,0 +1,198 @@
+{
+    "Transaction Example": {
+        "prefix": [
+            "@cbtranex"
+        ],
+        "body": [
+            "using System.Threading.Tasks;",
+            "using System;",
+            "using System.Linq;",
+            "using Couchbase;",
+            "using Couchbase.KeyValue;",
+            "using Couchbase.Query;",
+            "using Couchbase.Transactions.Config;",
+            "using Couchbase.Transactions.Error;",
+            "using Microsoft.Extensions.DependencyInjection;",
+            "using Microsoft.Extensions.Logging;",
+            "using Newtonsoft.Json.Linq;",
+            "",
+            "var cluster = await Cluster.ConnectAsync(\"${1:connection-string}\", \"${2:username}\", \"${3:password}\");",
+            "",
+            "// get a bucket reference",
+            "var bucket = await cluster.BucketAsync(\"${4:bucket-name}\");",
+            "",
+            "// get a user-defined collection reference",
+            "var scope = await bucket.ScopeAsync(\"${5:scope-name}\");",
+            "var collection = await scope.CollectionAsync(\"${6:collection-name}\");",
+            "",
+            "try",
+            "{",
+            "    var result = await _transactions.RunAsync(async (ctx) =>",
+            "    {",
+            "",
+            "        // Getting documents:",
+            "        // Use ctx.GetAsync if the document should exist, and the transaction",
+            "        // will fail if it does not",
+            "        var doc = await ctx.GetAsync(collection, \"${7:document-key}\").ConfigureAwait(false);",
+            "",
+            "        // This call is optional - if you leave it off, the transaction",
+            "        // will be committed anyway.",
+            "        await ctx.CommitAsync().ConfigureAwait(false);",
+            "    }).ConfigureAwait(false);",
+            "}",
+            "catch (TransactionCommitAmbiguousException e)",
+            "{",
+            "    Console.WriteLine(\"Transaction possibly committed\");",
+            "    Console.WriteLine(e);",
+            "}",
+            "catch (TransactionFailedException e)",
+            "{",
+            "    Console.WriteLine(\"Transaction did not reach commit point\");",
+            "    Console.WriteLine(e);",
+            "}"
+        ],
+        "description": "Example code that shows connecting to a cluster and running a transaction on it."
+    },
+    "Insert Transaction": {
+        "prefix": [
+            "@cbtranins"
+        ],
+        "body": [
+            "try",
+            "{",
+            "    var result = await _transactions.RunAsync(async (ctx) =>",
+            "    {",
+            "        // Inserting a doc:",
+            "        var insertedDoc = await ctx.InsertAsync(${1:collection}, \"${2:document-key}\", ${3:document}).ConfigureAwait(false);",
+            "",
+            "        // This call is optional - if you leave it off, the transaction",
+            "        // will be committed anyway.",
+            "        await ctx.CommitAsync().ConfigureAwait(false);",
+            "    }).ConfigureAwait(false);",
+            "}",
+            "catch (TransactionCommitAmbiguousException e)",
+            "{",
+            "    Console.WriteLine(\"Transaction possibly committed\");",
+            "    Console.WriteLine(e);",
+            "}",
+            "catch (TransactionFailedException e)",
+            "{",
+            "    Console.WriteLine(\"Transaction did not reach commit point\");",
+            "    Console.WriteLine(e);",
+            "}"
+        ],
+        "description": "Perform an insertion transaction"
+    },
+    "Get Transaction": {
+        "prefix": [
+            "@cbtranget"
+        ],
+        "body": [
+            "try",
+            "{",
+            "    var result = await _transactions.RunAsync(async (ctx) =>",
+            "    {",
+            "        // Getting documents:",
+            "        // Use ctx.GetAsync if the document should exist, and the transaction",
+            "        // will fail if it does not",
+            "        var doc = await ctx.GetAsync(${1:collection}, \"${2:document-key}\").ConfigureAwait(false);",
+            "",
+            "        // This call is optional - if you leave it off, the transaction",
+            "        // will be committed anyway.",
+            "        await ctx.CommitAsync().ConfigureAwait(false);",
+            "    }).ConfigureAwait(false);",
+            "}",
+            "catch (TransactionCommitAmbiguousException e)",
+            "{",
+            "    Console.WriteLine(\"Transaction possibly committed\");",
+            "    Console.WriteLine(e);",
+            "}",
+            "catch (TransactionFailedException e)",
+            "{",
+            "    Console.WriteLine(\"Transaction did not reach commit point\");",
+            "    Console.WriteLine(e);",
+            "}"
+        ],
+        "description": "Perform a get transaction"
+    },
+    "Replace Transaction": {
+        "prefix": [
+            "@cbtranrep"
+        ],
+        "body": [
+            "try",
+            "{",
+            "    var result = await _transactions.RunAsync(async (ctx) =>",
+            "    {",
+            "        // Replacing a doc:",
+            "        var doc = await ctx.GetAsync(${1:collection}, \"${2:document-key}\").ConfigureAwait(false);",
+            "        var replacedDoc = await ctx.ReplaceAsync(doc, ${3:content});",
+            "",
+            "        // This call is optional - if you leave it off, the transaction",
+            "        // will be committed anyway.",
+            "        await ctx.CommitAsync().ConfigureAwait(false);",
+            "    }).ConfigureAwait(false);",
+            "}",
+            "catch (TransactionCommitAmbiguousException e)",
+            "{",
+            "    Console.WriteLine(\"Transaction possibly committed\");",
+            "    Console.WriteLine(e);",
+            "}",
+            "catch (TransactionFailedException e)",
+            "{",
+            "    Console.WriteLine(\"Transaction did not reach commit point\");",
+            "    Console.WriteLine(e);",
+            "}"
+        ],
+        "description": "Perform a replace transaction"
+    },
+    "Remove Transaction": {
+        "prefix": [
+            "@cbtranrem"
+        ],
+        "body": [
+            "try",
+            "{",
+            "    var result = await _transactions.RunAsync(async (ctx) =>",
+            "    {",
+            "        // Removing a doc:",
+            "        var doc = await ctx.GetAsync(${1:collection}, \"${2:document-key}\").ConfigureAwait(false);",
+            "        await ctx.RemoveAsync(doc).ConfigureAwait(false);",
+            "",
+            "        // This call is optional - if you leave it off, the transaction",
+            "        // will be committed anyway.",
+            "        await ctx.CommitAsync().ConfigureAwait(false);",
+            "    }).ConfigureAwait(false);",
+            "}",
+            "catch (TransactionCommitAmbiguousException e)",
+            "{",
+            "    Console.WriteLine(\"Transaction possibly committed\");",
+            "    Console.WriteLine(e);",
+            "}",
+            "catch (TransactionFailedException e)",
+            "{",
+            "    Console.WriteLine(\"Transaction did not reach commit point\");",
+            "    Console.WriteLine(e);",
+            "}"
+        ],
+        "description": "Perform a remove transaction"
+    },
+    "Transaction Import": {
+        "prefix": [
+            "@cbtranimp"
+        ],
+        "body": [
+            "using System;",
+            "using System.Linq;",
+            "using System.Threading.Tasks;",
+            "using Couchbase.KeyValue;",
+            "using Couchbase.Query;",
+            "using Couchbase.Transactions.Config;",
+            "using Couchbase.Transactions.Error;",
+            "using Microsoft.Extensions.DependencyInjection;",
+            "using Microsoft.Extensions.Logging;",
+            "using Newtonsoft.Json.Linq;"
+        ],
+        "description": "Import all necessary transaction namespaces."
+    }
+}

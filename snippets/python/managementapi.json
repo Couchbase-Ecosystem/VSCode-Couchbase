@@ -1,0 +1,113 @@
+{
+    "Create a Collection": {
+        "prefix": [
+            "@cbcrcol"
+        ],
+        "body": [
+            "coll_manager = ${1:bucket}.collections()",
+            "",
+            "collection_spec = CollectionSpec(",
+            "    \"${2:collection_name}\",",
+            "    scope_name=\"${3:scope_name}\")",
+            "",
+            "try:",
+            "    collection = coll_manager.create_collection(collection_spec)",
+            "except CollectionAlreadyExistsException as ex:",
+            "    print(ex)",
+            "except ScopeNotFoundException as ex:",
+            "    print(ex)"
+        ],
+        "description": "Create a new collection, this will create a new collection manager."
+    },
+    "Create a Collection Reference": {
+        "prefix": [
+            "@cbcol"
+        ],
+        "body": [
+            "${1:collection} = ${2:bucket}.scope(\"${3:scope_name}\").collection(\"${4:collection_name}\")"
+        ],
+        "description": "Create a reference to an existing collection."
+    },
+    "Create a Scope": {
+        "prefix": [
+            "@cbcrscope"
+        ],
+        "body": [
+            "coll_manager = ${1:bucket}.collections()",
+            "",
+            "try:",
+            "    coll_manager.create_scope(\"${1:scope_name}\")",
+            "except ScopeAlreadyExistsException as ex:",
+            "    print(ex)"
+        ],
+        "description": "Create a new scope, this will create a new collection manager."
+    },
+    "Create a Bucket": {
+        "prefix": [
+            "@cbcrbuck"
+        ],
+        "body": [
+            "try:",
+            "    bucket_manager = ${1:cluster}.buckets()",
+            "",
+            "    ${2:bucket_manager}.create_bucket(",
+            "        CreateBucketSettings(",
+            "            name=\"${3:bucket_name}\",",
+            "            flush_enabled=${4:False},",
+            "            ram_quota_mb=${5:100},",
+            "            num_replicas=\"${6:0}\",",
+            "            bucket_type=${7:BucketType.COUCHBASE},",
+            "            conflict_resolution_type=${8:ConflictResolutionType.SEQUENCE_NUMBER}))",
+            "except BucketAlreadyExistsException as ex:",
+            "    print(ex)"
+        ],
+        "description": "Create a new bucket on an existing cluster reference."
+    },
+    "Create a Bucket Reference": {
+        "prefix": [
+            "@cbbuck"
+        ],
+        "body": [
+            "${1:bucket} = ${2:cluster}.bucket('${3:bucket_name}')"
+        ],
+        "description": "Create a reference to an existing bucket."
+    },
+    "Create an Index": {
+        "prefix": [
+            "@cbcrind"
+        ],
+        "body": [
+            "try:",
+            "    query_manager = ${1:cluster}.QueryIndexManager()",
+            "    query_manager.createIndex(\"${2:bucketName}\", \"${3:indexName}\", ${4:fields})",
+            "except QueryIndexAlreadyExistsException as ex:",
+            "    print(ex)"
+        ],
+        "description": "Create a new index, this will create a new index manager."
+    },
+    "Create a User": {
+        "prefix": [
+            "@cbupsuser"
+        ],
+        "body": [
+            "from couchbase.management.users import User, Role",
+            "",
+            "user_manager = ${1:cluster}.users()",
+            "user = User(username=\"${2:username}\", display_name=\"${3:display_name}\",",
+            "            roles=[",
+            "                # Roles required for reading data from bucket",
+            "                Role(name=\"data_reader\", bucket=\"*\"),",
+            "                Role(name=\"query_select\", bucket=\"*\"),",
+            "                # Roles require for writing data to bucket",
+            "                Role(name=\"data_writer\", bucket=\"${4:bucket_name}\"),",
+            "                Role(name=\"query_insert\", bucket=\"${4:bucket_name}\"),",
+            "                Role(name=\"query_delete\", bucket=\"${4:bucket_name}\"),",
+            "                # Role required for idx creation on bucket",
+            "                Role(name=\"query_manage_index\", bucket=\"${4:bucket_name}\"),",
+            "            ], password=\"${5:password}\")",
+            "",
+            "user_manager.upsert_user(user)"
+        ],
+        "description": "Add a user to your Couchbase Cluster."
+    }
+}

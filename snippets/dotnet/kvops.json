@@ -1,0 +1,250 @@
+{
+    "Upsert Document": {
+        "prefix": [
+            "@cbups"
+        ],
+        "body": [
+            "var document = new {${1:key1} = \"${2:value1}\",${3:key2} = \"${4:value2}\"};",
+            "var result = await ${5:collection}.UpsertAsync(\"${6:document-key}\", document,",
+            "    options =>",
+            "    {",
+            "        options.Expiry(TimeSpan.FromMinutes(${7:1}));",
+            "        options.Durability(PersistTo.${8:One}, ReplicateTo.${9:One});",
+            "        options.Timeout(TimeSpan.FromSeconds(${10:5}));",
+            "    }",
+            ");"
+        ],
+        "description": "Upsert a document to a collection."
+    },
+    "Insert Document": {
+        "prefix": [
+            "@cbins"
+        ],
+        "body": [
+            "try {",
+            "    var document = new {${1:key1} = \"${2:value1}\",${3:key2} = \"${4:value2}\"};",
+            "",
+            "    var result = await ${5:collection}.InsertAsync(\"${6:document-key}\", document,",
+            "        options =>",
+            "        {",
+            "            options.Expiry(TimeSpan.FromDays(${7:1}));",
+            "            options.Timeout(TimeSpan.FromSeconds(${8:5}));",
+            "        }",
+            "    );",
+            "}",
+            "catch (DocumentExistsException) {",
+            "    // handle exception",
+            "}"
+        ],
+        "description": "Insert a document into a collection."
+    },
+    "Replace Document": {
+        "prefix": [
+            "@cbrep"
+        ],
+        "body": [
+            "var previousResult = await ${1:collection}.GetAsync(\"${2:document-key}\");",
+            "var cas = previousResult.Cas;",
+            "",
+            "var document = new {${3:key1} = \"${4:value1}\",${5:key2} = \"${6:value2}\"};",
+            "",
+            "var result = await ${1:collection}.ReplaceAsync(\"${2:document-key}\", document,",
+            "    options =>",
+            "    {",
+            "        options.Cas(cas);",
+            "        options.Expiry(TimeSpan.FromMinutes(${7:1}));",
+            "        options.Timeout(TimeSpan.FromSeconds(${8:5}));",
+            "    }",
+            ");"
+        ],
+        "description": "Replace a document in a collection."
+    },
+    "Get Document": {
+        "prefix": [
+            "@cbget"
+        ],
+        "body": [
+            "try {",
+            "    var result = await ${1:collection}.GetAsync(\"${2:string-key}\",",
+            "        options =>",
+            "        {",
+            "            options.Timeout(TimeSpan.FromSeconds(${3:5}));",
+            "        }",
+            "    );",
+            "    var content = result.ContentAs<string>();",
+            "}",
+            "catch (DocumentNotFoundException) {",
+            "    // handle exception",
+            "}"
+        ],
+        "description": "Use a key to get a document from a collection."
+    },
+    "Remove Document": {
+        "prefix": [
+            "@cbrem"
+        ],
+        "body": [
+            "try {",
+            "    var previousResult = await ${1:collection}.GetAsync(\"${2:document-key}\");",
+            "",
+            "    await ${1:collection}.RemoveAsync(\"${2:document-key}\",",
+            "        options =>",
+            "        {",
+            "            options.Cas(previousResult.Cas);",
+            "            options.Timeout(TimeSpan.FromSeconds(${3:5}));",
+            "        }",
+            "    );",
+            "}",
+            "catch (DocumentNotFoundException) {",
+            "    // handle exception",
+            "}"
+        ],
+        "description": "Use a key to remove a document from a collection."
+    },
+    "KV Import": {
+        "prefix": [
+            "@cbkvimp"
+        ],
+        "body": [
+            "using System;",
+            "using System.Threading.Tasks;",
+            "using Couchbase;",
+            "using Couchbase.KeyValue;",
+            "using Couchbase.Core.Exceptions.KeyValue;"
+        ],
+        "description": "Import all necessary KV namespace."
+    },
+    "KV Example": {
+        "prefix": [
+            "@cbkvex"
+        ],
+        "body": [
+            "using System;",
+            "using System.Threading.Tasks;",
+            "using Couchbase;",
+            "using Couchbase.KeyValue;",
+            "using Couchbase.Core.Exceptions.KeyValue;",
+            "",
+            "//Insert a Document",
+            "try {",
+            "    var document = new {Foo = \"Bar\"};",
+            "",
+            "    var result = await ${1:collection}.InsertAsync(\"${2:document-key}\", document,",
+            "        options =>",
+            "        {",
+            "            options.Expiry(TimeSpan.FromDays(1));",
+            "            options.Timeout(TimeSpan.FromSeconds(5));",
+            "        }",
+            "    );",
+            "}",
+            "catch (DocumentExistsException) {",
+            "    // handle exception",
+            "}",
+            "",
+            "//Upsert a Document",
+            "var upsertDocument = new {Bar = \"Foo\"};",
+            "var upsertResult = await ${1:collection}.UpsertAsync(\"${2:document-key}\", upsertDocument,",
+            "    upsertOptions =>",
+            "    {",
+            "        upsertOptions.Expiry(TimeSpan.FromMinutes(1));",
+            "        upsertOptions.Durability(PersistTo.One, ReplicateTo.One);",
+            "        upsertOptions.Timeout(TimeSpan.FromSeconds(5));",
+            "    }",
+            ");",
+            "",
+            "//Get a Document",
+            "try {",
+            "    var getResult = await ${1:collection}.GetAsync(\"${2:string-key}\",",
+            "        getOptions =>",
+            "        {",
+            "            getOptions.Timeout(TimeSpan.FromSeconds(5));",
+            "        }",
+            "    );",
+            "    var getContent = getResult.ContentAs<string>();",
+            "}",
+            "catch (DocumentNotFoundException) {",
+            "    // handle exception",
+            "}",
+            "",
+            "//Replace a Document",
+            "var previousReplaceResult = await ${1:collection}.GetAsync(\"${2:document-key}\");",
+            "var cas = previousReplaceResult.Cas;",
+            "",
+            "var replaceDocument = new {FooBar = \"BarFoo\"};",
+            "",
+            "var replaceResult = await ${1:collection}.ReplaceAsync(\"${2:document-key}\", replaceDocument,",
+            "    replaceOptions =>",
+            "    {",
+            "        replaceOptions.Cas(cas);",
+            "        replaceOptions.Expiry(TimeSpan.FromMinutes(1));",
+            "        replaceOptions.Timeout(TimeSpan.FromSeconds(5));",
+            "    }",
+            ");",
+            "",
+            "//Remove a Document",
+            "try {",
+            "    var previousRemoveResult = await ${1:collection}.GetAsync(\"${2:document-key}\");",
+            "",
+            "    await ${1:collection}.RemoveAsync(\"${2:document-key}\",",
+            "        removeOptions =>",
+            "        {",
+            "            removeOptions.Cas(previousRemoveResult.Cas);",
+            "            removeOptions.Timeout(TimeSpan.FromSeconds(5));",
+            "        }",
+            "    );",
+            "}",
+            "catch (DocumentNotFoundException) {",
+            "    // handle exception",
+            "}"
+        ],
+        "description": "Example code that shows: inserting, upserting, getting, replacing, and removing a document. Along with all required imports."
+    },
+    "JSON Transcoder": {
+        "prefix": [
+            "@cbtranscoder"
+        ],
+        "body": [
+            "using System.Text.Json;",
+            "using Couchbase.Core.IO.Transcoders;",
+            "using Couchbase.KeyValue;",
+            "",
+            "var userBytes = JsonSerializer.SerializeToUtf8Bytes(new User",
+            "{",
+            "    Name = \"John Smith\",",
+            "    Age = 27",
+            "}, typeof(User));",
+            "",
+            "await ${1:collection}.UpsertAsync(\"john-smith\", userBytes, options => options.Transcoder(new RawJsonTranscoder()));",
+            "",
+            "public class User",
+            "{",
+            "    public string Name { get; set; }",
+            "",
+            "    public int Age { get; set; }",
+            "}"
+        ],
+        "description": "Example code that shows how to use a RawJSONTranscoder on an upsert operation."
+    },
+    "Document Expiration": {
+        "prefix": [
+            "@cbsetexp"
+        ],
+        "body": [
+            "using Couchbase.Core.Exceptions.KeyValue;",
+            "using Couchbase.KeyValue;",
+            "",
+            "try {",
+            "    await ${1:collection}.TouchAsync(\"${2:document-key}\", TimeSpan.FromSeconds(${3:30}),",
+            "        options =>",
+            "        {",
+            "            options.Timeout(TimeSpan.FromSeconds(5));",
+            "        }",
+            "    );",
+            "}",
+            "catch (DocumentNotFoundException) {",
+            "    // handle exception",
+            "}"
+        ],
+        "description": "Use Document Expiration"
+    }
+}

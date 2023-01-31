@@ -79,7 +79,7 @@ export async function addConnection() {
     prompt: "Enter Cluter Connection URL",
     placeHolder: "URL",
     ignoreFocusOut: true,
-    value: "http://127.0.0.1:8091",
+    value: "couchbase://localhost",
   });
   if (!url) {
     vscode.window.showErrorMessage('Cluster URL is required.');
@@ -148,9 +148,9 @@ export async function removeConnection(connection: IConnection) {
   }
   const connections = getConnections();
   if (!connections) {
-    return
+    return;
   }
-  
+
   const connectionId = getConnectionId(connection);
   let answer = await vscode.window.showInformationMessage(`Are you sure you want to remove cluser connection [${connectionId}]?`, ...["Yes", "No"]);
   if (answer !== "Yes") {

@@ -1,0 +1,161 @@
+{
+    "Create SQL++ Query": {
+        "prefix": [
+            "@cbq"
+        ],
+        "body": [
+            "var result = await ${1:cluster}.QueryAsync<dynamic>(",
+            "    \"${2:SQL++ Query}\",",
+            "    options => {",
+            "        options.Readonly(false);",
+            "        options.Metrics(true);",
+            "        options.ScanConsistency(QueryScanConsistency.RequestPlus);",
+            "    }",
+            ");",
+            "",
+            "// check query was successful",
+            "if (result.MetaData.Status != QueryStatus.Success)",
+            "{",
+            "    // error",
+            "}",
+            "",
+            "// iterate over rows",
+            "await foreach (var row in result)",
+            "{",
+            "    // each row is an instance of the Query<T> call (e.g. dynamic or custom type)",
+            "}"
+        ],
+        "description": "Use SQL++ to Query the Couchbase Cluster."
+    },
+    "SQL++ Query With Common Options": {
+        "prefix": [
+            "@cbqopts"
+        ],
+        "body": [
+            "var result = await ${1:cluster}.QueryAsync<dynamic>(",
+            "    \"${2:SQL++ Query}\",",
+            "    options => {",
+            "        options.ClientContextId(${3:String});",
+            "        options.Parameter(${4:JsonArray});",
+            "        options.Parameter(${5:JsonObject});",
+            "        options.Raw(${7:String, Object});",
+            "        options.Readonly(${8:boolean});",
+            "        options.AdHoc(${9:boolean});",
+            "        options.ConsistentWith(${10:MutationState});",
+            "        options.MaxServerParallelism(${11:int});",
+            "        options.Metrics(${12:boolean});",
+            "        options.PipelineBatch(${13:int});",
+            "        options.PipelineCap(${14:int});",
+            "        options.Profile(${15:QueryProfile});",
+            "        options.ScanWait(${16:Duration});",
+            "        options.ScanCap(${17:int});",
+            "        options.ScanConsistency(${18:QueryScanConsistency});",
+            "    }",
+            ");",
+            "",
+            "// check query was successful",
+            "if (result.MetaData.Status != QueryStatus.Success)",
+            "{",
+            "    // error",
+            "}",
+            "",
+            "// iterate over rows",
+            "await foreach (var row in result)",
+            "{",
+            "    // each row is an instance of the Query<T> call (e.g. dynamic or custom type)",
+            "}"
+        ],
+        "description": "Use SQL++ to Query the Couchbase Cluster, this has all options available."
+    },
+    "SQL++ Query With Parameters": {
+        "prefix": [
+            "@cbqparam"
+        ],
+        "body": [
+            "var result = await ${1:cluster}.QueryAsync<dynamic>(",
+            "    \"${2:SQL++ Query}\",",
+            "    //Keep one of the following lines, depending on whether you want positional or named arguments. ",
+            "    options => options.Parameter(\"${3:value}\") //Use this to set positional arguments for a parameterized query.",
+            "    options => options.Parameter(\"${4:name}\", \"${5:value}\") //Use this to set named arguments for a parameterized query.",
+            ");",
+            "",
+            "// check query was successful",
+            "if (result.MetaData.Status != QueryStatus.Success)",
+            "{",
+            "    // error",
+            "}",
+            "",
+            "// iterate over rows",
+            "await foreach (var row in result)",
+            "{",
+            "    // each row is an instance of the Query<T> call (e.g. dynamic or custom type)",
+            "}"
+        ],
+        "description": "Use parameterised SQL++ to query the Couchbase Cluster."
+    },
+    "SQL++ Query with FTS": {
+        "prefix": [
+            "@cbqfts"
+        ],
+        "body": [
+            "var result = await ${1:cluster}.QueryAsync<dynamic>(",
+            "    \"${2:SELECT ... FROM ... USE INDEX (USING FTS) WHERE ...}\",",
+            "    options => options.FlexIndex(true)",
+            ");",
+            "",
+            "// check query was successful",
+            "if (result.MetaData.Status != QueryStatus.Success)",
+            "{",
+            "    // error",
+            "}",
+            "",
+            "// iterate over rows",
+            "await foreach (var row in result)",
+            "{",
+            "    // each row is an instance of the Query<T> call (e.g. dynamic or custom type)",
+            "}"
+        ],
+        "description": "Use SQL++ to query the Couchbase Cluster with full text search."
+    },
+    "SQL++ Query Import": {
+        "prefix": [
+            "@cbqimp"
+        ],
+        "body": [
+            "using System;",
+            "using System.Collections.Generic;",
+            "using System.Threading.Tasks;",
+            "using Couchbase;",
+            "using Couchbase.KeyValue;",
+            "using Couchbase.Query;"
+        ],
+        "description": "Import all necessary query namespaces"
+    },
+    "SQL++ Query Example": {
+        "prefix": [
+            "@cbqex"
+        ],
+        "body": [
+            "using Couchbase;",
+            "using Couchbase.Query;",
+            "",
+            "var cluster = await Cluster.ConnectAsync(\"${1:connectionString}\", \"${2:username}\", \"${3:password}\");",
+            "var result = await cluster.QueryAsync<dynamic>(",
+            "   \"${4:SQL++ Query}\"",
+            ");",
+            "",
+            "// check query was successful",
+            "if (result.MetaData.Status != QueryStatus.Success)",
+            "{",
+            "    // error",
+            "}",
+            "",
+            "// iterate over rows",
+            "await foreach (var row in result)",
+            "{",
+            "    // each row is an instance of the Query<T> call (e.g. dynamic or custom type)",
+            "}"
+        ],
+        "description": "Example code that shows connecting to a cluster and running a query on it."
+    }
+}

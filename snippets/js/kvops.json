@@ -1,0 +1,221 @@
+{
+    "Upsert Document": {
+        "prefix": [
+            "@cbups"
+        ],
+        "body": [
+            "let result = await ${1:collection}.upsert(${2:key}, ${3:document},",
+            "    {",
+            "        expiry: ${4:60},  // 60 seconds,",
+            "        durabilityLevel: couchbase.DurabilityLevel.${5:None}, // Majority etc.",
+            "        timeout: ${6:5000}",
+            "    } // 5 seconds",
+            ");"
+        ],
+        "description": "Upsert a document to a collection with durability options."
+    },
+    "Insert Document": {
+        "prefix": [
+            "@cbins"
+        ],
+        "body": [
+            "try {",
+            "    const result = await ${1:collection}.insert(${2:key}, ${3:document},",
+            "        { timeout: ${4:10000} } // 10 seconds",
+            ");",
+            "} catch (e) {",
+            "    if (e instanceof couchbase.DocumentExistsError) {",
+            "        console.log('Document exists...')",
+            "    } else {",
+            "        throw e",
+            "    }",
+            "}"
+        ],
+        "description": "Insert a document into a collection."
+    },
+    "Replace Document": {
+        "prefix": [
+            "@cbrep"
+        ],
+        "body": [
+            "try {",
+            "    const result = await ${1:collection}.replace(${2:key},",
+            "        ${3:document},",
+            "        { cas: ${4:cas}, expiry: ${5:60}, timeout: ${6:5000} }",
+            ");",
+            "} catch (e) {",
+            "    if (e instanceof couchbase.DocumentNotFoundError) {",
+            "        console.log('Document not found...')",
+            "    } else {",
+            "        throw e",
+            "    }",
+            "}"
+        ],
+        "description": "Replace a document in a collection."
+    },
+    "Get Document": {
+        "prefix": [
+            "@cbget"
+        ],
+        "body": [
+            "try {",
+            "    const result = await ${1:collection}.get(${2:key}, { timeout: ${3:1000} });",
+            "    document = result.value;",
+            "} catch (e) {",
+            "    if (e instanceof couchbase.DocumentNotFoundError) {",
+            "        console.log('Document not found...')",
+            "    } else {",
+            "        throw e",
+            "    }",
+            "}"
+        ],
+        "description": "Use a key to get a document from a collection."
+    },
+    "Remove Document": {
+        "prefix": [
+            "@cbrem"
+        ],
+        "body": [
+            "try {",
+            "    const result = await ${1:collection}.remove(${2:key},",
+            "        {",
+            "            cas: ${3:cas},",
+            "            persist_to: ${4:0},  // non-zero gives \"not implemented\"",
+            "            replicate_to: ${5:0}, // cannot replicate on single node",
+            "            timeout: ${6:5000}",
+            "        }",
+            "    );",
+            "} catch (e) {",
+            "    if (e instanceof couchbase.DocumentNotFoundError) {",
+            "        console.log('Document not found...')",
+            "    } else {",
+            "        throw e",
+            "    }",
+            "}"
+        ],
+        "description": "Use a key to remove a document from a collection."
+    },
+    "KV Import": {
+        "prefix": [
+            "@cbkvimp"
+        ],
+        "body": [
+            "var couchbase = require('couchbase');"
+        ],
+        "description": "Import all necessary KV namespace."
+    },
+    "KV Example": {
+        "prefix": [
+            "@cbkvex"
+        ],
+        "body": [
+            "var couchbase = require('couchbase');",
+            "",
+            "//Insert a Document",
+            "try {",
+            "    const result = await ${1:collection}.insert(${2:key}, {'foo': 'bar'},",
+            "        { timeout: 10000 } // 10 seconds",
+            ");",
+            "} catch (e) {",
+            "    if (e instanceof couchbase.DocumentExistsError) {",
+            "        console.log('Document exists...')",
+            "    } else {",
+            "        throw e",
+            "    }",
+            "}",
+            "",
+            "//Upsert a Document",
+            "let result = await ${1:collection}.upsert(${2:key}, {'bar':'foo'},",
+            "    {",
+            "        expiry: 60,  // 60 seconds,",
+            "        durabilityLevel: couchbase.DurabilityLevel.None, // Majority etc.",
+            "        timeout: 5000",
+            "    } // 5 seconds",
+            ");",
+            "",
+            "//Get a Document",
+            "try {",
+            "    const result = await ${1:collection}.get(${2:key}, { timeout: 1000 });",
+            "    document = result.value;",
+            "    cas = result.cas",
+            "} catch (e) {",
+            "    if (e instanceof couchbase.DocumentNotFoundError) {",
+            "        console.log('Document not found...')",
+            "    } else {",
+            "        throw e",
+            "    }",
+            "}",
+            "",
+            "//Replace a Document",
+            "try {",
+            "    const result = await ${1:collection}.replace(${2:key},",
+            "        {'foobar': 'barfoo'},",
+            "        { cas: cas, expiry: 60, timeout: 5000 }",
+            ");",
+            "} catch (e) {",
+            "    if (e instanceof couchbase.DocumentNotFoundError) {",
+            "        console.log('Document not found...')",
+            "    } else {",
+            "        throw e",
+            "    }",
+            "}",
+            "",
+            "//Remove a Document",
+            "try {",
+            "    const result = await ${1:collection}.remove(${2:key},",
+            "        {",
+            "            cas: cas,",
+            "            persist_to: 0,  // non-zero gives \"not implemented\"",
+            "            replicate_to: 0, // cannot replicate on single node",
+            "            timeout: 5000",
+            "        }",
+            "    );",
+            "} catch (e) {",
+            "    if (e instanceof couchbase.DocumentNotFoundError) {",
+            "        console.log('Document not found...')",
+            "    } else {",
+            "        throw e",
+            "    }",
+            "}"
+        ],
+        "description": "Example code that shows: inserting, upserting, getting, replacing, and removing a document. Along with all required imports."
+    },
+    "JSON Transcoder": {
+        "prefix": [
+            "@cbtranscoder"
+        ],
+        "body": [
+            "//Our sdk supports other transcoders. It may be useful to adapt this snippet to use one of them, or make your own. ",
+            "//Visit our documentation for additional details.",
+            "try {",
+            "    await ${1:collection}.upsert('${2:key}', ${3:value},",
+            "        { transcoder: new DefaultTranscoder() },",
+            "    ).catch((e) => console.log(e));",
+            "} catch (e) {",
+            "    console.log(\"try/catch: \");",
+            "    console.log(e);",
+            "    return e.response(e.toString());",
+            "}"
+        ],
+        "description": "Example code that shows how to use the default transcoder on an upsert operation."
+    },
+    "Document Expiration": {
+        "prefix": [
+            "@cbsetexp"
+        ],
+        "body": [
+            "try {",
+            "    const result = await ${1:collection}.touch(\"${2:document-key}\", ${3:100},  // 100 seconds",
+            "        { timeout: 5000 } // 5 seconds",
+            "    );",
+            "} catch (e) {",
+            "    if (e instanceof couchbase.DocumentNotFoundError) {",
+            "        console.log('Document not found...')",
+            "    } else {",
+            "        throw e",
+            "    }",
+            "}"
+        ],
+        "description": "Use Document Expiration"
+    }
+}

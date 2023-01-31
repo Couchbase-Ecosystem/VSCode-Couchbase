@@ -1,0 +1,45 @@
+{
+    "Connect to Cluster": {
+        "prefix": [
+            "@cbcon"
+        ],
+        "body": [
+            "import com.couchbase.client.java.*;",
+            "",
+            "Cluster ${1:cluster} = Cluster.connect(${2:connectionString}, ${3:username}, ${4:password});",
+            "",
+            "// get a bucket reference",
+            "Bucket ${5:bucket} = ${1:cluster}.bucket(${6:bucketName});",
+            "",
+            "// get a user defined collection reference",
+            "Scope ${7:scope} = ${5:bucket}.scope(${8:scopeName});",
+            "Collection ${9:collection} = ${7:scope}.collection(${10:collectionName});"
+        ],
+        "description": "Connect to a cluster and get a reference to it, a bucket, and a collection."
+    },
+    "Connect to Cluster with TLS": {
+        "prefix": [
+            "@cbcontls"
+        ],
+        "body": [
+            "import com.couchbase.client.java.*;",
+            "",
+            "Cluster ${1:cluster} = Cluster.connect(${2:connectionString},",
+            "    ClusterOptions.clusterOptions(${4:username}, ${5:password})",
+            "        .environment(env -> {",
+            "            env.securityConfig(SecurityConfig",
+            "                .enableTls(true)",
+            "                .trustCertificate(Paths.get(\"${6:/path/to/certificate.pem}\"))",
+            "            );",
+            "        }));",
+            "",
+            "// get a bucket reference",
+            "Bucket ${7:bucket} = ${1:cluster}.bucket(${8:bucketName});",
+            "",
+            "// get a user defined collection reference",
+            "Scope ${9:scope} = ${7:bucket}.scope(${10:scopeName});",
+            "Collection ${11:collection} = ${9:scope}.collection(${12:collectionName});"
+        ],
+        "description": "Connect to a cluster using TLS and get a reference to it, a bucket, and a collection."
+    }
+}

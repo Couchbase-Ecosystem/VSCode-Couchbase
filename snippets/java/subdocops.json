@@ -1,0 +1,113 @@
+{
+    "Sub Doc Get": {
+        "prefix": [
+            "@cbsubget"
+        ],
+        "body": [
+            "try {",
+            "    LookupInResult result = ${1:collection}.lookupIn(\"${2:document-key}\",",
+            "        Arrays.asList(get(\"${3:path}\")), exists(\"${4:path}\"));",
+            "} catch (PathNotFoundException e) {",
+            "    System.out.println(\"combine: \" + e);",
+            "}"
+        ],
+        "description": "Get or check the existence of a sub document value by providing document key and path."
+    },
+    "Sub Doc Upsert": {
+        "prefix": [
+            "@cbsubups"
+        ],
+        "body": [
+            "${1:collection}.mutateIn(\"${2:document-key}\", Arrays.asList(upsert(\"${3:path}\", \"${4:value}\")));"
+        ],
+        "description": "Modify the value of an existing path or create it if it does not exist."
+    },
+    "Sub Doc Insert": {
+        "prefix": [
+            "@cbsubins"
+        ],
+        "body": [
+            "try {",
+            "    ${1:collection}.lookupIn(\"${2:document-key}\", Collections.singletonList(insert(\"${3:path}\", \"${4:value}\")));",
+            "} catch (PathExistsException err) {",
+            "    System.out.println(\"insertFunc: exception caught, path already exists\");",
+            "}"
+        ],
+        "description": "Add a new value to a path that does not exist."
+    },
+    "Sub Doc Remove": {
+        "prefix": [
+            "@cbsubrem"
+        ],
+        "body": [
+            "try {",
+            "    ${1:collection}.mutateIn(\"${2:document-key}\", Arrays.asList(remove(\"${3:path}\")));",
+            "} catch (PathNotFoundException e) {",
+            "    System.out.println(\"removeFunc: exception caught, path not found\");",
+            "}"
+        ],
+        "description": "Remove the value of an existing path."
+    },
+    "Array Append": {
+        "prefix": [
+            "@cbsubarrapp"
+        ],
+        "body": [
+            "MutationResult result = ${1:collection}.mutateIn(\"${2:document-key}\",",
+            "    Collections.singletonList(arrayAppend(\"${3:path}\", Collections.singletonList(\"${4:value}\"))));"
+        ],
+        "description": "Append a value to an existing array in a document."
+    },
+    "Array Prepend": {
+        "prefix": [
+            "@cbsubarrpre"
+        ],
+        "body": [
+            "MutationResult result = ${1:collection}.mutateIn(\"${2:document-key}\",",
+            "    Collections.singletonList(arrayPrepend(\"${3:path}\", Collections.singletonList(\"${4:value}\"))));"
+        ],
+        "description": "Prepend a value to an existing array in a document."
+    },
+    "Array Add Unique": {
+        "prefix": [
+            "@cbsubarradd"
+        ],
+        "body": [
+            "try {",
+            "    ${1:collection}.mutateIn(\"${2:document-key}\", Collections.singletonList(arrayAddUnique(\"${3:path}\", ${4:value})));",
+            "} catch (PathExistsException err) {",
+            "    System.out.println(\"arrayUnique: caught exception, path already exists\");",
+            "}"
+        ],
+        "description": "Treat an existing array like a unique set and add a value."
+    },
+    "Array Insert At": {
+        "prefix": [
+            "@cbsubarrins"
+        ],
+        "body": [
+            "MutateInResult result = ${1:collection}.mutateIn(\"${2:document-key}\",",
+            "    Collections.singletonList(arrayInsert(\"${3:path[index]}\", Collections.singletonList(\"${4:value}\"))));"
+        ],
+        "description": "Insert a new element into an array at a specific position."
+    },
+    "Array Operations": {
+        "prefix": [
+            "@cbsubarrops"
+        ],
+        "body": [
+            "//Append to an array",
+            "MutationResult result1 = ${1:collection}.mutateIn(\"${2:document-key}\",",
+            "    Collections.singletonList(arrayAppend(\"${3:path}\", Collections.singletonList(\"${4:value}\"))));",
+            "",
+            "//Prepend to an array",
+            "MutationResult result2 = ${1:collection}.mutateIn(\"${2:document-key}\",",
+            "    Collections.singletonList(arrayPrepend(\"${5:path}\", Collections.singletonList(\"${6:value}\"))));",
+            "",
+            "//Insert into an array",
+            "MutateInResult result3 = ${1:collection}.mutateIn(\"${2:document-key}\",",
+            "    Collections.singletonList(arrayInsert(\"${7:path[index]}\", Collections.singletonList(\"${8:value}\"))));"
+        ],
+        "description": "Example code showing different array operations."
+    }
+}

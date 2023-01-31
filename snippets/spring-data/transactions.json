@@ -1,0 +1,32 @@
+{
+    "Transaction Example": {
+        "prefix": ["@cbsdtranex"],
+        "body": ["package ${1:package name};","","import org.springframework.beans.factory.annotation.Autowired;","import org.springframework.data.couchbase.core.CouchbaseTemplate;","import com.couchbase.client.java.transactions.TransactionResult;","","public class transactionExample {","","    @Autowired private CouchbaseTemplate CouchbaseTemplate;","    ","    public void main(String[] args) {","   ","        TransactionResult result = CouchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions().run(ctx -> {","            Model found = CouchbaseTemplate.findById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(${5:documentId});","        });","","    }","    ","}"],
+        "description": "Example code that shows connecting to a cluster and running a transaction on it."
+    },
+    "Insert Transaction": {
+        "prefix": ["@cbsdtranins"],
+        "body": ["TransactionResult result = ${1:CouchbaseTemplate}.getCouchbaseClientFactory().getCluster().transactions().run(ctx -> {","    ${1:CouchbaseTemplate}.insertById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(${5:document});","});"],
+        "description": "Perform an insertion transaction"
+    },
+    "Get Transaction": {
+        "prefix": ["@cbsdtranget"],
+        "body": ["TransactionResult result = ${1:CouchbaseTemplate}.getCouchbaseClientFactory().getCluster().transactions().run(ctx -> {","    ${2:Model} found = ${1:CouchbaseTemplate}.findById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(${5:documentId});","});"],
+        "description": "Perform a get transaction"
+    },
+    "Replace Transaction": {
+        "prefix": ["@cbsdtranrep"],
+        "body": ["TransactionResult result = ${1:CouchbaseTemplate}.getCouchbaseClientFactory().getCluster().transactions().run(ctx -> {","    ${1:CouchbaseTemplate}.replaceById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(${5:document});","});"],
+        "description": "Perform a replace transaction"
+    },
+    "Remove Transaction": {
+        "prefix": ["@cbsdtranrem"],
+        "body": ["TransactionResult result = ${1:CouchbaseTemplate}.getCouchbaseClientFactory().getCluster().transactions().run(ctx -> {","    ${1:CouchbaseTemplate}.removeById(${2:Model}.class).inScope(\"${3:scopeName}\").inCollection(\"${4:collectionName}\").one(${5:documentId});","});"],
+        "description": "Perform a remove transaction"
+    },
+    "Transaction Import": {
+        "prefix": ["@cbsdtranimp"],
+        "body": ["import org.springframework.beans.factory.annotation.Autowired;","import org.springframework.data.couchbase.core.CouchbaseTemplate;","import com.couchbase.client.java.transactions.TransactionResult;"],
+        "description": "Import all necessary transaction namespaces."
+    }
+}
