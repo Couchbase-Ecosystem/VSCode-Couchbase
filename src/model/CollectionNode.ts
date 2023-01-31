@@ -48,7 +48,31 @@ export default class CollectionNode implements INode {
   public async getChildren(): Promise<INode[]> {
     let documentList: INode[] = [];
     // TODO: default limit could be managed as user settings / preference
-    const result = await this.connection.cluster?.query(`SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`);
+    let result;
+    // A primary index is required for database querying. If one is present, a result will be obtained. 
+    // If not, the user will be prompted to create a primary index before querying.
+    try {
+      result = await this.connection.cluster?.query(
+        `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
+      );
+    } catch {
+      vscode.window
+        .showInformationMessage(
+          "No primary index found for this collection. Would you like to create one?",
+          "Yes",
+          "No"
+        )
+        .then(async (answer) => {
+          if (answer === "Yes") {
+            await this.connection.cluster?.query(
+              `CREATE PRIMARY INDEX ON \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` USING GSI`
+            );
+            result = await this.connection.cluster?.query(
+              `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
+            );
+          }
+        });
+    }
     result?.rows.forEach((documentName: string) => {
       const documentTreeItem = new DocumentNode(
         documentName,
