@@ -60,7 +60,7 @@ export default class CollectionNode implements INode {
       if (err instanceof PlanningFailureError) {
       vscode.window
         .showInformationMessage(
-          "No primary index found for this collection. Would you like to create one?",
+          "No suitable index was found for listing the Collection's documents. If you are NOT in a production environment we recommend you to create a Primary Index for it. Would you like to create one?",
           "Yes",
           "No"
         )
