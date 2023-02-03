@@ -452,12 +452,12 @@
         {
           "command": "vscode-couchbase.getBucketInfo",
           "when": "view == couchbase && viewItem == bucket",
-          "group": "bucket@1"
+          "group": "bucket2"
         },
         {
           "command": "vscode-couchbase.createScope",
           "when": "view == couchbase && viewItem == bucket",
-          "group": "bucket@2"
+          "group": "bucket@1"
         },
         {
           "command": "vscode-couchbase.removeScope",
@@ -466,7 +466,7 @@
         {
           "command": "vscode-couchbase.refreshScopes",
           "when": "view == couchbase && viewItem == bucket",
-          "group": "bucket@3"
+          "group": "bucket@2"
         },
         {
           "command": "vscode-couchbase.createCollection",
