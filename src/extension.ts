@@ -18,7 +18,7 @@ import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
 import DocumentNode from "./model/DocumentNode";
-import { DocumentNotFoundError } from "couchbase";
+import { BucketSettings, DocumentNotFoundError } from "couchbase";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
@@ -432,27 +432,23 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
         try {
-          const result = await connection.cluster?.query(
-            `SELECT META(b).* FROM \`${node.bucketName}\` b`
-          );
-          const bucket: any = {};
-          bucket.name = node.bucketName;
-          bucket.numberOfScopes = node.getChildren.length;
-          bucket.requestId = result?.meta.requestId;
-          bucket.clientContextId = result?.meta.clientContextId;
-          if (currentPanel) {
-            currentPanel.webview.html = getBucketMetaData(bucket);
+          const viewType = connection.url + "." + node.bucketName;
+          const bucketData: BucketSettings = await connection.cluster
+            ?.buckets()
+            .getBucket(node.bucketName);
+          if (currentPanel && currentPanel.viewType === viewType) {
+            currentPanel.webview.html = getBucketMetaData(bucketData);
             currentPanel.reveal(vscode.ViewColumn.One);
           } else {
             currentPanel = vscode.window.createWebviewPanel(
-              "bucketInfo",
+              viewType,
               "Bucket Information",
               vscode.ViewColumn.One,
               {
                 enableScripts: true,
               }
             );
-            currentPanel.webview.html = getBucketMetaData(bucket);
+            currentPanel.webview.html = getBucketMetaData(bucketData);
 
             currentPanel.onDidDispose(
               () => {
