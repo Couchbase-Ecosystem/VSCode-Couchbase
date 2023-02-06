@@ -354,7 +354,7 @@
       },
       {
         "command": "vscode-couchbase.getBucketInfo",
-        "title": "Info",
+        "title": "Get Info",
         "category": "Couchbase"
       },
       {
