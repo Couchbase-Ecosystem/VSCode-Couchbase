@@ -34,6 +34,7 @@ import {
 } from "./util/connections";
 import { MemFS } from "./util/fileSystemProvider";
 import { Global, Memory, WorkSpace } from "./util/util";
+import { IBucket } from "./model/IBucket";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -433,7 +434,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         try {
           const viewType = connection.url + "." + node.bucketName;
-          const bucketData: BucketSettings = await connection.cluster
+          const bucketData: IBucket = await connection.cluster
             ?.buckets()
             .getBucket(node.bucketName);
           if (currentPanel && currentPanel.viewType === viewType) {
@@ -442,7 +443,7 @@ export function activate(context: vscode.ExtensionContext) {
           } else {
             currentPanel = vscode.window.createWebviewPanel(
               viewType,
-              "Bucket Information",
+              node.bucketName,
               vscode.ViewColumn.One,
               {
                 enableScripts: true,
