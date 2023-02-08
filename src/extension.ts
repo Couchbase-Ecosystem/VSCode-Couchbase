@@ -18,11 +18,12 @@ import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
 import DocumentNode from "./model/DocumentNode";
-import { DocumentNotFoundError } from "couchbase";
+import { BucketSettings, DocumentNotFoundError } from "couchbase";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
 import { ScopeNode } from "./model/ScopeNode";
+import { getBucketMetaData } from "../src/webViews/webViewProvider";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
 import {
   addConnection,
@@ -33,6 +34,7 @@ import {
 } from "./util/connections";
 import { MemFS } from "./util/fileSystemProvider";
 import { Global, Memory, WorkSpace } from "./util/util";
+import { IBucket } from "./model/IBucket";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -42,6 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
     "vscode-couchbase",
     vscode.workspace.getConfiguration("vscode-couchbase")
   );
+  let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
   const subscriptions = context.subscriptions;
 
@@ -194,46 +197,46 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
 
-      const documentName = await vscode.window.showInputBox({
-        prompt: "Document name",
-        placeHolder: "name",
-        ignoreFocusOut: true,
-        value: "",
-      });
-      if (!documentName) {
-        vscode.window.showErrorMessage("Document name is required.");
-        return;
-      }
-
-      const uri = vscode.Uri.parse(
-        `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
-      );
-      let documentContent = Buffer.from("{}");
-      // Try block is trying to retrieve the document with the same key first
-      // If returns an error go to catch block create a new empty document
-      try {
-        const result = await node.connection.cluster
-          ?.bucket(node.bucketName)
-          .scope(node.scopeName)
-          .collection(node.collectionName)
-          .get(documentName);
-        documentContent = Buffer.from(
-          JSON.stringify(result?.content, null, 2)
-        );
-      } catch (err: any) {
-        if (!(err instanceof DocumentNotFoundError)) {
-          console.log(err);
+        const documentName = await vscode.window.showInputBox({
+          prompt: "Document name",
+          placeHolder: "name",
+          ignoreFocusOut: true,
+          value: "",
+        });
+        if (!documentName) {
+          vscode.window.showErrorMessage("Document name is required.");
+          return;
         }
-      }
-      memFs.writeFile(uri, documentContent, {
-        create: true,
-        overwrite: true,
-      });
-      const document = await vscode.workspace.openTextDocument(uri);
-      await vscode.window.showTextDocument(document, { preview: false });
 
-      clusterConnectionTreeProvider.refresh(node);
-    })
+        const uri = vscode.Uri.parse(
+          `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
+        );
+        let documentContent = Buffer.from("{}");
+        // Try block is trying to retrieve the document with the same key first
+        // If returns an error go to catch block create a new empty document
+        try {
+          const result = await node.connection.cluster
+            ?.bucket(node.bucketName)
+            .scope(node.scopeName)
+            .collection(node.collectionName)
+            .get(documentName);
+          documentContent = Buffer.from(
+            JSON.stringify(result?.content, null, 2)
+          );
+        } catch (err: any) {
+          if (!(err instanceof DocumentNotFoundError)) {
+            console.log(err);
+          }
+        }
+        memFs.writeFile(uri, documentContent, {
+          create: true,
+          overwrite: true,
+        });
+        const document = await vscode.workspace.openTextDocument(uri);
+        await vscode.window.showTextDocument(document, { preview: false });
+
+        clusterConnectionTreeProvider.refresh(node);
+      })
   );
 
   subscriptions.push(
@@ -416,6 +419,51 @@ export function activate(context: vscode.ExtensionContext) {
       "vscode-couchbase.refreshCollections",
       async (node: ScopeNode) => {
         clusterConnectionTreeProvider.refresh(node);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.getBucketInfo",
+      async (node: BucketNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+
+        if (!connection) {
+          return;
+        }
+        try {
+          const viewType = connection.url + "." + node.bucketName;
+          const bucketData: IBucket = await connection.cluster
+            ?.buckets()
+            .getBucket(node.bucketName);
+          if (currentPanel && currentPanel.viewType === viewType) {
+            currentPanel.webview.html = getBucketMetaData(bucketData);
+            currentPanel.reveal(vscode.ViewColumn.One);
+          } else {
+            currentPanel = vscode.window.createWebviewPanel(
+              viewType,
+              node.bucketName,
+              vscode.ViewColumn.One,
+              {
+                enableScripts: true,
+              }
+            );
+            currentPanel.webview.html = getBucketMetaData(bucketData);
+
+            currentPanel.onDidDispose(
+              () => {
+                currentPanel = undefined;
+              },
+              undefined,
+              context.subscriptions
+            );
+          }
+        } catch {
+          console.log(
+            `Error: Bucket metadata retrieval failed for \`${node.bucketName}\``
+          );
+        }
       }
     )
   );
