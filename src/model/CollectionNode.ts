@@ -58,13 +58,12 @@ export default class CollectionNode implements INode {
       );
     } catch (err) {
       if (err instanceof PlanningFailureError) {
-      vscode.window
-        .showInformationMessage(
+        const answer = await vscode.window.showWarningMessage(
           "No suitable index was found for listing the Collection's documents. If you are NOT in a production environment we recommend you to create a Primary Index for it. Would you like to create one?",
+          { modal: true },
           "Yes",
           "No"
-        )
-        .then(async (answer) => {
+        );
           if (answer === "Yes") {
             await this.connection.cluster?.query(
               `CREATE PRIMARY INDEX ON \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` USING GSI`
@@ -73,7 +72,6 @@ export default class CollectionNode implements INode {
               `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
             );
           }
-        });
       }
     }
     result?.rows.forEach((documentName: string) => {
