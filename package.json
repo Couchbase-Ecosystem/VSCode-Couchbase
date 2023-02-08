@@ -69,6 +69,7 @@
     "onCommand:vscode-couchbase.useClusterConnection",
     "onCommand:vscode-couchbase.disconnectClusterConnection",
     "onCommand:vscode-couchbase.createDocument",
+    "onCommand:vscode-couchbase.searchDocument",
     "onCommand:vscode-couchbase.removeDocument",
     "onCommand:vscode-couchbase.refreshCollection",
     "onCommand:vscode-couchbase.getBucketInfo",
@@ -343,6 +344,11 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.searchDocument",
+        "title": "Open Document",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.removeDocument",
         "title": "Remove Document",
         "category": "Couchbase"
@@ -439,6 +445,10 @@
         },
         {
           "command": "vscode-couchbase.createDocument",
+          "when": "view == couchbase && viewItem == collection"
+        },
+        {
+          "command": "vscode-couchbase.searchDocument",
           "when": "view == couchbase && viewItem == collection"
         },
         {
