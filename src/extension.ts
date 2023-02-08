@@ -18,7 +18,7 @@ import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
 import DocumentNode from "./model/DocumentNode";
-import { BucketSettings, DocumentNotFoundError } from "couchbase";
+import { DocumentNotFoundError } from "couchbase";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
@@ -236,7 +236,8 @@ export function activate(context: vscode.ExtensionContext) {
         await vscode.window.showTextDocument(document, { preview: false });
 
         clusterConnectionTreeProvider.refresh(node);
-      })
+      }
+    )
   );
 
   subscriptions.push(
@@ -463,6 +464,59 @@ export function activate(context: vscode.ExtensionContext) {
           console.log(
             `Error: Bucket metadata retrieval failed for \`${node.bucketName}\``
           );
+        }
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.searchDocument",
+      async (node: CollectionNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+        const documentName = await vscode.window.showInputBox({
+          prompt: "Please enter the Document ID",
+          placeHolder: "Document Id",
+          ignoreFocusOut: true,
+          value: "",
+        });
+        if (!documentName) {
+          vscode.window.showErrorMessage("Document name is required.");
+          return;
+        }
+        try {
+          const result = await node.connection.cluster
+            ?.bucket(node.bucketName)
+            .scope(node.scopeName)
+            .collection(node.collectionName)
+            .get(documentName);
+          const uri = vscode.Uri.parse(
+            `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
+          );
+          memFs.writeFile(
+            uri,
+            Buffer.from(JSON.stringify(result?.content, null, 2)),
+            { create: true, overwrite: true }
+          );
+          const document = await vscode.workspace.openTextDocument(uri);
+          await vscode.window.showTextDocument(document, { preview: false });
+          return true;
+        } catch (err) {
+          if (err instanceof DocumentNotFoundError) {
+            vscode.window.showErrorMessage(
+              "The document with document Id " +
+                documentName +
+                " does not exist",
+              { modal: true }
+            );
+          } else {
+            console.log(
+              `Error: An error occured while retrieving document with document Id ${documentName}: ${err}`
+            );
+          }
         }
       }
     )
