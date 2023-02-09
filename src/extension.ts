@@ -18,7 +18,7 @@ import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
 import DocumentNode from "./model/DocumentNode";
-import { DocumentNotFoundError } from "couchbase";
+import { BucketSettings, DocumentNotFoundError } from "couchbase";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
