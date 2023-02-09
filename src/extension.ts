@@ -44,6 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
     "vscode-couchbase",
     vscode.workspace.getConfiguration("vscode-couchbase")
   );
+  const uriToCasMap = new Map<string, string>();
   let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
   const subscriptions = context.subscriptions;
@@ -69,13 +70,35 @@ export function activate(context: vscode.ExtensionContext) {
             scope = parts[1],
             collection = parts[2],
             name = parts[3].substring(0, parts[3].indexOf(".json"));
-          await activeConnection.cluster
+          const currentDocument = await activeConnection.cluster?.bucket(bucket)
+          .scope(scope)
+          .collection(collection)
+          .get(name);
+          if(currentDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
+            const answer = await vscode.window.showWarningMessage(
+              "There is a conflict while trying to save this document, as it was also changed in the server. Would you like to load the server version or overwrite the remote version with your changes?",
+              { modal: true },
+              "Remove changes and Load Server Version",
+              "Overwrite this Version"
+            );
+            if(answer === "Remove changes and Load Server Version")
+            {
+              memFs.writeFile(
+                document.uri,
+                Buffer.from(JSON.stringify(currentDocument?.content, null, 2)),
+                { create: true, overwrite: true }
+              );
+              uriToCasMap.set(document.uri.toString(), currentDocument.cas.toString());
+              return;
+            }
+          }
+          const result =  await activeConnection.cluster
             ?.bucket(bucket)
             .scope(scope)
             .collection(collection)
             .upsert(name, JSON.parse(document.getText()));
-          vscode.window.setStatusBarMessage("Document saved", 2000);
-
+            vscode.window.setStatusBarMessage("Document saved", 2000);
+          uriToCasMap.set(document.uri.toString(), result.cas.toString());
           clusterConnectionTreeProvider.refresh();
         }
       }
@@ -162,6 +185,7 @@ export function activate(context: vscode.ExtensionContext) {
           const uri = vscode.Uri.parse(
             `couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/${documentNode.collectionName}/${documentNode.documentName}.json`
           );
+          uriToCasMap.set(uri.toString(), result.cas.toString());
           memFs.writeFile(
             uri,
             Buffer.from(JSON.stringify(result?.content, null, 2)),
