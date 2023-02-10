@@ -54,6 +54,51 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+      if (!editor) {
+        return;
+      }
+      if (
+        editor.document.languageId === "json" &&
+        editor.document.uri.scheme === "couchbase"
+      ) {
+        const activeConnection = getActiveConnection();
+        if (!activeConnection) {
+          return;
+        }
+
+        const parts = editor.document.uri.path.substring(1).split("/");
+        const bucket = parts[0],
+          scope = parts[1],
+          collection = parts[2],
+          name = parts[3].substring(0, parts[3].indexOf(".json"));
+        const currentDocument = await activeConnection.cluster?.bucket(bucket)
+          .scope(scope)
+          .collection(collection)
+          .get(name);
+        if (currentDocument.cas.toString() !== uriToCasMap.get(editor.document.uri.toString())) {
+          const answer = await vscode.window.showWarningMessage(
+            "Conflict Alert: A change has been detected in the server version of this document. To ensure that you are working with the most up-to-date version, would you like to load the server version?",
+            { modal: true },
+            "Load Server Version",
+            "Keep Local Version"
+          );
+          if (answer === "Load Server Version") {
+            memFs.writeFile(
+              editor.document.uri,
+              Buffer.from(JSON.stringify(currentDocument?.content, null, 2)),
+              { create: true, overwrite: true }
+            );
+            uriToCasMap.set(editor.document.uri.toString(), currentDocument.cas.toString());
+            return;
+          }
+        }
+        clusterConnectionTreeProvider.refresh();
+      }
+    })
+  );
+
+  subscriptions.push(
     vscode.workspace.onDidSaveTextDocument(
       async (document: vscode.TextDocument) => {
         if (
@@ -71,18 +116,17 @@ export function activate(context: vscode.ExtensionContext) {
             collection = parts[2],
             name = parts[3].substring(0, parts[3].indexOf(".json"));
           const currentDocument = await activeConnection.cluster?.bucket(bucket)
-          .scope(scope)
-          .collection(collection)
-          .get(name);
-          if(currentDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
+            .scope(scope)
+            .collection(collection)
+            .get(name);
+          if (currentDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
             const answer = await vscode.window.showWarningMessage(
-              "There is a conflict while trying to save this document, as it was also changed in the server. Would you like to load the server version or overwrite the remote version with your changes?",
+              "Conflict Alert: There is a conflict while trying to save this document, as it was also changed in the server. Would you like to load the server version or overwrite the remote version with your changes?",
               { modal: true },
-              "Remove changes and Load Server Version",
-              "Overwrite this Version"
+              "Discard Local Changes and Load Server Version",
+              "Overwrite Server Version with Local Changes"
             );
-            if(answer === "Remove changes and Load Server Version")
-            {
+            if (answer === "Discard Local Changes and Load Server Version") {
               memFs.writeFile(
                 document.uri,
                 Buffer.from(JSON.stringify(currentDocument?.content, null, 2)),
@@ -92,12 +136,12 @@ export function activate(context: vscode.ExtensionContext) {
               return;
             }
           }
-          const result =  await activeConnection.cluster
+          const result = await activeConnection.cluster
             ?.bucket(bucket)
             .scope(scope)
             .collection(collection)
             .upsert(name, JSON.parse(document.getText()));
-            vscode.window.setStatusBarMessage("Document saved", 2000);
+          vscode.window.setStatusBarMessage("Document saved", 2000);
           uriToCasMap.set(document.uri.toString(), result.cas.toString());
           clusterConnectionTreeProvider.refresh();
         }
@@ -532,8 +576,8 @@ export function activate(context: vscode.ExtensionContext) {
           if (err instanceof DocumentNotFoundError) {
             vscode.window.showErrorMessage(
               "The document with document Id " +
-                documentName +
-                " does not exist",
+              documentName +
+              " does not exist",
               { modal: true }
             );
           } else {
