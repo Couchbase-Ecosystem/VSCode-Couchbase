@@ -135,15 +135,25 @@ export function activate(context: vscode.ExtensionContext) {
               uriToCasMap.set(document.uri.toString(), currentDocument.cas.toString());
               return;
             }
+            else if (answer === "Overwrite Server Version with Local Changes") {
+              const result = await activeConnection.cluster
+                ?.bucket(bucket)
+                .scope(scope)
+                .collection(collection)
+                .upsert(name, JSON.parse(document.getText()));
+              vscode.window.setStatusBarMessage("Document saved", 2000);
+              uriToCasMap.set(document.uri.toString(), result.cas.toString());
+            }
+          } else {
+            const result = await activeConnection.cluster
+              ?.bucket(bucket)
+              .scope(scope)
+              .collection(collection)
+              .upsert(name, JSON.parse(document.getText()));
+            vscode.window.setStatusBarMessage("Document saved", 2000);
+            uriToCasMap.set(document.uri.toString(), result.cas.toString());
+            clusterConnectionTreeProvider.refresh();
           }
-          const result = await activeConnection.cluster
-            ?.bucket(bucket)
-            .scope(scope)
-            .collection(collection)
-            .upsert(name, JSON.parse(document.getText()));
-          vscode.window.setStatusBarMessage("Document saved", 2000);
-          uriToCasMap.set(document.uri.toString(), result.cas.toString());
-          clusterConnectionTreeProvider.refresh();
         }
       }
     )
