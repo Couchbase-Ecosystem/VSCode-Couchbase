@@ -454,6 +454,10 @@
           "group": "primary"
         },
         {
+          "command": "vscode-couchbase.searchDocument",
+          "when": "view == couchbase && viewItem == collection"
+        },
+        {
           "command": "vscode-couchbase.removeDocument",
           "when": "view == couchbase && viewItem == document"
         },

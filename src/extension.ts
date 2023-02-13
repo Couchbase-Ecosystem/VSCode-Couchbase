@@ -468,6 +468,7 @@ export function activate(context: vscode.ExtensionContext) {
       }
     )
   );
+
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.searchDocument",
