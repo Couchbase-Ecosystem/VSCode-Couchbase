@@ -23,7 +23,7 @@ import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
 import { ScopeNode } from "./model/ScopeNode";
-import { getBucketMetaData } from "../src/webViews/webViewProvider";
+import { getBucketMetaData, getDocumentMetaData } from "../src/webViews/webViewProvider";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
 import {
   addConnection,
@@ -572,6 +572,51 @@ export function activate(context: vscode.ExtensionContext) {
         } catch {
           console.log(
             `Error: Bucket metadata retrieval failed for \`${node.bucketName}\``
+          );
+        }
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.getDocumentMetaData",
+      async (node: DocumentNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+
+        if (!connection) {
+          return;
+        }
+        try {
+          const viewType = connection.url + "." + node.bucketName + "." + node.scopeName + node.collectionName + "." + node.documentName;
+          const result = await connection.cluster?.query(
+            `SELECT META(b).* FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id =  \"${node.documentName}\"`
+          );
+          if (currentPanel && currentPanel.viewType === viewType) {
+            currentPanel.webview.html = getDocumentMetaData(result.rows[0]);
+            currentPanel.reveal(vscode.ViewColumn.One);
+          } else {
+            currentPanel = vscode.window.createWebviewPanel(
+              viewType,
+              node.documentName,
+              vscode.ViewColumn.One,
+              {
+                enableScripts: true,
+              }
+            );
+            currentPanel.webview.html = getDocumentMetaData(result.rows[0]);
+
+            currentPanel.onDidDispose(
+              () => {
+                currentPanel = undefined;
+              },
+              undefined,
+              context.subscriptions
+            );
+          }
+        } catch {
+          console.log(
+            `Error: Document metadata retrieval failed for \`${node.documentName}\``
           );
         }
       }
