@@ -355,7 +355,7 @@
       },
       {
         "command": "vscode-couchbase.refreshCollection",
-        "title": "Refresh Documents",
+        "title": "Refresh Collection",
         "category": "Couchbase"
       },
       {
@@ -445,7 +445,13 @@
         },
         {
           "command": "vscode-couchbase.createDocument",
-          "when": "view == couchbase && viewItem == collection"
+          "when": "view == couchbase && viewItem == collection",
+          "group": "primary"
+        },
+        {
+          "command": "vscode-couchbase.searchDocument",
+          "when": "view == couchbase && viewItem == collection",
+          "group": "primary"
         },
         {
           "command": "vscode-couchbase.searchDocument",
@@ -457,7 +463,8 @@
         },
         {
           "command": "vscode-couchbase.refreshCollection",
-          "when": "view == couchbase && viewItem == collection"
+          "when": "view == couchbase && viewItem == collection",
+          "group": "secondary"
         },
         {
           "command": "vscode-couchbase.getBucketInfo",
@@ -484,7 +491,8 @@
         },
         {
           "command": "vscode-couchbase.removeCollection",
-          "when": "view == couchbase && viewItem == collection"
+          "when": "view == couchbase && viewItem == collection",
+          "group": "secondary"
         },
         {
           "command": "vscode-couchbase.refreshCollections",
