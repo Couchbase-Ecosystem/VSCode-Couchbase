@@ -1,4 +1,5 @@
 import { IBucket } from "../model/IBucket";
+import { IDocumentMetaData } from "../model/IDocument";
 // Function to convert camel case to normal
 const camelToNormal = (camel: string) =>
   camel.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
@@ -120,3 +121,82 @@ export function getBucketMetaData(result: IBucket) {
      </body>
   </html>`;
 }
+
+/**
+ * function getDocumentMetaData returns a tabular view of Document Metadata
+ * @param which contains document metadata 
+ * @returns HTML Web view
+ */
+export function getDocumentMetaData(result: IDocumentMetaData) {
+   return `
+   <!DOCTYPE html>
+   <html lang="en">
+      <head>
+         <meta charset="UTF-8">
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <title>${result.id}</title>
+         <style>
+            h3 {
+            display: inline;
+            }
+         </style>
+      </head>
+      <body>
+         <h1>Document Metadata</h1>
+         <table style="border: 1px solid black;">
+            <tr>
+               <th style="background-color: gray; padding: 10px; font-size: larger;">
+                  <h3>Property</h3>
+               </th>
+               <th style="background-color: gray; padding: 10px; font-size: larger;">
+                  <h3>Value</h3>
+               </th>
+            </tr>
+            <tr>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Name</td>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
+                  result.id
+                  }
+               </td>
+            </tr>
+            <tr>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">CAS</td>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
+                  result.cas
+                  }
+               </td>
+            </tr>
+            <tr>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Expiration</td>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
+                  result.expiration
+                  }
+               </td>
+            </tr>
+            <tr>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Flags</td>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
+                  result.flags
+                  }
+               </td>
+            </tr>
+            <tr>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Type</td>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
+                  result.type
+                  }
+               </td>
+            </tr>
+            <tr>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">KeySpace</td>
+               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
+                  result.keyspace
+                  }
+               </td>
+            </tr>
+         </table>
+      </body>
+   </html>`;
+ }
+ 
+ 
