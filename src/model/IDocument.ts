@@ -20,3 +20,12 @@ export interface IDocumentData {
     readonly collection: string;
     readonly name: string;
 }
+
+export interface IDocumentMetaData {
+    readonly cas: string;
+    readonly expiration: number;
+    readonly flags: number;
+    readonly id: string;
+    readonly keyspace: string;
+    readonly type: string;
+}
