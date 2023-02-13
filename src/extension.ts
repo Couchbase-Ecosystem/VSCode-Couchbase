@@ -176,7 +176,7 @@ export function activate(context: vscode.ExtensionContext) {
             return;
           }
           const documentInfo = await extractDocumentInfo(document.uri.path);
-          const remoteDocument = await getDocument(activeConnection, documentInfo)
+          const remoteDocument = await getDocument(activeConnection, documentInfo);
           if (remoteDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
             handleSaveTextDocumentConflict(remoteDocument, document, activeConnection, documentInfo);
           } else {
