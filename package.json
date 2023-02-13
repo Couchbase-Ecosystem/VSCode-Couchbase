@@ -79,6 +79,7 @@
     "onCommand:vscode-couchbase.createCollection",
     "onCommand:vscode-couchbase.removeCollection",
     "onCommand:vscode-couchbase.refreshCollections",
+    "onCommand:vscode-couchbase.getDocumentMetaData",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
     "onView:couchbase-activity-bar"
@@ -354,6 +355,11 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.getDocumentMetaData",
+        "title": "Show Metadata",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.refreshCollection",
         "title": "Refresh Collection",
         "category": "Couchbase"
@@ -468,6 +474,10 @@
         },
         {
           "command": "vscode-couchbase.removeDocument",
+          "when": "view == couchbase && viewItem == document"
+        },
+        {
+          "command": "vscode-couchbase.getDocumentMetaData",
           "when": "view == couchbase && viewItem == document"
         },
         {
