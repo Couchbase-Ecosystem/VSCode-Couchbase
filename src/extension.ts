@@ -642,11 +642,13 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
         try {
-          const result = await node.connection.cluster
-            ?.bucket(node.bucketName)
-            .scope(node.scopeName)
-            .collection(node.collectionName)
-            .get(documentName);
+          const documentInfo:IDocumentData = {
+            bucket: node.bucketName,
+            scope: node.scopeName,
+            collection: node.collectionName,
+            name: documentName
+          };
+          const result = await getDocument(connection, documentInfo);
           const uri = vscode.Uri.parse(
             `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
           );

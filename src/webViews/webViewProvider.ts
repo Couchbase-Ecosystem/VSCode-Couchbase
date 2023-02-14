@@ -123,7 +123,7 @@ export function getBucketMetaData(result: IBucket) {
 }
 
 /**
- * function getDocumentMetaData returns a tabular view of Document Metadata
+ * function getDocumentMetaData returns a JSON view of Document Metadata
  * @param which contains document metadata 
  * @returns HTML Web view
  */
@@ -151,3 +151,4 @@ export function getDocumentMetaData(result: any): string {
      </html>
    `;
  }
+ 
