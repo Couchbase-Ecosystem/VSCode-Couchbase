@@ -127,76 +127,27 @@ export function getBucketMetaData(result: IBucket) {
  * @param which contains document metadata 
  * @returns HTML Web view
  */
-export function getDocumentMetaData(result: IDocumentMetaData) {
+export function getDocumentMetaData(result: any): string {
+   function buildJSON(data: any): string {
+     return JSON.stringify(data, null, 2);
+   }
+ 
    return `
-   <!DOCTYPE html>
-   <html lang="en">
-      <head>
+     <!DOCTYPE html>
+     <html lang="en">
+       <head>
          <meta charset="UTF-8">
          <meta name="viewport" content="width=device-width, initial-scale=1.0">
          <title>${result.id}</title>
          <style>
-            h3 {
-            display: inline;
-            }
+           pre {
+             white-space: pre-wrap;
+           }
          </style>
-      </head>
-      <body>
-         <h1>Document Metadata</h1>
-         <table style="border: 1px solid black;">
-            <tr>
-               <th style="background-color: gray; padding: 10px; font-size: larger;">
-                  <h3>Property</h3>
-               </th>
-               <th style="background-color: gray; padding: 10px; font-size: larger;">
-                  <h3>Value</h3>
-               </th>
-            </tr>
-            <tr>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Name</td>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
-                  result.id
-                  }
-               </td>
-            </tr>
-            <tr>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">CAS</td>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
-                  result.cas
-                  }
-               </td>
-            </tr>
-            <tr>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Expiration</td>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
-                  result.expiration
-                  }
-               </td>
-            </tr>
-            <tr>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Flags</td>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
-                  result.flags
-                  }
-               </td>
-            </tr>
-            <tr>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Type</td>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
-                  result.type
-                  }
-               </td>
-            </tr>
-            <tr>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">KeySpace</td>
-               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
-                  result.keyspace
-                  }
-               </td>
-            </tr>
-         </table>
-      </body>
-   </html>`;
+       </head>
+       <body>
+         <pre>${buildJSON(result)}</pre>
+       </body>
+     </html>
+   `;
  }
- 
- 

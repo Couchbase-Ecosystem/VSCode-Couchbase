@@ -593,18 +593,18 @@ export function activate(context: vscode.ExtensionContext) {
             `SELECT META(b).* FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id =  \"${node.documentName}\"`
           );
           if (currentPanel && currentPanel.viewType === viewType) {
-            currentPanel.webview.html = getDocumentMetaData(result.rows[0]);
+            currentPanel.webview.html = getDocumentMetaData(result.rows);
             currentPanel.reveal(vscode.ViewColumn.One);
           } else {
             currentPanel = vscode.window.createWebviewPanel(
               viewType,
-              node.documentName,
+              node.documentName + '.metadata.json',
               vscode.ViewColumn.One,
               {
                 enableScripts: true,
               }
             );
-            currentPanel.webview.html = getDocumentMetaData(result.rows[0]);
+            currentPanel.webview.html = getDocumentMetaData(result.rows);
 
             currentPanel.onDidDispose(
               () => {
@@ -678,4 +678,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
