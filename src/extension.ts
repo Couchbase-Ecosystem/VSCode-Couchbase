@@ -543,7 +543,7 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
         try {
-          const viewType = connection.url + "." + node.bucketName;
+          const viewType = `${connection.url}.${node.bucketName}`;
           const bucketData: IBucket = await connection.cluster
             ?.buckets()
             .getBucket(node.bucketName);
@@ -588,7 +588,7 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
         try {
-          const viewType = connection.url + "." + node.bucketName + "." + node.scopeName + node.collectionName + "." + node.documentName;
+          const viewType = `${connection.url}.${node.bucketName}.${node.scopeName}.${node.collectionName}.${node.documentName}`;
           const result = await connection.cluster?.query(
             `SELECT META(b).* FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id =  \"${node.documentName}\"`
           );
