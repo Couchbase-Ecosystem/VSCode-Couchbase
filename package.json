@@ -364,6 +364,11 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.getBucketInfo",
+        "title": "Get Info",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.createScope",
         "title": "Create Scope",
         "category": "Couchbase"
@@ -458,6 +463,10 @@
           "when": "view == couchbase && viewItem == collection"
         },
         {
+          "command": "vscode-couchbase.searchDocument",
+          "when": "view == couchbase && viewItem == collection"
+        },
+        {
           "command": "vscode-couchbase.removeDocument",
           "when": "view == couchbase && viewItem == document"
         },
@@ -465,6 +474,11 @@
           "command": "vscode-couchbase.refreshCollection",
           "when": "view == couchbase && viewItem == collection",
           "group": "secondary"
+        },
+        {
+          "command": "vscode-couchbase.getBucketInfo",
+          "when": "view == couchbase && viewItem == bucket",
+          "group": "bucket2"
         },
         {
           "command": "vscode-couchbase.getBucketInfo",
