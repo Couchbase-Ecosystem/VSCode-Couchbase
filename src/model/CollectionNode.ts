@@ -34,9 +34,21 @@ export default class CollectionNode implements INode {
     vscode.workspace.fs.createDirectory(vscode.Uri.parse(`couchbase:/${bucketName}/${scopeName}/${collectionName}`));
   }
 
+  public abbreviateCount(count: number): string {
+    if (count < 1000) {
+      return count.toString();
+    } else if (count < 1000000) {
+      return (count / 1000).toFixed(1) + 'k';
+    } else if (count < 1000000000) {
+      return (count / 1000000).toFixed(1) + 'm';
+    } else {
+      return (count / 1000000000).toFixed(1) + 'b';
+    }
+  }
+
   public async getTreeItem(): Promise<vscode.TreeItem> {
     return {
-      label: `${this.collectionName} (${this.documentCount})`,
+      label: `${this.collectionName} (${this.abbreviateCount(this.documentCount)})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue: "collection",
       iconPath: {
@@ -64,14 +76,14 @@ export default class CollectionNode implements INode {
           "Yes",
           "No"
         );
-          if (answer === "Yes") {
-            await this.connection.cluster?.query(
-              `CREATE PRIMARY INDEX ON \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` USING GSI`
-            );
-            result = await this.connection.cluster?.query(
-              `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
-            );
-          }
+        if (answer === "Yes") {
+          await this.connection.cluster?.query(
+            `CREATE PRIMARY INDEX ON \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` USING GSI`
+          );
+          result = await this.connection.cluster?.query(
+            `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
+          );
+        }
       }
     }
     result?.rows.forEach((documentName: string) => {
