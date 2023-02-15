@@ -23,7 +23,7 @@ import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
 import { ScopeNode } from "./model/ScopeNode";
-import { getBucketMetaData } from "../src/webViews/webViewProvider";
+import { getBucketMetaData, getDocumentMetaData } from "../src/webViews/webViewProvider";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
 import {
   addConnection,
@@ -543,7 +543,7 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
         try {
-          const viewType = connection.url + "." + node.bucketName;
+          const viewType = `${connection.url}.${node.bucketName}`;
           const bucketData: IBucket = await connection.cluster
             ?.buckets()
             .getBucket(node.bucketName);
@@ -580,6 +580,51 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
+      "vscode-couchbase.getDocumentMetaData",
+      async (node: DocumentNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+
+        if (!connection) {
+          return;
+        }
+        try {
+          const viewType = `${connection.url}.${node.bucketName}.${node.scopeName}.${node.collectionName}.${node.documentName}`;
+          const result = await connection.cluster?.query(
+            `SELECT META(b).* FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id =  \"${node.documentName}\"`
+          );
+          if (currentPanel && currentPanel.viewType === viewType) {
+            currentPanel.webview.html = getDocumentMetaData(result.rows);
+            currentPanel.reveal(vscode.ViewColumn.One);
+          } else {
+            currentPanel = vscode.window.createWebviewPanel(
+              viewType,
+              node.documentName + '.metadata.json',
+              vscode.ViewColumn.One,
+              {
+                enableScripts: true,
+              }
+            );
+            currentPanel.webview.html = getDocumentMetaData(result.rows);
+
+            currentPanel.onDidDispose(
+              () => {
+                currentPanel = undefined;
+              },
+              undefined,
+              context.subscriptions
+            );
+          }
+        } catch {
+          console.log(
+            `Error: Document metadata retrieval failed for \`${node.documentName}\``
+          );
+        }
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
       "vscode-couchbase.searchDocument",
       async (node: CollectionNode) => {
         const connection = Memory.state.get<IConnection>("activeConnection");
@@ -597,11 +642,13 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
         try {
-          const result = await node.connection.cluster
-            ?.bucket(node.bucketName)
-            .scope(node.scopeName)
-            .collection(node.collectionName)
-            .get(documentName);
+          const documentInfo:IDocumentData = {
+            bucket: node.bucketName,
+            scope: node.scopeName,
+            collection: node.collectionName,
+            name: documentName
+          };
+          const result = await getDocument(connection, documentInfo);
           const uri = vscode.Uri.parse(
             `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
           );
@@ -633,4 +680,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

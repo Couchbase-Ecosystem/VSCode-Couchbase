@@ -1,4 +1,5 @@
 import { IBucket } from "../model/IBucket";
+import { IDocumentMetaData } from "../model/IDocument";
 // Function to convert camel case to normal
 const camelToNormal = (camel: string) =>
   camel.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
@@ -120,3 +121,34 @@ export function getBucketMetaData(result: IBucket) {
      </body>
   </html>`;
 }
+
+/**
+ * function getDocumentMetaData returns a JSON view of Document Metadata
+ * @param which contains document metadata 
+ * @returns HTML Web view
+ */
+export function getDocumentMetaData(result: any): string {
+   function buildJSON(data: any): string {
+     return JSON.stringify(data, null, 2);
+   }
+ 
+   return `
+     <!DOCTYPE html>
+     <html lang="en">
+       <head>
+         <meta charset="UTF-8">
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <title>${result.id}</title>
+         <style>
+           pre {
+             white-space: pre-wrap;
+           }
+         </style>
+       </head>
+       <body>
+         <pre>${buildJSON(result)}</pre>
+       </body>
+     </html>
+   `;
+ }
+ 
