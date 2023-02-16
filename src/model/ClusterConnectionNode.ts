@@ -55,12 +55,15 @@ export class ClusterConnectionNode implements INode {
     try {
       let buckets = await this.connection.cluster?.buckets().getAllBuckets();
       buckets?.forEach((bucket: BucketSettings) => {
-        nodes.push(new BucketNode(
-          this.connection,
-          bucket.name,
-          isScopesandCollections,
-          vscode.TreeItemCollapsibleState.None
-        ));
+        nodes.push(
+          new BucketNode(
+            this,
+            this.connection,
+            bucket.name,
+            isScopesandCollections,
+            vscode.TreeItemCollapsibleState.None
+          )
+        );
       });
     } catch (err: any) {
       console.log(err);

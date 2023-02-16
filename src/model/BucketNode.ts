@@ -22,6 +22,7 @@ import { ScopeSpec } from "couchbase";
 
 export class BucketNode implements INode {
   constructor(
+    public readonly parentNode: INode,
     public readonly connection: IConnection,
     public readonly bucketName: string,
     public readonly isScopesandCollections: boolean,
@@ -63,6 +64,7 @@ export class BucketNode implements INode {
         scopes?.forEach((scope: ScopeSpec) => {
           nodes.push(
             new ScopeNode(
+              this,
               this.connection,
               scope.name,
               this.bucketName,
