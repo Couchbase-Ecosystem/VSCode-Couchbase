@@ -554,7 +554,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         try {
           const viewType = `${connection.url}.${node.bucketName}`;
-          const bucketData: IBucket = await connection.cluster
+          const bucketData = await connection.cluster
             ?.buckets()
             .getBucket(node.bucketName);
           if (!bucketData) {
@@ -606,7 +606,7 @@ export function activate(context: vscode.ExtensionContext) {
             `SELECT META(b).* FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id =  \"${node.documentName}\"`
           );
           if (currentPanel && currentPanel.viewType === viewType) {
-            currentPanel.webview.html = getDocumentMetaData(result.rows);
+            currentPanel.webview.html = getDocumentMetaData(result?.rows);
             currentPanel.reveal(vscode.ViewColumn.One);
           } else {
             currentPanel = vscode.window.createWebviewPanel(
@@ -617,7 +617,7 @@ export function activate(context: vscode.ExtensionContext) {
                 enableScripts: true,
               }
             );
-            currentPanel.webview.html = getDocumentMetaData(result.rows);
+            currentPanel.webview.html = getDocumentMetaData(result?.rows);
 
             currentPanel.onDidDispose(
               () => {
