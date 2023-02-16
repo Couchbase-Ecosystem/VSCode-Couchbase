@@ -18,7 +18,7 @@ import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
 import DocumentNode from "./model/DocumentNode";
-import { BucketSettings, DocumentNotFoundError } from "couchbase";
+import { BucketSettings, DocumentNotFoundError, IBucketSettings } from "couchbase";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
@@ -34,7 +34,6 @@ import {
 } from "./util/connections";
 import { MemFS } from "./util/fileSystemProvider";
 import { Global, Memory, WorkSpace } from "./util/util";
-import { IBucket } from "./model/IBucket";
 import { IDocumentData } from "./model/IDocument";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -69,7 +68,10 @@ export function activate(context: vscode.ExtensionContext) {
       .collection(documentInfo.collection)
       .upsert(documentInfo.name, JSON.parse(document.getText()));
     vscode.window.setStatusBarMessage("Document saved", 2000);
-    return result.cas.toString();
+    if (result && result.cas) {
+      return result.cas.toString();
+    }
+    return "";
   };
 
   const extractDocumentInfo = async (documentPath: string): Promise<IDocumentData> => {
@@ -137,8 +139,10 @@ export function activate(context: vscode.ExtensionContext) {
     }
     else if (answer === "Overwrite Server Version with Local Changes") {
       const cas = await updateDocumentToServer(activeConnection, documentInfo, document);
-      vscode.window.setStatusBarMessage("Document saved", 2000);
-      uriToCasMap.set(document.uri.toString(), cas);
+      if (cas !== "") {
+        vscode.window.setStatusBarMessage("Document saved", 2000);
+        uriToCasMap.set(document.uri.toString(), cas);
+      }
     }
   };
 
@@ -157,7 +161,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         const documentInfo: IDocumentData = await extractDocumentInfo(editor.document.uri.path);
         const remoteDocument = await getDocument(activeConnection, documentInfo);
-        if (remoteDocument.cas.toString() !== uriToCasMap.get(editor.document.uri.toString())) {
+        if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(editor.document.uri.toString())) {
           handleActiveEditorConflict(editor.document, remoteDocument);
         }
       }
@@ -177,10 +181,14 @@ export function activate(context: vscode.ExtensionContext) {
           }
           const documentInfo = await extractDocumentInfo(document.uri.path);
           const remoteDocument = await getDocument(activeConnection, documentInfo);
-          if (remoteDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
+          if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
             handleSaveTextDocumentConflict(remoteDocument, document, activeConnection, documentInfo);
           } else {
             const cas = await updateDocumentToServer(activeConnection, documentInfo, document);
+            if (cas !== "") {
+              vscode.window.setStatusBarMessage("Document saved", 2000);
+              uriToCasMap.set(document.uri.toString(), cas);
+            }
             vscode.window.setStatusBarMessage("Document saved", 2000);
             uriToCasMap.set(document.uri.toString(), cas);
             clusterConnectionTreeProvider.refresh();
@@ -270,7 +278,9 @@ export function activate(context: vscode.ExtensionContext) {
           const uri = vscode.Uri.parse(
             `couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/${documentNode.collectionName}/${documentNode.documentName}.json`
           );
-          uriToCasMap.set(uri.toString(), result.cas.toString());
+          if (result) {
+            uriToCasMap.set(uri.toString(), result.cas.toString());
+          }
           memFs.writeFile(
             uri,
             Buffer.from(JSON.stringify(result?.content, null, 2)),
@@ -544,9 +554,12 @@ export function activate(context: vscode.ExtensionContext) {
         }
         try {
           const viewType = connection.url + "." + node.bucketName;
-          const bucketData: IBucket = await connection.cluster
+          const bucketData: IBucketSettings | undefined = await connection.cluster
             ?.buckets()
             .getBucket(node.bucketName);
+          if (!bucketData) {
+            return;
+          }
           if (currentPanel && currentPanel.viewType === viewType) {
             currentPanel.webview.html = getBucketMetaData(bucketData);
             currentPanel.reveal(vscode.ViewColumn.One);
@@ -633,4 +646,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

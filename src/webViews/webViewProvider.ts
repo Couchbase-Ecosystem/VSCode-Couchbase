@@ -1,4 +1,4 @@
-import { IBucket } from "../model/IBucket";
+import { IBucketSettings } from "couchbase";
 // Function to convert camel case to normal
 const camelToNormal = (camel: string) =>
   camel.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
@@ -8,7 +8,7 @@ const camelToNormal = (camel: string) =>
 * information about a "bucket" (the metadata information 
 * is passed to the function as an object result of type IBucket).
 */
-export function getBucketMetaData(result: IBucket) {
+export function getBucketMetaData(result: IBucketSettings) {
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -43,7 +43,7 @@ export function getBucketMetaData(result: IBucket) {
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Type</td>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${camelToNormal(
-                 result.bucketType
+                 result.bucketType ?? "undefined"
                  )}
               </td>
            </tr>
@@ -64,21 +64,21 @@ export function getBucketMetaData(result: IBucket) {
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Ejection Method</td>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${camelToNormal(
-                 result.evictionPolicy
+                 result.evictionPolicy ?? "undefined"
                  )}
               </td>
            </tr>
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Compression</td>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${camelToNormal(
-                 result.compressionMode
+                 result.compressionMode ?? "undefined"
                  )}
               </td>
            </tr>
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Storage Backend</td>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${camelToNormal(
-                 result.storageBackend
+                 result.storageBackend ?? "undefined"
                  )}
               </td>
            </tr>
