@@ -517,6 +517,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
         
         clusterConnectionTreeProvider.refresh(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
       }
     )
   );
