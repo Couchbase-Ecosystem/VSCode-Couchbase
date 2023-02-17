@@ -515,7 +515,7 @@ export function activate(context: vscode.ExtensionContext) {
           name: collectionName,
           scopeName: node.scopeName,
         });
-        
+
         clusterConnectionTreeProvider.refresh(node);
         clusterConnectionTreeProvider.refresh(node.parentNode);
       }
