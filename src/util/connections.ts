@@ -138,7 +138,7 @@ export async function useConnection(connection: IConnection) {
   if (!password) {
     return;
   }
-  connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: password });
+  connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
   setActiveConnection(connection);
 }
 
