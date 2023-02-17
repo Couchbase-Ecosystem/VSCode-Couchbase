@@ -539,6 +539,7 @@ export function activate(context: vscode.ExtensionContext) {
       "vscode-couchbase.refreshCollections",
       async (node: ScopeNode) => {
         clusterConnectionTreeProvider.refresh(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
       }
     )
   );
