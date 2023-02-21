@@ -160,9 +160,17 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
         const documentInfo: IDocumentData = await extractDocumentInfo(editor.document.uri.path);
-        const remoteDocument = await getDocument(activeConnection, documentInfo);
-        if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(editor.document.uri.toString())) {
-          handleActiveEditorConflict(editor.document, remoteDocument);
+        try {
+          const remoteDocument = await getDocument(activeConnection, documentInfo);
+          if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(editor.document.uri.toString())) {
+            handleActiveEditorConflict(editor.document, remoteDocument);
+          }
+        }
+        catch (err) {
+          if (err instanceof DocumentNotFoundError) {
+            return;
+          }
+          console.log(err);
         }
       }
     })
@@ -180,7 +188,16 @@ export function activate(context: vscode.ExtensionContext) {
             return;
           }
           const documentInfo = await extractDocumentInfo(document.uri.path);
-          const remoteDocument = await getDocument(activeConnection, documentInfo);
+          let remoteDocument = undefined;
+          try {
+            remoteDocument = await getDocument(activeConnection, documentInfo);
+          }
+          catch (err) {
+            if (!(err instanceof DocumentNotFoundError)) {
+              return;
+            }
+            console.log(err);
+          }
           if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
             handleSaveTextDocumentConflict(remoteDocument, document, activeConnection, documentInfo);
           } else {
@@ -500,6 +517,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
         clusterConnectionTreeProvider.refresh(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
       }
     )
   );
@@ -655,7 +673,7 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
         try {
-          const documentInfo:IDocumentData = {
+          const documentInfo: IDocumentData = {
             bucket: node.bucketName,
             scope: node.scopeName,
             collection: node.collectionName,
