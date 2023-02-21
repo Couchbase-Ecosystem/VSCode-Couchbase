@@ -20,6 +20,7 @@ import { INode } from "./INode";
 
 export default class DocumentNode extends vscode.TreeItem {
   constructor(
+    public readonly parentNode: INode,
     public readonly documentName: string,
     public readonly connection: IConnection,
     public readonly scopeName: string,
@@ -44,9 +45,21 @@ export default class DocumentNode extends vscode.TreeItem {
         arguments: [this],
       },
       iconPath: {
-        light: path.join(__filename, "..", "..", "images/light", "documents-icon.svg"),
-        dark: path.join(__filename, "..", "..", "images/dark", "documents-icon.svg"),
-      }
+        light: path.join(
+          __filename,
+          "..",
+          "..",
+          "images/light",
+          "documents-icon.svg"
+        ),
+        dark: path.join(
+          __filename,
+          "..",
+          "..",
+          "images/dark",
+          "documents-icon.svg"
+        ),
+      },
     };
   }
 

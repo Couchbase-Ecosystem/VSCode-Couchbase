@@ -21,6 +21,7 @@ import CollectionNode from "./CollectionNode";
 
 export class ScopeNode implements INode {
   constructor(
+    public readonly parentNode: INode,
     public readonly connection: IConnection,
     public readonly scopeName: string,
     public readonly bucketName: string,
@@ -63,6 +64,7 @@ export class ScopeNode implements INode {
         const count = queryResult?.rows[0].count;
 
         const collectionTreeItem = new CollectionNode(
+          this,
           this.connection,
           this.scopeName,
           count,

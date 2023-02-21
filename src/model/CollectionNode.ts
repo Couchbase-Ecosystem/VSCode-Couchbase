@@ -23,6 +23,7 @@ import { PlanningFailureError } from "couchbase";
 
 export default class CollectionNode implements INode {
   constructor(
+    public readonly parentNode: INode,
     public readonly connection: IConnection,
     public readonly scopeName: string,
     public readonly documentCount: number,
@@ -31,18 +32,48 @@ export default class CollectionNode implements INode {
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public limit: number = 10
   ) {
-    vscode.workspace.fs.createDirectory(vscode.Uri.parse(`couchbase:/${bucketName}/${scopeName}/${collectionName}`));
+    vscode.workspace.fs.createDirectory(
+      vscode.Uri.parse(
+        `couchbase:/${bucketName}/${scopeName}/${collectionName}`
+      )
+    );
+  }
+
+  public abbreviateCount(count: number): string {
+    if (count < 1000) {
+      return count.toString();
+    } else if (count < 1000000) {
+      return (count / 1000).toFixed(1) + "k";
+    } else if (count < 1000000000) {
+      return (count / 1000000).toFixed(1) + "m";
+    } else {
+      return (count / 1000000000).toFixed(1) + "b";
+    }
   }
 
   public async getTreeItem(): Promise<vscode.TreeItem> {
     return {
-      label: `${this.collectionName} (${this.documentCount})`,
+      label: `${this.collectionName} (${this.abbreviateCount(
+        this.documentCount
+      )})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue: "collection",
       iconPath: {
-        light: path.join(__filename, "..", "..", "images/light", "collection-icon.svg"),
-        dark: path.join(__filename, "..", "..", "images/dark", "collection-icon.svg"),
-      }
+        light: path.join(
+          __filename,
+          "..",
+          "..",
+          "images/light",
+          "collection-icon.svg"
+        ),
+        dark: path.join(
+          __filename,
+          "..",
+          "..",
+          "images/dark",
+          "collection-icon.svg"
+        ),
+      },
     };
   }
 
@@ -50,7 +81,7 @@ export default class CollectionNode implements INode {
     let documentList: INode[] = [];
     // TODO: default limit could be managed as user settings / preference
     let result;
-    // A primary index is required for database querying. If one is present, a result will be obtained. 
+    // A primary index is required for database querying. If one is present, a result will be obtained.
     // If not, the user will be prompted to create a primary index before querying.
     try {
       result = await this.connection.cluster?.query(
@@ -58,26 +89,25 @@ export default class CollectionNode implements INode {
       );
     } catch (err) {
       if (err instanceof PlanningFailureError) {
-      vscode.window
-        .showInformationMessage(
-          "No primary index found for this collection. Would you like to create one?",
+        const answer = await vscode.window.showWarningMessage(
+          "No suitable index was found for listing the Collection's documents. If you are NOT in a production environment we recommend you to create a Primary Index for it. Would you like to create one?",
+          { modal: true },
           "Yes",
           "No"
-        )
-        .then(async (answer) => {
-          if (answer === "Yes") {
-            await this.connection.cluster?.query(
-              `CREATE PRIMARY INDEX ON \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` USING GSI`
-            );
-            result = await this.connection.cluster?.query(
-              `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
-            );
-          }
-        });
+        );
+        if (answer === "Yes") {
+          await this.connection.cluster?.query(
+            `CREATE PRIMARY INDEX ON \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` USING GSI`
+          );
+          result = await this.connection.cluster?.query(
+            `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
+          );
+        }
       }
     }
     result?.rows.forEach((documentName: string) => {
       const documentTreeItem = new DocumentNode(
+        this,
         documentName,
         this.connection,
         this.scopeName,
