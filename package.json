@@ -23,7 +23,7 @@
   "icon": "images/couchbase.png",
   "scripts": {
     "vscode:prepublish": "npm run package",
-    "package": "webpack --mode production --devtool hidden-source-map",
+    "package": "webpack --devtool hidden-source-map",
     "rebuild": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8 && node scripts/copy_binding.js",
     "rebuild:cmake": "cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8",
     "test": "node ./out/test/runTest.js",
