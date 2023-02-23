@@ -35,9 +35,9 @@ jobs:
           - os: macos-latest
             platform: darwin
             arch: x64
-          # - os: macos-latest
-          #   platform: darwin
-          #   arch: arm64
+          - os: macos-latest
+            platform: darwin
+            arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
       - shell: pwsh
