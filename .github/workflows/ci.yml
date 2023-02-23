@@ -40,13 +40,14 @@ jobs:
           #   arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
+      - shell: pwsh
+        run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 16
           architecture: ${{ matrix.arch }}
-      - shell: pwsh
-        run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
+          cache: 'npm'
       - run: npm ci
       - run: npm run rebuild
       - run: npx vsce package --target ${{ env.target }} --pre-release
