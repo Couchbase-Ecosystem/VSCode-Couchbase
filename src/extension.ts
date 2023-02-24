@@ -233,8 +233,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.createClusterConnection",
       async () => {
-        await addConnection();
-        clusterConnectionTreeProvider.refresh();
+        await addConnection(clusterConnectionTreeProvider);
       }
     )
   );

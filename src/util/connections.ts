@@ -19,6 +19,8 @@ import { Constants } from "./constants";
 import { Global, Memory } from "./util";
 import { IConnection } from "../model/IConnection";
 import { Cluster } from "couchbase";
+import { getClusterConnectingFormView } from "../webViews/webViewProvider";
+import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username, connectionIdentifier } = connection;
@@ -74,62 +76,44 @@ export function getConnection(id: string): IConnection | undefined {
   }
 }
 
-export async function addConnection() {
-  const url = await vscode.window.showInputBox({
-    prompt: "Enter Cluter Connection URL",
-    placeHolder: "URL",
-    ignoreFocusOut: true,
-    value: "couchbase://localhost",
-  });
-  if (!url) {
-    vscode.window.showErrorMessage('Cluster URL is required.');
-    return;
-  }
-  const username = await vscode.window.showInputBox({
-    prompt: "Enter Username",
-    placeHolder: "Username",
-    ignoreFocusOut: true,
-    value: "Administrator",
-  });
-  if (!username) {
-    vscode.window.showErrorMessage('Username is required.');
-    return;
-  }
+export async function addConnection(clusterConnectionTreeProvider: ClusterConnectionTreeProvider) {
 
-  const password = await vscode.window.showInputBox({
-    prompt: "Enter Password",
-    placeHolder: "Password",
-    ignoreFocusOut: true,
-    value: "password",
-  });
-  if (!password) {
-    vscode.window.showErrorMessage('Password is required.');
-    return;
-  }
-
-  let connectionIdentifier = await vscode.window.showInputBox({
-    prompt: "Enter Connection Identifier (optional)",
-    placeHolder: "Connection Identifier",
-    ignoreFocusOut: true,
-    value: "",
-  });
-  if (!connectionIdentifier) {
-    connectionIdentifier = "";
-  }
-
-  const connectionId = await saveConnection({
-    url,
-    username,
-    password,
-    connectionIdentifier,
-    cluster: undefined
-  });
-  if (connectionId) {
-    const connections = getConnections();
-    if (connections) {
-      await useConnection(connections[connectionId]);
+  const currentPanel = vscode.window.createWebviewPanel(
+    "connectionProvider",
+    "Connect to Couchbase",
+    vscode.ViewColumn.One,
+    {
+      enableScripts: true,
+      enableForms: true,
     }
-  }
+  );
+
+  currentPanel.webview.onDidReceiveMessage(async (message: any) => {
+    switch (message.command) {
+      case 'submit':
+        const connectionId = await saveConnection({
+          url: message.url,
+          username: message.username,
+          password: message.password,
+          connectionIdentifier: message.connectionIdentifier,
+          cluster: undefined,
+        });
+
+        if (connectionId) {
+          const connections = getConnections();
+          if (connections) {
+            await useConnection(connections[connectionId]);
+          }
+        }
+        clusterConnectionTreeProvider.refresh();
+        currentPanel.dispose();
+        break;
+
+      default:
+        console.error('Unrecognized command');
+    }
+  });
+  currentPanel.webview.html = getClusterConnectingFormView();
 }
 
 export async function useConnection(connection: IConnection) {
