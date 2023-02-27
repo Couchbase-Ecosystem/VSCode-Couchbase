@@ -15,11 +15,12 @@
  */
 import * as vscode from "vscode";
 import * as keytar from "keytar";
+import * as path from "path";
 import { Constants } from "./constants";
 import { Global, Memory } from "./util";
 import { IConnection } from "../model/IConnection";
 import { Cluster } from "couchbase";
-import { getClusterConnectingFormView } from "../webViews/webViewProvider";
+import { getClusterConnectingFormView } from "../webViews/connectionScreen.webview";
 import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
 
 export function getConnectionId(connection: IConnection) {
@@ -87,6 +88,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
       enableForms: true,
     }
   );
+  currentPanel.iconPath = vscode.Uri.file(path.join(__filename, "..", "..", "images", "cb-logo-icon.svg"),);
 
   currentPanel.webview.onDidReceiveMessage(async (message: any) => {
     switch (message.command) {
