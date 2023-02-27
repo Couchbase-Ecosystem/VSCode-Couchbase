@@ -55,12 +55,31 @@ export function getClusterConnectingFormView(): string {
             outline: 1px solid transparent;
             outline-offset: 2px !important;
             color: var(--vscode-button-foreground);
-            background: #ea2328;
+            background: var(--vscode-button-background);
         }
-        
+
+        #submitButton{
+            background: #ea2328;
+            =hover {
+                background: #bb1117;
+            }
+        }
+
+        #submitButton:hover {
+                background: #bb1117;
+        }
+
+        #cancleButton {
+            background: var(--vscode-button-secondaryBackground);;
+        }
+
+        #cancleButton:hover {
+            background: var(--vscode-button-secondaryHoverBackground);
+        }
+
         button:hover {
             cursor: pointer;
-            background: #bb1117;
+            background: var(--vscode-button-hoverBackground);;
         }
         
         button:focus {
@@ -93,14 +112,17 @@ export function getClusterConnectingFormView(): string {
             <div  style="width: 50%;">
                 <form onSubmit="postRequestToConnect()">
                     <label for="url">Cluter Connection URL</label><br>
-                    <input type="text" id="url" name="url" placeholder="couchbase://localhost" required /> <br/><br/>
+                    <input type="text" id="url" name="url" placeholder="couchbase://localhost" value="couchbase://localhost" required /> <br/><br/>
                     <label for="url">Username:</label><br>
-                    <input type="text" id="username" name="username" placeholder="Username" required /> <br/><br/>
+                    <input type="text" id="username" name="username" placeholder="Username" value="Administrator" required /> <br/><br/>
                     <label for="password">Password:</label><br> 
-                    <input type="password" id="password" placeholder="Password" required> <br/><br/>
+                    <input type="password" id="password" placeholder="Password" value="password" required> <br/><br/>
                     <label for="connectionIndetifier">Connection Identifier (optional):</label><br>
                     <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Connection Identifier" value=""> <br/><br/>
-                    <button type="submit">Connect</button>
+                    <div style="display: inline-flex; flex-wrap: wrap; gap: 12px;">
+                        <button id="submitButton" type="submit">Connect</button>
+                        <button type="secondary" id="cancleButton" onClick="cancleRequest()"> Cancle </button>
+                    </div>
                 </form>
             </div>
             <div style="flex-grow: 1 background:white">
@@ -120,6 +142,11 @@ export function getClusterConnectingFormView(): string {
             username: username,
             password: password,
             connectionIdentifier: identifier
+        })};
+        function cancleRequest(){
+            const vscode = acquireVsCodeApi();
+            vscode.postMessage({
+            command: 'cancle'
         })};
         </script>
         </body>

@@ -111,6 +111,10 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         currentPanel.dispose();
         break;
 
+      case 'cancle':
+        currentPanel.dispose();
+        break;
+
       default:
         console.error('Unrecognized command');
     }
