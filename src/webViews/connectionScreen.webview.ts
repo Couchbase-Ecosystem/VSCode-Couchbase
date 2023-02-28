@@ -58,14 +58,11 @@ export function getClusterConnectingFormView(): string {
             background: var(--vscode-button-background);
         }
 
-        #submitButton{
+        .redButton{
             background: #ea2328;
-            =hover {
-                background: #bb1117;
-            }
         }
 
-        #submitButton:hover {
+        .redButton:hover {
                 background: #bb1117;
         }
 
@@ -102,6 +99,23 @@ export function getClusterConnectingFormView(): string {
         textarea::placeholder {
             color: var(--vscode-input-placeholderForeground);
         }
+
+        .right-container {
+            background: #f2f2f2;
+            text-align: center; 
+            color: black;
+            margin: 20px;
+            margin-top: 0px;
+            padding: 30px;
+            width: 20%;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            button: {
+                background: red;
+            }
+        }
         
         </style>
         </head>
@@ -120,34 +134,43 @@ export function getClusterConnectingFormView(): string {
                     <label for="connectionIndetifier">Connection Identifier (optional):</label><br>
                     <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Connection Identifier" value=""> <br/><br/>
                     <div style="display: inline-flex; flex-wrap: wrap; gap: 12px;">
-                        <button id="submitButton" type="submit">Connect</button>
+                        <button class="redButton" type="submit">Connect</button>
                         <button type="secondary" id="cancleButton" onClick="cancleRequest()"> Cancle </button>
                     </div>
                 </form>
             </div>
-            <div style="flex-grow: 1 background:white">
-
+            <div class="right-container">
+                <img src="https://www.couchbase.com/wp-content/uploads/2022/08/CB-logo-R_B_B.png" />
+                <div><h2>New to Couchbase and don't have a cluster?<h2></div>
+                <div><h4>If you don't already have a cluster you can install couchbase locally or create a cluster using capella<h4></div>
+                <a href="https://www.couchbase.com/downloads/?family=couchbase-server">
+                    <button class="redButton" type="button">Download</button>
+                </a>
+                <br/>
+                <a href="https://cloud.couchbase.com/sign-up?source=vscode">
+                    <button class="redButton" type="button">Free Capella Trial</button>
+                </a>
             </div>
         </div>
         <script>
-        function postRequestToConnect(){
-            const vscode = acquireVsCodeApi();
-            let url = document.getElementById('url').value;
-            let username = document.getElementById('username').value;
-            let password = document.getElementById('password').value;
-            let identifier = document.getElementById('connectionIdentifier').value;
-            vscode.postMessage({
-            command: 'submit',
-            url: url,
-            username: username,
-            password: password,
-            connectionIdentifier: identifier
-        })};
-        function cancleRequest(){
-            const vscode = acquireVsCodeApi();
-            vscode.postMessage({
-            command: 'cancle'
-        })};
+            function postRequestToConnect(){
+                const vscode = acquireVsCodeApi();
+                let url = document.getElementById('url').value;
+                let username = document.getElementById('username').value;
+                let password = document.getElementById('password').value;
+                let identifier = document.getElementById('connectionIdentifier').value;
+                vscode.postMessage({
+                command: 'submit',
+                url: url,
+                username: username,
+                password: password,
+                connectionIdentifier: identifier
+            })};
+            function cancleRequest(){
+                const vscode = acquireVsCodeApi();
+                vscode.postMessage({
+                command: 'cancle'
+            })};
         </script>
         </body>
         </html>

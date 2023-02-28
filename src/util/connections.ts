@@ -88,7 +88,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
       enableForms: true,
     }
   );
-  currentPanel.iconPath = vscode.Uri.file(path.join(__filename, "..", "..", "images", "cb-logo-icon.svg"),);
+  currentPanel.iconPath = vscode.Uri.file(path.join(__filename, "..", "..", "images", "cb-logo-icon.svg"));
 
   currentPanel.webview.onDidReceiveMessage(async (message: any) => {
     switch (message.command) {
