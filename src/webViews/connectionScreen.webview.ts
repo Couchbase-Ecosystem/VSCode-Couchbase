@@ -100,14 +100,25 @@ export function getClusterConnectingFormView(): string {
             color: var(--vscode-input-placeholderForeground);
         }
 
+        .container {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 50px;
+        }
+
+        .left-container {
+            width: 50%;
+        }
+
         .right-container {
             background: #f2f2f2;
             text-align: center; 
             color: black;
-            margin: 20px;
-            margin-top: 0px;
             padding: 30px;
-            width: 20%;
+            width: 200px;
+            height: 300px;
             display: flex;
             justify-content: center;
             flex-direction: column;
@@ -116,14 +127,20 @@ export function getClusterConnectingFormView(): string {
                 background: red;
             }
         }
+
+        .button-group {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
         
         </style>
         </head>
         <body>
-        <h1>Connect to Couchbase</h1>
-        <b>Enter your connection details below</b><br><br>
-        <div class="container" style="display: flex;">
-            <div  style="width: 50%;">
+        <div class="container">
+            <div class="left-container">
+                <h1>Connect to Couchbase</h1>
+                <b>Enter your connection details below</b><br><br>
                 <form onSubmit="postRequestToConnect()">
                     <label for="url">Cluter Connection URL</label><br>
                     <input type="text" id="url" name="url" placeholder="couchbase://localhost" value="couchbase://localhost" required /> <br/><br/>
@@ -133,7 +150,7 @@ export function getClusterConnectingFormView(): string {
                     <input type="password" id="password" placeholder="Password" value="password" required> <br/><br/>
                     <label for="connectionIndetifier">Connection Identifier (optional):</label><br>
                     <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Connection Identifier" value=""> <br/><br/>
-                    <div style="display: inline-flex; flex-wrap: wrap; gap: 12px;">
+                    <div class="button-group">
                         <button class="redButton" type="submit">Connect</button>
                         <button type="secondary" id="cancleButton" onClick="cancleRequest()"> Cancle </button>
                     </div>
