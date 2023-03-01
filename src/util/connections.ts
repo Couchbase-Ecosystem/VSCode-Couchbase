@@ -96,7 +96,6 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         try {
           await Cluster.connect(message.url, { username: message.username, password: message.password, configProfile: 'wanDevelopment' });
         } catch (err) {
-
           let answer;
           if (err instanceof AuthenticationFailureError) {
             answer = await vscode.window.showErrorMessage(`
@@ -131,7 +130,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         currentPanel.dispose();
         break;
 
-      case 'cancle':
+      case 'cancel':
         currentPanel.dispose();
         break;
 

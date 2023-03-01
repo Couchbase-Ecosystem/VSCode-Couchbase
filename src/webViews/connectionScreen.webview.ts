@@ -66,11 +66,11 @@ export function getClusterConnectingFormView(message: any): string {
                 background: #bb1117;
         }
 
-        #cancleButton {
+        #cancelButton {
             background: var(--vscode-button-secondaryBackground);;
         }
 
-        #cancleButton:hover {
+        #cancelButton:hover {
             background: var(--vscode-button-secondaryHoverBackground);
         }
 
@@ -95,6 +95,10 @@ export function getClusterConnectingFormView(message: any): string {
             background-color: var(--vscode-input-background);
         }
         
+        .error-message {
+            color: red;
+        }
+
         input::placeholder,
         textarea::placeholder {
             color: var(--vscode-input-placeholderForeground);
@@ -141,20 +145,23 @@ export function getClusterConnectingFormView(message: any): string {
             <div class="left-container">
                 <h1>Connect to Couchbase</h1>
                 <b>Enter your connection details below</b><br><br>
-                <form onSubmit="postRequestToConnect()">
+                <div>
                     <label for="url">Cluter Connection URL</label><br>
-                    <input type="text" id="url" name="url" placeholder="couchbase://localhost" value=${message?.url ?? "couchbase://localhost"} required /> <br/><br/>
+                    <input type="text" id="url" name="url" placeholder="couchbase://localhost" value=${message?.url ?? "couchbase://localhost"} />
+                    <span id="urlErr" class="error-message"></span><br/><br/>
                     <label for="url">Username:</label><br>
-                    <input type="text" id="username" name="username" placeholder="Username" value=${message?.username ?? "Administrator"} required /> <br/><br/>
+                    <input type="text" id="username" name="username" placeholder="Username" value=${message?.username ?? "Administrator"} />
+                    <span id="usernameErr" class="error-message"></span><br/><br/>
                     <label for="password">Password:</label><br> 
-                    <input type="password" id="password" placeholder="Password" value=${message?.password ?? "password"} required> <br/><br/>
+                    <input type="password" id="password" placeholder="Password" value=${message?.password ?? "password"}>
+                    <span id="passwordErr" class="error-message"></span><br/><br/>
                     <label for="connectionIndetifier">Connection Identifier (optional):</label><br>
                     <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Connection Identifier" value=${message?.connectionIdentifier ?? ""}> <br/><br/>
                     <div class="button-group">
-                        <button class="redButton" type="submit">Connect</button>
-                        <button type="secondary" id="cancleButton" onClick="cancleRequest()"> Cancle </button>
+                        <button class="redButton" onClick="validateRequest() && postRequestToConnect()">Connect</button>
+                        <button type="secondary" id="cancelButton" onClick="cancelRequest()"> Cancel </button>
                     </div>
-                </form>
+                </div>
             </div>
             <div class="right-container">
                 <img src="https://www.couchbase.com/wp-content/uploads/2022/08/CB-logo-R_B_B.png" />
@@ -170,6 +177,44 @@ export function getClusterConnectingFormView(message: any): string {
             </div>
         </div>
         <script>
+            function validateRequest() {
+                let url = document.getElementById('url').value;
+                let username = document.getElementById('username').value;
+                let password = document.getElementById('password').value;
+                let identifier = document.getElementById('connectionIdentifier').value;
+                let err = false;
+                if(url === null || url == "") {
+                    document.getElementById('url').style.border="solid red";
+                    document.getElementById('urlErr').innerHTML ='Cluster Connection URL is required';
+                    err = true;
+                }
+                else {
+                    document.getElementById('url').style.border="none";
+                    document.getElementById('urlErr').innerHTML ='';
+                }
+                if(username === null || username == "") {
+                    document.getElementById('username').style.border="solid red";
+                    document.getElementById('usernameErr').innerHTML ='Username is required';
+                    err = true;
+                }
+                else {
+                    document.getElementById('username').style.border="none";
+                    document.getElementById('usernameErr').innerHTML ='';
+                }
+                if(password === null || password == "") {
+                    document.getElementById('password').style.border="solid red";
+                    document.getElementById('passwordErr').innerHTML ='Password is required';
+                    err = true;
+                }
+                else {
+                    document.getElementById('password').style.border="none";
+                    document.getElementById('passwordErr').innerHTML ='';
+                }
+                if(err) {
+                    return false
+                }
+                return true;
+            }
             function postRequestToConnect(){
                 const vscode = acquireVsCodeApi();
                 let url = document.getElementById('url').value;
@@ -177,16 +222,17 @@ export function getClusterConnectingFormView(message: any): string {
                 let password = document.getElementById('password').value;
                 let identifier = document.getElementById('connectionIdentifier').value;
                 vscode.postMessage({
-                command: 'submit',
-                url: url,
-                username: username,
-                password: password,
-                connectionIdentifier: identifier
-            })};
-            function cancleRequest(){
+                    command: 'submit',
+                    url: url,
+                    username: username,
+                    password: password,
+                    connectionIdentifier: identifier
+                })
+            };
+            function cancelRequest(){
                 const vscode = acquireVsCodeApi();
                 vscode.postMessage({
-                command: 'cancle'
+                command: 'cancel'
             })};
         </script>
         </body>
