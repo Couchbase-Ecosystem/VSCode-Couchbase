@@ -107,7 +107,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
           currentPanel.dispose();
           addConnection(clusterConnectionTreeProvider, message);
           if (answer === "Troubleshoot Link") {
-            vscode.commands.executeCommand('simpleBrowser.show', `https://www.couchbase.com/blog/troubleshoot-sdk-connection-with-sdk-doctor-alternate-addresses/`);
+            vscode.commands.executeCommand('simpleBrowser.show', `https://docs.couchbase.com/go-sdk/current/howtos/troubleshooting-cloud-connections.html`);
           }
           break;
         }
