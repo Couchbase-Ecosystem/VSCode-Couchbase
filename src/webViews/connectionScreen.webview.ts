@@ -1,4 +1,4 @@
-export function getClusterConnectingFormView(): string {
+export function getClusterConnectingFormView(message: any): string {
     return `
         <!DOCTYPE html>
         <html>
@@ -143,13 +143,13 @@ export function getClusterConnectingFormView(): string {
                 <b>Enter your connection details below</b><br><br>
                 <form onSubmit="postRequestToConnect()">
                     <label for="url">Cluter Connection URL</label><br>
-                    <input type="text" id="url" name="url" placeholder="couchbase://localhost" value="couchbase://localhost" required /> <br/><br/>
+                    <input type="text" id="url" name="url" placeholder="couchbase://localhost" value=${message?.url ?? "couchbase://localhost"} required /> <br/><br/>
                     <label for="url">Username:</label><br>
-                    <input type="text" id="username" name="username" placeholder="Username" value="Administrator" required /> <br/><br/>
+                    <input type="text" id="username" name="username" placeholder="Username" value=${message?.username ?? "Administrator"} required /> <br/><br/>
                     <label for="password">Password:</label><br> 
-                    <input type="password" id="password" placeholder="Password" value="password" required> <br/><br/>
+                    <input type="password" id="password" placeholder="Password" value=${message?.password ?? "password"} required> <br/><br/>
                     <label for="connectionIndetifier">Connection Identifier (optional):</label><br>
-                    <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Connection Identifier" value=""> <br/><br/>
+                    <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Connection Identifier" value=${message?.connectionIdentifier ?? ""}> <br/><br/>
                     <div class="button-group">
                         <button class="redButton" type="submit">Connect</button>
                         <button type="secondary" id="cancleButton" onClick="cancleRequest()"> Cancle </button>

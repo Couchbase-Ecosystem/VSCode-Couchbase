@@ -19,9 +19,10 @@ import * as path from "path";
 import { Constants } from "./constants";
 import { Global, Memory } from "./util";
 import { IConnection } from "../model/IConnection";
-import { Cluster } from "couchbase";
+import { AuthenticationFailureError, Cluster } from "couchbase";
 import { getClusterConnectingFormView } from "../webViews/connectionScreen.webview";
 import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
+import { open } from "fs";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username, connectionIdentifier } = connection;
@@ -77,8 +78,7 @@ export function getConnection(id: string): IConnection | undefined {
   }
 }
 
-export async function addConnection(clusterConnectionTreeProvider: ClusterConnectionTreeProvider) {
-
+export async function addConnection(clusterConnectionTreeProvider: ClusterConnectionTreeProvider, message?: any) {
   const currentPanel = vscode.window.createWebviewPanel(
     "connectionProvider",
     "Connect to Couchbase",
@@ -93,6 +93,26 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
   currentPanel.webview.onDidReceiveMessage(async (message: any) => {
     switch (message.command) {
       case 'submit':
+        try {
+          await Cluster.connect(message.url, { username: message.username, password: message.password, configProfile: 'wanDevelopment' });
+        } catch (err) {
+
+          let answer;
+          if (err instanceof AuthenticationFailureError) {
+            answer = await vscode.window.showErrorMessage(`
+            Authentication Failed: Please check your credentials and try again \n
+            If you're still having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
+          }
+          else {
+            vscode.window.showErrorMessage(`Could not establish a connection \n ${err} \n If you're having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
+          }
+          currentPanel.dispose();
+          addConnection(clusterConnectionTreeProvider, message);
+          if (answer === "Troubleshoot Link") {
+            vscode.commands.executeCommand('simpleBrowser.show', `https://www.couchbase.com/blog/troubleshoot-sdk-connection-with-sdk-doctor-alternate-addresses/`);
+          }
+          break;
+        }
         const connectionId = await saveConnection({
           url: message.url,
           username: message.username,
@@ -119,7 +139,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         console.error('Unrecognized command');
     }
   });
-  currentPanel.webview.html = getClusterConnectingFormView();
+  currentPanel.webview.html = getClusterConnectingFormView(message);
 }
 
 export async function useConnection(connection: IConnection) {
