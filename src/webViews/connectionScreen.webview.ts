@@ -164,6 +164,29 @@ export function getClusterConnectingFormView(message: any): string {
                 </div>
             </div>
             <script>
+                const url = document.querySelector("#url");
+                const urlErr = document.querySelector("#urlErr");
+
+                url.onfocus = function() {
+                    url.style.border="none";
+                    urlErr.innerHTML="";
+                }
+
+                const username = document.querySelector("#username");
+                const usernameErr = document.querySelector("#usernameErr");
+
+                username.onfocus = function() {
+                    username.style.border="none";
+                    usernameErr.innerHTML="";
+                }
+
+                const password = document.querySelector("#password");
+                const passwordErr = document.querySelector("#passwordErr");
+
+                password.onfocus = function() {
+                    password.style.border="none";
+                    passwordErr.innerHTML="";
+                }
                 function validateRequest() {
                     let url = document.getElementById('url').value;
                     let username = document.getElementById('username').value;
