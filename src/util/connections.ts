@@ -15,10 +15,13 @@
  */
 import * as vscode from "vscode";
 import * as keytar from "keytar";
+import * as path from "path";
 import { Constants } from "./constants";
 import { Global, Memory } from "./util";
 import { IConnection } from "../model/IConnection";
-import { Cluster } from "couchbase";
+import { AuthenticationFailureError, Cluster } from "couchbase";
+import { getClusterConnectingFormView } from "../webViews/connectionScreen.webview";
+import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username, connectionIdentifier } = connection;
@@ -74,62 +77,67 @@ export function getConnection(id: string): IConnection | undefined {
   }
 }
 
-export async function addConnection() {
-  const url = await vscode.window.showInputBox({
-    prompt: "Enter Cluter Connection URL",
-    placeHolder: "URL",
-    ignoreFocusOut: true,
-    value: "couchbase://localhost",
-  });
-  if (!url) {
-    vscode.window.showErrorMessage('Cluster URL is required.');
-    return;
-  }
-  const username = await vscode.window.showInputBox({
-    prompt: "Enter Username",
-    placeHolder: "Username",
-    ignoreFocusOut: true,
-    value: "Administrator",
-  });
-  if (!username) {
-    vscode.window.showErrorMessage('Username is required.');
-    return;
-  }
-
-  const password = await vscode.window.showInputBox({
-    prompt: "Enter Password",
-    placeHolder: "Password",
-    ignoreFocusOut: true,
-    value: "password",
-  });
-  if (!password) {
-    vscode.window.showErrorMessage('Password is required.');
-    return;
-  }
-
-  let connectionIdentifier = await vscode.window.showInputBox({
-    prompt: "Enter Connection Identifier (optional)",
-    placeHolder: "Connection Identifier",
-    ignoreFocusOut: true,
-    value: "",
-  });
-  if (!connectionIdentifier) {
-    connectionIdentifier = "";
-  }
-
-  const connectionId = await saveConnection({
-    url,
-    username,
-    password,
-    connectionIdentifier,
-    cluster: undefined
-  });
-  if (connectionId) {
-    const connections = getConnections();
-    if (connections) {
-      await useConnection(connections[connectionId]);
+export async function addConnection(clusterConnectionTreeProvider: ClusterConnectionTreeProvider, message?: any) {
+  const currentPanel = vscode.window.createWebviewPanel(
+    "connectionProvider",
+    "Connect to Couchbase",
+    vscode.ViewColumn.One,
+    {
+      enableScripts: true,
+      enableForms: true,
     }
-  }
+  );
+  currentPanel.iconPath = vscode.Uri.file(path.join(__filename, "..", "..", "images", "cb-logo-icon.svg"));
+
+  currentPanel.webview.onDidReceiveMessage(async (message: any) => {
+    switch (message.command) {
+      case 'submit':
+        try {
+          await Cluster.connect(message.url, { username: message.username, password: message.password, configProfile: 'wanDevelopment' });
+        } catch (err) {
+          let answer;
+          if (err instanceof AuthenticationFailureError) {
+            answer = await vscode.window.showErrorMessage(`
+            Authentication Failed: Please check your credentials and try again \n
+            If you're still having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
+          }
+          else {
+            vscode.window.showErrorMessage(`Could not establish a connection \n ${err} \n If you're having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
+          }
+          currentPanel.dispose();
+          addConnection(clusterConnectionTreeProvider, message);
+          if (answer === "Troubleshoot Link") {
+            vscode.commands.executeCommand('simpleBrowser.show', `https://docs.couchbase.com/go-sdk/current/howtos/troubleshooting-cloud-connections.html`);
+          }
+          break;
+        }
+        const connectionId = await saveConnection({
+          url: message.url,
+          username: message.username,
+          password: message.password,
+          connectionIdentifier: message.connectionIdentifier,
+          cluster: undefined,
+        });
+
+        if (connectionId) {
+          const connections = getConnections();
+          if (connections) {
+            await useConnection(connections[connectionId]);
+          }
+        }
+        clusterConnectionTreeProvider.refresh();
+        currentPanel.dispose();
+        break;
+
+      case 'cancel':
+        currentPanel.dispose();
+        break;
+
+      default:
+        console.error('Unrecognized command');
+    }
+  });
+  currentPanel.webview.html = getClusterConnectingFormView(message);
 }
 
 export async function useConnection(connection: IConnection) {

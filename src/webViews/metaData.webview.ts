@@ -2,7 +2,7 @@ import { IBucketSettings } from "couchbase";
 
 // Function to convert camel case to normal
 const camelToNormal = (camel: string) =>
-  camel.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
+   camel.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
 
 /*
 * function getBucketMetaData that returns an HTML string containing metadata
@@ -10,7 +10,7 @@ const camelToNormal = (camel: string) =>
 * is passed to the function as an object result of type IBucket).
 */
 export function getBucketMetaData(result: IBucketSettings) {
-  return `
+   return `
   <!DOCTYPE html>
   <html lang="en">
      <head>
@@ -36,51 +36,48 @@ export function getBucketMetaData(result: IBucketSettings) {
            </tr>
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Name</td>
-              <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
-                 result.name
-                 }
+              <td style="border: 1px solid black; padding: 10px; font-size: larger;">${result.name
+      }
               </td>
            </tr>
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Type</td>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${camelToNormal(
-                 result.bucketType ?? "undefined"
-                 )}
+         result.bucketType ?? "undefined"
+      )}
               </td>
            </tr>
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Bucket RAM Quota</td>
-              <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
-                 result.ramQuotaMB
-                 } MiB
+              <td style="border: 1px solid black; padding: 10px; font-size: larger;">${result.ramQuotaMB
+      } MiB
               </td>
            </tr>
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Replicas</td>
-              <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
-                 result.numReplicas
-                 }
+              <td style="border: 1px solid black; padding: 10px; font-size: larger;">${result.numReplicas
+      }
               </td>
            </tr>
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Ejection Method</td>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${camelToNormal(
-                 result.evictionPolicy ?? "undefined"
-                 )}
+         result.evictionPolicy ?? "undefined"
+      )}
               </td>
            </tr>
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Compression</td>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${camelToNormal(
-                 result.compressionMode ?? "undefined"
-                 )}
+         result.compressionMode ?? "undefined"
+      )}
               </td>
            </tr>
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Storage Backend</td>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">${camelToNormal(
-                 result.storageBackend ?? "undefined"
-                 )}
+         result.storageBackend ?? "undefined"
+      )}
               </td>
            </tr>
            <tr>
@@ -107,14 +104,12 @@ export function getBucketMetaData(result: IBucketSettings) {
            </tr>
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Flush Enabled</td>
-              <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
-                 result.flushEnabled
-                 }
+              <td style="border: 1px solid black; padding: 10px; font-size: larger;">${result.flushEnabled
+      }
            <tr>
               <td style="border: 1px solid black; padding: 10px; font-size: larger;">Replica View Indexes</td>
-              <td style="border: 1px solid black; padding: 10px; font-size: larger;">${
-                 result.replicaIndexes
-                 }
+              <td style="border: 1px solid black; padding: 10px; font-size: larger;">${result.replicaIndexes
+      }
               </td>
            </tr>
         </table>
@@ -129,9 +124,9 @@ export function getBucketMetaData(result: IBucketSettings) {
  */
 export function getDocumentMetaData(result: any): string {
    function buildJSON(data: any): string {
-     return JSON.stringify(data, null, 2);
+      return JSON.stringify(data, null, 2);
    }
- 
+
    return `
      <!DOCTYPE html>
      <html lang="en">
@@ -150,5 +145,4 @@ export function getDocumentMetaData(result: any): string {
        </body>
      </html>
    `;
- }
- 
+}

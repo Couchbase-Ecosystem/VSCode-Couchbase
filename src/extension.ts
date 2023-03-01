@@ -18,12 +18,12 @@ import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
 import DocumentNode from "./model/DocumentNode";
-import { BucketSettings, DocumentNotFoundError, IBucketSettings } from "couchbase";
+import { DocumentNotFoundError } from "couchbase";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
 import { PagerNode } from "./model/PagerNode";
 import { ScopeNode } from "./model/ScopeNode";
-import { getBucketMetaData, getDocumentMetaData } from "../src/webViews/webViewProvider";
+import { getBucketMetaData, getDocumentMetaData } from "./webViews/metaData.webview";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
 import {
   addConnection,
@@ -233,8 +233,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.createClusterConnection",
       async () => {
-        await addConnection();
-        clusterConnectionTreeProvider.refresh();
+        await addConnection(clusterConnectionTreeProvider);
       }
     )
   );
