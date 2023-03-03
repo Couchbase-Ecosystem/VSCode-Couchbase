@@ -128,14 +128,15 @@ export function getClusterConnectingFormView(message: any): string {
                     <label for="url">Cluter Connection URL</label><br>
                     <input type="text" id="url" name="url" placeholder="couchbase://localhost" value=${message?.url ?? "couchbase://localhost"} />
                     <span id="urlErr" class="error-message"></span><br/><br/>
-                    <label for="url">Username:</label><br>
+                    <label for="url">Username</label><br>
                     <input type="text" id="username" name="username" placeholder="Username" value=${message?.username ?? "Administrator"} />
                     <span id="usernameErr" class="error-message"></span><br/><br/>
-                    <label for="password">Password:</label><br> 
+                    <label for="password">Password</label><br> 
                     <input type="password" id="password" placeholder="Password" value=${message?.password ?? "password"}>
                     <span id="passwordErr" class="error-message"></span><br/><br/>
-                    <label for="connectionIndetifier">Connection Identifier (optional):</label><br>
-                    <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Connection Identifier" value=${message?.connectionIdentifier ?? ""}> <br/><br/>
+                    <label for="connectionIndetifier">Connection Identifier</label><br>
+                    <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Connection Identifier" value=${message?.connectionIdentifier ?? ""}>
+                    <span id="connectionIdentifierErr" class="error-message"></span><br/><br/>
                     <div class="button-group">
                         <button class="redButton" onClick="validateRequest() && postRequestToConnect()">Connect</button>
                         <button type="secondary" id="cancelButton" onClick="cancelRequest()"> Cancel </button>
@@ -187,6 +188,15 @@ export function getClusterConnectingFormView(message: any): string {
                     password.style.border="none";
                     passwordErr.innerHTML="";
                 }
+
+                const connectionIdentifier = document.querySelector("#connectionIdentifier");
+                const connectionIdentifierErr = document.querySelector("#connectionIdentifierErr");
+
+                connectionIdentifier.onfocus = function() {
+                    connectionIdentifier.style.border="none";
+                    connectionIdentifierErr.innerHTML="";
+                }
+
                 function validateRequest() {
                     let url = document.getElementById('url').value;
                     let username = document.getElementById('username').value;
@@ -198,27 +208,20 @@ export function getClusterConnectingFormView(message: any): string {
                         document.getElementById('urlErr').innerHTML ='Cluster Connection URL is required';
                         err = true;
                     }
-                    else {
-                        document.getElementById('url').style.border="none";
-                        document.getElementById('urlErr').innerHTML ='';
-                    }
                     if(username === null || username == "") {
                         document.getElementById('username').style.border="solid red";
                         document.getElementById('usernameErr').innerHTML ='Username is required';
                         err = true;
-                    }
-                    else {
-                        document.getElementById('username').style.border="none";
-                        document.getElementById('usernameErr').innerHTML ='';
                     }
                     if(password === null || password == "") {
                         document.getElementById('password').style.border="solid red";
                         document.getElementById('passwordErr').innerHTML ='Password is required';
                         err = true;
                     }
-                    else {
-                        document.getElementById('password').style.border="none";
-                        document.getElementById('passwordErr').innerHTML ='';
+                    if(identifier === null || identifier == "") {
+                        document.getElementById('connectionIdentifier').style.border="solid red";
+                        document.getElementById('connectionIdentifierErr').innerHTML ='Connection Identifier is required';
+                        err = true;
                     }
                     if(err) {
                         return false
