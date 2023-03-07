@@ -22,15 +22,13 @@
   "preview": true,
   "icon": "images/couchbase.png",
   "scripts": {
-    "vscode:prepublish": "npm run package",
-    "package": "webpack --devtool hidden-source-map",
-    "rebuild": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8 && node scripts/copy_binding.js",
-    "rebuild:cmake": "cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8",
-    "test": "node ./out/test/runTest.js",
-    "watch": "webpack --watch",
-    "format": "prettier 'src/**/*.ts' --write",
+    "build-native": "node scripts/build-native.js",
+    "build": "npm run build-native && webpack --mode development",
     "lint": "eslint src --ext ts --fix",
-    "pretest": "npm run test-compile && npm run lint"
+    "package": "npm run build-native && webpack --mode production && vsce package",
+    "test": "node ./out/test/runTest.js",
+    "vscode:prepublish": "npm run package",
+    "watch": "webpack --watch"
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
