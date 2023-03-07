@@ -1,8 +1,8 @@
 name: CI
 on:
   push:
-    # branches:
-    #   - "**"
+    branches:
+      - "**"
     tags:
       - "v*.*.*"
 
@@ -35,9 +35,9 @@ jobs:
           - os: macos-latest
             platform: darwin
             arch: x64
-          - os: macos-latest
-            platform: darwin
-            arch: arm64
+          # - os: macos-latest
+          #   platform: darwin
+          #   arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
       - shell: pwsh
@@ -48,8 +48,7 @@ jobs:
           node-version: 16
           architecture: ${{ matrix.arch }}
           cache: 'npm'
-      - run: npm ci
-      - run: npm run rebuild
+      - run: npm install
       - run: npx vsce package --target ${{ env.target }} --pre-release
       - uses: actions/upload-artifact@v3
         with:
