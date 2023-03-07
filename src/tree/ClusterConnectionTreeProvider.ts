@@ -21,7 +21,6 @@ import { getConnections } from "../util/connections";
 export default class ClusterConnectionTreeProvider
   implements vscode.TreeDataProvider<INode>
 {
-  constructor(private context: vscode.ExtensionContext) {}
   private _onDidChangeTreeData: vscode.EventEmitter<
     INode | undefined | null | void
   > = new vscode.EventEmitter<INode | undefined | null | void>();

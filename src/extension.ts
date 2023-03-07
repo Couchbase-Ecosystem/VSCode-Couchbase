@@ -49,9 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const subscriptions = context.subscriptions;
 
-  const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
-    context
-  );
+  const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider();
 
   const getDocument = async (activeConnection: IConnection, documentInfo: IDocumentData) => {
     return await activeConnection.cluster

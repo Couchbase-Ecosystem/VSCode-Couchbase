@@ -24,7 +24,7 @@ import { getClusterConnectingFormView } from "../webViews/connectionScreen.webvi
 import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
 
 export function getConnectionId(connection: IConnection) {
-  const { url, username, connectionIdentifier } = connection;
+  const { url, username } = connection;
   return `${username}@${url}`;
 }
 
