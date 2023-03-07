@@ -22,10 +22,10 @@
   "preview": true,
   "icon": "images/couchbase.png",
   "scripts": {
-    "build": "npm run build-native && webpack --mode development",
+    "build": "npm run build-native && tsc && webpack --mode development",
     "build-native": "node scripts/build-native.js",
     "lint": "eslint src --ext ts --fix",
-    "package": "npm run build-native && webpack --mode production",
+    "package": "npm run build-native && tsc && webpack --mode production",
     "test": "node ./out/test/runTest.js",
     "vscode:prepublish": "npm run package",
     "watch": "webpack --watch"
