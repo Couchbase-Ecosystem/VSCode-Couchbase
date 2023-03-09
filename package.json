@@ -78,6 +78,7 @@
     "onCommand:vscode-couchbase.refreshCollections",
     "onCommand:vscode-couchbase.getDocumentMetaData",
     "onCommand:vscode-couchbase.openQueryNotebook",
+    "onNotebook:vscode-couchbase.couchbase-query-notebook",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
     "onView:couchbase-activity-bar"
@@ -310,6 +311,17 @@
         }
       ]
     },
+    "notebooks": [
+      {
+        "type": "couchbase-query-notebook",
+        "displayName": "sql++ query",
+        "selector": [
+          {
+            "filenamePattern": "*.n1ql"
+          }
+        ]
+      }
+    ],
     "commands": [
       {
         "command": "vscode-couchbase.createClusterConnection",

@@ -35,6 +35,10 @@ import {
 import { MemFS } from "./util/fileSystemProvider";
 import { Global, Memory, WorkSpace } from "./util/util";
 import { IDocumentData } from "./model/IDocument";
+import { QueryContentSerializer } from "./notebook/serializer";
+import { QueryKernel } from "./notebook/controller";
+import { Constants } from "./util/constants";
+import { createNotebook } from "./notebook/notebook";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -707,6 +711,22 @@ export function activate(context: vscode.ExtensionContext) {
         }
       }
     )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.openQueryNotebook",
+      async () => {
+        createNotebook();
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.workspace.registerNotebookSerializer(
+      Constants.notebookType, new QueryContentSerializer(), { transientOutputs: true }
+    ),
+    new QueryKernel()
   );
 }
 
