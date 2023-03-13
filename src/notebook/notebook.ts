@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { Constants } from '../util/constants';
 
+/**
+ * This code exports a createNotebook function that creates a new notebook in VS Code's UI with an empty SQL++ cell. 
+ */
 export const createNotebook = async () => {
     const language = 'sql++';
     const defaultValue = ``;
@@ -10,9 +13,11 @@ export const createNotebook = async () => {
         custom: {
             cells: [],
             metadata: {
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 orig_nbformat: 4
             },
             nbformat: 4,
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             nbformat_minor: 2
         }
     };

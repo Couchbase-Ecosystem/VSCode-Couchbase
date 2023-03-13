@@ -12,6 +12,12 @@ interface RawNotebookCell {
     editable?: boolean;
 }
 
+/**
+ * Serializes and Deserializes the content of a notebook. 
+ * It reads raw/unprocessed file contents, parse it to JavaScript Object Notation (JSON) format,
+ *  creates an array of Notebook cells, maps data into the desired format and then converts
+ *  it back to a binary format using text encoding/decoding algorithms.
+ */
 export class QueryContentSerializer implements vscode.NotebookSerializer {
     public readonly label: string = 'New Query Notebook Serializer';
 
