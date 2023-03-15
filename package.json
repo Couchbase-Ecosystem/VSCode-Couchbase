@@ -314,10 +314,10 @@
     "notebooks": [
       {
         "type": "couchbase-query-notebook",
-        "displayName": "sql++ query",
+        "displayName": "SQL++ Query",
         "selector": [
           {
-            "filenamePattern": "*.n1ql"
+            "filenamePattern": "*.n1qlnb"
           }
         ]
       }
