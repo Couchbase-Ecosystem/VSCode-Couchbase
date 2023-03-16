@@ -16,7 +16,7 @@ export class QueryKernel {
     // Private properties to set an ID, label and the types of languages it supports
     private readonly _id = 'couchbase-query-notebook-kernel';
     private readonly _label = 'New Couchbase Query Notebook';
-    private readonly _supportedLanguages = ['sql++', 'json'];
+    private readonly _supportedLanguages = ['SQL++', 'json'];
 
     private _executionOrder = 0;
     private readonly _controller: vscode.NotebookController;

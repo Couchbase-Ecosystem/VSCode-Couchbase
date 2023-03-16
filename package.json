@@ -299,14 +299,14 @@
           ".n1ql",
           ".sqlpp"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "./language/language-configuration.json"
       }
     ],
     "grammars": [
       {
         "language": "SQL++",
         "scopeName": "source.n1ql",
-        "path": "./n1ql.tmLanguage"
+        "path": "./language/n1ql.tmLanguage"
       }
     ],
     "customEditors": [
