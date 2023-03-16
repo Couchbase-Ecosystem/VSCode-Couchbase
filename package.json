@@ -77,6 +77,8 @@
     "onCommand:vscode-couchbase.removeCollection",
     "onCommand:vscode-couchbase.refreshCollections",
     "onCommand:vscode-couchbase.getDocumentMetaData",
+    "onCommand:vscode-couchbase.openQueryNotebook",
+    "onNotebook:vscode-couchbase.couchbase-query-notebook",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
     "onView:couchbase-activity-bar"
@@ -309,12 +311,29 @@
         }
       ]
     },
+    "notebooks": [
+      {
+        "type": "couchbase-query-notebook",
+        "displayName": "SQL++ Query",
+        "selector": [
+          {
+            "filenamePattern": "*.n1qlnb"
+          }
+        ]
+      }
+    ],
     "commands": [
       {
         "command": "vscode-couchbase.createClusterConnection",
         "title": "Create connection to Couchbase cluster",
         "category": "Couchbase",
         "icon": "images/create.svg"
+      },
+      {
+        "command": "vscode-couchbase.openQueryNotebook",
+        "title": "New Notebook",
+        "category": "Couchbase",
+        "icon": "images/create.svg"       
       },
       {
         "command": "vscode-couchbase.refreshConnection",
@@ -444,6 +463,10 @@
         },
         {
           "command": "vscode-couchbase.disconnectClusterConnection",
+          "when": "view == couchbase && viewItem == active_connection"
+        },
+        {
+          "command": "vscode-couchbase.openQueryNotebook",
           "when": "view == couchbase && viewItem == active_connection"
         },
         {
