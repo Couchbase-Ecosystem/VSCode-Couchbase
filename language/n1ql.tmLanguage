@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>fileTypes</key>
+	<array>
+		<string>sqlpp</string>
+		<string>n1ql</string>
+		<string>n1qlnb</string>
+		<string>.n1ql</string>
+		<string>.n1qlnb</string>
+		<string>.sqlpp</string>
+	</array>
+	<key>keyEquivalent</key>
+	<string>^@S</string>
+	<key>name</key>
+	<string>SQL++</string>
+	<key>scopeName</key>
+	<string>source.n1ql</string>
+	<key>uuid</key>
+	<string>7fb320c0-38e6-453a-82ef-f6f4ad143f4f</string>
+</dict>
+</plist>
