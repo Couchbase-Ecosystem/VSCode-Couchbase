@@ -349,7 +349,7 @@
       },
       {
         "command": "vscode-couchbase.openQueryNotebook",
-        "title": "New Notebook",
+        "title": "New SQL++ Notebook",
         "category": "Couchbase",
         "icon": "images/create.svg"
       },
