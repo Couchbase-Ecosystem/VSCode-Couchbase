@@ -134,8 +134,8 @@ export function getClusterConnectingFormView(message: any): string {
                     <label for="password">Password</label><br> 
                     <input type="password" id="password" placeholder="Password" value=${message?.password ?? "password"}>
                     <span id="passwordErr" class="error-message"></span><br/><br/>
-                    <label for="connectionIndetifier">Connection Identifier</label><br>
-                    <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Connection Identifier" value=${message?.connectionIdentifier ?? ""}>
+                    <label for="connectionIndetifier">Name</label><br>
+                    <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Name of your connection" value=${message?.connectionIdentifier ?? ""}>
                     <span id="connectionIdentifierErr" class="error-message"></span><br/><br/>
                     <div class="button-group">
                         <button class="redButton" onClick="validateRequest() && postRequestToConnect()">Connect</button>

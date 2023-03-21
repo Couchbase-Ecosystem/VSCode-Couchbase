@@ -291,6 +291,24 @@
         "path": "./snippets/dotnet/transactions.json"
       }
     ],
+    "languages": [
+      {
+        "id": "SQL++",
+        "extensions": [
+          ".n1qlnb",
+          ".n1ql",
+          ".sqlpp"
+        ],
+        "configuration": "./language/language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "SQL++",
+        "scopeName": "source.n1ql",
+        "path": "./language/n1ql.tmLanguage"
+      }
+    ],
     "customEditors": [
       {
         "viewType": "vscode-couchbase.couchbaseDocument",
@@ -331,9 +349,9 @@
       },
       {
         "command": "vscode-couchbase.openQueryNotebook",
-        "title": "New Notebook",
+        "title": "New SQL++ Notebook",
         "category": "Couchbase",
-        "icon": "images/create.svg"       
+        "icon": "images/create.svg"
       },
       {
         "command": "vscode-couchbase.refreshConnection",
