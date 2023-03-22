@@ -476,12 +476,18 @@
           "when": "view == couchbase && viewItem == connection"
         },
         {
+          "command": "vscode-couchbase.deleteClusterConnection",
+          "when": "view == couchbase && viewItem == active_connection",
+          "group": "activePrimary@2"
+        },
+        {
           "command": "vscode-couchbase.useClusterConnection",
           "when": "view == couchbase && viewItem == connection"
         },
         {
           "command": "vscode-couchbase.disconnectClusterConnection",
-          "when": "view == couchbase && viewItem == active_connection"
+          "when": "view == couchbase && viewItem == active_connection",
+          "group": "activePrimary@1"
         },
         {
           "command": "vscode-couchbase.openQueryNotebook",
