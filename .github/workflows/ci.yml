@@ -47,7 +47,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          architecture: ${{ matrix.arch }}
           cache: 'npm'
       - run: npm ci
       - run: npm run rebuild
