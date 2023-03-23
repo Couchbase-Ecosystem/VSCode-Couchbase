@@ -246,6 +246,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.deleteClusterConnection",
       async (node: ClusterConnectionNode) => {
+        if (node.isActive) {
+          node.connection.cluster = undefined;
+          setActiveConnection();
+        }
         await removeConnection(node.connection);
         clusterConnectionTreeProvider.refresh();
       }
