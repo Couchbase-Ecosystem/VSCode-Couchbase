@@ -49,9 +49,9 @@ jobs:
           node-version: 16
           cache: 'npm'
       - run: npm ci
-      - run: npm config set cmake_generator "crosstool-ng" --global
+      - run: npm config set cmake_target "${{ env.target }}" --global
       - run: npm config set cmake_platform "${{ matrix.platform }}" --global
-      - run: npm config set cmake_toolset "${{ matrix.arch }}" --global
+      - run: npm config set cmake_arch "${{ matrix.arch }}" --global
       - run: CT_TARGET=${{ env.target }} npm run rebuild
       - run: npx vsce package --target ${{ env.target }} --pre-release
       - uses: actions/upload-artifact@v3
