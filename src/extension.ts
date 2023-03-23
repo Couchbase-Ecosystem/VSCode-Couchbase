@@ -337,13 +337,13 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         const documentName = await vscode.window.showInputBox({
-          prompt: "Document name",
-          placeHolder: "name",
+          prompt: "Document Id",
+          placeHolder: "Document Id",
           ignoreFocusOut: true,
           value: "",
         });
         if (!documentName) {
-          vscode.window.showErrorMessage("Document name is required.");
+          vscode.window.showErrorMessage("Document Id is required.");
           return;
         }
 
@@ -673,7 +673,7 @@ export function activate(context: vscode.ExtensionContext) {
           value: "",
         });
         if (!documentName) {
-          vscode.window.showErrorMessage("Document name is required.");
+          vscode.window.showErrorMessage("Document Id is required.");
           return;
         }
         try {
