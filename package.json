@@ -463,6 +463,42 @@
         {
           "command": "vscode-couchbase.removeDocument",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.refreshCollections",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.refreshScopes",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.getBucketInfo",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.getDocumentMetaData",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.removeCollection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.removeScope",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.createCollection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.createScope",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.searchDocument",
+          "when": "false"
         }
       ],
       "editor/context": [],
