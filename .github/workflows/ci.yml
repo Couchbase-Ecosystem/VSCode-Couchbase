@@ -52,7 +52,7 @@ jobs:
       - run: npm config set cmake_target "${{ env.target }}" --global
       - run: npm config set cmake_platform "${{ matrix.platform }}" --global
       - run: npm config set cmake_arch "${{ matrix.arch }}" --global
-      - run: CT_TARGET=${{ env.target }} npm run rebuild
+      - run: TARGET=${{ env.target }} npm run rebuild:xcompile
       - run: npx vsce package --target ${{ env.target }} --pre-release
       - uses: actions/upload-artifact@v3
         with:
