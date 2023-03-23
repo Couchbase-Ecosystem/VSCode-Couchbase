@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: windows-latest
             platform: win32
             arch: x64
           # - os: windows-latest
@@ -33,26 +33,29 @@ jobs:
           # - os: ubuntu-latest
           #   platform: alpine
           #   arch: x64
-          - os: ubuntu-latest
+          - os: macos-latest
             platform: darwin
             arch: x64
-          - os: ubuntu-latest
-            platform: darwin
-            arch: arm64
+          # - os: macos-latest
+          #  platform: darwin
+          #  arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
       - shell: pwsh
         run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
+      - shell: pwsh
+        run: |
+          wget https://github.com/openssl/openssl/archive/refs/heads/master.zip -O openssl.zip
+          unzip openssl.zip
+          export =./openssl
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+          architecture: ${{ matrix.arch }}
           cache: 'npm'
       - run: npm ci
-      - run: npm config set cmake_target "${{ env.target }}" --global
-      - run: npm config set cmake_platform "${{ matrix.platform }}" --global
-      - run: npm config set cmake_arch "${{ matrix.arch }}" --global
-      - run: TARGET=${{ env.target }} npm run rebuild:xcompile
+      - run: OPENSSL_ROOT_DIR=./openssl npm run rebuild
       - run: npx vsce package --target ${{ env.target }} --pre-release
       - uses: actions/upload-artifact@v3
         with:
