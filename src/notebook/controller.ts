@@ -52,7 +52,8 @@ export class QueryKernel {
         try {
             const activeConnection = getActiveConnection();
             if (!activeConnection) {
-                return;
+                vscode.window.showErrorMessage("Connection Failure: Looks like you are not connected to cluster \nPlease check your cluster connection and try again", { modal: true });
+                throw Error('Connection Failed');
             };
             const result = await activeConnection.cluster?.query(
                 cell.document.getText()
