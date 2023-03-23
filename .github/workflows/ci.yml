@@ -49,7 +49,7 @@ jobs:
           node-version: 16
           cache: 'npm'
       - run: npm ci
-      - run: npm run rebuild
+      - run: npm run rebuild --target ${{ env.target }}
       - run: npx vsce package --target ${{ env.target }} --pre-release
       - uses: actions/upload-artifact@v3
         with:
