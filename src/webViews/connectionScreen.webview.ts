@@ -125,7 +125,7 @@ export function getClusterConnectingFormView(message: any): string {
                     <h1>Connect to Couchbase</h1>
                     <b>Enter your connection details below</b><br><br>
                     <div>
-                    <label for="url">Cluter Connection URL</label><br>
+                    <label for="url">Cluster Connection URL</label><br>
                     <input type="text" id="url" name="url" placeholder="couchbase://localhost" value=${message?.url ?? "couchbase://localhost"} />
                     <span id="urlErr" class="error-message"></span><br/><br/>
                     <label for="url">Username</label><br>
