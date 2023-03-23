@@ -359,6 +359,9 @@ export function activate(context: vscode.ExtensionContext) {
             .scope(node.scopeName)
             .collection(node.collectionName)
             .get(documentName);
+          if (result) {
+            uriToCasMap.set(uri.toString(), result.cas.toString());
+          }
           documentContent = Buffer.from(
             JSON.stringify(result?.content, null, 2)
           );
