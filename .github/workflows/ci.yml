@@ -46,9 +46,10 @@ jobs:
       - shell: pwsh
         if: matrix.platform == 'win32'
         run: |
-          Invoke-RestMethod -Uri https://github.com/openssl/openssl/archive/refs/heads/master.zip -OutFile openssl.zip
-          Expand-Archive openssl.zip -DestinationPath openssl
-          echo './openssl' >> $env:OPENSSL_ROOT_DIR
+          Invoke-RestMethod -Uri https://github.com/microsoft/vcpkg/archive/refs/heads/master.zip -OutFile vcpkg.zip
+          Expand-Archive vcpkkg.zip -DestinationPath vcpkg
+          .\vcpkg\bootstrap-vcpkg.bat
+          .\vcpkg\vcpkg install openssl
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
