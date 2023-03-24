@@ -43,13 +43,12 @@ jobs:
     steps:
       - shell: pwsh
         run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
-      - shell: pwsh
+      - name: Run vcpkg
+        uses: lukka/run-vcpkg@v4
         if: matrix.platform == 'win32'
-        run: |
-          Invoke-RestMethod -Uri https://github.com/microsoft/vcpkg/archive/refs/heads/master.zip -OutFile vcpkg.zip
-          Expand-Archive vcpkg.zip -DestinationPath vcpkg
-          ./vcpkg/bootstrap-vcpkg.bat
-          ./vcpkg/vcpkg install openssl
+        with:
+          vcpkgArguments: 'openssl'
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
