@@ -24,7 +24,7 @@ import { getClusterConnectingFormView } from "../webViews/connectionScreen.webvi
 import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
 
 export function getConnectionId(connection: IConnection) {
-  const { url, username, connectionIdentifier } = connection;
+  const { url, username } = connection;
   return `${username}@${url}`;
 }
 
@@ -111,11 +111,26 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
           }
           break;
         }
-        const connectionId = await saveConnection({
-          url: message.url,
-          username: message.username,
-          password: message.password,
-          connectionIdentifier: message.connectionIdentifier,
+
+        const connection: IConnection = { url: message.url, username: message.username, password: message.password, connectionIdentifier: message.connectionIdentifier };
+        const connections = getConnections();
+        const connectionId = getConnectionId(connection);
+        if (connections && connections[connectionId]) {
+          const answer = await vscode.window.showInformationMessage(`A connection to this cluser has already been established with the name '${connections[connectionId].connectionIdentifier}'.\n Would you like to replace it with a new connection named  '${connection.connectionIdentifier}'`, { modal: true }, "Replace", "Connect to Existing");
+          if (answer === "Connect to Existing") {
+            await useConnection(connections[connectionId]);
+            clusterConnectionTreeProvider.refresh();
+            currentPanel.dispose();
+            break;
+          } else if (answer !== "Replace") {
+            currentPanel.dispose();
+            addConnection(clusterConnectionTreeProvider, message);
+            break;
+          }
+        }
+
+        await saveConnection({
+          ...connection,
           cluster: undefined,
         });
 
