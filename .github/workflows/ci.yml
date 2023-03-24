@@ -45,7 +45,7 @@ jobs:
         run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
       - name: Run vcpkg
         if: matrix.platform == 'win32'
-        run: vcpkg install openssl --triplet="${{ matrix.arch }}-windows"
+        run: choco install openssl
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
