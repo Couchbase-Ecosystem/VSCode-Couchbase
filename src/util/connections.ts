@@ -161,8 +161,18 @@ export async function useConnection(connection: IConnection) {
   if (!password) {
     return;
   }
-  connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
+  const options = {
+    location: vscode.ProgressLocation.Notification,
+    cancellable: false
+  };
+  await vscode.window.withProgress(
+    options, async (progress) => {
+      progress.report({ message: "Trying to connect..." });
+      connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
+    });
+
   setActiveConnection(connection);
+  vscode.window.showInformationMessage("Connection established successfully!");
 }
 
 export async function removeConnection(connection: IConnection) {
