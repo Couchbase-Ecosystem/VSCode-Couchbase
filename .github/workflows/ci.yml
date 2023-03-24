@@ -48,7 +48,7 @@ jobs:
         run: |
           Invoke-RestMethod -Uri https://github.com/openssl/openssl/archive/refs/heads/master.zip -OutFile openssl.zip
           Expand-Archive openssl.zip -DestinationPath openssl
-          $Env:PATH += ";./openssl"
+          $Env:OPENSSL_ROOT_DIR = "./openssl"
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
