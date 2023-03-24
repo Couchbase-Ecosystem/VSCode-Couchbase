@@ -15,12 +15,12 @@ jobs:
           - os: windows-latest
             platform: win32
             arch: x64
-          # - os: windows-latest
-          #   platform: win32
-          #   arch: ia32
-          # - os: windows-latest
-          #   platform: win32
-          #   arch: arm64
+           - os: windows-latest
+             platform: win32
+             arch: ia32
+           - os: windows-latest
+             platform: win32
+             arch: arm64
           - os: ubuntu-latest
             platform: linux
             arch: x64
@@ -44,10 +44,10 @@ jobs:
       - shell: pwsh
         run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
       - shell: pwsh
+        if: matrix.platform == 'win32'
         run: |
-          wget https://github.com/openssl/openssl/archive/refs/heads/master.zip -O openssl.zip
-          unzip openssl.zip
-          export =./openssl
+          Invoke-RestMethod -Uri https://github.com/openssl/openssl/archive/refs/heads/master.zip -OutFile openssl.zip
+          Expand-Archive openssl.zip -DestinationPath openssl
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
