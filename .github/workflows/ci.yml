@@ -48,6 +48,7 @@ jobs:
         run: |
           Invoke-RestMethod -Uri https://github.com/openssl/openssl/archive/refs/heads/master.zip -OutFile openssl.zip
           Expand-Archive openssl.zip -DestinationPath openssl
+          $Env:PATH += ";./openssl"
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
@@ -55,7 +56,7 @@ jobs:
           architecture: ${{ matrix.arch }}
           cache: 'npm'
       - run: npm ci
-      - run: OPENSSL_ROOT_DIR=./openssl npm run rebuild
+      - run: npm run rebuild
       - run: npx vsce package --target ${{ env.target }} --pre-release
       - uses: actions/upload-artifact@v3
         with:
