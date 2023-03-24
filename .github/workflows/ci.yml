@@ -15,12 +15,12 @@ jobs:
           - os: windows-latest
             platform: win32
             arch: x64
-           - os: windows-latest
-             platform: win32
-             arch: ia32
-           - os: windows-latest
-             platform: win32
-             arch: arm64
+          - os: windows-latest
+            platform: win32
+            arch: ia32
+          - os: windows-latest
+            platform: win32
+            arch: arm64
           - os: ubuntu-latest
             platform: linux
             arch: x64
