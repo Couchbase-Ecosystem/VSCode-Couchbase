@@ -45,7 +45,7 @@ jobs:
         run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
       - name: Run vcpkg
         if: matrix.platform == 'win32'
-        run: choco install openssl
+        run: choco install openssl && npm config set msvs_version 2013 --global
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
