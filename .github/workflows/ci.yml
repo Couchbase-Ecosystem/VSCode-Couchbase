@@ -49,9 +49,9 @@ jobs:
           node-version: 16
           architecture: ${{ matrix.arch }}
           cache: 'npm'
-      - name: windows-specifig
+      - name: windows-specific
         if: matrix.platform == 'win32'
-        run: choco install openssl && npm config set msvs_version 2022 --global
+        run: choco install openssl && npm config set msvs_version 2022 --global && npm install --global cmake-js node-gyp
       - run: npm ci
       - run: npm run rebuild
       - run: npx vsce package --target ${{ env.target }} --pre-release
