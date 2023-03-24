@@ -47,7 +47,7 @@ jobs:
         if: matrix.platform == 'win32'
         run: |
           Invoke-RestMethod -Uri https://github.com/microsoft/vcpkg/archive/refs/heads/master.zip -OutFile vcpkg.zip
-          Expand-Archive vcpkkg.zip -DestinationPath vcpkg
+          Expand-Archive vcpkg.zip -DestinationPath vcpkg
           .\vcpkg\bootstrap-vcpkg.bat
           .\vcpkg\vcpkg install openssl
       - uses: actions/checkout@v3
