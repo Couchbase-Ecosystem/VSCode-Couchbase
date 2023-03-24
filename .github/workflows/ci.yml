@@ -47,8 +47,6 @@ jobs:
         uses: lukka/run-vcpkg@v10
         if: matrix.platform == 'win32'
         with:
-          vcpkgArguments: 'openssl'
-          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
           vcpkgGitCommitId: bc671eb900ae54711fc6ebd3203e3fc4d585a140
           runVcpkgInstall: true
           vcpkgJsonGlob: ${{ github.workspace }}/vcpkg.json
