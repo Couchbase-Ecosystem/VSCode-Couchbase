@@ -48,8 +48,8 @@ jobs:
         run: |
           Invoke-RestMethod -Uri https://github.com/microsoft/vcpkg/archive/refs/heads/master.zip -OutFile vcpkg.zip
           Expand-Archive vcpkg.zip -DestinationPath vcpkg
-          .\vcpkg\bootstrap-vcpkg.bat
-          .\vcpkg\vcpkg install openssl
+          ./vcpkg/bootstrap-vcpkg.bat
+          ./vcpkg/vcpkg install openssl
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
