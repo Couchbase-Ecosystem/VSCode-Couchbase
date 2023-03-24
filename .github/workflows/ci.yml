@@ -44,7 +44,7 @@ jobs:
       - shell: pwsh
         run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
       - name: Run vcpkg
-        uses: lukka/run-vcpkg@v4
+        uses: lukka/run-vcpkg@v10
         if: matrix.platform == 'win32'
         with:
           vcpkgArguments: 'openssl'
