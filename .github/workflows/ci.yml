@@ -50,6 +50,7 @@ jobs:
           vcpkgArguments: 'openssl'
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
           vcpkgGitCommitId: bc671eb900ae54711fc6ebd3203e3fc4d585a140
+          runVcpkgInstall: true
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
