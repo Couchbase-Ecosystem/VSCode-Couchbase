@@ -79,6 +79,7 @@
     "onCommand:vscode-couchbase.refreshCollections",
     "onCommand:vscode-couchbase.getDocumentMetaData",
     "onCommand:vscode-couchbase.openQueryNotebook",
+    "onCommand:vscode-couchbase.openQueryWorkbench",
     "onNotebook:vscode-couchbase.couchbase-query-notebook",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
@@ -355,6 +356,12 @@
         "icon": "images/create.svg"
       },
       {
+        "command": "vscode-couchbase.openQueryWorkbench",
+        "title": "New Workbench",
+        "category": "Couchbase",
+        "icon": "images/create.svg"
+      },
+      {
         "command": "vscode-couchbase.refreshConnection",
         "title": "Refresh Cluster Connection",
         "category": "Couchbase"
@@ -439,6 +446,10 @@
       "commandPalette": [
         {
           "command": "vscode-couchbase.refreshConnection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.openQueryWorkbench",
           "when": "false"
         },
         {
@@ -528,6 +539,10 @@
         },
         {
           "command": "vscode-couchbase.openQueryNotebook",
+          "when": "view == couchbase && viewItem == active_connection"
+        },
+        {
+          "command": "vscode-couchbase.openQueryWorkbench",
           "when": "view == couchbase && viewItem == active_connection"
         },
         {
