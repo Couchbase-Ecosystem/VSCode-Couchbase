@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getActiveConnection } from '../util/connections';
 import {
-    BucketNotFoundError, CollectionNotFoundError, DocumentNotFoundError,
+    BucketNotFoundError, CollectionNotFoundError, CouchbaseError, DocumentNotFoundError,
     ParsingFailureError, ScopeNotFoundError
 } from 'couchbase';
 
@@ -65,20 +65,18 @@ export class QueryKernel {
             execution.end(true, Date.now());
         } catch (err) {
             const errorArray = [];
-            if (
-                err instanceof ParsingFailureError ||
-                err instanceof BucketNotFoundError ||
-                err instanceof CollectionNotFoundError ||
-                err instanceof DocumentNotFoundError ||
-                err instanceof ScopeNotFoundError
-            ) {
+            if (err instanceof CouchbaseError) {
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 const { first_error_code, first_error_message, statement } = err.cause as any;
-                errorArray.push({
-                    code: first_error_code,
-                    msg: first_error_message,
-                    query: statement,
-                });
+                if (first_error_code !== undefined || first_error_message !== undefined || statement !== undefined) {
+                    errorArray.push({
+                        code: first_error_code,
+                        msg: first_error_message,
+                        query: statement,
+                    });
+                } else {
+                    errorArray.push(err);
+                }
             }
             else {
                 errorArray.push(err);
