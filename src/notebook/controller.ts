@@ -1,9 +1,6 @@
 import * as vscode from 'vscode';
 import { getActiveConnection } from '../util/connections';
-import {
-    BucketNotFoundError, CollectionNotFoundError, CouchbaseError, DocumentNotFoundError,
-    ParsingFailureError, ScopeNotFoundError
-} from 'couchbase';
+import { CouchbaseError } from 'couchbase';
 
 /**
  * // This is a typescript class for creating and handling the execution of a new Couchbase Query Notebook,
