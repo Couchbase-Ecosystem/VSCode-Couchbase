@@ -39,6 +39,7 @@ import { QueryContentSerializer } from "./notebook/serializer";
 import { QueryKernel } from "./notebook/controller";
 import { Constants } from "./util/constants";
 import { createNotebook } from "./notebook/notebook";
+import { getQueryWorkbench } from "./webViews/workbench.webview";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -725,6 +726,45 @@ export function activate(context: vscode.ExtensionContext) {
       "vscode-couchbase.openQueryNotebook",
       async () => {
         createNotebook();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.openQueryWorkbench",
+      async (node: ClusterConnectionNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+
+        if (!connection) {
+          return;
+        }
+        try {
+          if (currentPanel && currentPanel.viewType === 'Workbench') {
+            currentPanel.webview.html = getQueryWorkbench();
+            currentPanel.reveal(vscode.ViewColumn.One);
+          } else {
+            currentPanel = vscode.window.createWebviewPanel(
+              'Workbench',
+              'New Workbench',
+              vscode.ViewColumn.One,
+              {
+                enableScripts: true,
+              }
+            );
+            currentPanel.webview.html = getQueryWorkbench();
+
+            currentPanel.onDidDispose(
+              () => {
+                currentPanel = undefined;
+              },
+              undefined,
+              context.subscriptions
+            );
+          }
+        } catch (err) {
+          console.log(err);
+        }
       }
     )
   );
