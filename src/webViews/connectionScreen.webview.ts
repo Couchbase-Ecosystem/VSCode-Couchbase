@@ -138,7 +138,7 @@ export function getClusterConnectingFormView(message: any): string {
                     <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Name of your connection" value=${message?.connectionIdentifier ?? ""}>
                     <span id="connectionIdentifierErr" class="error-message"></span><br/><br/>
                     <div class="button-group">
-                        <button class="redButton" onClick="validateRequest() && postRequestToConnect()">Connect</button>
+                        <button id="connectButton" class="redButton" onClick="validateRequest() && postRequestToConnect()">Connect</button>
                         <button type="secondary" id="cancelButton" onClick="cancelRequest()"> Cancel </button>
                     </div>
                     </div>
@@ -229,6 +229,8 @@ export function getClusterConnectingFormView(message: any): string {
                     return true;
                 }
                 function postRequestToConnect(){
+                    document.getElementById("connectButton").disabled = 'true';
+                    document.getElementById("connectButton").style.backgroundColor = 'grey';
                     const vscode = acquireVsCodeApi();
                     let url = document.getElementById('url').value;
                     let username = document.getElementById('username').value;
