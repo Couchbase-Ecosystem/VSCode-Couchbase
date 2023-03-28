@@ -28,6 +28,11 @@ export default class IndexNode implements INode {
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
         public limit: number = 10
     ) {
+        vscode.workspace.fs.createDirectory(
+            vscode.Uri.parse(
+                `couchbase:/${bucketName}/${scopeName}/Indexes/${indexName}`
+            )
+        );
     }
     getTreeItem(): vscode.TreeItem | Promise<vscode.TreeItem> {
         throw new Error("Method not implemented.");
