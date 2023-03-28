@@ -14,6 +14,8 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
+import * as path from "path";
+import { abbreviateCount } from "../util/common";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 
@@ -22,7 +24,7 @@ export default class IndexNode implements INode {
         public readonly parentNode: INode,
         public readonly connection: IConnection,
         public readonly scopeName: string,
-        public readonly documentCount: number,
+        public readonly indexesCount: number,
         public readonly bucketName: string,
         public readonly indexName: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
@@ -35,7 +37,29 @@ export default class IndexNode implements INode {
         );
     }
     getTreeItem(): vscode.TreeItem | Promise<vscode.TreeItem> {
-        throw new Error("Method not implemented.");
+        return {
+            label: `${this.indexName} (${abbreviateCount(
+                this.indexesCount
+            )})`,
+            collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+            contextValue: "index",
+            iconPath: {
+                light: path.join(
+                    __filename,
+                    "..",
+                    "..",
+                    "images/light",
+                    "collection-icon.svg"
+                ),
+                dark: path.join(
+                    __filename,
+                    "..",
+                    "..",
+                    "images/dark",
+                    "collection-icon.svg"
+                ),
+            },
+        };
     }
     getChildren(): INode[] | Promise<INode[]> {
         throw new Error("Method not implemented.");
