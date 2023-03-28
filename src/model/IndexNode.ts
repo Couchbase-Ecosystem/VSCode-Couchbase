@@ -36,7 +36,7 @@ export default class IndexNode implements INode {
             )
         );
     }
-    getTreeItem(): vscode.TreeItem | Promise<vscode.TreeItem> {
+    public async getTreeItem(): Promise<vscode.TreeItem> {
         return {
             label: `${this.indexName} (${abbreviateCount(
                 this.indexesCount
@@ -61,7 +61,15 @@ export default class IndexNode implements INode {
             },
         };
     }
-    getChildren(): INode[] | Promise<INode[]> {
-        throw new Error("Method not implemented.");
+    public async getChildren(): Promise<INode[]> {
+        let indexesList: INode[] = [];
+        let result;
+        try {
+            result = await this.connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
+        } catch (err) {
+            console.log("Error: Could not load Indexes", err);
+        }
+
+        return indexesList;
     }
 }
