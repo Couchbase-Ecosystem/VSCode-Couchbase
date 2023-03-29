@@ -19,57 +19,48 @@ import { abbreviateCount } from "../util/common";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 
-export default class IndexNode implements INode {
+export default class IndexNode extends vscode.TreeItem {
     constructor(
         public readonly parentNode: INode,
         public readonly connection: IConnection,
         public readonly scopeName: string,
-        public readonly indexesCount: number,
         public readonly bucketName: string,
         public readonly indexName: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public limit: number = 10
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState
     ) {
-        vscode.workspace.fs.createDirectory(
-            vscode.Uri.parse(
-                `couchbase:/${bucketName}/${scopeName}/Indexes/${indexName}`
-            )
-        );
+        super(indexName, collapsibleState);
+        this.tooltip = `${this.indexName}`;
+        this.description = this.indexName;
     }
     public async getTreeItem(): Promise<vscode.TreeItem> {
         return {
-            label: `${this.indexName} (${abbreviateCount(
-                this.indexesCount
-            )})`,
+            label: `${this.indexName}`,
             collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
             contextValue: "index",
+            command: {
+                command: "vscode-couchbase.openIndexDef",
+                title: "Open Index Definition",
+                arguments: [this],
+            },
             iconPath: {
                 light: path.join(
                     __filename,
                     "..",
                     "..",
                     "images/light",
-                    "collection-icon.svg"
+                    "document-icon.svg"
                 ),
                 dark: path.join(
                     __filename,
                     "..",
                     "..",
                     "images/dark",
-                    "collection-icon.svg"
+                    "document-icon.svg"
                 ),
             },
         };
     }
     public async getChildren(): Promise<INode[]> {
-        let indexesList: INode[] = [];
-        let result;
-        try {
-            result = await this.connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
-        } catch (err) {
-            console.log("Error: Could not load Indexes", err);
-        }
-
-        return indexesList;
+        return [];
     }
 }
