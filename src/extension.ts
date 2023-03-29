@@ -40,6 +40,7 @@ import { QueryKernel } from "./notebook/controller";
 import { Constants } from "./util/constants";
 import { createNotebook } from "./notebook/notebook";
 import { getQueryWorkbench } from "./webViews/workbench.webview";
+import IndexNode from "./model/IndexNode";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -309,6 +310,29 @@ export function activate(context: vscode.ExtensionContext) {
           memFs.writeFile(
             uri,
             Buffer.from(JSON.stringify(result?.content, null, 2)),
+            { create: true, overwrite: true }
+          );
+          const document = await vscode.workspace.openTextDocument(uri);
+          await vscode.window.showTextDocument(document, { preview: false });
+          return true;
+        } catch (err: any) {
+          console.log(err);
+        }
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.openIndexInfo",
+      async (indexNode: IndexNode) => {
+        try {
+          const uri = vscode.Uri.parse(
+            `couchbase:/${indexNode.bucketName}/${indexNode.scopeName}/Indexes/${indexNode.indexName}.n1ql`
+          );
+          memFs.writeFile(
+            uri,
+            Buffer.from(JSON.stringify(indexNode.data, null, 2)),
             { create: true, overwrite: true }
           );
           const document = await vscode.workspace.openTextDocument(uri);
