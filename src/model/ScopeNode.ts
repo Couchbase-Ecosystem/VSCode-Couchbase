@@ -18,6 +18,7 @@ import * as path from "path";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 import CollectionNode from "./CollectionNode";
+import { ScopeItems } from "./ScopeItems";
 
 export class ScopeNode implements INode {
   constructor(
@@ -54,30 +55,30 @@ export class ScopeNode implements INode {
   }
 
   public async getChildren(): Promise<INode[]> {
-    let collectionList: CollectionNode[] = [];
+    let scopeItem: ScopeItems[] = [];
+    const indexItem = new ScopeItems(
+      this,
+      this.connection,
+      "Indexes",
+      this.bucketName,
+      this.scopeName,
+      [],
+      [],
+      vscode.TreeItemCollapsibleState.None
+    );
 
-    for (const collection of this.collections) {
-      try {
-        const queryResult = await this.connection.cluster?.query(
-          `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\`;`
-        );
-        const count = queryResult?.rows[0].count;
-
-        const collectionTreeItem = new CollectionNode(
-          this,
-          this.connection,
-          this.scopeName,
-          count,
-          this.bucketName,
-          collection.name,
-          vscode.TreeItemCollapsibleState.None
-        );
-        collectionList.push(collectionTreeItem);
-      } catch (err: any) {
-        console.log(err);
-        throw new Error(err);
-      }
-    }
-    return collectionList;
+    const collectionItem = new ScopeItems(
+      this,
+      this.connection,
+      "Collections",
+      this.bucketName,
+      this.scopeName,
+      this.collections,
+      [],
+      vscode.TreeItemCollapsibleState.None
+    );
+    scopeItem.push(indexItem);
+    scopeItem.push(collectionItem);
+    return scopeItem;
   }
 }
