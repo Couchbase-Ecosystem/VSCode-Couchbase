@@ -18,6 +18,7 @@ import * as path from "path";
 import { abbreviateCount } from "../util/common";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
+import { QueryIndex } from "couchbase";
 
 export default class IndexNode extends vscode.TreeItem {
     constructor(
@@ -26,7 +27,7 @@ export default class IndexNode extends vscode.TreeItem {
         public readonly scopeName: string,
         public readonly bucketName: string,
         public readonly indexName: string,
-        public readonly data: any,
+        public readonly data: QueryIndex,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState
     ) {
         super(indexName, collapsibleState);
@@ -49,14 +50,14 @@ export default class IndexNode extends vscode.TreeItem {
                     "..",
                     "..",
                     "images/light",
-                    "document-icon.svg"
+                    "documents-icon.svg"
                 ),
                 dark: path.join(
                     __filename,
                     "..",
                     "..",
                     "images/dark",
-                    "document-icon.svg"
+                    "documents-icon.svg"
                 ),
             },
         };

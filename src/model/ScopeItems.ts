@@ -31,7 +31,13 @@ export class ScopeItems implements INode {
         public readonly collections: any[],
         public readonly indexes: QueryIndex[],
         public readonly collapsibleState: vscode.TreeItemCollapsibleState
-    ) { }
+    ) {
+        vscode.workspace.fs.createDirectory(
+            vscode.Uri.parse(
+                `couchbase:/${bucketName}/${scopeName}/Indexes`
+            )
+        );
+    }
 
     public getTreeItem(): vscode.TreeItem {
         return {
@@ -85,7 +91,30 @@ export class ScopeItems implements INode {
             }
             return collectionList;
         } else {
-            // Here we will write for indexes
+            let indexesList: INode[] = [];
+            let result;
+            try {
+                result = await this.connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
+            } catch (err) {
+                console.log("Error: Could not load Indexes", err);
+            }
+            if (result === undefined) { return []; }
+            for (const query of result) {
+                if (query.scopeName === this.scopeName) {
+                    const indexNode = new IndexNode(
+                        this,
+                        this.connection,
+                        this.scopeName,
+                        this.bucketName,
+                        `${query.name.substring(1)}_${(query.collectionName ?? "")}`,
+                        query,
+                        vscode.TreeItemCollapsibleState.None
+                    );
+                    indexesList.push(indexNode);
+                }
+
+            }
+            return indexesList;
         }
     };
 }
