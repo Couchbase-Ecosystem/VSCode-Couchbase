@@ -56,4 +56,36 @@ export class ScopeItems implements INode {
             },
         };
     }
+
+    public async getChildren(): Promise<INode[]> {
+        if (this.itemName === "Collections") {
+            let collectionList: CollectionNode[] = [];
+
+            for (const collection of this.collections) {
+                try {
+                    const queryResult = await this.connection.cluster?.query(
+                        `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\`;`
+                    );
+                    const count = queryResult?.rows[0].count;
+
+                    const collectionTreeItem = new CollectionNode(
+                        this,
+                        this.connection,
+                        this.scopeName,
+                        count,
+                        this.bucketName,
+                        collection.name,
+                        vscode.TreeItemCollapsibleState.None
+                    );
+                    collectionList.push(collectionTreeItem);
+                } catch (err: any) {
+                    console.log(err);
+                    throw new Error(err);
+                }
+            }
+            return collectionList;
+        } else {
+            // Here we will write for indexes
+        }
+    };
 }
