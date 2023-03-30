@@ -33,4 +33,27 @@ export class ScopeItems implements INode {
         public readonly collapsibleState: vscode.TreeItemCollapsibleState
     ) { }
 
+    public getTreeItem(): vscode.TreeItem {
+        return {
+            label: `${this.itemName}`,
+            collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+            contextValue: "scopeItem",
+            iconPath: {
+                light: path.join(
+                    __filename,
+                    "..",
+                    "..",
+                    "images/light",
+                    "scopes-icon.svg"
+                ),
+                dark: path.join(
+                    __filename,
+                    "..",
+                    "..",
+                    "images/dark",
+                    "scopes-icon.svg"
+                ),
+            },
+        };
+    }
 }
