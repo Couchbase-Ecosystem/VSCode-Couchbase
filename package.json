@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -19,7 +19,7 @@
     "type": "git",
     "url": "https://github.com/couchbaselabs/VSCode-Couchbase.git"
   },
-  "preview": true,
+  "preview": false,
   "icon": "images/couchbase.png",
   "scripts": {
     "vscode:prepublish": "npm run package",
