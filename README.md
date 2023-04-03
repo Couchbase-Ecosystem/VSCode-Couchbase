@@ -6,6 +6,10 @@ This is a Visual Studio Code extension for Couchbase.  At the moment it is work 
 
 *You are also welcome to post on [our forum](https://forums.couchbase.com/c/php-sdk) or join our [Discord](https://discord.com/invite/sQ5qbPZuTh) server.*
 
+# Requirement
+This extension requires OpenSSL to be installed on your system in order to install properly. 
+If you don't have OpenSSL already installed, you can install it using Homebrew with the following command `brew install openssl` or you can download it from the official website: https://www.openssl.org/.
+
 ## How to Install
 
 Please visit the [releases tab](https://github.com/couchbaselabs/VSCode-Couchbase/releases) and download the most recent release. Once you've downloaded that:
