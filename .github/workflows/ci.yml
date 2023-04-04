@@ -56,7 +56,7 @@ jobs:
       - name: general
         if: matrix.platform != 'win32'
         run: npm ci && npm run rebuild
-      - run: npx vsce package --target ${{ env.target }} --pre-release
+      - run: npx vsce package --target ${{ env.target }}
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ env.target }}
