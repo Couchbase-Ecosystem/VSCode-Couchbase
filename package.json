@@ -85,6 +85,7 @@
     "onStartupFinished",
     "onView:couchbase-activity-bar"
   ],
+  "extensionDependencies": [],
   "main": "./dist/extension.js",
   "contributes": {
     "snippets": [
