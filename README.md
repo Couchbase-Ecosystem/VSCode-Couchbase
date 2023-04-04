@@ -6,7 +6,15 @@ This extension is designed to provide a seamless experience for Couchbase Server
 
 # Requirement
 This extension requires OpenSSL to be installed on your system in order to install successfully. 
-If you don't have OpenSSL already installed, you can install it using Homebrew with the command `brew install openssl` or you can download it from the official website: https://www.openssl.org/.
+
+For Windows:
+- Download the latest version of OpenSSL from https://slproweb.com/products/Win32OpenSSL.html and follow the installation instructions.
+
+For Linux:
+- Run `sudo apt-get install openssl` on Debian-based distributions like Ubuntu, or use your distribution's package manager to install the OpenSSL package.
+
+For Mac:
+- Run `brew install openssl` using Homebrew, or download the latest version of OpenSSL from https://www.openssl.org/source/ and follow the installation instructions.
 
 ## Contributions & Community
 
