@@ -40,6 +40,7 @@ import { QueryKernel } from "./notebook/controller";
 import { Constants } from "./util/constants";
 import { createNotebook } from "./notebook/notebook";
 import { getQueryWorkbench } from "./webViews/workbench.webview";
+import { Logger } from "./util/logger";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -57,6 +58,14 @@ export function activate(context: vscode.ExtensionContext) {
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context
   );
+
+  // Set up the global error handler
+  process.on('uncaughtException', (error) => {
+    Logger.handleError(error);
+  });
+  process.on('unhandledRejection', (reason, promise) => {
+    Logger.handleError(reason instanceof Error ? reason : new Error(String(reason)));
+  });
 
   const getDocument = async (activeConnection: IConnection, documentInfo: IDocumentData) => {
     return await activeConnection.cluster
