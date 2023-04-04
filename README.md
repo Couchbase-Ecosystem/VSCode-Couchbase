@@ -4,14 +4,17 @@ Welcome to the official Visual Studio Code extension for Couchbase!
 
 This extension is designed to provide a seamless experience for Couchbase Server users who want to work within the popular Visual Studio Code editor. 
 
-# Requirement
+# Requirements
 This extension requires OpenSSL to be installed on your system in order to install successfully. 
 
 For Windows:
 - Download the latest version of OpenSSL from https://slproweb.com/products/Win32OpenSSL.html and follow the installation instructions.
 
-For Linux:
-- Run `sudo apt-get install openssl` on Debian-based distributions like Ubuntu, or use your distribution's package manager to install the OpenSSL package.
+For Debian or Ubuntu-based distros::
+- Run `sudo apt-get install openssl`
+
+For Red Hat, CentOS or Fedora-based distros:
+-  Run `sudo dnf install openssl` (on newer Fedora versions), OR `sudo yum install openssl` (on older Fedora/Red Hat/CentOS versions)
 
 For Mac:
 - Run `brew install openssl` using Homebrew, or download the latest version of OpenSSL from https://www.openssl.org/source/ and follow the installation instructions.
