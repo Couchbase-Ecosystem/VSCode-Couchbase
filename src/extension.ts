@@ -406,7 +406,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         let answer = await vscode.window.showInformationMessage(
-          "Do you want to do this?",
+          `Are you sure you want to delete the document ${node.documentName}?`,
           ...["Yes", "No"]
         );
         if (answer !== "Yes") {
@@ -482,7 +482,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         let answer = await vscode.window.showInformationMessage(
-          "Do you want to do this?",
+          `Are you sure you want to delete the scope ${node.scopeName}?`,
           ...["Yes", "No"]
         );
         if (answer !== "Yes") {
@@ -552,7 +552,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         let answer = await vscode.window.showInformationMessage(
-          "Do you want to do this?",
+          `Are you sure you want to delete the collection ${node.collectionName}?`,
           ...["Yes", "No"]
         );
         if (answer !== "Yes") {
