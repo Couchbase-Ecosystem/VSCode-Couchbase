@@ -19,6 +19,8 @@ For Red Hat, CentOS or Fedora-based distros:
 For Mac:
 - Run `brew install openssl` using Homebrew, or download the latest version of OpenSSL from https://www.openssl.org/source/ and follow the installation instructions.
 
+> :warning:  **WARNING**:  DO NOT upgrade cmake-js to 7.x or it will break Windows builds. Please use 6.x instead. 
+
 ## Contributions & Community
 
 *This is not an officially supported Couchbase project, however we welcome contributions from the community via GitHub features such as the Issues tab.*
