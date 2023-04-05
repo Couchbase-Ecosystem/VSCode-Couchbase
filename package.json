@@ -517,10 +517,6 @@
       "editor/context": [],
       "view/item/context": [
         {
-          "command": "vscode-couchbase.refreshConnection",
-          "when": "(view == couchbase || view == document-editor) && viewItem"
-        },
-        {
           "command": "vscode-couchbase.deleteClusterConnection",
           "when": "view == couchbase && viewItem == connection"
         },
