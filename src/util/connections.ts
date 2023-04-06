@@ -95,20 +95,9 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         try {
           await Cluster.connect(message.url, { username: message.username, password: message.password, configProfile: 'wanDevelopment' });
         } catch (err) {
-          let answer;
-          if (err instanceof AuthenticationFailureError) {
-            answer = await vscode.window.showErrorMessage(`
-            Authentication Failed: Please check your credentials and try again \n
-            If you're still having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
-          }
-          else {
-            vscode.window.showErrorMessage(`Could not establish a connection \n ${err} \n If you're having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
-          }
+          handleConnectionError(err);
           currentPanel.dispose();
           addConnection(clusterConnectionTreeProvider, message);
-          if (answer === "Troubleshoot Link") {
-            vscode.commands.executeCommand('simpleBrowser.show', `https://docs.couchbase.com/go-sdk/current/howtos/troubleshooting-cloud-connections.html`);
-          }
           break;
         }
 
@@ -155,6 +144,22 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
   currentPanel.webview.html = getClusterConnectingFormView(message);
 }
 
+async function handleConnectionError(err: any) {
+  let answer;
+  if (err instanceof AuthenticationFailureError) {
+    answer = await vscode.window.showErrorMessage(`
+    Authentication Failed: Please check your credentials and try again \n
+    If you're still having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
+  }
+  else {
+    answer = await vscode.window.showErrorMessage(`Could not establish a connection \n ${err} \n If you're having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
+  }
+
+  if (answer === "Troubleshoot Link") {
+    vscode.commands.executeCommand('simpleBrowser.show', `https://docs.couchbase.com/go-sdk/current/howtos/troubleshooting-cloud-connections.html`);
+  }
+}
+
 export async function useConnection(connection: IConnection) {
   const id = getConnectionId(connection);
   const password = await keytar.getPassword(Constants.extensionID, id);
@@ -168,11 +173,15 @@ export async function useConnection(connection: IConnection) {
   await vscode.window.withProgress(
     options, async (progress) => {
       progress.report({ message: "Trying to connect..." });
-      connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
+      try {
+        connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
+        setActiveConnection(connection);
+        vscode.window.showInformationMessage("Connection established successfully!");
+      }
+      catch (err) {
+        handleConnectionError(err);
+      }
     });
-
-  setActiveConnection(connection);
-  vscode.window.showInformationMessage("Connection established successfully!");
 }
 
 export async function removeConnection(connection: IConnection) {
