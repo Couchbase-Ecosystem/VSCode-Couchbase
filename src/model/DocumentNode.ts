@@ -50,14 +50,14 @@ export default class DocumentNode extends vscode.TreeItem {
           "..",
           "..",
           "images/light",
-          "documents-icon.svg"
+          "document-icon.svg"
         ),
         dark: path.join(
           __filename,
           "..",
           "..",
           "images/dark",
-          "documents-icon.svg"
+          "document-icon.svg"
         ),
       },
     };

@@ -50,14 +50,14 @@ export class ScopeItems implements INode {
                     "..",
                     "..",
                     "images/light",
-                    "scopes-icon.svg"
+                    "scope-item.svg"
                 ),
                 dark: path.join(
                     __filename,
                     "..",
                     "..",
                     "images/dark",
-                    "scopes-icon.svg"
+                    "scope-item.svg"
                 ),
             },
         };

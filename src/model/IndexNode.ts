@@ -50,14 +50,14 @@ export default class IndexNode extends vscode.TreeItem {
                     "..",
                     "..",
                     "images/light",
-                    "documents-icon.svg"
+                    "index-icon.svg"
                 ),
                 dark: path.join(
                     __filename,
                     "..",
                     "..",
                     "images/dark",
-                    "documents-icon.svg"
+                    "index-icon.svg"
                 ),
             },
         };

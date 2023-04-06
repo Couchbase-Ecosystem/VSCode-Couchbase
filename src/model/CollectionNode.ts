@@ -53,14 +53,14 @@ export default class CollectionNode implements INode {
           "..",
           "..",
           "images/light",
-          "collection-icon.svg"
+          "documents-icon.svg"
         ),
         dark: path.join(
           __filename,
           "..",
           "..",
           "images/dark",
-          "collection-icon.svg"
+          "documents-icon.svg"
         ),
       },
     };
