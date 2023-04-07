@@ -92,8 +92,14 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
   currentPanel.webview.onDidReceiveMessage(async (message: any) => {
     switch (message.command) {
       case 'submit':
+        let url;
         try {
-          await Cluster.connect(message.url, { username: message.username, password: message.password, configProfile: 'wanDevelopment' });
+          if (message.isSecure) {
+            url = Constants.prefixSecureURL + message.url;
+          } else {
+            url = Constants.prefixURL + message.url;
+          }
+          await Cluster.connect(url, { username: message.username, password: message.password, configProfile: 'wanDevelopment' });
         } catch (err) {
           handleConnectionError(err);
           currentPanel.dispose();
@@ -101,7 +107,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
           break;
         }
 
-        const connection: IConnection = { url: message.url, username: message.username, password: message.password, connectionIdentifier: message.connectionIdentifier };
+        const connection: IConnection = { url, username: message.username, password: message.password, connectionIdentifier: message.connectionIdentifier };
         const connections = getConnections();
         const connectionId = getConnectionId(connection);
         if (connections && connections[connectionId]) {
