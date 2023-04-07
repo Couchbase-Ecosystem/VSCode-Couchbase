@@ -182,12 +182,12 @@ export function getClusterConnectingFormView(message: any): string {
                     <div>
                         <h2>
                         New to Couchbase and don't have a cluster?
-                        <h2>
+                        </h2>
                     </div>
                     <div>
                         <h4>
                         If you don't already have a cluster you can install couchbase locally or create a cluster using capella
-                        <h4>
+                        </h4>
                     </div>
                     <a href="https://www.couchbase.com/downloads/?family=couchbase-server">
                     <button class="redButton" type="button">Download</button>
@@ -270,13 +270,17 @@ export function getClusterConnectingFormView(message: any): string {
                     let username = document.getElementById('username').value;
                     let password = document.getElementById('password').value;
                     let identifier = document.getElementById('connectionIdentifier').value;
-                    var checkBox = document.getElementById("secureCheck");
+                    let checkBox = document.getElementById("secureCheck");
+                    if(url.startsWith("couchbase://") || url.startsWith("couchbases://"))
+                    {
+                        url = url.slice(url.indexOf('//') + 2);
+                    }
                     vscode.postMessage({
                         command: 'submit',
                         url: url,
                         username: username,
                         password: password,
-                        connectionIdentifier: identifier
+                        connectionIdentifier: identifier,
                         isSecure: checkBox.checked
                     })
                 };
