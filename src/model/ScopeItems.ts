@@ -145,9 +145,10 @@ export class ScopeItems implements INode {
                 } catch (error) {
                     console.log(error);
                 };
-
             }
-
+            if (indexesList.length === 0) {
+                vscode.window.showInformationMessage("No indexes found for this bucket.scope combination. Try another bucket.scope.");
+            }
             return indexesList;
         }
     };
