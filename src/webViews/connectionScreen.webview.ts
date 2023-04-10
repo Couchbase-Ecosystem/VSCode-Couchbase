@@ -142,6 +142,8 @@ export function getClusterConnectingFormView(message: any): string {
                 gap: 12px;
                 }
                 .secure-box {
+                    margin-top: 5px;
+                    gap: 2px;
                     display: flex;
                     align-items: center;
                 }
@@ -156,11 +158,10 @@ export function getClusterConnectingFormView(message: any): string {
                     <label for="url">Cluster Connection URL</label><br>
                     <input type="text" id="url" name="url" placeholder="localhost" value=${message?.url ?? "localhost"} />
                     <div class="secure-box">
-                    <label for="secure">Secure</label> 
                     <input type="checkbox" id="secureCheck">
+                    <label for="secure">Secure</label> 
                     </div>
                     <span id="urlErr" class="error-message"></span><br/>
-                    
                     <br/>
                     <label for="url">Username</label><br>
                     <input type="text" id="username" name="username" placeholder="Username" value=${message?.username ?? "Administrator"} />
