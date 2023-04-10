@@ -27,7 +27,7 @@ export default class IndexNode extends vscode.TreeItem {
         public readonly scopeName: string,
         public readonly bucketName: string,
         public readonly indexName: string,
-        public readonly data: QueryIndex,
+        public readonly data: any,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState
     ) {
         super(indexName, collapsibleState);

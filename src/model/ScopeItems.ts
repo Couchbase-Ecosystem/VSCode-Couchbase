@@ -15,11 +15,15 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
+import * as keytar from "keytar";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 import CollectionNode from "./CollectionNode";
 import { QueryIndex } from "couchbase";
 import IndexNode from "./IndexNode";
+import axios from "axios";
+import { Constants } from "../util/constants";
+import { getConnectionId } from "../util/connections";
 
 export class ScopeItems implements INode {
     constructor(
@@ -93,27 +97,57 @@ export class ScopeItems implements INode {
         } else {
             let indexesList: INode[] = [];
             let result;
-            try {
-                result = await this.connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
-            } catch (err) {
-                console.log("Error: Could not load Indexes", err);
-            }
-            if (result === undefined) { return []; }
-            for (const query of result) {
-                if (query.scopeName === this.scopeName) {
-                    const indexNode = new IndexNode(
-                        this,
-                        this.connection,
-                        this.scopeName,
-                        this.bucketName,
-                        `${query.name.substring(1)}_${(query.collectionName ?? "")}`,
-                        query,
-                        vscode.TreeItemCollapsibleState.None
-                    );
-                    indexesList.push(indexNode);
+            if (this.connection.url.endsWith(Constants.capellaUrlPostfix)) {
+                try {
+                    result = await this.connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
+                    if (result === undefined) { return []; }
+                    for (const query of result) {
+                        if (query.scopeName === this.scopeName) {
+                            const indexNode = new IndexNode(
+                                this,
+                                this.connection,
+                                this.scopeName,
+                                this.bucketName,
+                                `${query.name.substring(1)}_${(query.collectionName ?? "")}`,
+                                JSON.stringify(query, null, 2),
+                                vscode.TreeItemCollapsibleState.None
+                            );
+                            indexesList.push(indexNode);
+                        }
+
+                    }
+                } catch (err) {
+                    console.log("Error: Could not load Indexes", err);
                 }
+            }
+            else {
+                try {
+                    const password = await keytar.getPassword(Constants.extensionID, getConnectionId(this.connection));
+                    if (!password) {
+                        return [];
+                    }
+                    const requestURL = `http://${this.connection.username}:${password}@127.0.0.1:9102/getIndexStatus\?bucket\=${this.bucketName}\&scope\=${this.scopeName}`;
+                    result = await axios.get(requestURL);
+                    for (const query of result.data.status) {
+                        if (query.scope === this.scopeName) {
+                            const indexNode = new IndexNode(
+                                this,
+                                this.connection,
+                                this.scopeName,
+                                this.bucketName,
+                                `${query.indexName.substring(1)}_${query.collection}`,
+                                query.definition,
+                                vscode.TreeItemCollapsibleState.None
+                            );
+                            indexesList.push(indexNode);
+                        }
+                    }
+                } catch (error) {
+                    console.log(error);
+                };
 
             }
+
             return indexesList;
         }
     };

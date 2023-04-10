@@ -332,7 +332,7 @@ export function activate(context: vscode.ExtensionContext) {
           );
           memFs.writeFile(
             uri,
-            Buffer.from(JSON.stringify(indexNode.data, null, 2)),
+            Buffer.from(indexNode.data),
             { create: true, overwrite: true }
           );
           const document = await vscode.workspace.openTextDocument(uri);
