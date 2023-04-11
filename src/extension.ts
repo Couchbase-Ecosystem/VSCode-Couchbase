@@ -42,6 +42,7 @@ import { createNotebook } from "./notebook/notebook";
 import { getQueryWorkbench } from "./webViews/workbench.webview";
 import IndexNode from "./model/IndexNode";
 import { Logger } from "./util/logger";
+import { CollectionDirectory } from "./model/CollectionDirectory";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -535,7 +536,7 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.createCollection",
-      async (node: ScopeNode) => {
+      async (node: CollectionDirectory) => {
         const connection = Memory.state.get<IConnection>("activeConnection");
         if (!connection) {
           return;
@@ -560,8 +561,7 @@ export function activate(context: vscode.ExtensionContext) {
           scopeName: node.scopeName,
         });
 
-        clusterConnectionTreeProvider.refresh(node);
-        clusterConnectionTreeProvider.refresh(node.parentNode);
+        clusterConnectionTreeProvider.refresh();
       }
     )
   );
