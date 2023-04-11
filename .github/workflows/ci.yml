@@ -12,9 +12,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- os: windows-latest
-          #  platform: win32
-          #  arch: x64
+          - os: windows-latest
+            platform: win32
+            arch: x64
           #- os: windows-latest
           #  platform: win32
           #  arch: ia32
@@ -50,11 +50,13 @@ jobs:
           architecture: ${{ matrix.arch }}
           cache: 'npm'
       - name: windows-specific
+        shell: pwsh
         if: matrix.platform == 'win32'
-        run: choco install openssl && npm config set msvs_version 2022 --global && npm install --global cmake-js node-gyp
-      - run: npm ci
-      - run: npm run rebuild
-      - run: npx vsce package --target ${{ env.target }} --pre-release
+        run: choco install openssl  && choco install cmake && npm config set msvs_version 2022 --global && npm install --global cmake-js node-gyp && refreshenv && echo CMAKE_JS_LIB - $CMAKE_JS_LIB && npm ci && npm rebuild
+      - name: general
+        if: matrix.platform != 'win32'
+        run: npm ci && npm run rebuild
+      - run: npx vsce package --target ${{ env.target }}
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ env.target }}

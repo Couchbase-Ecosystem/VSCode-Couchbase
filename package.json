@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -19,7 +19,7 @@
     "type": "git",
     "url": "https://github.com/couchbaselabs/VSCode-Couchbase.git"
   },
-  "preview": true,
+  "preview": false,
   "icon": "images/couchbase.png",
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -41,7 +41,7 @@
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vscode/test-electron": "^2.1.5",
-    "cmake-js": "^7.1.1",
+    "cmake-js": "^6.3.2",
     "electron-rebuild": "^3.2.7",
     "eslint": "^7.32.0",
     "glob": "^7.2.0",
@@ -57,7 +57,8 @@
   "dependencies": {
     "axios": "^0.21.4",
     "couchbase": "^4.2.1",
-    "keytar": "^7.7.0"
+    "keytar": "^7.7.0",
+    "node-addon-api": "^6.0.0"
   },
   "activationEvents": [
     "onFileSystem:couchbase",
@@ -515,10 +516,6 @@
       ],
       "editor/context": [],
       "view/item/context": [
-        {
-          "command": "vscode-couchbase.refreshConnection",
-          "when": "(view == couchbase || view == document-editor) && viewItem"
-        },
         {
           "command": "vscode-couchbase.deleteClusterConnection",
           "when": "view == couchbase && viewItem == connection"
