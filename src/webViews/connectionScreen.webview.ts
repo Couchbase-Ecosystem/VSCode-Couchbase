@@ -50,6 +50,30 @@ export function getClusterConnectingFormView(message: any): string {
                 color: var(--vscode-button-foreground);
                 background: var(--vscode-button-background);
                 }
+                input[type="checkbox"] {
+                    appearance: none;
+                    -webkit-appearance: none;
+                    width: 15px;
+                    height: 15px;
+                    border-radius: 2px;
+                    outline: none;
+                    border: 1px solid #999;
+                    background-color: white;
+                }
+                
+                input[type="checkbox"]:checked {
+                    background-color: #ea2328;
+                }
+        
+                input[type="checkbox"]:checked::before {
+                    content: '\\2714';
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 12px;
+                    color: white;
+                    height: 100%;
+                }
                 .redButton{
                 background: #ea2328;
                 }
@@ -95,7 +119,7 @@ export function getClusterConnectingFormView(message: any): string {
                 margin: 50px;
                 }
                 .left-container {
-                width: 50%;
+                width: 60%;
                 }
                 .right-container {
                 background: #f2f2f2;
@@ -117,6 +141,12 @@ export function getClusterConnectingFormView(message: any): string {
                 flex-wrap: wrap;
                 gap: 12px;
                 }
+                .secure-box {
+                    margin-top: 5px;
+                    gap: 2px;
+                    display: flex;
+                    align-items: center;
+                }
             </style>
         </head>
         <body>
@@ -126,8 +156,13 @@ export function getClusterConnectingFormView(message: any): string {
                     <b>Enter your connection details below</b><br><br>
                     <div>
                     <label for="url">Cluster Connection URL</label><br>
-                    <input type="text" id="url" name="url" placeholder="couchbase://localhost" value=${message?.url ?? "couchbase://localhost"} />
-                    <span id="urlErr" class="error-message"></span><br/><br/>
+                    <input type="text" id="url" name="url" placeholder="localhost" value=${message?.url ?? "localhost"} />
+                    <div class="secure-box">
+                    <input type="checkbox" id="secureCheck">
+                    <label for="secure">Secure</label> 
+                    </div>
+                    <span id="urlErr" class="error-message"></span><br/>
+                    <br/>
                     <label for="url">Username</label><br>
                     <input type="text" id="username" name="username" placeholder="Username" value=${message?.username ?? "Administrator"} />
                     <span id="usernameErr" class="error-message"></span><br/><br/>
@@ -148,12 +183,12 @@ export function getClusterConnectingFormView(message: any): string {
                     <div>
                         <h2>
                         New to Couchbase and don't have a cluster?
-                        <h2>
+                        </h2>
                     </div>
                     <div>
                         <h4>
                         If you don't already have a cluster you can install couchbase locally or create a cluster using capella
-                        <h4>
+                        </h4>
                     </div>
                     <a href="https://www.couchbase.com/downloads/?family=couchbase-server">
                     <button class="redButton" type="button">Download</button>
@@ -236,12 +271,18 @@ export function getClusterConnectingFormView(message: any): string {
                     let username = document.getElementById('username').value;
                     let password = document.getElementById('password').value;
                     let identifier = document.getElementById('connectionIdentifier').value;
+                    let checkBox = document.getElementById("secureCheck");
+                    if(url.startsWith("couchbase://") || url.startsWith("couchbases://"))
+                    {
+                        url = url.slice(url.indexOf('//') + 2);
+                    }
                     vscode.postMessage({
                         command: 'submit',
                         url: url,
                         username: username,
                         password: password,
-                        connectionIdentifier: identifier
+                        connectionIdentifier: identifier,
+                        isSecure: checkBox.checked
                     })
                 };
                 function cancelRequest(){
