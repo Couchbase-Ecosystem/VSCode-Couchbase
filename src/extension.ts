@@ -96,8 +96,8 @@ export function activate(context: vscode.ExtensionContext) {
     const documentInfo = {
       bucket: pathParts[0],
       scope: pathParts[1],
-      collection: pathParts[2],
-      name: pathParts[3].substring(0, pathParts[3].indexOf(".json"))
+      collection: pathParts[3],
+      name: pathParts[4].substring(0, pathParts[4].indexOf(".json"))
     };
     return documentInfo;
   };
@@ -212,7 +212,6 @@ export function activate(context: vscode.ExtensionContext) {
             if (!(err instanceof DocumentNotFoundError)) {
               return;
             }
-            console.log(err);
           }
           if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
             handleSaveTextDocumentConflict(remoteDocument, document, activeConnection, documentInfo);
