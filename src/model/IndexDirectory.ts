@@ -98,18 +98,20 @@ export class IndexDirectory implements INode {
                 }
                 const requestURL = `http://${this.connection.username}:${password}@127.0.0.1:9102/getIndexStatus\?bucket\=${this.bucketName}\&scope\=${this.scopeName}`;
                 result = await axios.get(requestURL);
-                for (const query of result.data.status) {
-                    if (query.scope === this.scopeName) {
-                        const indexNode = new IndexNode(
-                            this,
-                            this.connection,
-                            this.scopeName,
-                            this.bucketName,
-                            `${query.indexName.substring(1)}_${query.collection}`,
-                            query.definition,
-                            vscode.TreeItemCollapsibleState.None
-                        );
-                        indexesList.push(indexNode);
+                if (result.data.status) {
+                    for (const query of result.data.status) {
+                        if (query.scope === this.scopeName) {
+                            const indexNode = new IndexNode(
+                                this,
+                                this.connection,
+                                this.scopeName,
+                                this.bucketName,
+                                `${query.indexName.substring(1)}_${query.collection}`,
+                                query.definition,
+                                vscode.TreeItemCollapsibleState.None
+                            );
+                            indexesList.push(indexNode);
+                        }
                     }
                 }
             } catch (error) {
