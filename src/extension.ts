@@ -302,7 +302,7 @@ export function activate(context: vscode.ExtensionContext) {
             .collection(documentNode.collectionName)
             .get(documentNode.documentName);
           const uri = vscode.Uri.parse(
-            `couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/${documentNode.collectionName}/${documentNode.documentName}.json`
+            `couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/Collections/${documentNode.collectionName}/${documentNode.documentName}.json`
           );
           if (result) {
             uriToCasMap.set(uri.toString(), result.cas.toString());
@@ -377,7 +377,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         const uri = vscode.Uri.parse(
-          `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
+          `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${documentName}.json`
         );
         let documentContent = Buffer.from("{}");
         // Try block is trying to retrieve the document with the same key first
@@ -434,7 +434,7 @@ export function activate(context: vscode.ExtensionContext) {
           .remove(node.documentName);
 
         const uri = vscode.Uri.parse(
-          `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${node.documentName}.json`
+          `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${node.documentName}.json`
         );
         memFs.delete(uri);
 
@@ -717,7 +717,7 @@ export function activate(context: vscode.ExtensionContext) {
           };
           const result = await getDocument(connection, documentInfo);
           const uri = vscode.Uri.parse(
-            `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
+            `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${documentName}.json`
           );
           memFs.writeFile(
             uri,

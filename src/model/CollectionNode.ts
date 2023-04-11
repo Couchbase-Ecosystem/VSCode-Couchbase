@@ -35,7 +35,7 @@ export default class CollectionNode implements INode {
   ) {
     vscode.workspace.fs.createDirectory(
       vscode.Uri.parse(
-        `couchbase:/${bucketName}/${scopeName}/${collectionName}`
+        `couchbase:/${bucketName}/${scopeName}/Collections/${collectionName}`
       )
     );
   }
