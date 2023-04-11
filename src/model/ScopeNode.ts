@@ -17,8 +17,8 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
-import CollectionNode from "./CollectionNode";
-import { ScopeItems } from "./ScopeItems";
+import { IndexDirectory } from "./IndexDirectory";
+import { CollectionDirectory } from "./CollectionDirectory";
 
 export class ScopeNode implements INode {
   constructor(
@@ -28,7 +28,7 @@ export class ScopeNode implements INode {
     public readonly bucketName: string,
     public readonly collections: any[],
     public readonly collapsibleState: vscode.TreeItemCollapsibleState
-  ) {}
+  ) { }
 
   public getTreeItem(): vscode.TreeItem {
     return {
@@ -55,26 +55,24 @@ export class ScopeNode implements INode {
   }
 
   public async getChildren(): Promise<INode[]> {
-    let scopeItem: ScopeItems[] = [];
-    const indexItem = new ScopeItems(
+    let scopeItem: any[] = [];
+    const indexItem = new IndexDirectory(
       this,
       this.connection,
       "Indexes",
       this.bucketName,
       this.scopeName,
       [],
-      [],
       vscode.TreeItemCollapsibleState.None
     );
 
-    const collectionItem = new ScopeItems(
+    const collectionItem = new CollectionDirectory(
       this,
       this.connection,
       "Collections",
       this.bucketName,
       this.scopeName,
       this.collections,
-      [],
       vscode.TreeItemCollapsibleState.None
     );
     scopeItem.push(indexItem);

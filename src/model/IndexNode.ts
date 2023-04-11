@@ -15,10 +15,8 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { abbreviateCount } from "../util/common";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
-import { QueryIndex } from "couchbase";
 
 export default class IndexNode extends vscode.TreeItem {
     constructor(
