@@ -81,6 +81,7 @@
     "onCommand:vscode-couchbase.getDocumentMetaData",
     "onCommand:vscode-couchbase.openQueryNotebook",
     "onCommand:vscode-couchbase.openQueryWorkbench",
+    "onCommand:vscode-couchbase.refreshIndexes",
     "onNotebook:vscode-couchbase.couchbase-query-notebook",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
@@ -441,6 +442,11 @@
         "command": "vscode-couchbase.refreshCollections",
         "title": "Refresh Collections",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.refreshIndexes",
+        "title": "Refresh Indexes",
+        "category": "Couchbase"
       }
     ],
     "menus": {
@@ -511,6 +517,10 @@
         },
         {
           "command": "vscode-couchbase.searchDocument",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.refreshIndexes",
           "when": "false"
         }
       ],
@@ -596,6 +606,10 @@
         {
           "command": "vscode-couchbase.refreshCollections",
           "when": "view == couchbase && viewItem == collectionDirectory"
+        },
+        {
+          "command": "vscode-couchbase.refreshIndexes",
+          "when": "view == couchbase && viewItem == indexDirectory"
         }
       ],
       "view/title": [
