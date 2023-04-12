@@ -43,6 +43,7 @@ import { getQueryWorkbench } from "./webViews/workbench.webview";
 import IndexNode from "./model/IndexNode";
 import { Logger } from "./util/logger";
 import { CollectionDirectory } from "./model/CollectionDirectory";
+import { IndexDirectory } from "./model/IndexDirectory";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -749,6 +750,20 @@ export function activate(context: vscode.ExtensionContext) {
             );
           }
         }
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.refreshIndexes",
+      async (node: IndexDirectory) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+
+        clusterConnectionTreeProvider.refresh(node);
       }
     )
   );
