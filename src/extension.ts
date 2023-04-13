@@ -91,16 +91,17 @@ export function activate(context: vscode.ExtensionContext) {
     return "";
   };
 
-  const extractDocumentInfo = async (documentPath: string): Promise<IDocumentData> => {
+  const extractDocumentInfo = (documentPath: string): IDocumentData => {
     // Extract the parts of the document path
-    const pathParts = documentPath.substring(1).split("/");
-    const documentInfo = {
-      bucket: pathParts[0],
-      scope: pathParts[1],
-      collection: pathParts[3],
-      name: pathParts[4].substring(0, pathParts[4].indexOf(".json"))
+    //  which looks similar to /bucket-name/scope-name/folder-name/collection-name/document-name.json.
+    const [bucket, scope, directory, collection, name] = documentPath.substring(1).split("/");
+
+    return {
+      bucket,
+      scope,
+      collection,
+      name: name.substring(0, name.indexOf(".json"))
     };
-    return documentInfo;
   };
 
   /**
@@ -176,7 +177,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (!activeConnection) {
           return;
         }
-        const documentInfo: IDocumentData = await extractDocumentInfo(editor.document.uri.path);
+        const documentInfo: IDocumentData = extractDocumentInfo(editor.document.uri.path);
         try {
           const remoteDocument = await getDocument(activeConnection, documentInfo);
           if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(editor.document.uri.toString())) {
