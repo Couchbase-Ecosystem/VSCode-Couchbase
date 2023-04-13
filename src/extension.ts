@@ -180,7 +180,7 @@ export function activate(context: vscode.ExtensionContext) {
         const documentInfo: IDocumentData = extractDocumentInfo(editor.document.uri.path);
         try {
           const remoteDocument = await getDocument(activeConnection, documentInfo);
-          if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(editor.document.uri.toString())) {
+          if (remoteDocument && uriToCasMap.get(editor.document.uri.toString()) && remoteDocument.cas.toString() !== uriToCasMap.get(editor.document.uri.toString())) {
             handleActiveEditorConflict(editor.document, remoteDocument);
           }
         }
