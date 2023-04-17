@@ -92,14 +92,16 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
   currentPanel.webview.onDidReceiveMessage(async (message: any) => {
     switch (message.command) {
       case 'submit':
-        let url;
+        const url = message.isSecure ? (Constants.prefixSecureURL + message.url) : (Constants.prefixURL + message.url);
         try {
-          if (message.isSecure) {
-            url = Constants.prefixSecureURL + message.url;
-          } else {
-            url = Constants.prefixURL + message.url;
-          }
-          await Cluster.connect(url, { username: message.username, password: message.password, configProfile: 'wanDevelopment' });
+          await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: 'Checking connection...',
+            cancellable: true
+          }, async () => {
+            await Cluster.connect(url, { username: message.username, password: message.password, configProfile: 'wanDevelopment' });
+          });
+
         } catch (err) {
           handleConnectionError(err);
           currentPanel.dispose();
