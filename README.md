@@ -46,6 +46,7 @@ Click on the bucket to see the list of Scopes associated with that bucket. Open 
 
 ### Interact with Collections and Indexes
 Click on Scope to list Collections and Indexes. Open context menu on Collection directory to create a new Collection or to refresh Collections.
+
 <img src="gifs/InteractWithCollectionIndexes.gif" height="80%" width="80%" alt="Interact with Collections and Indexes" />
 
 
