@@ -63,10 +63,14 @@ export class IndexDirectory implements INode {
             },
         };
     }
-
+    /*
+    * Get Index Definition either in JSON format when connected to capella
+    * or in Query format when connected to local
+    */
     public async getChildren(): Promise<INode[]> {
         let indexesList: INode[] = [];
         let result;
+        // Check if the connection is capella, if it does, use the Couchbase SDK to query indexes from the database.
         if (this.connection.url.endsWith(Constants.capellaUrlPostfix)) {
             try {
                 result = await this.connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
@@ -90,6 +94,7 @@ export class IndexDirectory implements INode {
                 console.log("Error: Could not load Indexes", err);
             }
         }
+        // If the connection is local, use http call to request index status
         else {
             try {
                 const password = await keytar.getPassword(Constants.extensionID, getConnectionId(this.connection));

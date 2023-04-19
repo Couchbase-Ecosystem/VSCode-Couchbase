@@ -32,6 +32,9 @@ export default class IndexNode extends vscode.TreeItem {
         this.tooltip = `${this.indexName}`;
         this.description = this.indexName;
     }
+    /**
+    * Returns a `TreeItem` representing an index Definition or JSON object containing information about Index
+    */
     public async getTreeItem(): Promise<vscode.TreeItem> {
         return {
             label: `${this.indexName}`,

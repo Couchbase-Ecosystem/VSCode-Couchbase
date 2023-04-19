@@ -53,9 +53,12 @@ export class ScopeNode implements INode {
       },
     };
   }
-
+  /**
+   * @returns Two Directory one contains Index definitions and other contains Collections
+   * */
   public async getChildren(): Promise<INode[]> {
-    let scopeItem: any[] = [];
+    const scopeItem: any[] = []; // Declare scope Item which contains two directories
+    // Index directory to contains list of indexes
     const indexItem = new IndexDirectory(
       this,
       this.connection,
@@ -65,7 +68,7 @@ export class ScopeNode implements INode {
       [],
       vscode.TreeItemCollapsibleState.None
     );
-
+    // Collection Directory to contains Collections
     const collectionItem = new CollectionDirectory(
       this,
       this.connection,
