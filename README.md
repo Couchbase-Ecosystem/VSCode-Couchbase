@@ -19,65 +19,51 @@ For Red Hat, CentOS or Fedora-based distros:
 For Mac:
 - Run `brew install openssl` using Homebrew, or download the latest version of OpenSSL from https://www.openssl.org/source/ and follow the installation instructions.
 
+If you face problem with installation check Trouble Shoot Guidelines
+
 > :warning:  **WARNING**:  DO NOT upgrade cmake-js to 7.x or it will break Windows builds. Please use 6.x instead. 
 
-## Contributions & Community
+# Quick Tour
 
-*This is not an officially supported Couchbase project, however we welcome contributions from the community via GitHub features such as the Issues tab.*
+### Add Cluster Connection
+To connect to a Couchbase Cluster, follow these steps:
+1. Click on the "Add" icon.
+2. Complete all the required fields with the necessary details.
+3. Check "Use Secure Connection" if you are connecting to Capella.
+4. Finally, click on the "Connect" button to establish a connection to the cluster.
 
-*You are also welcome to post on [our forum](https://forums.couchbase.com/c/php-sdk) or join our [Discord](https://discord.com/invite/sQ5qbPZuTh) server.*
+<img src="gifs/AddConnection.gif" height="80%" width="80%" alt="Add Connection to Cluster" />
 
-Please visit our [CONTRIBUTING.md](CONTRIBUTING.md) for information on contributing to this project.
+### Connect, Disconnect or Delete a Cluster Connection
+Right-click on the connection to open the context menu. From the context menu, you will be able to choose between options to Connect, Disconnect or Delete the Cluster.
 
+<img src="gifs/Connection.gif" height="80%" width="80%" alt="Connect/Disconnect to Cluster" />
 
-## Features
+### Interact with Buckets and Scopes
+Click on the bucket to see the list of Scopes associated with that bucket. Open the context menu on bucket to undertake actions such as creating a new Scope, refreshing existing Scopes, or obtaining administrative information about the Bucket.
 
-This Visual Studio Code extension has two features.
+<img src="gifs/InteractWithBuckets.gif" height="80%" width="80%" alt="Interact with Buckets and Scopes" />
 
-1. A Database Browser
+### Interact with Collections and Indexes
+Click on Scope to list Collections and Indexes. Open context menu on Collection directory to create a new Collection or to refresh Collections.
 
-2. Snippets 
-
-## Database Browser
-
-The purpose of this extension is to offer an uninterrupted and smooth experience for those who use Couchbase database and prefer using the widely-used Visual Studio Code editor.
-
-This feature is giving the user freedom to work with couchbase cluster in Visual Studio.
-
-It also allow you to create SQL++ Query Notebook which helps in composing and documenting SQL++ queries easily. 
-
-## Snippets
-
-These are useful when developing with supported Couchbase SDKs. These are: 
- * Java - [Link to Documentation](https://docs.couchbase.com/java-sdk/current/hello-world/overview.html), 
- * .NET - [Link to Documentation](https://docs.couchbase.com/dotnet-sdk/current/hello-world/overview.html), 
- * Node.js/Typescript - [Link to Documentation](https://docs.couchbase.com/nodejs-sdk/current/hello-world/overview.html), 
- * Python - [Link to Documentation](https://docs.couchbase.com/python-sdk/current/hello-world/overview.html),
- * Go - [Link to Documentation](https://docs.couchbase.com/go-sdk/current/hello-world/overview.html).
- * Ottoman - [Link to Documentation](https://ottomanjs.com/guides/quick-start.html).
-
-Please visit [SNIPPETS.md](SNIPPETS.md) to see a list of our snippets with descriptions and documentation for each of them.
-
-### Authoring Snippets
-
-For more information about creating snippets for a new language, or editing the current snippets, please see [AUTHORING-SNIPPETS.md](AUTHORING-SNIPPETS.md) 
+<img src="gifs/InteractWithCollectionIndexes.gif" height="80%" width="80%" alt="Interact with Collections and Indexes" />
 
 
-## How to Install from GitHub
+### Interact wiht Documents
+1. Click on the desired Collection to list all the documents that have been stored within it.
+2. To open a specific document, click on it to view its details and make any necessary changes.
+3. If you need to create a new document or search for an existing one, you can open the context menu by right-clicking on the Collection directory.
+4. Once you have made any necessary changes to a document, you can save it using the "Ctrl + S" or "Cmd + S" shortcut keys.
 
-Please visit the [releases tab](https://github.com/couchbaselabs/VSCode-Couchbase/releases) and download the most recent release. Once you've downloaded that:
+<img src="gifs/InteractWithDocuments.gif" height="80%" width="80%" alt="Interact with Documents" />
 
-1. In Visual Studio Code navigate to the extensions tab, and click 'install from vsix',
-2. Select the vsix file that you just downloaded.
+### Open SQL++ Notebook
+1. Simply right-click on the Cluster and select the "New SQL++ Notebook" option from the context menu.
+2. Once you have opened the notebook, you will be presented with a powerful text editor that allows you to craft your SQL++ queries with ease.
+3. And once you have completed your work, you can save the notebook to your local machine for future reference.
 
-If you would like to package it yourself here, download the source code and run the following commands:
-
-1. `npm install -g vsce`,
-2. `vsce package`,
-3. In Visual Studio Code navigate to the extensions tab, and click 'install from vsix',
-4. Select the vsix file that you generated in step 2. 
-
-Feel free to read our [GETTING-STARTED.md](GETTING-STARTED.md) for more information.
+<img src="gifs/QueryNotebook.gif" height="80%" width="80%" alt="Interact with Documents" />
 
 ## License
 Apache Software License Version 2.  See individual files for details.
