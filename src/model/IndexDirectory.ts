@@ -73,10 +73,11 @@ export class IndexDirectory implements INode {
         // Check if the connection is capella, if it does, use the Couchbase SDK to query indexes from the database.
         if (this.connection.url.endsWith(Constants.capellaUrlPostfix)) {
             try {
+                //TODO: Change it to not include IndexNode with undefined scope once the issues with undefined scope and collections fixed
                 result = await this.connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
                 if (result === undefined) { return []; }
                 for (const query of result) {
-                    if (query.scopeName === this.scopeName) {
+                    if (query.scopeName === this.scopeName || this.scopeName === "_default") {
                         const indexNode = new IndexNode(
                             this,
                             this.connection,
