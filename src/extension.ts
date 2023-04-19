@@ -40,7 +40,11 @@ import { QueryKernel } from "./notebook/controller";
 import { Constants } from "./util/constants";
 import { createNotebook } from "./notebook/notebook";
 import { getQueryWorkbench } from "./webViews/workbench.webview";
+import IndexNode from "./model/IndexNode";
 import { Logger } from "./util/logger";
+import { CollectionDirectory } from "./model/CollectionDirectory";
+import { IndexDirectory } from "./model/IndexDirectory";
+import { extractDocumentInfo } from "./util/common";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -88,18 +92,6 @@ export function activate(context: vscode.ExtensionContext) {
     return "";
   };
 
-  const extractDocumentInfo = async (documentPath: string): Promise<IDocumentData> => {
-    // Extract the parts of the document path
-    const pathParts = documentPath.substring(1).split("/");
-    const documentInfo = {
-      bucket: pathParts[0],
-      scope: pathParts[1],
-      collection: pathParts[2],
-      name: pathParts[3].substring(0, pathParts[3].indexOf(".json"))
-    };
-    return documentInfo;
-  };
-
   /**
  * handleActiveEditorConflict function handles conflicts between the local version of an open document in Visual Studio Code
  * and the server version of the same document. A modal dialog is displayed asking the user to load the server version or keep
@@ -136,7 +128,12 @@ export function activate(context: vscode.ExtensionContext) {
  * @param activeConnection The active connection object
  * @param documentInfo The information about the document being saved
  */
-  const handleSaveTextDocumentConflict = async (remoteDocument: any, document: vscode.TextDocument, activeConnection: IConnection, documentInfo: IDocumentData) => {
+  const handleSaveTextDocumentConflict = async (
+    remoteDocument: any,
+    document: vscode.TextDocument,
+    activeConnection: IConnection,
+    documentInfo: IDocumentData
+  ) => {
     const answer = await vscode.window.showWarningMessage(
       "Conflict Alert: There is a conflict while trying to save this document, as it was also changed in the server. Would you like to load the server version or overwrite the remote version with your changes?",
       { modal: true },
@@ -150,9 +147,12 @@ export function activate(context: vscode.ExtensionContext) {
         { create: true, overwrite: true }
       );
       uriToCasMap.set(document.uri.toString(), remoteDocument.cas.toString());
-    }
-    else if (answer === "Overwrite Server Version with Local Changes") {
-      const cas = await updateDocumentToServer(activeConnection, documentInfo, document);
+    } else if (answer === "Overwrite Server Version with Local Changes") {
+      const cas = await updateDocumentToServer(
+        activeConnection,
+        documentInfo,
+        document
+      );
       if (cas !== "") {
         vscode.window.setStatusBarMessage("Document saved", 2000);
         uriToCasMap.set(document.uri.toString(), cas);
@@ -173,14 +173,26 @@ export function activate(context: vscode.ExtensionContext) {
         if (!activeConnection) {
           return;
         }
-        const documentInfo: IDocumentData = await extractDocumentInfo(editor.document.uri.path);
+        const documentInfo: IDocumentData = extractDocumentInfo(
+          editor.document.uri.path
+        );
         try {
-          const remoteDocument = await getDocument(activeConnection, documentInfo);
-          if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(editor.document.uri.toString())) {
+          const remoteDocument = await getDocument(
+            activeConnection,
+            documentInfo
+          );
+          // The condition below is checking whether the remoteDocument object exists and whether there is
+          // a Cas value associated with the URI. Furthermore, it's verifying whether the Cas value
+          // in the remoteDocument has been modified since the last time it was saved.
+          if (
+            remoteDocument &&
+            uriToCasMap.get(editor.document.uri.toString()) &&
+            remoteDocument.cas.toString() !==
+            uriToCasMap.get(editor.document.uri.toString())
+          ) {
             handleActiveEditorConflict(editor.document, remoteDocument);
           }
-        }
-        catch (err) {
+        } catch (err) {
           if (err instanceof DocumentNotFoundError) {
             return;
           }
@@ -210,7 +222,6 @@ export function activate(context: vscode.ExtensionContext) {
             if (!(err instanceof DocumentNotFoundError)) {
               return;
             }
-            console.log(err);
           }
           if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
             handleSaveTextDocumentConflict(remoteDocument, document, activeConnection, documentInfo);
@@ -310,7 +321,7 @@ export function activate(context: vscode.ExtensionContext) {
             .collection(documentNode.collectionName)
             .get(documentNode.documentName);
           const uri = vscode.Uri.parse(
-            `couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/${documentNode.collectionName}/${documentNode.documentName}.json`
+            `couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/Collections/${documentNode.collectionName}/${documentNode.documentName}.json`
           );
           if (result) {
             uriToCasMap.set(uri.toString(), result.cas.toString());
@@ -318,6 +329,29 @@ export function activate(context: vscode.ExtensionContext) {
           memFs.writeFile(
             uri,
             Buffer.from(JSON.stringify(result?.content, null, 2)),
+            { create: true, overwrite: true }
+          );
+          const document = await vscode.workspace.openTextDocument(uri);
+          await vscode.window.showTextDocument(document, { preview: false });
+          return true;
+        } catch (err: any) {
+          console.log(err);
+        }
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.openIndexInfo",
+      async (indexNode: IndexNode) => {
+        try {
+          const uri = vscode.Uri.parse(
+            `couchbase:/${indexNode.bucketName}/${indexNode.scopeName}/Indexes/${indexNode.indexName}.n1ql`
+          );
+          memFs.writeFile(
+            uri,
+            Buffer.from(indexNode.data),
             { create: true, overwrite: true }
           );
           const document = await vscode.workspace.openTextDocument(uri);
@@ -362,7 +396,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         const uri = vscode.Uri.parse(
-          `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
+          `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${documentName}.json`
         );
         let documentContent = Buffer.from("{}");
         // Try block is trying to retrieve the document with the same key first
@@ -419,7 +453,7 @@ export function activate(context: vscode.ExtensionContext) {
           .remove(node.documentName);
 
         const uri = vscode.Uri.parse(
-          `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${node.documentName}.json`
+          `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${node.documentName}.json`
         );
         memFs.delete(uri);
 
@@ -511,7 +545,7 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.createCollection",
-      async (node: ScopeNode) => {
+      async (node: CollectionDirectory) => {
         const connection = Memory.state.get<IConnection>("activeConnection");
         if (!connection) {
           return;
@@ -536,8 +570,7 @@ export function activate(context: vscode.ExtensionContext) {
           scopeName: node.scopeName,
         });
 
-        clusterConnectionTreeProvider.refresh(node);
-        clusterConnectionTreeProvider.refresh(node.parentNode);
+        clusterConnectionTreeProvider.refresh();
       }
     )
   );
@@ -702,7 +735,7 @@ export function activate(context: vscode.ExtensionContext) {
           };
           const result = await getDocument(connection, documentInfo);
           const uri = vscode.Uri.parse(
-            `couchbase:/${node.bucketName}/${node.scopeName}/${node.collectionName}/${documentName}.json`
+            `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${documentName}.json`
           );
           memFs.writeFile(
             uri,
@@ -726,6 +759,20 @@ export function activate(context: vscode.ExtensionContext) {
             );
           }
         }
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.refreshIndexes",
+      async (node: IndexDirectory) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+        if (!connection) {
+          return;
+        }
+
+        clusterConnectionTreeProvider.refresh(node);
       }
     )
   );

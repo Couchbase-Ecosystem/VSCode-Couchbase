@@ -17,7 +17,8 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
-import CollectionNode from "./CollectionNode";
+import { IndexDirectory } from "./IndexDirectory";
+import { CollectionDirectory } from "./CollectionDirectory";
 
 export class ScopeNode implements INode {
   constructor(
@@ -27,7 +28,7 @@ export class ScopeNode implements INode {
     public readonly bucketName: string,
     public readonly collections: any[],
     public readonly collapsibleState: vscode.TreeItemCollapsibleState
-  ) {}
+  ) { }
 
   public getTreeItem(): vscode.TreeItem {
     return {
@@ -52,32 +53,33 @@ export class ScopeNode implements INode {
       },
     };
   }
-
+  /**
+   * @returns Two Directory one contains Index definitions and other contains Collections
+   * */
   public async getChildren(): Promise<INode[]> {
-    let collectionList: CollectionNode[] = [];
-
-    for (const collection of this.collections) {
-      try {
-        const queryResult = await this.connection.cluster?.query(
-          `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\`;`
-        );
-        const count = queryResult?.rows[0].count;
-
-        const collectionTreeItem = new CollectionNode(
-          this,
-          this.connection,
-          this.scopeName,
-          count,
-          this.bucketName,
-          collection.name,
-          vscode.TreeItemCollapsibleState.None
-        );
-        collectionList.push(collectionTreeItem);
-      } catch (err: any) {
-        console.log(err);
-        throw new Error(err);
-      }
-    }
-    return collectionList;
+    const scopeItem: any[] = []; // Declare scope Item which contains two directories
+    // Index directory to contains list of indexes
+    const indexItem = new IndexDirectory(
+      this,
+      this.connection,
+      "Indexes",
+      this.bucketName,
+      this.scopeName,
+      [],
+      vscode.TreeItemCollapsibleState.None
+    );
+    // Collection Directory to contains Collections
+    const collectionItem = new CollectionDirectory(
+      this,
+      this.connection,
+      "Collections",
+      this.bucketName,
+      this.scopeName,
+      this.collections,
+      vscode.TreeItemCollapsibleState.None
+    );
+    scopeItem.push(indexItem);
+    scopeItem.push(collectionItem);
+    return scopeItem;
   }
 }

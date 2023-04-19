@@ -19,6 +19,7 @@ import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 import DocumentNode from "./DocumentNode";
 import { PagerNode } from "./PagerNode";
+import { abbreviateCount } from "../util/common";
 import { PlanningFailureError } from "couchbase";
 
 export default class CollectionNode implements INode {
@@ -34,26 +35,14 @@ export default class CollectionNode implements INode {
   ) {
     vscode.workspace.fs.createDirectory(
       vscode.Uri.parse(
-        `couchbase:/${bucketName}/${scopeName}/${collectionName}`
+        `couchbase:/${bucketName}/${scopeName}/Collections/${collectionName}`
       )
     );
   }
 
-  public abbreviateCount(count: number): string {
-    if (count < 1000) {
-      return count.toString();
-    } else if (count < 1000000) {
-      return (count / 1000).toFixed(1) + "k";
-    } else if (count < 1000000000) {
-      return (count / 1000000).toFixed(1) + "m";
-    } else {
-      return (count / 1000000000).toFixed(1) + "b";
-    }
-  }
-
   public async getTreeItem(): Promise<vscode.TreeItem> {
     return {
-      label: `${this.collectionName} (${this.abbreviateCount(
+      label: `${this.collectionName} (${abbreviateCount(
         this.documentCount
       )})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
@@ -64,14 +53,14 @@ export default class CollectionNode implements INode {
           "..",
           "..",
           "images/light",
-          "collection-icon.svg"
+          "documents-icon.svg"
         ),
         dark: path.join(
           __filename,
           "..",
           "..",
           "images/dark",
-          "collection-icon.svg"
+          "documents-icon.svg"
         ),
       },
     };
