@@ -22,6 +22,7 @@ import IndexNode from "./IndexNode";
 import axios from "axios";
 import { Constants } from "../util/constants";
 import { getConnectionId } from "../util/connections";
+import InformationNode from "./InformationNode";
 
 export class IndexDirectory implements INode {
     constructor(
@@ -123,6 +124,9 @@ export class IndexDirectory implements INode {
             } catch (error) {
                 console.log(error);
             };
+        }
+        if (indexesList.length === 0) {
+            indexesList.push(new InformationNode("No Indexes found"));
         }
         return indexesList;
     };

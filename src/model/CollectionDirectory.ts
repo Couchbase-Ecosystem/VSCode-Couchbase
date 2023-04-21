@@ -18,6 +18,7 @@ import * as path from "path";
 import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 import CollectionNode from "./CollectionNode";
+import InformationNode from "./InformationNode";
 
 export class CollectionDirectory implements INode {
     constructor(
@@ -61,7 +62,7 @@ export class CollectionDirectory implements INode {
     }
 
     public async getChildren(): Promise<INode[]> {
-        let collectionList: CollectionNode[] = [];
+        let collectionList: INode[] = [];
         for (const collection of this.collections) {
             try {
                 const queryResult = await this.connection.cluster?.query(
@@ -83,6 +84,9 @@ export class CollectionDirectory implements INode {
                 console.log(err);
                 throw new Error(err);
             }
+        }
+        if(collectionList.length === 0) {
+            collectionList.push(new InformationNode("No Collections found"));
         }
         return collectionList;
     };

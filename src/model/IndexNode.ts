@@ -38,7 +38,7 @@ export default class IndexNode extends vscode.TreeItem {
     public async getTreeItem(): Promise<vscode.TreeItem> {
         return {
             label: `${this.indexName}`,
-            collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+            collapsibleState: vscode.TreeItemCollapsibleState.None,
             contextValue: "index",
             command: {
                 command: "vscode-couchbase.openIndexInfo",
