@@ -108,13 +108,10 @@ export default class CollectionNode implements INode {
       );
       documentList.push(documentTreeItem);
     });
-    if(documentList.length === 0)
-    {
-      documentList.push(new InformationNode("No Documents found"));
-    }
     // TODO: add local only (un-synchronized) files to documentList
-
-    if (this.documentCount !== documentList.length) {
+    if (documentList.length === 0) {
+      documentList.push(new InformationNode("No Documents found"));
+    } else if (this.documentCount !== documentList.length) {
       documentList.push(new PagerNode(this));
     }
     return documentList;
