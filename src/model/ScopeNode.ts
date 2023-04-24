@@ -34,7 +34,7 @@ export class ScopeNode implements INode {
     return {
       label: `${this.scopeName}`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      contextValue: "scope",
+      contextValue: this.scopeName === "_default" ? "default_scope" : "scope",
       iconPath: {
         light: path.join(
           __filename,
