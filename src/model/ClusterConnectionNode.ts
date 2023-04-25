@@ -21,6 +21,7 @@ import { INode } from "./INode";
 import { BucketNode } from "./BucketNode";
 import { BucketSettings } from "couchbase";
 import { getActiveConnection } from "../util/connections";
+import InformationNode from "./InformationNode";
 
 export class ClusterConnectionNode implements INode {
   constructor(
@@ -69,7 +70,10 @@ export class ClusterConnectionNode implements INode {
       console.log(err);
       throw new Error(err);
     }
-
+    if(nodes.length === 0)
+    {
+      nodes.push(new InformationNode("No buckets found"));
+    }
     return nodes;
   }
 }

@@ -15,54 +15,35 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 
-export default class IndexNode extends vscode.TreeItem {
-    constructor(
-        public readonly parentNode: INode,
-        public readonly connection: IConnection,
-        public readonly scopeName: string,
-        public readonly bucketName: string,
-        public readonly indexName: string,
-        public readonly data: any,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState
-    ) {
-        super(indexName, collapsibleState);
-        this.tooltip = `${this.indexName}`;
-        this.description = this.indexName;
-    }
-    /**
-    * Returns a `TreeItem` representing an index Definition or JSON object containing information about Index
-    */
+export default class InformationNode implements INode {
+    constructor(public readonly message: string) { }
+
     public async getTreeItem(): Promise<vscode.TreeItem> {
         return {
-            label: `${this.indexName}`,
+            label: `${this.message}`,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
-            contextValue: "index",
-            command: {
-                command: "vscode-couchbase.openIndexInfo",
-                title: "Open Index Info",
-                arguments: [this],
-            },
+            contextValue: "info-icon",
             iconPath: {
                 light: path.join(
                     __filename,
                     "..",
                     "..",
                     "images/light",
-                    "index-icon.svg"
+                    "info-icon.svg"
                 ),
                 dark: path.join(
                     __filename,
                     "..",
                     "..",
                     "images/dark",
-                    "index-icon.svg"
+                    "info-icon.svg"
                 ),
             },
         };
     }
+
     public async getChildren(): Promise<INode[]> {
         return [];
     }

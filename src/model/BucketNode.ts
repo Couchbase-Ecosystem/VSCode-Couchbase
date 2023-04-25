@@ -19,6 +19,7 @@ import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 import { ScopeNode } from "./ScopeNode";
 import { ScopeSpec } from "couchbase";
+import InformationNode from "./InformationNode";
 
 export class BucketNode implements INode {
   constructor(
@@ -27,7 +28,7 @@ export class BucketNode implements INode {
     public readonly bucketName: string,
     public readonly isScopesandCollections: boolean,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState
-  ) {}
+  ) { }
 
   public getTreeItem(): vscode.TreeItem {
     return {
@@ -77,6 +78,9 @@ export class BucketNode implements INode {
         console.log(err);
         throw new Error(err);
       }
+    }
+    if (nodes.length === 0) {
+      nodes.push(new InformationNode("No scopes found"));
     }
 
     // TODO: support non scope/collection docs?

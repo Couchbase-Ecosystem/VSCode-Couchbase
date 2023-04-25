@@ -21,6 +21,7 @@ import DocumentNode from "./DocumentNode";
 import { PagerNode } from "./PagerNode";
 import { abbreviateCount } from "../util/common";
 import { PlanningFailureError } from "couchbase";
+import InformationNode from "./InformationNode";
 
 export default class CollectionNode implements INode {
   constructor(
@@ -107,10 +108,10 @@ export default class CollectionNode implements INode {
       );
       documentList.push(documentTreeItem);
     });
-
     // TODO: add local only (un-synchronized) files to documentList
-
-    if (this.documentCount !== documentList.length) {
+    if (documentList.length === 0) {
+      documentList.push(new InformationNode("No Documents found"));
+    } else if (this.documentCount !== documentList.length) {
       documentList.push(new PagerNode(this));
     }
     return documentList;
