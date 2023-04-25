@@ -495,6 +495,10 @@ export function activate(context: vscode.ExtensionContext) {
           vscode.window.showErrorMessage("Scope name is required.");
           return;
         }
+        if (scopeName.startsWith('_' || scopeName.startsWith('%'))) {
+          vscode.window.showErrorMessage(`Scope names cannot start with ${scopeName[0]}`);
+          return;
+        }
 
         const collectionManager = await node.connection.cluster
           ?.bucket(node.bucketName)
@@ -559,6 +563,10 @@ export function activate(context: vscode.ExtensionContext) {
         });
         if (!collectionName) {
           vscode.window.showErrorMessage("Collection name is required.");
+          return;
+        }
+        if (collectionName.startsWith('%') || collectionName.startsWith('_')) {
+          vscode.window.showErrorMessage(`Collection names cannot start with ${collectionName[0]}`);
           return;
         }
 
