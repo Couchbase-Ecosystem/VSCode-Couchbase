@@ -46,7 +46,7 @@ export default class CollectionNode implements INode {
         this.documentCount
       )})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      contextValue: "collection",
+      contextValue: this.collectionName === '_default' ? "default_collection" : "collection",
       iconPath: {
         light: path.join(
           __filename,

@@ -554,12 +554,12 @@
         },
         {
           "command": "vscode-couchbase.createDocument",
-          "when": "view == couchbase && viewItem == collection",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
           "group": "primary"
         },
         {
           "command": "vscode-couchbase.searchDocument",
-          "when": "view == couchbase && viewItem == collection",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
           "group": "primary"
         },
         {
@@ -572,7 +572,7 @@
         },
         {
           "command": "vscode-couchbase.refreshCollection",
-          "when": "view == couchbase && viewItem == collection",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
           "group": "secondary"
         },
         {
