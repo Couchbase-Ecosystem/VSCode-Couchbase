@@ -17,9 +17,12 @@ For Red Hat, CentOS or Fedora-based distros:
 -  Run `sudo dnf install openssl` (on newer Fedora versions), OR `sudo yum install openssl` (on older Fedora/Red Hat/CentOS versions)
 
 For Mac:
-- Run `brew install openssl` using Homebrew, or download the latest version of OpenSSL from https://www.openssl.org/source/ and follow the installation instructions.
+- For an Apple device with an M1 chip, you should install OpenSSL version 3 or higher. On the other hand, if your Mac has an Intel (x64) chip, then you should install OpenSSL version 1.1.
+- Run `brew install openssl` using Homebrew if your Mac has M1 chip and use `brew install openssl@1.1` if your Mac has an Intel (x64), or download the latest version of OpenSSL from https://www.openssl.org/source/ and follow the installation instructions.
 
-If you face problem with installation check Trouble Shoot Guidelines
+In case you encounter any issues during the installation process, we have provided detailed [Troubleshooting Guidelines](https://docs.google.com/document/d/132jKt2YFGjhzIM0yMUi3l5VjC3FQ-rL5-xUiTRLYKds/edit?usp=sharing) to help you resolve the issues. 
+
+To install Couchbase Server, please follow the steps mentioned in [this guide](https://docs.couchbase.com/server/current/install/install-intro.html).
 
 > :warning:  **WARNING**:  DO NOT upgrade cmake-js to 7.x or it will break Windows builds. Please use 6.x instead. 
 
