@@ -113,13 +113,13 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         const connections = getConnections();
         const connectionId = getConnectionId(connection);
         if (connections && connections[connectionId]) {
-          const answer = await vscode.window.showInformationMessage(`A connection to this cluser has already been established with the name '${connections[connectionId].connectionIdentifier}'.\n Would you like to replace it with a new connection named  '${connection.connectionIdentifier}'`, { modal: true }, "Replace", "Connect to Existing");
+          const answer = await vscode.window.showInformationMessage(`A connection name '${connections[connectionId].connectionIdentifier}' already exist with the same user & server.\n To proceed, either delete the existing connection & try again or continue to the existing connection.`, { modal: true }, "Connect to Existing");
           if (answer === "Connect to Existing") {
             await useConnection(connections[connectionId]);
             clusterConnectionTreeProvider.refresh();
             currentPanel.dispose();
             break;
-          } else if (answer !== "Replace") {
+          } else {
             currentPanel.dispose();
             addConnection(clusterConnectionTreeProvider, message);
             break;
@@ -134,7 +134,12 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         if (connectionId) {
           const connections = getConnections();
           if (connections) {
-            await useConnection(connections[connectionId]);
+            const connectionStatus = await useConnection(connections[connectionId]);
+            if (connectionStatus === false) {
+              delete connections[connectionId];
+              Global.state.update(Constants.connectionKeys, connections);
+              await keytar.deletePassword(Constants.extensionID, connectionId);
+            }
           }
         }
         clusterConnectionTreeProvider.refresh();
@@ -168,11 +173,12 @@ async function handleConnectionError(err: any) {
   }
 }
 
-export async function useConnection(connection: IConnection) {
+export async function useConnection(connection: IConnection): Promise<boolean> {
   const id = getConnectionId(connection);
+  let status = false;
   const password = await keytar.getPassword(Constants.extensionID, id);
   if (!password) {
-    return;
+    return status;
   }
   const options = {
     location: vscode.ProgressLocation.Notification,
@@ -184,12 +190,14 @@ export async function useConnection(connection: IConnection) {
       try {
         connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
         setActiveConnection(connection);
+        status = true;
         vscode.window.showInformationMessage("Connection established successfully!");
       }
       catch (err) {
         handleConnectionError(err);
       }
     });
+  return status;
 }
 
 export async function removeConnection(connection: IConnection) {
