@@ -93,22 +93,6 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
     switch (message.command) {
       case 'submit':
         const url = message.isSecure ? (Constants.prefixSecureURL + message.url) : (Constants.prefixURL + message.url);
-        try {
-          await vscode.window.withProgress({
-            location: vscode.ProgressLocation.Notification,
-            title: 'Checking connection...',
-            cancellable: true
-          }, async () => {
-            await Cluster.connect(url, { username: message.username, password: message.password, configProfile: 'wanDevelopment' });
-          });
-
-        } catch (err) {
-          handleConnectionError(err);
-          currentPanel.dispose();
-          addConnection(clusterConnectionTreeProvider, message);
-          break;
-        }
-
         const connection: IConnection = { url, username: message.username, password: message.password, connectionIdentifier: message.connectionIdentifier };
         const connections = getConnections();
         const connectionId = getConnectionId(connection);
