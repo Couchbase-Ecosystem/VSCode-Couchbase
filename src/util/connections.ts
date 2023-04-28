@@ -98,6 +98,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         const connectionId = getConnectionId(connection);
         if (connections && connections[connectionId]) {
           const answer = await vscode.window.showInformationMessage(`A connection name '${connections[connectionId].connectionIdentifier}' already exist with the same user & server.\n To proceed, either delete the existing connection & try again or continue to the existing connection.`, { modal: true }, "Connect to Existing");
+          // If the user chooses the "Connect to Existing" option, use the existing connection, refresh the UI and close the current panel.
           if (answer === "Connect to Existing") {
             await useConnection(connections[connectionId]);
             clusterConnectionTreeProvider.refresh();
@@ -119,10 +120,14 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
           const connections = getConnections();
           if (connections) {
             const connectionStatus = await useConnection(connections[connectionId]);
+            // If the connection fails we should delete the saved cluster and show the addConnection() window again
             if (connectionStatus === false) {
               delete connections[connectionId];
               Global.state.update(Constants.connectionKeys, connections);
               await keytar.deletePassword(Constants.extensionID, connectionId);
+              currentPanel.dispose();
+              addConnection(clusterConnectionTreeProvider, message);
+              break;
             }
           }
         }
