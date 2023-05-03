@@ -206,7 +206,7 @@ export function activate(context: vscode.ExtensionContext) {
           if (err instanceof DocumentNotFoundError) {
             return;
           }
-          console.log(err);
+          logger.error(err);
         }
       }
     })
@@ -242,6 +242,7 @@ export function activate(context: vscode.ExtensionContext) {
               uriToCasMap.set(document.uri.toString(), cas);
             }
             vscode.window.setStatusBarMessage("Document saved", 2000);
+            logger.info(`Document with id ${documentInfo.name} has been updated`);
             uriToCasMap.set(document.uri.toString(), cas);
             clusterConnectionTreeProvider.refresh();
           }
@@ -283,6 +284,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         await removeConnection(node.connection);
         clusterConnectionTreeProvider.refresh();
+        logger.info(`Connection named ${node.connection.connectionIdentifier} has been deleted.`);
       }
     )
   );
@@ -316,6 +318,7 @@ export function activate(context: vscode.ExtensionContext) {
         node.connection.cluster = undefined;
         setActiveConnection();
         clusterConnectionTreeProvider.refresh(node);
+        logger.info(`Connection to ${node.connection.connectionIdentifier} has been disconnection`);
       }
     )
   );
@@ -345,7 +348,9 @@ export function activate(context: vscode.ExtensionContext) {
           await vscode.window.showTextDocument(document, { preview: false });
           return true;
         } catch (err: any) {
-          console.log(err);
+          logger.error("Failed to open Document");
+          logger.debug(err);
+          clusterConnectionTreeProvider.refresh();
         }
       }
     )
@@ -368,7 +373,8 @@ export function activate(context: vscode.ExtensionContext) {
           await vscode.window.showTextDocument(document, { preview: false });
           return true;
         } catch (err: any) {
-          console.log(err);
+          logger.error("Failed to open index information");
+          logger.debug(err);
         }
       }
     )
@@ -424,7 +430,7 @@ export function activate(context: vscode.ExtensionContext) {
           );
         } catch (err: any) {
           if (!(err instanceof DocumentNotFoundError)) {
-            console.log(err);
+            logger.error(err);
           }
         }
         memFs.writeFile(uri, documentContent, {
@@ -433,7 +439,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
         const document = await vscode.workspace.openTextDocument(uri);
         await vscode.window.showTextDocument(document, { preview: false });
-
+        logger.info(`${node.bucketName}: ${node.scopeName}: ${node.collectionName}: Successfully created the document: ${documentName}`);
         clusterConnectionTreeProvider.refresh(node);
       }
     )
@@ -465,7 +471,7 @@ export function activate(context: vscode.ExtensionContext) {
           `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${node.documentName}.json`
         );
         memFs.delete(uri);
-
+        logger.info(`${node.bucketName}: ${node.scopeName}: ${node.collectionName}: The document named ${node.documentName} has been deleted`);
         clusterConnectionTreeProvider.refresh();
       }
     )
@@ -513,7 +519,7 @@ export function activate(context: vscode.ExtensionContext) {
           ?.bucket(node.bucketName)
           .collections();
         await collectionManager?.createScope(scopeName);
-
+        logger.info(`${node.bucketName}: Successfully created the scope: ${scopeName}`);
         clusterConnectionTreeProvider.refresh(node);
       }
     )
@@ -540,7 +546,7 @@ export function activate(context: vscode.ExtensionContext) {
           ?.bucket(node.bucketName)
           .collections();
         await collectionManager?.dropScope(node.scopeName);
-
+        logger.info(`${node.bucketName}: The scope named ${node.scopeName} has been deleted`);
         clusterConnectionTreeProvider.refresh();
       }
     )
@@ -587,6 +593,7 @@ export function activate(context: vscode.ExtensionContext) {
           scopeName: node.scopeName,
         });
 
+        logger.info(`${node.bucketName}: ${node.scopeName}: Successfully created the collection: ${collectionName}`);
         clusterConnectionTreeProvider.refresh();
       }
     )
@@ -616,6 +623,7 @@ export function activate(context: vscode.ExtensionContext) {
           node.collectionName,
           node.scopeName
         );
+        logger.info(`${node.bucketName}: ${node.scopeName}: The collection named ${node.collectionName} has been deleted`);
 
         clusterConnectionTreeProvider.refresh();
       }
@@ -672,8 +680,8 @@ export function activate(context: vscode.ExtensionContext) {
             );
           }
         } catch {
-          console.log(
-            `Error: Bucket metadata retrieval failed for \`${node.bucketName}\``
+          logger.error(
+            `Bucket metadata retrieval failed for \`${node.bucketName}\``
           );
         }
       }
@@ -717,8 +725,8 @@ export function activate(context: vscode.ExtensionContext) {
             );
           }
         } catch {
-          console.log(
-            `Error: Document metadata retrieval failed for \`${node.documentName}\``
+          logger.error(
+            `Document metadata retrieval failed for '${node.documentName}'`
           );
         }
       }
@@ -765,14 +773,13 @@ export function activate(context: vscode.ExtensionContext) {
         } catch (err) {
           if (err instanceof DocumentNotFoundError) {
             vscode.window.showErrorMessage(
-              "The document with document Id " +
-              documentName +
-              " does not exist",
+              `The document with document Id ${documentName} does not exist`,
               { modal: true }
             );
+            logger.info(`The document with document Id ${documentName} does not exist`);
           } else {
-            console.log(
-              `Error: An error occured while retrieving document with document Id ${documentName}: ${err}`
+            logger.error(
+              `An error occured while retrieving document with document Id ${documentName}: ${err}`
             );
           }
         }
@@ -836,7 +843,8 @@ export function activate(context: vscode.ExtensionContext) {
             );
           }
         } catch (err) {
-          console.log(err);
+          logger.error("Failed to open Query Workbench");
+          logger.debug(err);
         }
       }
     )

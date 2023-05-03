@@ -22,6 +22,7 @@ import { BucketNode } from "./BucketNode";
 import { BucketSettings } from "couchbase";
 import { getActiveConnection } from "../util/connections";
 import InformationNode from "./InformationNode";
+import { logger } from "../Logging/logger";
 
 export class ClusterConnectionNode implements INode {
   constructor(
@@ -67,7 +68,8 @@ export class ClusterConnectionNode implements INode {
         );
       });
     } catch (err: any) {
-      console.log(err);
+      logger.error("Failed to load Buckets");
+      logger.debug(err);
       throw new Error(err);
     }
     if(nodes.length === 0)

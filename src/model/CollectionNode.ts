@@ -22,6 +22,7 @@ import { PagerNode } from "./PagerNode";
 import { abbreviateCount } from "../util/common";
 import { PlanningFailureError } from "couchbase";
 import InformationNode from "./InformationNode";
+import { logger } from "../Logging/logger";
 
 export default class CollectionNode implements INode {
   constructor(
@@ -89,6 +90,7 @@ export default class CollectionNode implements INode {
           await this.connection.cluster?.query(
             `CREATE PRIMARY INDEX ON \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` USING GSI`
           );
+          logger.info(`Created Primay Index on ${this.bucketName} ${this.scopeName} ${this.collectionName} USING GSI`);
           result = await this.connection.cluster?.query(
             `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
           );

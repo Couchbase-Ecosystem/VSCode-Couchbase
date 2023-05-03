@@ -23,6 +23,7 @@ import axios from "axios";
 import { Constants } from "../util/constants";
 import { getConnectionId } from "../util/connections";
 import InformationNode from "./InformationNode";
+import { logger } from "../Logging/logger";
 
 export class IndexDirectory implements INode {
     constructor(
@@ -93,7 +94,8 @@ export class IndexDirectory implements INode {
 
                 }
             } catch (err) {
-                console.log("Error: Could not load Indexes", err);
+                logger.error("Failed to load Indexes");
+                logger.debug(err);
             }
         }
         // If the connection is local, use http call to request index status
@@ -121,8 +123,9 @@ export class IndexDirectory implements INode {
                         }
                     }
                 }
-            } catch (error) {
-                console.log(error);
+            } catch (err) {
+                logger.error("Failed to load Indexes");
+                logger.debug(err);
             };
         }
         if (indexesList.length === 0) {

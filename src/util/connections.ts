@@ -22,6 +22,7 @@ import { IConnection } from "../model/IConnection";
 import { AuthenticationFailureError, Cluster } from "couchbase";
 import { getClusterConnectingFormView } from "../webViews/connectionScreen.webview";
 import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
+import { logger } from "../Logging/logger";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username } = connection;
@@ -185,6 +186,7 @@ export async function useConnection(connection: IConnection) {
         connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
         setActiveConnection(connection);
         vscode.window.showInformationMessage("Connection established successfully!");
+        logger.info(`Connection established successfully with ${connection.connectionIdentifier}`);
       }
       catch (err) {
         handleConnectionError(err);

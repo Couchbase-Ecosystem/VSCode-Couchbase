@@ -20,6 +20,7 @@ import { INode } from "./INode";
 import { ScopeNode } from "./ScopeNode";
 import { ScopeSpec } from "couchbase";
 import InformationNode from "./InformationNode";
+import { logger } from "../Logging/logger";
 
 export class BucketNode implements INode {
   constructor(
@@ -75,7 +76,8 @@ export class BucketNode implements INode {
           );
         });
       } catch (err: any) {
-        console.log(err);
+        logger.error("Failed to load Scopes");
+        logger.debug(err);
         throw new Error(err);
       }
     }
