@@ -13,6 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+const pkg = require('../../package.json');
 export class Constants {
   public static extensionID = "vscode-couchbase";
   public static connectionKeys = "cluster.connections";
@@ -20,4 +21,5 @@ export class Constants {
   public static capellaUrlPostfix = "cloud.couchbase.com";
   public static prefixSecureURL = "couchbases://";
   public static prefixURL = "couchbase://";
+  public static extensionVersion = pkg.version;
 }

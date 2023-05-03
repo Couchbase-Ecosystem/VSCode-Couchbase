@@ -21,6 +21,7 @@ import DocumentNode from "./model/DocumentNode";
 import { DocumentNotFoundError } from "couchbase";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
+import { logger } from "./Logging/logger";
 import { PagerNode } from "./model/PagerNode";
 import { ScopeNode } from "./model/ScopeNode";
 import { getBucketMetaData, getDocumentMetaData } from "./webViews/metaData.webview";
@@ -41,7 +42,6 @@ import { Constants } from "./util/constants";
 import { createNotebook } from "./notebook/notebook";
 import { getQueryWorkbench } from "./webViews/workbench.webview";
 import IndexNode from "./model/IndexNode";
-import { Logger } from "./util/logger";
 import { CollectionDirectory } from "./model/CollectionDirectory";
 import { IndexDirectory } from "./model/IndexDirectory";
 import { extractDocumentInfo } from "./util/common";
@@ -54,6 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
     "vscode-couchbase",
     vscode.workspace.getConfiguration("vscode-couchbase")
   );
+  logger.info(`Activating extension ${Constants.extensionID} v${Constants.extensionVersion}`);
   const uriToCasMap = new Map<string, string>();
   let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
@@ -65,11 +66,20 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Set up the global error handler
   process.on('uncaughtException', (error) => {
-    Logger.handleError(error);
+    logger.error(`Unhandled error: ${error.message}`);
   });
   process.on('unhandledRejection', (reason, promise) => {
-    Logger.handleError(reason instanceof Error ? reason : new Error(String(reason)));
+    logger.error(reason instanceof Error ? `${reason.message}` : reason);
   });
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.showOutputConsole",
+      () => {
+        logger.showOutput();
+      }
+    )
+  );
 
   const getDocument = async (activeConnection: IConnection, documentInfo: IDocumentData) => {
     return await activeConnection.cluster
@@ -368,7 +378,6 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.loadMore",
       async (node: PagerNode) => {
-        console.log("load more called");
         node.collection.limit += 10;
         clusterConnectionTreeProvider.refresh(node.collection);
       }
