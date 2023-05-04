@@ -134,6 +134,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         }
         clusterConnectionTreeProvider.refresh();
         currentPanel.dispose();
+        logger.info(`Successfully saved a new connection with the name ${connection.connectionIdentifier}`);
         break;
 
       case 'cancel':

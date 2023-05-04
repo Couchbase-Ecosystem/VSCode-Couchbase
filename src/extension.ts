@@ -679,10 +679,11 @@ export function activate(context: vscode.ExtensionContext) {
               context.subscriptions
             );
           }
-        } catch {
+        } catch(err) {
           logger.error(
             `Bucket metadata retrieval failed for \`${node.bucketName}\``
           );
+          logger.debug(err);
         }
       }
     )
@@ -724,10 +725,11 @@ export function activate(context: vscode.ExtensionContext) {
               context.subscriptions
             );
           }
-        } catch {
+        } catch(err) {
           logger.error(
             `Document metadata retrieval failed for '${node.documentName}'`
           );
+          logger.debug(err);
         }
       }
     )
@@ -779,8 +781,9 @@ export function activate(context: vscode.ExtensionContext) {
             logger.info(`The document with document Id ${documentName} does not exist`);
           } else {
             logger.error(
-              `An error occured while retrieving document with document Id ${documentName}: ${err}`
+              `An error occured while retrieving document with document Id ${documentName}`
             );
+            logger.debug(err);
           }
         }
       }
