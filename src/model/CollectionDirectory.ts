@@ -19,6 +19,7 @@ import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 import CollectionNode from "./CollectionNode";
 import InformationNode from "./InformationNode";
+import { logger } from "../Logging/logger";
 
 export class CollectionDirectory implements INode {
     constructor(
@@ -81,7 +82,8 @@ export class CollectionDirectory implements INode {
                 );
                 collectionList.push(collectionTreeItem);
             } catch (err: any) {
-                console.log(err);
+                logger.error("Failed to load Collections");
+                logger.debug(err);
                 throw new Error(err);
             }
         }

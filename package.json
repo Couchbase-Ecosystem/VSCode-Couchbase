@@ -82,6 +82,7 @@
     "onCommand:vscode-couchbase.openQueryNotebook",
     "onCommand:vscode-couchbase.openQueryWorkbench",
     "onCommand:vscode-couchbase.refreshIndexes",
+    "onCommand:vscode-couchbase.showOutputConsole",
     "onNotebook:vscode-couchbase.couchbase-query-notebook",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
@@ -447,6 +448,11 @@
         "command": "vscode-couchbase.refreshIndexes",
         "title": "Refresh Indexes",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.showOutputConsole",
+        "title": "Show Output Console",
+        "category": "Couchbase"
       }
     ],
     "menus": {
@@ -522,6 +528,9 @@
         {
           "command": "vscode-couchbase.refreshIndexes",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.showOutputConsole"
         }
       ],
       "editor/context": [],

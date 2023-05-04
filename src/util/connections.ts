@@ -22,6 +22,7 @@ import { IConnection } from "../model/IConnection";
 import { AuthenticationFailureError, Cluster } from "couchbase";
 import { getClusterConnectingFormView } from "../webViews/connectionScreen.webview";
 import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
+import { logger } from "../Logging/logger";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username } = connection;
@@ -133,6 +134,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         }
         clusterConnectionTreeProvider.refresh();
         currentPanel.dispose();
+        logger.info(`Successfully saved a new connection with the name ${connection.connectionIdentifier}`);
         break;
 
       case 'cancel':
@@ -181,6 +183,7 @@ export async function useConnection(connection: IConnection): Promise<boolean> {
         setActiveConnection(connection);
         status = true;
         vscode.window.showInformationMessage("Connection established successfully!");
+        logger.info(`Connection established successfully with ${connection.connectionIdentifier}`);
       }
       catch (err) {
         handleConnectionError(err);
