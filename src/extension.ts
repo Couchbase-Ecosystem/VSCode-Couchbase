@@ -21,7 +21,7 @@ import DocumentNode from "./model/DocumentNode";
 import { DocumentNotFoundError } from "couchbase";
 import { IConnection } from "./model/IConnection";
 import { INode } from "./model/INode";
-import { logger } from "./Logging/logger";
+import { logger } from "./logging/logger";
 import { PagerNode } from "./model/PagerNode";
 import { ScopeNode } from "./model/ScopeNode";
 import { getBucketMetaData, getDocumentMetaData } from "./webViews/metaData.webview";
@@ -348,9 +348,11 @@ export function activate(context: vscode.ExtensionContext) {
           await vscode.window.showTextDocument(document, { preview: false });
           return true;
         } catch (err: any) {
+          if (err instanceof vscode.FileSystemError && err.name === 'EntryNotFound (FileSystemError)') {
+            clusterConnectionTreeProvider.refresh();
+          }
           logger.error("Failed to open Document");
           logger.debug(err);
-          clusterConnectionTreeProvider.refresh();
         }
       }
     )
@@ -679,7 +681,7 @@ export function activate(context: vscode.ExtensionContext) {
               context.subscriptions
             );
           }
-        } catch(err) {
+        } catch (err) {
           logger.error(
             `Bucket metadata retrieval failed for \`${node.bucketName}\``
           );
@@ -725,7 +727,7 @@ export function activate(context: vscode.ExtensionContext) {
               context.subscriptions
             );
           }
-        } catch(err) {
+        } catch (err) {
           logger.error(
             `Document metadata retrieval failed for '${node.documentName}'`
           );

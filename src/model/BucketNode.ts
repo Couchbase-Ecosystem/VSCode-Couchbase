@@ -20,7 +20,7 @@ import { INode } from "./INode";
 import { ScopeNode } from "./ScopeNode";
 import { ScopeSpec } from "couchbase";
 import InformationNode from "./InformationNode";
-import { logger } from "../Logging/logger";
+import { logger } from "../logging/logger";
 
 export class BucketNode implements INode {
   constructor(
