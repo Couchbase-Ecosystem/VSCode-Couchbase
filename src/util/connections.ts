@@ -22,7 +22,7 @@ import { IConnection } from "../model/IConnection";
 import { AuthenticationFailureError, Cluster } from "couchbase";
 import { getClusterConnectingFormView } from "../webViews/connectionScreen.webview";
 import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
-import { logger } from "../Logging/logger";
+import { logger } from "../logging/logger";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username } = connection;

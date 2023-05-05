@@ -23,7 +23,7 @@ import axios from "axios";
 import { Constants } from "../util/constants";
 import { getConnectionId } from "../util/connections";
 import InformationNode from "./InformationNode";
-import { logger } from "../Logging/logger";
+import { logger } from "../logging/logger";
 
 export class IndexDirectory implements INode {
     constructor(

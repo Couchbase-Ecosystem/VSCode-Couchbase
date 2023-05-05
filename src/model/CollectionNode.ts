@@ -22,7 +22,7 @@ import { PagerNode } from "./PagerNode";
 import { abbreviateCount } from "../util/common";
 import { PlanningFailureError } from "couchbase";
 import InformationNode from "./InformationNode";
-import { logger } from "../Logging/logger";
+import { logger } from "../logging/logger";
 
 export default class CollectionNode implements INode {
   constructor(

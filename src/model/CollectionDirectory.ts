@@ -19,7 +19,7 @@ import { IConnection } from "./IConnection";
 import { INode } from "./INode";
 import CollectionNode from "./CollectionNode";
 import InformationNode from "./InformationNode";
-import { logger } from "../Logging/logger";
+import { logger } from "../logging/logger";
 
 export class CollectionDirectory implements INode {
     constructor(

@@ -22,7 +22,7 @@ import { BucketNode } from "./BucketNode";
 import { BucketSettings } from "couchbase";
 import { getActiveConnection } from "../util/connections";
 import InformationNode from "./InformationNode";
-import { logger } from "../Logging/logger";
+import { logger } from "../logging/logger";
 
 export class ClusterConnectionNode implements INode {
   constructor(
@@ -41,8 +41,8 @@ export class ClusterConnectionNode implements INode {
       collapsibleState: vscode.TreeItemCollapsibleState.Expanded,
       contextValue: this.isActive ? "active_connection" : "connection",
       iconPath: {
-        light: path.join(__filename, "..", "..", "images", this.isActive ? "": "light", "cb-logo-icon.svg"),
-        dark: path.join(__filename, "..", "..", "images", this.isActive ? "": "dark", "cb-logo-icon.svg"),
+        light: path.join(__filename, "..", "..", "images", this.isActive ? "" : "light", "cb-logo-icon.svg"),
+        dark: path.join(__filename, "..", "..", "images", this.isActive ? "" : "dark", "cb-logo-icon.svg"),
       }
     };
   }
@@ -72,8 +72,7 @@ export class ClusterConnectionNode implements INode {
       logger.debug(err);
       throw new Error(err);
     }
-    if(nodes.length === 0)
-    {
+    if (nodes.length === 0) {
       nodes.push(new InformationNode("No buckets found"));
     }
     return nodes;
