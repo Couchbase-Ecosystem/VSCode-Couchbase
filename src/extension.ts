@@ -771,6 +771,9 @@ export function activate(context: vscode.ExtensionContext) {
           const uri = vscode.Uri.parse(
             `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${documentName}.json`
           );
+          if (result) {
+            uriToCasMap.set(uri.toString(), result.cas.toString());
+          }
           memFs.writeFile(
             uri,
             Buffer.from(JSON.stringify(result?.content, null, 2)),
