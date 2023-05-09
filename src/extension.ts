@@ -468,11 +468,16 @@ export function activate(context: vscode.ExtensionContext) {
           .scope(node.scopeName)
           .collection(node.collectionName)
           .remove(node.documentName);
-
-        const uri = vscode.Uri.parse(
-          `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${node.documentName}.json`
-        );
-        memFs.delete(uri);
+        try {
+          const uri = vscode.Uri.parse(
+            `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${node.documentName}.json`
+          );
+          memFs.delete(uri);
+        } catch (err) {
+          if (!(err instanceof vscode.FileSystemError)) {
+            logger.error(err);
+          }
+        }
         logger.info(`${node.bucketName}: ${node.scopeName}: ${node.collectionName}: The document named ${node.documentName} has been deleted`);
         clusterConnectionTreeProvider.refresh();
       }
