@@ -158,7 +158,7 @@ export function getClusterConnectingFormView(message: any): string {
                     <label for="url">Cluster Connection URL</label><br>
                     <input type="text" id="url" name="url" placeholder="localhost" value=${message?.url ?? "localhost"} />
                     <div class="secure-box">
-                    <input type="checkbox" id="secureCheck">
+                    <input type="checkbox" id="secureCheck" ${message?.isSecure ? 'checked' : ''}>
                     <label for="secure">Use Secure Connection</label> 
                     </div>
                     <span id="urlErr" class="error-message"></span><br/>
@@ -238,8 +238,6 @@ export function getClusterConnectingFormView(message: any): string {
                 urlInput.addEventListener("input", () => {
                     if (urlInput.value.endsWith(".cloud.couchbase.com")) {
                       secureCheck.checked = true;
-                    } else {
-                      secureCheck.checked = false;
                     }
                 });
 
