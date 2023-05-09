@@ -18,13 +18,14 @@ import * as path from "path";
 import { INode } from "./INode";
 
 export default class InformationNode implements INode {
-    constructor(public readonly message: string) { }
+    constructor(public readonly message: string, public readonly tooltip?: string) { }
 
     public async getTreeItem(): Promise<vscode.TreeItem> {
         return {
             label: `${this.message}`,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
             contextValue: "info-icon",
+            tooltip: `${this.tooltip ?? ""}`,
             iconPath: {
                 light: path.join(
                     __filename,
