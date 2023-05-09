@@ -95,6 +95,10 @@ export default class CollectionNode implements INode {
             `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
           );
         }
+        else {
+          const infoNode: InformationNode = new InformationNode("No indexes available", "No indexes available to list the documents in this collection");
+          documentList.push(infoNode);
+        }
       }
     }
     result?.rows.forEach((documentName: string) => {
@@ -113,7 +117,7 @@ export default class CollectionNode implements INode {
     // TODO: add local only (un-synchronized) files to documentList
     if (documentList.length === 0) {
       documentList.push(new InformationNode("No Documents found"));
-    } else if (this.documentCount !== documentList.length) {
+    } else if (this.documentCount > documentList.length) {
       documentList.push(new PagerNode(this));
     }
     return documentList;
