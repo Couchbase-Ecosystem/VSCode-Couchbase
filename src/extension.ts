@@ -348,7 +348,7 @@ export function activate(context: vscode.ExtensionContext) {
           await vscode.window.showTextDocument(document, { preview: false });
           return true;
         } catch (err: any) {
-          if (err instanceof vscode.FileSystemError && err.name === 'EntryNotFound (FileSystemError)') {
+          if (err instanceof vscode.FileSystemError && err.name === 'EntryNotFound (FileSystemError)' || err instanceof DocumentNotFoundError) {
             clusterConnectionTreeProvider.refresh();
           }
           logger.error("Failed to open Document");
