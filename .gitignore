@@ -1,7 +1,25 @@
+# Editors
+.idea
+*.iml
+.vscode
+.vscode-test
+
+# API keys and secrets
+.env
+
+# Coverage reports
+coverage
+
+# Ignore built ts files
+dist/**/*
+
+# OS metadata
 .DS_Store
+Thumbs.db
+.DS_Store
+
 out
 dist
 node_modules
-.vscode-test/
 *.vsix
 build/
