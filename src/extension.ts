@@ -932,6 +932,7 @@ export function activate(context: vscode.ExtensionContext) {
                 );
                 break;
             }
+            panel.dispose();
           },
           undefined,
           context.subscriptions
