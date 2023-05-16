@@ -99,8 +99,8 @@ export function getSampleProjects(): string {
                 </li>
             </ul>
             <script>
+                const vscode = acquireVsCodeApi();
                 function getSample(sampleName) {
-                    const vscode = acquireVsCodeApi();
                     vscode.postMessage({
                         repo: sampleName
                     });
