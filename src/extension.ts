@@ -937,7 +937,7 @@ export function activate(context: vscode.ExtensionContext) {
           context.subscriptions
         );
       } catch (err) {
-        logger.error("Failed to open Query Workbench");
+        logger.error("Failed to open sample projects");
         logger.debug(err);
       }
     })
