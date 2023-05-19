@@ -40,11 +40,11 @@ import { QueryContentSerializer } from "./notebook/serializer";
 import { QueryKernel } from "./notebook/controller";
 import { Constants } from "./util/constants";
 import { createNotebook } from "./notebook/notebook";
-import { getQueryWorkbench } from "./webViews/workbench.webview";
 import IndexNode from "./model/IndexNode";
 import { CollectionDirectory } from "./model/CollectionDirectory";
 import { IndexDirectory } from "./model/IndexDirectory";
 import { extractDocumentInfo } from "./util/common";
+import { openWorkbench } from "./workbench/workbench";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -832,33 +832,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (!connection) {
           return;
         }
-        try {
-          if (currentPanel && currentPanel.viewType === 'Workbench') {
-            currentPanel.webview.html = getQueryWorkbench();
-            currentPanel.reveal(vscode.ViewColumn.One);
-          } else {
-            currentPanel = vscode.window.createWebviewPanel(
-              'Workbench',
-              'New Workbench',
-              vscode.ViewColumn.One,
-              {
-                enableScripts: true,
-              }
-            );
-            currentPanel.webview.html = getQueryWorkbench();
-
-            currentPanel.onDidDispose(
-              () => {
-                currentPanel = undefined;
-              },
-              undefined,
-              context.subscriptions
-            );
-          }
-        } catch (err) {
-          logger.error("Failed to open Query Workbench");
-          logger.debug(err);
-        }
+        openWorkbench(node, context, currentPanel);
       }
     )
   );
