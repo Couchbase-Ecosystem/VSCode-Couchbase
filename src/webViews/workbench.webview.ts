@@ -1,52 +1,30 @@
-export function getQueryWorkbench(): string {
-    return `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8" />
-            <title>Couchbase - New Workbench Feature Coming Soon</title>
-            <style>
-            body {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background-image: linear-gradient(to bottom, white 75%, #FC9C0C 25%);
-                background-repeat: no-repeat;
-                background-attachment: fixed;
-                overflow: hidden;
-            }
-            .container {
-                margin-top: 180px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-            }
-            h1 {
-                font-size: 62px;
-                color: black;
-                margin-bottom: 20px;
-            }
-            h3 {
-                font-size: 32px;
-                color: black;             
-            }
-            p {
-                font-size: 24px;
-                margin-bottom: 40px;
-                color: black;
-            }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-            <img src="https://www.couchbase.com/wp-content/uploads/2022/08/CB-logo-R_B_B.png" alt="New Workbench Feature Coming Soon"/> <br/><br/>
-            <h1>A New Workbench Feature Is Coming Soon</h1>
-            <br/>
-            <h3>Stay Tuned!</h3>
-            </div>
-        </body>
-        </html>    
-     `;
+import * as vscode from 'vscode';
+import * as path from 'path';
+import { getNonce } from '../util/common';
+
+export const getWebviewContent = (reactAppUri: vscode.Uri, context: vscode.ExtensionContext): string => {
+    // Local path to main script run in the webview
+    const reactAppPathOnDisk = vscode.Uri.file(
+        path.join(context.extensionPath, "dist", "build.js")
+    );
+
+    const nonce = getNonce();
+    return `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Config View</title>
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: 
+            https:; script-src 'nonce-${nonce}';style-src vscode-resource: 'unsafe-inline' http: https: data:;">
+        <base href="${vscode.Uri.file(path.join(context.extensionPath, "dist")).with({
+        scheme: "vscode-resource"
+    })}/">
+    </head>
+    <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"><h1>Loading...</h1></div>
+        <script nonce="${nonce}" src="${reactAppUri}"></script>
+    </body>
+    </html>`;
 }
