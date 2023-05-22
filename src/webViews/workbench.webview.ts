@@ -5,7 +5,7 @@ import { getNonce } from '../util/common';
 export const getWebviewContent = (reactAppUri: vscode.Uri, context: vscode.ExtensionContext): string => {
     // Local path to main script run in the webview
     const reactAppPathOnDisk = vscode.Uri.file(
-        path.join(context.extensionPath, "dist", "build.js")
+        path.join(context.extensionPath, "dist", "reactBuild.js")
     );
 
     const nonce = getNonce();

@@ -8,7 +8,7 @@ export function openWorkbench(node: ClusterConnectionNode, context: vscode.Exten
     try {
         if (currentPanel && currentPanel.viewType === 'Workbench') {
             const reactAppPathOnDisk = vscode.Uri.file(
-                path.join(context.extensionPath, "dist", "build.js")
+                path.join(context.extensionPath, "dist", "reactBuild.js")
             );
             const reactAppUri = currentPanel.webview.asWebviewUri(reactAppPathOnDisk);
             currentPanel.webview.html = getWebviewContent(reactAppUri, context);
@@ -27,7 +27,7 @@ export function openWorkbench(node: ClusterConnectionNode, context: vscode.Exten
 
             );
             const reactAppPathOnDisk = vscode.Uri.file(
-                path.join(context.extensionPath, "dist", "build.js")
+                path.join(context.extensionPath, "dist", "reactBuild.js")
             );
             const reactAppUri = currentPanel.webview.asWebviewUri(reactAppPathOnDisk);
 
