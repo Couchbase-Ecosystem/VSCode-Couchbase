@@ -26,12 +26,12 @@ const config = {
 	mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
   entry: {
     extension: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
-    build: './src/view/app/index.tsx',
+    build: './src/reactViews/app/index.tsx',
   },
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
     path: path.resolve(__dirname, 'dist'),
-    filename: 'extension.js',
+    filename: '[name].js',
     libraryTarget: 'commonjs2'
   },
   devtool: 'source-map',
@@ -60,7 +60,7 @@ const config = {
           {
             loader: 'ts-loader',
             options: {
-              configFile: 'src/view/app/tsconfig.json'
+              configFile: 'src/reactViews/app/tsconfig.json'
             }
           }
         ]
