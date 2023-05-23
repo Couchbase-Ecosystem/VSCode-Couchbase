@@ -356,7 +356,7 @@
       },
       {
         "command": "vscode-couchbase.openSampleProjects",
-        "title": "New Project from Sample Template ...",
+        "title": "New Project from Template",
         "category": "Couchbase"
       },
       {
