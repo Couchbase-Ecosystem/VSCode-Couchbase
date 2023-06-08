@@ -906,8 +906,17 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             const projectUri = vscode.Uri.joinPath(fileUris[0], projectName);
-            const repoUrl = `couchbase-examples/${message.repo}`;
+            try {
+              // test if the project location already exists, if so, show error message
+              // fs.stat will throw an error if the file does not exist
+              await vscode.workspace.fs.stat(projectUri);
+              vscode.window.showErrorMessage("Selected project location already exists, please choose another location.");
+              return;
+            } catch {
+              // do nothing, project location does not exist
+            }
 
+            const repoUrl = `couchbase-examples/${message.repo}`;
             await gitly(repoUrl, projectUri.path, { throw: true });
 
             vscode.window.showInformationMessage(``);
