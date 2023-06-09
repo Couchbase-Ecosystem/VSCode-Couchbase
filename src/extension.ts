@@ -910,7 +910,7 @@ export function activate(context: vscode.ExtensionContext) {
               // test if the project location already exists, if so, show error message
               // fs.stat will throw an error if the file does not exist
               await vscode.workspace.fs.stat(projectUri);
-              vscode.window.showErrorMessage("Selected project location already exists, please choose another location.");
+              vscode.window.showErrorMessage("Selected project location already has a project with same name, please choose a different location.", { modal: true });
               return;
             } catch {
               // do nothing, project location does not exist
