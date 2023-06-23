@@ -4,7 +4,7 @@
 		"target": "es6",
 		"outDir": "out",
 		"lib": [
-			"es6"
+			"es6", "dom"
 		],
 		"sourceMap": true,
 		"rootDir": "src",
@@ -17,6 +17,9 @@
 	},
 	"exclude": [
 		"node_modules",
-		".vscode-test"
+		".vscode-test",
+		"**/reactViews/app/index.css",
+		"**/reactViews/app/index.tsx",
+		"**/reactViews/app/tsconfig.json",		
 	]
 }
