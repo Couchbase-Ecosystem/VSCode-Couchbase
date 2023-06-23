@@ -68,6 +68,7 @@
   "dependencies": {
     "axios": "^0.21.4",
     "couchbase": "^4.2.1",
+    "gitly": "^2.4.2",
     "keytar": "^7.7.0",
     "node-addon-api": "^6.0.0",
     "react": "^18.2.0",
@@ -76,6 +77,7 @@
   "activationEvents": [
     "onFileSystem:couchbase",
     "onCommand:vscode-couchbase.createClusterConnection",
+    "onCommand:vscode-couchbase.openSampleProjects",
     "onCommand:vscode-couchbase.refreshConnection",
     "onCommand:vscode-couchbase.deleteClusterConnection",
     "onCommand:vscode-couchbase.useClusterConnection",
@@ -366,6 +368,11 @@
         "icon": "images/create.svg"
       },
       {
+        "command": "vscode-couchbase.openSampleProjects",
+        "title": "New Project from Template",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.openQueryNotebook",
         "title": "New SQL++ Notebook",
         "category": "Couchbase",
@@ -472,6 +479,10 @@
       "commandPalette": [
         {
           "command": "vscode-couchbase.refreshConnection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.openSampleProjects",
           "when": "false"
         },
         {
@@ -643,6 +654,10 @@
           "command": "vscode-couchbase.createClusterConnection",
           "when": "view == couchbase",
           "group": "navigation"
+        },
+        {
+          "command": "vscode-couchbase.openSampleProjects",
+          "when": "view == couchbase"
         }
       ]
     },
