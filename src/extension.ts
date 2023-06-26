@@ -44,12 +44,9 @@ import IndexNode from "./model/IndexNode";
 import { CollectionDirectory } from "./model/CollectionDirectory";
 import { IndexDirectory } from "./model/IndexDirectory";
 import { extractDocumentInfo } from "./util/common";
-<<<<<<< HEAD
 import { openWorkbench } from "./workbench/workbench";
-=======
 import { getSampleProjects } from "./webViews/sampleProjects.webview";
 import gitly from "gitly";
->>>>>>> origin
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
