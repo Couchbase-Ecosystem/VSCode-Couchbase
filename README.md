@@ -53,7 +53,7 @@ Click on Scope to list Collections and Indexes. Open context menu on Collection 
 <img src="gifs/InteractWithCollectionIndexes.gif" height="80%" width="80%" alt="Interact with Collections and Indexes" />
 
 
-### Interact wiht Documents
+### Interact with Documents
 1. Click on the desired Collection to list all the documents that have been stored within it.
 2. To open a specific document, click on it to view its details and make any necessary changes.
 3. If you need to create a new document or search for an existing one, you can open the context menu by right-clicking on the Collection directory.
