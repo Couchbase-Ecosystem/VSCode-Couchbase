@@ -16,7 +16,7 @@ export const getWebviewContent = (reactAppUri: vscode.Uri, context: vscode.Exten
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Config View</title>
         <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: 
-            https:; script-src 'nonce-${nonce}';style-src vscode-resource: 'unsafe-inline' http: https: data:;">
+            https:; script-src 'nonce-${nonce}' 'unsafe-eval' 'unsafe-inline' http://localhost:3001/; style-src vscode-resource: 'unsafe-inline' http: https: data:; connect-src http://localhost:3001/ ws://0.0.0.0:3001/ws;">
         <base href="${vscode.Uri.file(path.join(context.extensionPath, "dist")).with({
         scheme: "vscode-resource"
     })}/">
@@ -27,4 +27,4 @@ export const getWebviewContent = (reactAppUri: vscode.Uri, context: vscode.Exten
         <script nonce="${nonce}" src="${reactAppUri}"></script>
     </body>
     </html>`;
-}
+};

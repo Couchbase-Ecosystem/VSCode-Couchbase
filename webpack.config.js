@@ -19,6 +19,8 @@
 'use strict';
 
 const path = require('path');
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const { ModuleFederationPlugin } = require('webpack').container;
 
 /**@type {import('webpack').Configuration}*/
 const config = {
@@ -33,6 +35,17 @@ const config = {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
     libraryTarget: 'commonjs2'
+  },
+  // @ts-ignore
+  devServer:{
+    host: 'localhost:3001',
+    public: 'localhost:3001',
+    allowedHosts: 'all',
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': '*',
+      'Access-Control-Allow-Headers': '*',
+    },
   },
   devtool: 'source-map',
   externals: {
@@ -74,6 +87,28 @@ const config = {
         use: ['style-loader', 'css-loader'],
       },
     ]
-  }
+  },
+  plugins: [
+    new ModuleFederationPlugin({
+      name: "host",
+      filename: "remoteEntry.js",
+      remotes: {
+        remote: "remote@http://localhost:3001/remoteEntry.js"
+      },
+      exposes: {},
+      shared: {
+        react: {
+          singleton: true,
+          eager:true,
+          requiredVersion:"^18.2.0",
+        },
+        'react-dom':{
+          singleton:true,
+          eager:true,
+          requiredVersion:"^18.2.0",
+        },
+      },
+    }),
+  ],
 };
 module.exports = config;
