@@ -6,7 +6,11 @@
         "outDir": "dist",
         "lib": [
             "es6",
-            "dom"
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "typeRoots": [
+            "./types"
         ],
         "jsx": "react",
         "sourceMap": true,
@@ -17,7 +21,6 @@
         "experimentalDecorators": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
-
     },
     "exclude": [
         "node_modules"
