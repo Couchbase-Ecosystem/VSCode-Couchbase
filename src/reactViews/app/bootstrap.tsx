@@ -1,25 +1,18 @@
 import * as React from "react";
+import { BrowserRouter as Router } from 'react-router-dom';
 import { createRoot } from "react-dom/client";
 import "./styles.css";
-import './index.css';
+import { QueryResults } from "sharedComponents/components/query-results";
+import hotels from '../mocks/query-results/hotel.json';
 
 const container = document.getElementById("root");
 const root = createRoot(container);
-const App: React.FC = () => {
+
+export const App: React.FC = () => {
   return (
-    <div className="container">
-          <div className="container">
-      <img
-        src="https://www.couchbase.com/wp-content/uploads/2022/08/CB-logo-R_B_B.png"
-        alt="New Workbench Feature Coming Soon"
-      />
-      <br />
-      <br />
-      <h1>A New Workbench Feature Is Coming Soon</h1>
-      <br />
-      <h3>Stay Tuned!</h3>
-    </div>
+    <div className="h-[300px]">
+      <QueryResults queryResults={hotels} />
     </div>
   );
 };
-root.render(<App />);
+root.render(<Router><App /></Router>);
