@@ -8,12 +8,8 @@ fs.readFile(filePath, 'utf8', (err, data) => {
     return;
   }
 
-  // FIXME:Remove the tab-bar declaration declaration from the file content
-  // Cause: It was failing the build due to typescript error
-  const updatedContent = data.replace(`declare module "sharedComponents/components/tab-bar/tab-bar-menu" {
-    import { TabBarMenuProps } from "sharedComponents/components/tab-bar/tab-bar-menu/tab-bar-menu.types";
-    export function TabBarMenu<const T extends string>(props: TabBarMenuProps<T>): import("react").JSX.Element;
-}`, '');
+  // FIX: Removing the const keyword, the type parameter declaration becomes valid
+  const updatedContent = data.replace(`TabBarMenu<const T extends string>`, 'TabBarMenu<T extends string>');
 
   fs.writeFile(filePath, updatedContent, 'utf8', (err) => {
     if (err) {
