@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
+import "./styles.css";
 import { Button } from "sharedComponents/components/button";
 
 // FIXME: Look into importing the styles.css file from the built 

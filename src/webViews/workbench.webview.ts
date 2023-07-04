@@ -20,8 +20,9 @@ export const getWebviewContent = (
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Config View</title>
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: 
-            https:; script-src 'self' 'nonce-${nonce}' 'unsafe-eval' 'unsafe-inline' ${remoteEntryServer} ${webviewGenericCspSource}; style-src vscode-resource: 'unsafe-inline' http: https: data:; connect-src ${remoteEntryServer} ${webviewGenericCspSource};">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' data: http://localhost:5001; img-src vscode-resource: https:; script-src 'self' 'nonce-${nonce}'
+             'unsafe-eval' 'unsafe-inline' ${remoteEntryServer} ${webviewGenericCspSource}; style-src vscode-resource: 'unsafe-inline' http: https: data:; connect-src ${remoteEntryServer} ${webviewGenericCspSource} ws://0.0.0.0:5001/ws;">
+
         <base href="${vscode.Uri.file(
         path.join(context.extensionPath, "dist")
     ).with({
