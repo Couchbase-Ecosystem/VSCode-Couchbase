@@ -16,64 +16,110 @@
 
 //@ts-check
 
-'use strict';
+"use strict";
 
-const path = require('path');
+const path = require("path");
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const { ModuleFederationPlugin } = require("webpack").container;
 
 /**@type {import('webpack').Configuration}*/
-const config = {
-  target: 'node', // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
-	mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
+const extensionConfig = {
+  target: "node", // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
+  mode: "none", // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
   entry: {
-    extension: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
-    reactBuild: './src/reactViews/app/index.tsx',
+    extension: "./src/extension.ts", // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   },
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js',
-    libraryTarget: 'commonjs2'
+    path: path.resolve(__dirname, "dist"),
+    filename: "[name].js",
+    libraryTarget: "commonjs2",
   },
-  devtool: 'source-map',
+  devtool: "source-map",
   externals: {
-    vscode: 'commonjs vscode' // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
+    vscode: "commonjs vscode", // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
-    extensions: ['.ts', '.tsx', '.js']
+    extensions: [".ts", ".js"],
   },
   module: {
     rules: [
       {
         test: /\.ts$/,
-        exclude: /node_modules/,
+        exclude: [/node_modules/],
         use: [
           {
-            loader: 'ts-loader'
-          }
-        ]
-      },
-      {
-        test: /\.tsx$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'ts-loader',
-            options: {
-              configFile: 'src/reactViews/app/tsconfig.json'
-            }
-          }
-        ]
+            loader: "ts-loader",
+          },
+        ],
       },
       {
         test: /\.node$/,
-        use: 'node-loader'
+        use: "node-loader",
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ["style-loader", "css-loader"],
       },
-    ]
-  }
+    ],
+  },
 };
-module.exports = config;
+
+/**@type {import('webpack').Configuration}*/
+const reactConfig = {
+  target: "web",
+  entry: {
+    reactBuild: "./src/reactViews/app/index",
+  },
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    filename: "[name].js",
+  },
+  devtool: "source-map",
+  resolve: {
+    // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
+    extensions: [".ts", ".tsx", ".js"],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              configFile: "src/reactViews/app/tsconfig.json",
+            },
+          },
+        ],
+      },
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
+      },
+    ],
+  },
+  plugins: [
+    new ModuleFederationPlugin({
+      name: "host",
+      filename: "remoteEntry.js",
+      runtime: false,
+      remotes: {
+        sharedComponents:
+          "sharedComponents@http://localhost:5001/remoteEntry.js",
+      },
+      shared: {
+        react: {
+          requiredVersion: "^18.2.0",
+        },
+        "react-dom": {
+          requiredVersion: "^18.2.0",
+        },
+      },
+    }),
+  ],
+};
+
+module.exports = [extensionConfig, reactConfig];
