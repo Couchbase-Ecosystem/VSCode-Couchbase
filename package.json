@@ -357,7 +357,7 @@
         "displayName": "SQL++ Query",
         "selector": [
           {
-            "filenamePattern": "*.n1qlnb"
+            "filenamePattern": "*.{n1qlnb,sqlpp,n1ql}"
           }
         ]
       }
