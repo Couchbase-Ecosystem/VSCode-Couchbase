@@ -840,6 +840,19 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.getClusterOverview",
+      async (node: ClusterConnectionNode) => {
+        const connection = Memory.state.get<IConnection>("activeConnection");
+
+        if (!connection) {
+          return;
+        }
+      }
+    )
+  );
+
+  subscriptions.push(
     vscode.commands.registerCommand("vscode-couchbase.openSampleProjects", async () => {
       try {
         const panel = vscode.window.createWebviewPanel(
