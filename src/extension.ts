@@ -47,6 +47,7 @@ import { extractDocumentInfo } from "./util/common";
 import { openWorkbench } from "./workbench/workbench";
 import { getSampleProjects } from "./webViews/sampleProjects.webview";
 import gitly from "gitly";
+import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -848,6 +849,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (!connection) {
           return;
         }
+        fetchClusterOverview(node);
       }
     )
   );
