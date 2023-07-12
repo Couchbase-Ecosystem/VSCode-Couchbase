@@ -15,14 +15,14 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { IConnection } from "./IConnection";
-import { INode } from "./INode";
+import { IConnection } from "../types/IConnection";
+import { INode } from "../types/INode";
 import DocumentNode from "./DocumentNode";
 import { PagerNode } from "./PagerNode";
 import { abbreviateCount } from "../util/common";
 import { PlanningFailureError } from "couchbase";
 import InformationNode from "./InformationNode";
-import { logger } from "../logging/logger";
+import { logger } from "../logger/logger";
 
 export default class CollectionNode implements INode {
   constructor(

@@ -18,11 +18,11 @@ import * as keytar from "keytar";
 import * as path from "path";
 import { Constants } from "./constants";
 import { Global, Memory } from "./util";
-import { IConnection } from "../model/IConnection";
+import { IConnection } from "../types/IConnection";
 import { AuthenticationFailureError, Cluster } from "couchbase";
 import { getClusterConnectingFormView } from "../webViews/connectionScreen.webview";
 import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
-import { logger } from "../logging/logger";
+import { logger } from "../logger/logger";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username } = connection;

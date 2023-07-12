@@ -15,7 +15,7 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { INode } from "./INode";
+import { INode } from "../types/INode";
 
 export default class InformationNode implements INode {
     constructor(public readonly message: string, public readonly tooltip?: string) { }
