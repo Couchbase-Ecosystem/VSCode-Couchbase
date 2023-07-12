@@ -50,6 +50,7 @@ import gitly from "gitly";
 import { updateDocumentToServer } from "./util/documentUtils/updateDocument";
 import { getDocument } from "./util/documentUtils/getDocument";
 import { openDocument } from "./commands/documents/openDocument";
+import { openIndexInfo } from "./commands/indexes/openIndexInformation";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -320,22 +321,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.openIndexInfo",
       async (indexNode: IndexNode) => {
-        try {
-          const uri = vscode.Uri.parse(
-            `couchbase:/${indexNode.bucketName}/${indexNode.scopeName}/Indexes/${indexNode.indexName}.n1ql`
-          );
-          memFs.writeFile(
-            uri,
-            Buffer.from(indexNode.data),
-            { create: true, overwrite: true }
-          );
-          const document = await vscode.workspace.openTextDocument(uri);
-          await vscode.window.showTextDocument(document, { preview: false });
-          return true;
-        } catch (err: any) {
-          logger.error("Failed to open index information");
-          logger.debug(err);
-        }
+        openIndexInfo(indexNode, memFs);
+
       }
     )
   );
