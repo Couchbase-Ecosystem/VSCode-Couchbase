@@ -47,6 +47,8 @@ import { extractDocumentInfo } from "./util/common";
 import { openWorkbench } from "./workbench/workbench";
 import { getSampleProjects } from "./webViews/sampleProjects.webview";
 import gitly from "gitly";
+import { updateDocumentToServer } from "./util/documentUtils/updateDocument";
+import { getDocument } from "./util/documentUtils/getDocument";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -82,27 +84,6 @@ export function activate(context: vscode.ExtensionContext) {
       }
     )
   );
-
-  const getDocument = async (activeConnection: IConnection, documentInfo: IDocumentData) => {
-    return await activeConnection.cluster
-      ?.bucket(documentInfo.bucket)
-      .scope(documentInfo.scope)
-      .collection(documentInfo.collection)
-      .get(documentInfo.name);
-  };
-
-  const updateDocumentToServer = async (activeConnection: IConnection, documentInfo: IDocumentData, document: vscode.TextDocument): Promise<string> => {
-    const result = await activeConnection.cluster
-      ?.bucket(documentInfo.bucket)
-      .scope(documentInfo.scope)
-      .collection(documentInfo.collection)
-      .upsert(documentInfo.name, JSON.parse(document.getText()));
-    vscode.window.setStatusBarMessage("Document saved", 2000);
-    if (result && result.cas) {
-      return result.cas.toString();
-    }
-    return "";
-  };
 
   /**
  * handleActiveEditorConflict function handles conflicts between the local version of an open document in Visual Studio Code
