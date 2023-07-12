@@ -49,6 +49,7 @@ import { getSampleProjects } from "./webViews/sampleProjects.webview";
 import gitly from "gitly";
 import { updateDocumentToServer } from "./util/documentUtils/updateDocument";
 import { getDocument } from "./util/documentUtils/getDocument";
+import { openDocument } from "./commands/documents/openDocument";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -310,33 +311,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.openDocument",
       async (documentNode: DocumentNode) => {
-        try {
-          const result = await documentNode.connection.cluster
-            ?.bucket(documentNode.bucketName)
-            .scope(documentNode.scopeName)
-            .collection(documentNode.collectionName)
-            .get(documentNode.documentName);
-          const uri = vscode.Uri.parse(
-            `couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/Collections/${documentNode.collectionName}/${documentNode.documentName}.json`
-          );
-          if (result) {
-            uriToCasMap.set(uri.toString(), result.cas.toString());
-          }
-          memFs.writeFile(
-            uri,
-            Buffer.from(JSON.stringify(result?.content, null, 2)),
-            { create: true, overwrite: true }
-          );
-          const document = await vscode.workspace.openTextDocument(uri);
-          await vscode.window.showTextDocument(document, { preview: false });
-          return true;
-        } catch (err: any) {
-          if (err instanceof vscode.FileSystemError && err.name === 'EntryNotFound (FileSystemError)' || err instanceof DocumentNotFoundError) {
-            clusterConnectionTreeProvider.refresh();
-          }
-          logger.error("Failed to open Document");
-          logger.debug(err);
-        }
+        await openDocument(documentNode, clusterConnectionTreeProvider, uriToCasMap, memFs);
       }
     )
   );
