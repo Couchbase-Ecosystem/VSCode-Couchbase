@@ -18,24 +18,20 @@ import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
 import DocumentNode from "./model/DocumentNode";
-import { DocumentNotFoundError } from "couchbase";
 import { IConnection } from "./types/IConnection";
 import { INode } from "./types/INode";
 import { logger } from "./logger/logger";
 import { PagerNode } from "./model/PagerNode";
 import { ScopeNode } from "./model/ScopeNode";
-import { getBucketMetaDataView } from "./webViews/metaData.webview";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
 import {
   addConnection,
-  getActiveConnection,
   removeConnection,
   setActiveConnection,
   useConnection,
 } from "./util/connections";
 import { MemFS } from "./util/fileSystemProvider";
 import { Global, Memory, WorkSpace } from "./util/util";
-import { IDocumentData } from "./types/IDocument";
 import { QueryContentSerializer } from "./notebook/serializer";
 import { QueryKernel } from "./notebook/controller";
 import { Constants } from "./util/constants";
@@ -43,10 +39,7 @@ import { createNotebook } from "./notebook/notebook";
 import IndexNode from "./model/IndexNode";
 import { CollectionDirectory } from "./model/CollectionDirectory";
 import { IndexDirectory } from "./model/IndexDirectory";
-import { extractDocumentInfo } from "./util/common";
 import { openWorkbench } from "./workbench/workbench";
-import { updateDocumentToServer } from "./util/documentUtils/updateDocument";
-import { getDocument } from "./util/documentUtils/getDocument";
 import { openIndexInfo } from "./commands/indexes/openIndexInformation";
 import { Commands } from "./commands/extensionCommands/commands";
 import { createDocument, removeDocument, searchDocument, getDocumentMetaData, openDocument } from "./commands/documents";
@@ -54,6 +47,8 @@ import { getSampleProjects } from "./commands/sampleProjects/getSampleProjects";
 import { createCollection, removeCollection } from "./commands/collections";
 import { createScope, removeScope } from "./commands/scopes";
 import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
+import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
+import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -90,151 +85,21 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  /**
- * handleActiveEditorConflict function handles conflicts between the local version of an open document in Visual Studio Code
- * and the server version of the same document. A modal dialog is displayed asking the user to load the server version or keep
- * the local version.
- *
- * @param document vscode.TextDocument object representing the open document
- * @param remoteDocument The updated version of the document from the server
- */
-  const handleActiveEditorConflict = async (document: vscode.TextDocument, remoteDocument: any) => {
-    const answer = await vscode.window.showWarningMessage(
-      "Conflict Alert: A change has been detected in the server version of this document. To ensure that you are working with the most up-to-date version, would you like to load the server version?",
-      { modal: true },
-      "Load Server Version",
-      "Keep Local Version"
-    );
-    if (answer === "Load Server Version") {
-      memFs.writeFile(
-        document.uri,
-        Buffer.from(JSON.stringify(remoteDocument?.content, null, 2)),
-        { create: true, overwrite: true }
-      );
-      uriToCasMap.set(document.uri.toString(), remoteDocument.cas.toString());
-      clusterConnectionTreeProvider.refresh();
-    }
-  };
-
-  /**
- * Handles a save conflict for a TextDocument by showing a warning message to the user,
- * offering the choice to either discard local changes and load the server version or
- * overwrite the remote version with local changes.
- *
- * @param remoteDocument The current version of the document in the server
- * @param document The TextDocument being saved
- * @param activeConnection The active connection object
- * @param documentInfo The information about the document being saved
- */
-  const handleSaveTextDocumentConflict = async (
-    remoteDocument: any,
-    document: vscode.TextDocument,
-    activeConnection: IConnection,
-    documentInfo: IDocumentData
-  ) => {
-    const answer = await vscode.window.showWarningMessage(
-      "Conflict Alert: There is a conflict while trying to save this document, as it was also changed in the server. Would you like to load the server version or overwrite the remote version with your changes?",
-      { modal: true },
-      "Discard Local Changes and Load Server Version",
-      "Overwrite Server Version with Local Changes"
-    );
-    if (answer === "Discard Local Changes and Load Server Version") {
-      memFs.writeFile(
-        document.uri,
-        Buffer.from(JSON.stringify(remoteDocument?.content, null, 2)),
-        { create: true, overwrite: true }
-      );
-      uriToCasMap.set(document.uri.toString(), remoteDocument.cas.toString());
-    } else if (answer === "Overwrite Server Version with Local Changes") {
-      const cas = await updateDocumentToServer(
-        activeConnection,
-        documentInfo,
-        document
-      );
-      if (cas !== "") {
-        vscode.window.setStatusBarMessage("Document saved", 2000);
-        uriToCasMap.set(document.uri.toString(), cas);
-      }
-    }
-  };
-
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
       if (!editor) {
         return;
       }
-      if (
-        editor.document.languageId === "json" &&
-        editor.document.uri.scheme === "couchbase"
-      ) {
-        const activeConnection = getActiveConnection();
-        if (!activeConnection) {
-          return;
-        }
-        const documentInfo: IDocumentData = extractDocumentInfo(
-          editor.document.uri.path
-        );
-        try {
-          const remoteDocument = await getDocument(
-            activeConnection,
-            documentInfo
-          );
-          // The condition below is checking whether the remoteDocument object exists and whether there is
-          // a Cas value associated with the URI. Furthermore, it's verifying whether the Cas value
-          // in the remoteDocument has been modified since the last time it was saved.
-          if (
-            remoteDocument &&
-            uriToCasMap.get(editor.document.uri.toString()) &&
-            remoteDocument.cas.toString() !==
-            uriToCasMap.get(editor.document.uri.toString())
-          ) {
-            handleActiveEditorConflict(editor.document, remoteDocument);
-          }
-        } catch (err) {
-          if (err instanceof DocumentNotFoundError) {
-            return;
-          }
-          logger.error(err);
-        }
-      }
+      await handleActiveEditorChange(editor, uriToCasMap, memFs);
+      clusterConnectionTreeProvider.refresh();
     })
   );
 
   subscriptions.push(
     vscode.workspace.onDidSaveTextDocument(
       async (document: vscode.TextDocument) => {
-        if (
-          document.languageId === "json" &&
-          document.uri.scheme === "couchbase"
-        ) {
-          const activeConnection = getActiveConnection();
-          if (!activeConnection) {
-            return;
-          }
-          const documentInfo = await extractDocumentInfo(document.uri.path);
-          let remoteDocument = undefined;
-          try {
-            remoteDocument = await getDocument(activeConnection, documentInfo);
-          }
-          catch (err) {
-            if (!(err instanceof DocumentNotFoundError)) {
-              return;
-            }
-          }
-          if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
-            handleSaveTextDocumentConflict(remoteDocument, document, activeConnection, documentInfo);
-          } else {
-            const cas = await updateDocumentToServer(activeConnection, documentInfo, document);
-            if (cas !== "") {
-              vscode.window.setStatusBarMessage("Document saved", 2000);
-              uriToCasMap.set(document.uri.toString(), cas);
-            }
-            vscode.window.setStatusBarMessage("Document saved", 2000);
-            logger.info(`Document with id ${documentInfo.name} has been updated`);
-            uriToCasMap.set(document.uri.toString(), cas);
-            clusterConnectionTreeProvider.refresh();
-          }
-        }
+        await handleOnSaveTextDocument(document, uriToCasMap, memFs);
+        clusterConnectionTreeProvider.refresh();
       }
     )
   );
