@@ -19,6 +19,10 @@ export namespace Commands {
     export const refreshConnection: string = "vscode-couchbase.refreshConnection";
     export const useClusterConnection: string = "vscode-couchbase.useClusterConnection";
     export const disconnectClusterConnection: string = "vscode-couchbase.disconnectClusterConnection";
+    export const createCollection: string = "vscode-couchbase.createCollection";
+    export const refreshCollection: string = "vscode-couchbase.refreshCollection";
+    export const removeCollection: string = "vscode-couchbase.removeCollection";
+    export const refreshCollections: string = "vscode-couchbase.refreshCollections";
     export const createDocument: string = "vscode-couchbase.createDocument";
 	export const openDocument: string = "vscode-couchbase.openDocument";
     export const removeDocument: string = "vscode-couchbase.removeDocument";
@@ -26,6 +30,8 @@ export namespace Commands {
     export const searchDocument: string = "vscode-couchbase.searchDocument";
     export const openIndexInfo: string = "vscode-couchbase.openIndexInfo";
     export const refreshIndexes: string = "vscode-couchbase.refreshIndexes";
+    export const openQueryNotebook: string = "vscode-couchbase.openQueryNotebook";
+    export const openQueryWorkbench: string = "vscode-couchbase.openQueryWorkbench";
     export const getSampleProjects: string = "vscode-couchbase.openSampleProjects";
     export const loadMore: string = "vscode-couchbase.loadMore";
     export const showOutputConsole: string = "vscode-couchbase.showOutputConsole";

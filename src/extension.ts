@@ -51,6 +51,7 @@ import { openIndexInfo } from "./commands/indexes/openIndexInformation";
 import { Commands } from "./commands/extensionCommands/commands";
 import { createDocument, removeDocument, searchDocument, getDocumentMetaData, openDocument } from "./commands/documents";
 import { getSampleProjects } from "./commands/sampleProjects/getSampleProjects";
+import { createCollection, removeCollection } from "./commands/collections";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -359,7 +360,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.refreshCollection",
+      Commands.refreshCollection,
       async (node: CollectionNode) => {
         const connection = Memory.state.get<IConnection>("activeConnection");
         if (!connection) {
@@ -443,37 +444,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.createCollection",
+      Commands.createCollection,
       async (node: CollectionDirectory) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-        if (!connection) {
-          return;
-        }
-
-        const collectionName = await vscode.window.showInputBox({
-          prompt: "Collection name",
-          placeHolder: "collection name",
-          ignoreFocusOut: true,
-          value: "",
-        });
-        if (!collectionName) {
-          vscode.window.showErrorMessage("Collection name is required.");
-          return;
-        }
-        if (collectionName.startsWith('%') || collectionName.startsWith('_')) {
-          vscode.window.showErrorMessage(`Collection names cannot start with ${collectionName[0]}`);
-          return;
-        }
-
-        const collectionManager = await node.connection.cluster
-          ?.bucket(node.bucketName)
-          .collections();
-        await collectionManager?.createCollection({
-          name: collectionName,
-          scopeName: node.scopeName,
-        });
-
-        logger.info(`${node.bucketName}: ${node.scopeName}: Successfully created the collection: ${collectionName}`);
+        await createCollection(node);
         clusterConnectionTreeProvider.refresh();
       }
     )
@@ -481,30 +454,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.removeCollection",
+      Commands.removeCollection,
       async (node: CollectionNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-        if (!connection) {
-          return;
-        }
-
-        let answer = await vscode.window.showInformationMessage(
-          `Are you sure you want to delete the collection ${node.collectionName}?`,
-          ...["Yes", "No"]
-        );
-        if (answer !== "Yes") {
-          return;
-        }
-
-        const collectionManager = await node.connection.cluster
-          ?.bucket(node.bucketName)
-          .collections();
-        await collectionManager?.dropCollection(
-          node.collectionName,
-          node.scopeName
-        );
-        logger.info(`${node.bucketName}: ${node.scopeName}: The collection named ${node.collectionName} has been deleted`);
-
+        await removeCollection(node);
         clusterConnectionTreeProvider.refresh();
       }
     )
@@ -512,7 +464,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.refreshCollections",
+      Commands.refreshCollections,
       async (node: ScopeNode) => {
         clusterConnectionTreeProvider.refresh(node);
         clusterConnectionTreeProvider.refresh(node.parentNode);
@@ -603,7 +555,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.openQueryNotebook",
+      Commands.openQueryNotebook,
       async () => {
         createNotebook();
       }
@@ -612,7 +564,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.openQueryWorkbench",
+      Commands.openQueryWorkbench,
       async (node: ClusterConnectionNode) => {
         const connection = Memory.state.get<IConnection>("activeConnection");
 
