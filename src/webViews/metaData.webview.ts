@@ -25,7 +25,7 @@ const camelToNormal = (camel: string) =>
 * information about a "bucket" (the metadata information 
 * is passed to the function as an object result of type IBucket).
 */
-export function getBucketMetaData(result: IBucketSettings) {
+export const getBucketMetaDataView = (result: IBucketSettings) => {
    return `
   <!DOCTYPE html>
   <html lang="en">
@@ -131,14 +131,14 @@ export function getBucketMetaData(result: IBucketSettings) {
         </table>
      </body>
   </html>`;
-}
+};
 
 /**
  * function getDocumentMetaData returns a JSON view of Document Metadata
  * @param which contains document metadata 
  * @returns HTML Web view
  */
-export function getDocumentMetaData(result: any): string {
+export const getDocumentMetaDataView = (result: any) => {
    function buildJSON(data: any): string {
       return JSON.stringify(data, null, 2);
    }
@@ -161,4 +161,4 @@ export function getDocumentMetaData(result: any): string {
        </body>
      </html>
    `;
-}
+};

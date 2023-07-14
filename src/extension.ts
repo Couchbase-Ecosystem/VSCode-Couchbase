@@ -24,7 +24,7 @@ import { INode } from "./types/INode";
 import { logger } from "./logger/logger";
 import { PagerNode } from "./model/PagerNode";
 import { ScopeNode } from "./model/ScopeNode";
-import { getBucketMetaData, getDocumentMetaData } from "./webViews/metaData.webview";
+import { getBucketMetaDataView } from "./webViews/metaData.webview";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
 import {
   addConnection,
@@ -45,12 +45,13 @@ import { CollectionDirectory } from "./model/CollectionDirectory";
 import { IndexDirectory } from "./model/IndexDirectory";
 import { extractDocumentInfo } from "./util/common";
 import { openWorkbench } from "./workbench/workbench";
-import { getSampleProjects } from "./webViews/sampleProjects.webview";
+import { getSampleProjectsView } from "./webViews/sampleProjects.webview";
 import gitly from "gitly";
 import { updateDocumentToServer } from "./util/documentUtils/updateDocument";
 import { getDocument } from "./util/documentUtils/getDocument";
-import { openDocument } from "./commands/documents/openDocument";
 import { openIndexInfo } from "./commands/indexes/openIndexInformation";
+import { Commands } from "./commands/extensionCommands/commands";
+import { createDocument, removeDocument, searchDocument, getDocumentMetaData, openDocument } from "./commands/documents";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -310,7 +311,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.openDocument",
+      Commands.openDocument,
       async (documentNode: DocumentNode) => {
         await openDocument(documentNode, clusterConnectionTreeProvider, uriToCasMap, memFs);
       }
@@ -339,54 +340,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.createDocument",
+      Commands.createDocument,
       async (node: CollectionNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-        if (!connection) {
-          return;
-        }
-
-        const documentName = await vscode.window.showInputBox({
-          prompt: "Document Id",
-          placeHolder: "Document Id",
-          ignoreFocusOut: true,
-          value: "",
-        });
-        if (!documentName) {
-          vscode.window.showErrorMessage("Document Id is required.");
-          return;
-        }
-
-        const uri = vscode.Uri.parse(
-          `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${documentName}.json`
-        );
-        let documentContent = Buffer.from("{}");
-        // Try block is trying to retrieve the document with the same key first
-        // If returns an error go to catch block create a new empty document
-        try {
-          const result = await node.connection.cluster
-            ?.bucket(node.bucketName)
-            .scope(node.scopeName)
-            .collection(node.collectionName)
-            .get(documentName);
-          if (result) {
-            uriToCasMap.set(uri.toString(), result.cas.toString());
-          }
-          documentContent = Buffer.from(
-            JSON.stringify(result?.content, null, 2)
-          );
-        } catch (err: any) {
-          if (!(err instanceof DocumentNotFoundError)) {
-            logger.error(err);
-          }
-        }
-        memFs.writeFile(uri, documentContent, {
-          create: true,
-          overwrite: true,
-        });
-        const document = await vscode.workspace.openTextDocument(uri);
-        await vscode.window.showTextDocument(document, { preview: false });
-        logger.info(`${node.bucketName}: ${node.scopeName}: ${node.collectionName}: Successfully created the document: ${documentName}`);
+        await createDocument(node, memFs, uriToCasMap);
         clusterConnectionTreeProvider.refresh(node);
       }
     )
@@ -394,36 +350,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.removeDocument",
+      Commands.removeDocument,
       async (node: DocumentNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-        if (!connection) {
-          return;
-        }
-
-        let answer = await vscode.window.showInformationMessage(
-          `Are you sure you want to delete the document ${node.documentName}?`,
-          ...["Yes", "No"]
-        );
-        if (answer !== "Yes") {
-          return;
-        }
-        await connection.cluster
-          ?.bucket(node.bucketName)
-          .scope(node.scopeName)
-          .collection(node.collectionName)
-          .remove(node.documentName);
-        try {
-          const uri = vscode.Uri.parse(
-            `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${node.documentName}.json`
-          );
-          memFs.delete(uri);
-        } catch (err) {
-          if (!(err instanceof vscode.FileSystemError)) {
-            logger.error(err);
-          }
-        }
-        logger.info(`${node.bucketName}: ${node.scopeName}: ${node.collectionName}: The document named ${node.documentName} has been deleted`);
+        await removeDocument(node, uriToCasMap, memFs);
         clusterConnectionTreeProvider.refresh();
       }
     )
@@ -610,7 +539,7 @@ export function activate(context: vscode.ExtensionContext) {
             return;
           }
           if (currentPanel && currentPanel.viewType === viewType) {
-            currentPanel.webview.html = getBucketMetaData(bucketData);
+            currentPanel.webview.html = getBucketMetaDataView(bucketData);
             currentPanel.reveal(vscode.ViewColumn.One);
           } else {
             currentPanel = vscode.window.createWebviewPanel(
@@ -621,7 +550,7 @@ export function activate(context: vscode.ExtensionContext) {
                 enableScripts: true,
               }
             );
-            currentPanel.webview.html = getBucketMetaData(bucketData);
+            currentPanel.webview.html = getBucketMetaDataView(bucketData);
 
             currentPanel.onDidDispose(
               () => {
@@ -645,102 +574,16 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.getDocumentMetaData",
       async (node: DocumentNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-
-        if (!connection) {
-          return;
-        }
-        try {
-          const viewType = `${connection.url}.${node.bucketName}.${node.scopeName}.${node.collectionName}.${node.documentName}`;
-          const result = await connection.cluster?.query(
-            `SELECT META(b).* FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id =  \"${node.documentName}\"`
-          );
-          if (currentPanel && currentPanel.viewType === viewType) {
-            currentPanel.webview.html = getDocumentMetaData(result?.rows);
-            currentPanel.reveal(vscode.ViewColumn.One);
-          } else {
-            currentPanel = vscode.window.createWebviewPanel(
-              viewType,
-              node.documentName + '.metadata.json',
-              vscode.ViewColumn.One,
-              {
-                enableScripts: true,
-              }
-            );
-            currentPanel.webview.html = getDocumentMetaData(result?.rows);
-
-            currentPanel.onDidDispose(
-              () => {
-                currentPanel = undefined;
-              },
-              undefined,
-              context.subscriptions
-            );
-          }
-        } catch (err) {
-          logger.error(
-            `Document metadata retrieval failed for '${node.documentName}'`
-          );
-          logger.debug(err);
-        }
+        getDocumentMetaData(node, context);
       }
     )
   );
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.searchDocument",
+      Commands.searchDocument,
       async (node: CollectionNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-        if (!connection) {
-          return;
-        }
-        const documentName = await vscode.window.showInputBox({
-          prompt: "Please enter the Document ID",
-          placeHolder: "Document Id",
-          ignoreFocusOut: true,
-          value: "",
-        });
-        if (!documentName) {
-          vscode.window.showErrorMessage("Document Id is required.");
-          return;
-        }
-        try {
-          const documentInfo: IDocumentData = {
-            bucket: node.bucketName,
-            scope: node.scopeName,
-            collection: node.collectionName,
-            name: documentName
-          };
-          const result = await getDocument(connection, documentInfo);
-          const uri = vscode.Uri.parse(
-            `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${documentName}.json`
-          );
-          if (result) {
-            uriToCasMap.set(uri.toString(), result.cas.toString());
-          }
-          memFs.writeFile(
-            uri,
-            Buffer.from(JSON.stringify(result?.content, null, 2)),
-            { create: true, overwrite: true }
-          );
-          const document = await vscode.workspace.openTextDocument(uri);
-          await vscode.window.showTextDocument(document, { preview: false });
-          return true;
-        } catch (err) {
-          if (err instanceof DocumentNotFoundError) {
-            vscode.window.showErrorMessage(
-              `The document with document Id ${documentName} does not exist`,
-              { modal: true }
-            );
-            logger.info(`The document with document Id ${documentName} does not exist`);
-          } else {
-            logger.error(
-              `An error occured while retrieving document with document Id ${documentName}`
-            );
-            logger.debug(err);
-          }
-        }
+        await searchDocument(node, uriToCasMap, memFs);
       }
     )
   );
@@ -793,7 +636,7 @@ export function activate(context: vscode.ExtensionContext) {
             enableScripts: true,
           }
         );
-        panel.webview.html = getSampleProjects();
+        panel.webview.html = getSampleProjectsView();
         panel.webview.onDidReceiveMessage(
           async (message) => {
             if (!message || !message.repo) {

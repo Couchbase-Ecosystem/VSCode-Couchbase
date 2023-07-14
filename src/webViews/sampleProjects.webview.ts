@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-export function getSampleProjects(): string {
+export function getSampleProjectsView(): string {
   return `
       <!DOCTYPE html>
       <html lang="en">

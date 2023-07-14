@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-export function getClusterConnectingFormView(message: any): string {
+export const getClusterConnectingFormView = (message: any) => {
     return `
         <!DOCTYPE html>
         <html>
@@ -319,4 +319,4 @@ export function getClusterConnectingFormView(message: any): string {
         </body>
         </html>
      `;
-}
+};
