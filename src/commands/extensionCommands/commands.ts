@@ -14,9 +14,18 @@
  *   limitations under the License.
  */
 export namespace Commands {
+    export const createClusterConnection: string = "vscode-couchbase.createClusterConnection";
+    export const deleteClusterConnection: string = "vscode-couchbase.deleteClusterConnection";
+    export const refreshConnection: string = "vscode-couchbase.refreshConnection";
+    export const useClusterConnection: string = "vscode-couchbase.useClusterConnection";
+    export const disconnectClusterConnection: string = "vscode-couchbase.disconnectClusterConnection";
     export const createDocument: string = "vscode-couchbase.createDocument";
 	export const openDocument: string = "vscode-couchbase.openDocument";
     export const removeDocument: string = "vscode-couchbase.removeDocument";
     export const getDocumentMetaData: string = "vscode-couchbase.getDocumentMetaData";
     export const searchDocument: string = "vscode-couchbase.searchDocument";
+    export const openIndexInfo: string = "vscode-couchbase.openIndexInfo";
+    export const refreshIndexes: string = "vscode-couchbase.refreshIndexes";
+    export const loadMore: string = "vscode-couchbase.loadMore";
+
 }

@@ -253,7 +253,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.createClusterConnection",
+      Commands.createClusterConnection,
       async () => {
         await addConnection(clusterConnectionTreeProvider);
       }
@@ -262,7 +262,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.deleteClusterConnection",
+      Commands.deleteClusterConnection,
       async (node: ClusterConnectionNode) => {
         if (node.isActive) {
           node.connection.cluster = undefined;
@@ -277,7 +277,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.refreshConnection",
+      Commands.refreshConnection,
       (node: INode) => {
         clusterConnectionTreeProvider.refresh(node);
       }
@@ -286,7 +286,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.useClusterConnection",
+      Commands.useClusterConnection,
       async (node: ClusterConnectionNode) => {
         await useConnection(node.connection);
         clusterConnectionTreeProvider.refresh();
@@ -296,7 +296,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.disconnectClusterConnection",
+      Commands.disconnectClusterConnection,
       async (node: ClusterConnectionNode) => {
         if (!node.isActive) {
           return;
@@ -320,7 +320,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.openIndexInfo",
+      Commands.openIndexInfo,
       async (indexNode: IndexNode) => {
         openIndexInfo(indexNode, memFs);
 
@@ -330,7 +330,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.loadMore",
+      Commands.loadMore,
       async (node: PagerNode) => {
         node.collection.limit += 10;
         clusterConnectionTreeProvider.refresh(node.collection);
@@ -572,7 +572,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.getDocumentMetaData",
+      Commands.getDocumentMetaData,
       async (node: DocumentNode) => {
         getDocumentMetaData(node, context);
       }
@@ -590,7 +590,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.refreshIndexes",
+      Commands.refreshIndexes,
       async (node: IndexDirectory) => {
         const connection = Memory.state.get<IConnection>("activeConnection");
         if (!connection) {
