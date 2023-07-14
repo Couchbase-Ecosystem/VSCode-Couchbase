@@ -45,13 +45,12 @@ import { CollectionDirectory } from "./model/CollectionDirectory";
 import { IndexDirectory } from "./model/IndexDirectory";
 import { extractDocumentInfo } from "./util/common";
 import { openWorkbench } from "./workbench/workbench";
-import { getSampleProjectsView } from "./webViews/sampleProjects.webview";
-import gitly from "gitly";
 import { updateDocumentToServer } from "./util/documentUtils/updateDocument";
 import { getDocument } from "./util/documentUtils/getDocument";
 import { openIndexInfo } from "./commands/indexes/openIndexInformation";
 import { Commands } from "./commands/extensionCommands/commands";
 import { createDocument, removeDocument, searchDocument, getDocumentMetaData, openDocument } from "./commands/documents";
+import { getSampleProjects } from "./commands/sampleProjects/getSampleProjects";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -81,7 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.showOutputConsole",
+      Commands.showOutputConsole,
       () => {
         logger.showOutput();
       }
@@ -626,90 +625,8 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
-    vscode.commands.registerCommand("vscode-couchbase.openSampleProjects", async () => {
-      try {
-        const panel = vscode.window.createWebviewPanel(
-          "sampleProjects",
-          "Sample Projects",
-          vscode.ViewColumn.One,
-          {
-            enableScripts: true,
-          }
-        );
-        panel.webview.html = getSampleProjectsView();
-        panel.webview.onDidReceiveMessage(
-          async (message) => {
-            if (!message || !message.repo) {
-              return;
-            }
-
-            const projectName = await vscode.window.showInputBox({
-              prompt: "Project Name",
-              placeHolder: "Project-Name",
-              ignoreFocusOut: true,
-              value: "",
-            });
-            if (!projectName) {
-              vscode.window.showErrorMessage("Project name is required.");
-              return;
-            }
-
-            const fileUris = await vscode.window.showOpenDialog({
-              openLabel: "Select location",
-              canSelectMany: false,
-              canSelectFiles: false,
-              canSelectFolders: true,
-            });
-            if (!fileUris || !fileUris[0]) {
-              vscode.window.showErrorMessage("Project location is required.");
-              return;
-            }
-
-            const projectUri = vscode.Uri.joinPath(fileUris[0], projectName);
-            try {
-              // test if the project location already exists, if so, show error message
-              // fs.stat will throw an error if the file does not exist
-              await vscode.workspace.fs.stat(projectUri);
-              vscode.window.showErrorMessage("Selected project location already has a project with same name, please choose a different location.", { modal: true });
-              return;
-            } catch {
-              // do nothing, project location does not exist
-            }
-
-            const repoUrl = `couchbase-examples/${message.repo}`;
-            await gitly(repoUrl, projectUri.path, { throw: true });
-
-            vscode.window.showInformationMessage(``);
-            let answer = await vscode.window.showInformationMessage(
-              `Example project created at: ${projectUri.path}.`,
-              ...["Open", "Add to Workspace"]
-            );
-            switch (answer) {
-              case "Open":
-                await vscode.commands.executeCommand(
-                  "vscode.openFolder",
-                  projectUri
-                );
-                break;
-              case "Add to Workspace":
-                vscode.workspace.updateWorkspaceFolders(
-                  vscode.workspace.workspaceFolders
-                    ? vscode.workspace.workspaceFolders.length
-                    : 0,
-                  null,
-                  { uri: projectUri }
-                );
-                break;
-            }
-            panel.dispose();
-          },
-          undefined,
-          context.subscriptions
-        );
-      } catch (err) {
-        logger.error("Failed to open sample projects");
-        logger.debug(err);
-      }
+    vscode.commands.registerCommand(Commands.getSampleProjects, async () => {
+      getSampleProjects(context);
     })
   );
 

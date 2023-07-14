@@ -26,6 +26,7 @@ export namespace Commands {
     export const searchDocument: string = "vscode-couchbase.searchDocument";
     export const openIndexInfo: string = "vscode-couchbase.openIndexInfo";
     export const refreshIndexes: string = "vscode-couchbase.refreshIndexes";
+    export const getSampleProjects: string = "vscode-couchbase.openSampleProjects";
     export const loadMore: string = "vscode-couchbase.loadMore";
-
+    export const showOutputConsole: string = "vscode-couchbase.showOutputConsole";
 }
