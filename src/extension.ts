@@ -52,6 +52,7 @@ import { Commands } from "./commands/extensionCommands/commands";
 import { createDocument, removeDocument, searchDocument, getDocumentMetaData, openDocument } from "./commands/documents";
 import { getSampleProjects } from "./commands/sampleProjects/getSampleProjects";
 import { createCollection, removeCollection } from "./commands/collections";
+import { createScope, removeScope } from "./commands/scopes";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -374,33 +375,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.createScope",
+      Commands.createScope,
       async (node: BucketNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-        if (!connection) {
-          return;
-        }
-
-        const scopeName = await vscode.window.showInputBox({
-          prompt: "Scope name",
-          placeHolder: "scope name",
-          ignoreFocusOut: true,
-          value: "",
-        });
-        if (!scopeName) {
-          vscode.window.showErrorMessage("Scope name is required.");
-          return;
-        }
-        if (scopeName.startsWith('_' || scopeName.startsWith('%'))) {
-          vscode.window.showErrorMessage(`Scope names cannot start with ${scopeName[0]}`);
-          return;
-        }
-
-        const collectionManager = await node.connection.cluster
-          ?.bucket(node.bucketName)
-          .collections();
-        await collectionManager?.createScope(scopeName);
-        logger.info(`${node.bucketName}: Successfully created the scope: ${scopeName}`);
+        await createScope(node);
         clusterConnectionTreeProvider.refresh(node);
       }
     )
@@ -408,26 +385,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.removeScope",
+      Commands.removeScope,
       async (node: ScopeNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-        if (!connection) {
-          return;
-        }
-
-        let answer = await vscode.window.showInformationMessage(
-          `Are you sure you want to delete the scope ${node.scopeName}?`,
-          ...["Yes", "No"]
-        );
-        if (answer !== "Yes") {
-          return;
-        }
-
-        const collectionManager = await node.connection.cluster
-          ?.bucket(node.bucketName)
-          .collections();
-        await collectionManager?.dropScope(node.scopeName);
-        logger.info(`${node.bucketName}: The scope named ${node.scopeName} has been deleted`);
+        await removeScope(node);
         clusterConnectionTreeProvider.refresh();
       }
     )
@@ -435,7 +395,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.refreshScopes",
+      Commands.refreshScopes,
       async (node: BucketNode) => {
         clusterConnectionTreeProvider.refresh(node);
       }

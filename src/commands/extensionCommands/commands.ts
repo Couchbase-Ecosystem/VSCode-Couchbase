@@ -22,6 +22,9 @@ export namespace Commands {
     export const createCollection: string = "vscode-couchbase.createCollection";
     export const refreshCollection: string = "vscode-couchbase.refreshCollection";
     export const removeCollection: string = "vscode-couchbase.removeCollection";
+    export const createScope: string = "vscode-couchbase.createScope";
+    export const removeScope: string = "vscode-couchbase.removeScope";
+    export const refreshScopes: string = "vscode-couchbase.refreshScopes";
     export const refreshCollections: string = "vscode-couchbase.refreshCollections";
     export const createDocument: string = "vscode-couchbase.createDocument";
 	export const openDocument: string = "vscode-couchbase.openDocument";
