@@ -53,6 +53,7 @@ import { createDocument, removeDocument, searchDocument, getDocumentMetaData, op
 import { getSampleProjects } from "./commands/sampleProjects/getSampleProjects";
 import { createCollection, removeCollection } from "./commands/collections";
 import { createScope, removeScope } from "./commands/scopes";
+import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -434,49 +435,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.getBucketInfo",
+      Commands.getBucketMetaData,
       async (node: BucketNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-
-        if (!connection) {
-          return;
-        }
-        try {
-          const viewType = `${connection.url}.${node.bucketName}`;
-          const bucketData = await connection.cluster
-            ?.buckets()
-            .getBucket(node.bucketName);
-          if (!bucketData) {
-            return;
-          }
-          if (currentPanel && currentPanel.viewType === viewType) {
-            currentPanel.webview.html = getBucketMetaDataView(bucketData);
-            currentPanel.reveal(vscode.ViewColumn.One);
-          } else {
-            currentPanel = vscode.window.createWebviewPanel(
-              viewType,
-              node.bucketName,
-              vscode.ViewColumn.One,
-              {
-                enableScripts: true,
-              }
-            );
-            currentPanel.webview.html = getBucketMetaDataView(bucketData);
-
-            currentPanel.onDidDispose(
-              () => {
-                currentPanel = undefined;
-              },
-              undefined,
-              context.subscriptions
-            );
-          }
-        } catch (err) {
-          logger.error(
-            `Bucket metadata retrieval failed for \`${node.bucketName}\``
-          );
-          logger.debug(err);
-        }
+        getBucketMetaData(node, context);
       }
     )
   );
@@ -507,7 +468,6 @@ export function activate(context: vscode.ExtensionContext) {
         if (!connection) {
           return;
         }
-
         clusterConnectionTreeProvider.refresh(node);
       }
     )
