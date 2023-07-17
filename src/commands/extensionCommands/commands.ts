@@ -28,7 +28,7 @@ export namespace Commands {
     export const refreshCollections: string = "vscode-couchbase.refreshCollections";
     export const getBucketMetaData: string = "vscode-couchbase.getBucketInfo";
     export const createDocument: string = "vscode-couchbase.createDocument";
-	export const openDocument: string = "vscode-couchbase.openDocument";
+    export const openDocument: string = "vscode-couchbase.openDocument";
     export const removeDocument: string = "vscode-couchbase.removeDocument";
     export const getDocumentMetaData: string = "vscode-couchbase.getDocumentMetaData";
     export const searchDocument: string = "vscode-couchbase.searchDocument";
