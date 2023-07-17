@@ -15,11 +15,11 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { IConnection } from "./IConnection";
-import { INode } from "./INode";
+import { IConnection } from "../types/IConnection";
+import { INode } from "../types/INode";
 import CollectionNode from "./CollectionNode";
 import InformationNode from "./InformationNode";
-import { logger } from "../logging/logger";
+import { logger } from "../logger/logger";
 
 export class CollectionDirectory implements INode {
     constructor(
@@ -87,7 +87,7 @@ export class CollectionDirectory implements INode {
                 throw new Error(err);
             }
         }
-        if(collectionList.length === 0) {
+        if (collectionList.length === 0) {
             collectionList.push(new InformationNode("No Collections found"));
         }
         return collectionList;

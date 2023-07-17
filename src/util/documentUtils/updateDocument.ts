@@ -14,28 +14,22 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
-import CollectionNode from "./CollectionNode";
-import { INode } from "../types/INode";
+import { IConnection } from "../../types/IConnection";
+import { IDocumentData } from "../../types/IDocument";
 
-export class PagerNode implements INode {
-
-  constructor(
-    public readonly collection: CollectionNode
-  ) { }
-
-  public getTreeItem(): vscode.TreeItem {
-    return {
-      label: `Load more`,
-      collapsibleState: vscode.TreeItemCollapsibleState.None,
-      command: {
-        command: "vscode-couchbase.loadMore",
-        title: "Load more",
-        arguments: [this],
-      },
-    };
+export const updateDocumentToServer = async (
+  activeConnection: IConnection,
+  documentInfo: IDocumentData,
+  document: vscode.TextDocument
+): Promise<string> => {
+  const result = await activeConnection.cluster
+    ?.bucket(documentInfo.bucket)
+    .scope(documentInfo.scope)
+    .collection(documentInfo.collection)
+    .upsert(documentInfo.name, JSON.parse(document.getText()));
+  vscode.window.setStatusBarMessage("Document saved", 2000);
+  if (result && result.cas) {
+    return result.cas.toString();
   }
-
-  public async getChildren(): Promise<INode[]> {
-    return [];
-  }
-}
+  return "";
+};

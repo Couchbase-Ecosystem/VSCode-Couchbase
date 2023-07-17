@@ -16,19 +16,19 @@
 import * as vscode from "vscode";
 import * as path from "path";
 
-import { IConnection } from "./IConnection";
-import { INode } from "./INode";
+import { IConnection } from "../types/IConnection";
+import { INode } from "../types/INode";
 import { BucketNode } from "./BucketNode";
 import { BucketSettings } from "couchbase";
 import { getActiveConnection } from "../util/connections";
 import InformationNode from "./InformationNode";
-import { logger } from "../logging/logger";
+import { logger } from "../logger/logger";
 
 export class ClusterConnectionNode implements INode {
   constructor(
     public readonly id: string,
     public readonly connection: IConnection
-  ) {}
+  ) { }
 
   public isActive: Boolean = false;
 
