@@ -13,29 +13,16 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-import * as vscode from "vscode";
-import CollectionNode from "./CollectionNode";
-import { INode } from "../types/INode";
+import { IConnection } from "../../types/IConnection";
+import { IDocumentData } from "../../types/IDocument";
 
-export class PagerNode implements INode {
-
-  constructor(
-    public readonly collection: CollectionNode
-  ) { }
-
-  public getTreeItem(): vscode.TreeItem {
-    return {
-      label: `Load more`,
-      collapsibleState: vscode.TreeItemCollapsibleState.None,
-      command: {
-        command: "vscode-couchbase.loadMore",
-        title: "Load more",
-        arguments: [this],
-      },
-    };
-  }
-
-  public async getChildren(): Promise<INode[]> {
-    return [];
-  }
-}
+export const getDocument = async (
+  activeConnection: IConnection,
+  documentInfo: IDocumentData
+) => {
+  return await activeConnection.cluster
+    ?.bucket(documentInfo.bucket)
+    .scope(documentInfo.scope)
+    .collection(documentInfo.collection)
+    .get(documentInfo.name);
+};

@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
-import { INode } from "../model/INode";
+import { INode } from "../types/INode";
 import { ClusterConnectionNode } from "../model/ClusterConnectionNode";
 import { getConnections } from "../util/connections";
 

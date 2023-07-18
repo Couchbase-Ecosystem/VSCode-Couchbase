@@ -15,8 +15,8 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { IConnection } from "./IConnection";
-import { INode } from "./INode";
+import { IConnection } from "../types/IConnection";
+import { INode } from "../types/INode";
 
 export default class IndexNode extends vscode.TreeItem {
     constructor(
