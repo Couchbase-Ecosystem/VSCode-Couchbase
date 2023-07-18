@@ -24,6 +24,7 @@ import { Constants } from "../util/constants";
 import { getConnectionId } from "../util/connections";
 import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
+import { getIndexDefinition } from "../util/indexUtils";
 
 export class IndexDirectory implements INode {
     constructor(
@@ -86,7 +87,7 @@ export class IndexDirectory implements INode {
                             this.scopeName,
                             this.bucketName,
                             `${query.name.substring(1)}_${(query.collectionName ?? "")}`,
-                            JSON.stringify(query, null, 2),
+                            getIndexDefinition(query),
                             vscode.TreeItemCollapsibleState.None
                         );
                         indexesList.push(indexNode);
