@@ -22,4 +22,23 @@ export class Constants {
   public static prefixSecureURL = "couchbases://";
   public static prefixURL = "couchbase://";
   public static extensionVersion = pkg.version;
+  public static COUCHBASEVERSIONKEY = "Couchbase Version";
+  public static STATUS = "Status";
+  public static SERVICES= "Services";
+  public static NODES= "Nodes";
+  public static BUCKETS= "Buckets";
+  public static OS= "OS";
+  public static DATA="Data";
+  public static EVENTING="Eventing";
+  public static INDEX="Index";
+  public static SEARCH="Search";
+  public static ANALYTICS="Analytics";
+  public static TOTAL="Total";
+  public static USED="Used";
+  public static QUOTA_TOTAL="Quota Total";
+  public static QUOTA_USED="Quota Used";
+  public static QUOTA_USED_PER_NODE="Quota Used per Node";
+  public static QUOTA_TOTAL_PER_NODE="Quota Total per Node";
+  public static USED_BY_DATA="Used by Data";
+  public static FREE="FREE";
 }

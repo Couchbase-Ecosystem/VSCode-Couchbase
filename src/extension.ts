@@ -377,20 +377,6 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
-    vscode.commands.registerCommand(
-      "vscode-couchbase.getClusterOverview",
-      async (node: ClusterConnectionNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-
-        if (!connection) {
-          return;
-        }
-        fetchClusterOverview(node);
-      }
-    )
-  );
-
-  subscriptions.push(
     vscode.commands.registerCommand(Commands.getSampleProjects, async () => {
       getSampleProjects(context);
     })
