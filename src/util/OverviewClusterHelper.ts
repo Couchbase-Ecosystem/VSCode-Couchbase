@@ -17,3 +17,18 @@ export class OverviewGeneral {
         this.Storage = Storage;
       }
 }
+
+export class BucketDetails {
+  public Bucket: IKeyValuePair[] | null;
+  public Quota: IKeyValuePair[] | null;
+  public BasicStats: IKeyValuePair[] | null;
+  constructor(
+    Bucket: IKeyValuePair[] | null,
+    Quota: IKeyValuePair[] | null,
+    BasicStats: IKeyValuePair[] | null
+  ){
+    this.Bucket = Bucket;
+    this.Quota = Quota;
+    this.BasicStats = BasicStats;
+  }
+}

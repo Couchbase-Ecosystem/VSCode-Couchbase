@@ -14,12 +14,12 @@
  *   limitations under the License.
  */
 import { Bucket } from "couchbase";
-import { OverviewGeneral } from "../util/OverviewClusterHelper";
+import { BucketDetails, OverviewGeneral } from "../util/OverviewClusterHelper";
 
 
 export interface IClusterOverview {
   readonly GeneralDetails: OverviewGeneral | null;
   readonly Buckets: Bucket[] | null;
   readonly Title: string;
-  
+  readonly BucketDetails?: Map<String, BucketDetails>;
 }

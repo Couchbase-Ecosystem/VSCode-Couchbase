@@ -1,5 +1,4 @@
 import { IClusterOverview } from "../types/IClusterOverview";
-
 export function getClusterOverview(overview: IClusterOverview): string {
    return `
     <!DOCTYPE html>
@@ -115,6 +114,9 @@ export function getClusterOverview(overview: IClusterOverview): string {
                         `)).join('')}
                   </div>
                </div>
+               <div id="Bucket-tab">
+                  
+               </div>
             </div>
          </div>
          <style>
@@ -196,7 +198,7 @@ export function getClusterOverview(overview: IClusterOverview): string {
          function showContainer( header, subheader) {
             if (header === "Overview"){
                document.getElementById("Overview-tab").hidden = false;
-            } 
+            }
          }
        </script>
     </html>`;

@@ -40,5 +40,22 @@ export class Constants {
   public static QUOTA_USED_PER_NODE="Quota Used per Node";
   public static QUOTA_TOTAL_PER_NODE="Quota Total per Node";
   public static USED_BY_DATA="Used by Data";
-  public static FREE="FREE";
+  public static FREE="Free";
+  public static TYPE="Type";
+  public static STORAGE_BACKEND="Storage Backend";
+  public static REPLICAS="Replicas";
+  public static EVICTION_POLICY="Eviction Policy";
+  public static DURABILITY_LEVEL="Durability Level";
+  public static MAX_TTL="Max TTL";
+  public static COMPRESSION_MODE="Compression Mode";
+  public static CONFLICT_RESOLUTION="Conflict Resolution";
+  public static RAM="RAM";
+  public static RAW_RAM="Raw RAM";
+  public static OPS_PER_SEC="Ops per Sec";
+  public static DISK_FETCHES="Disk Fetches";
+  public static DISK_USED="Disk Used";
+  public static ITEM_COUNT="Item Count";
+  public static MEMORY_USED="Memory Used";
+  public static NUM_ACTIVE_VBUCKET_NR="# Active vBukcet Non Residents";
+  public static DATA_USED="Data Used";
 }

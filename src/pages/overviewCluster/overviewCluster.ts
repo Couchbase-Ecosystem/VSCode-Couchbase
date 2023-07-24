@@ -14,6 +14,142 @@ import { Bucket, BucketSettings } from "couchbase";
 import { CouchbaseRestAPI } from "../../util/apis/CouchbaseRestAPI";
 import { ServerOverview } from "../../util/apis/ServerOverview";
 import { IKeyValuePair } from "../../types/IKeyValuePair";
+import { BucketOverview } from "../../util/apis/BucketOverview";
+import { BucketDetails } from "../../util/OverviewClusterHelper";
+
+const getBucketTabDetails = (bucketSettings: BucketOverview | undefined):IKeyValuePair[] => {
+    let details: IKeyValuePair[] = [];
+    if (bucketSettings === undefined){
+        return details;
+    }
+
+    // Type
+    details.push({
+        key: Constants.TYPE,
+        value: bucketSettings?.bucketType || "NA", 
+    });
+
+    // Storage Backend
+    details.push({
+        key: Constants.STORAGE_BACKEND,
+        value: bucketSettings?.storageBackend || "NA", 
+    });
+
+     // Replicas
+     details.push({
+        key: Constants.REPLICAS,
+        value: bucketSettings?.replicaNumber?.toString() || "NA", 
+    });
+
+     // Eviction Policy
+     details.push({
+        key: Constants.EVICTION_POLICY,
+        value: bucketSettings?.evictionPolicy || "NA", 
+    });
+
+     // Durabiity Level
+     details.push({
+        key: Constants.DURABILITY_LEVEL,
+        value: bucketSettings?.durabilityMinLevel?.toString() || "NA", 
+    });
+
+     // Max TTL
+     details.push({
+        key: Constants.MAX_TTL,
+        value: bucketSettings?.maxTTL?.toString() || "NA", 
+    });
+
+     // Compression Mode
+     details.push({
+        key: Constants.COMPRESSION_MODE,
+        value: bucketSettings?.compressionMode || "NA", 
+    });
+
+     // Conflict Resolution
+     details.push({
+        key: Constants.CONFLICT_RESOLUTION,
+        value: bucketSettings?.conflictResolutionType || "NA", 
+    });
+
+    return details;
+};
+
+const getBucketTabQuotaDetails = (bucketSettings: BucketOverview | undefined):IKeyValuePair[] => {
+    let details: IKeyValuePair[] = [];
+    if (bucketSettings === undefined){
+        return details;
+    }
+
+    // RAM
+    details.push({
+        key: Constants.RAM,
+        value: bucketSettings?.quota?.ram?.toString() || "NA", 
+    });
+
+    // Raw RAM
+    details.push({
+        key: Constants.RAW_RAM,
+        value: bucketSettings?.quota?.rawRAM?.toString() || "NA", 
+    });
+    return details;
+};
+
+const getBucketTabBasicStatsDetails = (bucketSettings: BucketOverview | undefined):IKeyValuePair[] => {
+    let details: IKeyValuePair[] = [];
+    if (bucketSettings === undefined){
+        return details;
+    }
+
+    // Type
+    details.push({
+        key: Constants.TYPE,
+        value: bucketSettings?.bucketType || "NA", 
+    });
+
+    // Storage Backend
+    details.push({
+        key: Constants.STORAGE_BACKEND,
+        value: bucketSettings?.storageBackend || "NA", 
+    });
+
+     // Replicas
+     details.push({
+        key: Constants.REPLICAS,
+        value: bucketSettings?.replicaNumber?.toString() || "NA", 
+    });
+
+     // Eviction Policy
+     details.push({
+        key: Constants.EVICTION_POLICY,
+        value: bucketSettings?.evictionPolicy || "NA", 
+    });
+
+     // Durabiity Level
+     details.push({
+        key: Constants.DURABILITY_LEVEL,
+        value: bucketSettings?.durabilityMinLevel?.toString() || "NA", 
+    });
+
+     // Max TTL
+     details.push({
+        key: Constants.MAX_TTL,
+        value: bucketSettings?.maxTTL?.toString() || "NA", 
+    });
+
+     // Compression Mode
+     details.push({
+        key: Constants.COMPRESSION_MODE,
+        value: bucketSettings?.compressionMode || "NA", 
+    });
+
+     // Conflict Resolution
+     details.push({
+        key: Constants.CONFLICT_RESOLUTION,
+        value: bucketSettings?.conflictResolutionType || "NA", 
+    });
+
+    return details;
+};
 
 const getGeneralClusterDetails = (serverOverview: ServerOverview|undefined): IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
@@ -202,7 +338,7 @@ const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connect
     return Buckets;
 };
 
-export async function fetchClusterOverview(node: ClusterConnectionNode) {
+export async function fetchClusterOverview(node: ClusterConnectionNode, context: vscode.ExtensionContext) {
     const connection = Memory.state.get<IConnection>("activeConnection");
 
     if (!connection) {
@@ -236,6 +372,14 @@ export async function fetchClusterOverview(node: ClusterConnectionNode) {
     let generalRAMDetails = getGeneralRAMDetails(serverOverview);
     let generalStorageDetails = getGeneraStorageDetails(serverOverview);
     
+    let BucketsDetails = new Map<string, BucketDetails>;
+    
+    for (let bucket of Buckets){
+        const bucketOverview:BucketOverview|undefined = await restAPIObject.getBucketsOverview(bucket.name);
+        let bucketTabDetails = getBucketTabDetails(bucketOverview);
+        BucketsDetails.set(bucket.name,new BucketDetails(bucketTabDetails, null, null));
+    }
+    
     const ClusterOverviewObject: IClusterOverview = {
         Buckets: Buckets,
         Title: "Cluster Overview",
@@ -244,7 +388,8 @@ export async function fetchClusterOverview(node: ClusterConnectionNode) {
             Quota: generalQuotaDetails,
             Storage: generalStorageDetails,
             RAM: generalRAMDetails,
-        }
+        }, 
+        BucketDetails: BucketsDetails
         
     };
     try {

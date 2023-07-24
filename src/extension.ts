@@ -371,7 +371,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (!connection) {
           return;
         }
-        fetchClusterOverview(node);
+        fetchClusterOverview(node, context);
       }
     )
   );
