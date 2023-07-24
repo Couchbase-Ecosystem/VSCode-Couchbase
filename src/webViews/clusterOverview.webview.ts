@@ -1,5 +1,6 @@
 import { IClusterOverview } from "../types/IClusterOverview";
-export function getClusterOverview(overview: IClusterOverview): string {
+import * as vscode from "vscode";
+export function getClusterOverview(overview: IClusterOverview, context: vscode.ExtensionContext): string {
    return `
     <!DOCTYPE html>
     <html lang="en">
@@ -43,7 +44,7 @@ export function getClusterOverview(overview: IClusterOverview): string {
                   </div>
                   <div class="sidebar-list-values-container">
                      ${overview.Buckets?.map((bucket) =>
-                     (`<div class="sidebar-list-value">
+                     (`<div class="sidebar-list-value" onClick="showContainer('Bucket','${bucket.name}')">
                            ${bucket.name}
                         </div>`)).join('')
                      }
@@ -188,18 +189,40 @@ export function getClusterOverview(overview: IClusterOverview): string {
                border: none; /* Remove the default border of <hr> element */
                border-top: 1px solid black; /* Add a top border with a solid line */
              }
-
+             .sidebar-list-value{
+               display: block;
+             }
              .flex {
                display: flex;
              }
          </style>
        </body>
        <script>
+       const vscode = acquireVsCodeApi();
+       
          function showContainer( header, subheader) {
             if (header === "Overview"){
                document.getElementById("Overview-tab").hidden = false;
+               document.getElementById("Bucket-tab").hidden = true;
+            } else if (header === "Bucket"){
+               
+               document.getElementById("Bucket-tab").hidden = false;
+               document.getElementById("Overview-tab").hidden = true;
+               let currentBucketHTML = "";
+               let buckets = [${overview.BucketsHTML.map((kv)=>{
+                  return JSON.stringify(kv);
+               })}];
+               for (bucket of buckets) {
+                  if(bucket.key === subheader){
+                     currentBucketHTML = bucket.value
+                     break;
+                  }
+               }
+               document.getElementById("Bucket-tab").innerHTML = currentBucketHTML;
+               
             }
          }
+         
        </script>
     </html>`;
 }

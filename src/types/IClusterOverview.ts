@@ -15,11 +15,14 @@
  */
 import { Bucket } from "couchbase";
 import { BucketDetails, OverviewGeneral } from "../util/OverviewClusterHelper";
+import { IKeyValuePair } from "./IKeyValuePair";
 
 
 export interface IClusterOverview {
   readonly GeneralDetails: OverviewGeneral | null;
   readonly Buckets: Bucket[] | null;
+  readonly Nodes: CBNode[] | null;
   readonly Title: string;
-  readonly BucketDetails?: Map<String, BucketDetails>;
+  readonly BucketsHTML: IKeyValuePair[];
+  readonly NodesHTML: IKeyValuePair[];
 }

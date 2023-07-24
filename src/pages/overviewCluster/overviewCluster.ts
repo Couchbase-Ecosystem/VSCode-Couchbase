@@ -4,10 +4,7 @@ import { getClusterOverview } from "../../webViews/clusterOverview.webview";
 import { ClusterConnectionNode } from "../../model/ClusterConnectionNode";
 import { Memory } from "../../util/util";
 import { IConnection } from "../../types/IConnection";
-import * as keytar from "keytar";
 import { Constants } from "../../util/constants";
-import { getConnectionId } from "../../util/connections";
-import axios from "axios";
 import { logger } from "../../logger/logger";
 import { IClusterOverview } from "../../types/IClusterOverview";
 import { Bucket, BucketSettings } from "couchbase";
@@ -16,6 +13,7 @@ import { ServerOverview } from "../../util/apis/ServerOverview";
 import { IKeyValuePair } from "../../types/IKeyValuePair";
 import { BucketOverview } from "../../util/apis/BucketOverview";
 import { BucketDetails } from "../../util/OverviewClusterHelper";
+
 
 const getBucketTabDetails = (bucketSettings: BucketOverview | undefined):IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
@@ -94,58 +92,52 @@ const getBucketTabQuotaDetails = (bucketSettings: BucketOverview | undefined):IK
     return details;
 };
 
-const getBucketTabBasicStatsDetails = (bucketSettings: BucketOverview | undefined):IKeyValuePair[] => {
+const getBucketTabStatsDetails = (bucketSettings: BucketOverview | undefined):IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
     if (bucketSettings === undefined){
         return details;
     }
 
-    // Type
+    // Ops Per Sec
     details.push({
-        key: Constants.TYPE,
-        value: bucketSettings?.bucketType || "NA", 
+        key: Constants.OPS_PER_SEC,
+        value: bucketSettings?.basicStats?.opsPerSec?.toString() || "NA", 
     });
 
-    // Storage Backend
+    // Disk Fetches
     details.push({
-        key: Constants.STORAGE_BACKEND,
-        value: bucketSettings?.storageBackend || "NA", 
+        key: Constants.DISK_FETCHES,
+        value: bucketSettings?.basicStats?.diskFetches?.toString() || "NA", 
     });
 
-     // Replicas
+     // Disk Used
      details.push({
-        key: Constants.REPLICAS,
-        value: bucketSettings?.replicaNumber?.toString() || "NA", 
+        key: Constants.DISK_USED,
+        value: bucketSettings?.basicStats?.diskUsed?.toString() || "NA", 
     });
 
-     // Eviction Policy
+     // Memory Used
      details.push({
-        key: Constants.EVICTION_POLICY,
-        value: bucketSettings?.evictionPolicy || "NA", 
+        key: Constants.MEMORY_USED,
+        value: bucketSettings?.basicStats?.memUsed?.toString() || "NA", 
     });
 
-     // Durabiity Level
+     // Item Count
      details.push({
-        key: Constants.DURABILITY_LEVEL,
-        value: bucketSettings?.durabilityMinLevel?.toString() || "NA", 
+        key: Constants.ITEM_COUNT,
+        value: bucketSettings?.basicStats?.itemCount?.toString() || "NA", 
     });
 
-     // Max TTL
+     // No of active vBucket Non Resident
      details.push({
-        key: Constants.MAX_TTL,
-        value: bucketSettings?.maxTTL?.toString() || "NA", 
+        key: Constants.NUM_ACTIVE_VBUCKET_NR,
+        value: bucketSettings?.basicStats?.vbActiveNumNonResident?.toString() || "NA", 
     });
 
-     // Compression Mode
+     // Data Used
      details.push({
-        key: Constants.COMPRESSION_MODE,
-        value: bucketSettings?.compressionMode || "NA", 
-    });
-
-     // Conflict Resolution
-     details.push({
-        key: Constants.CONFLICT_RESOLUTION,
-        value: bucketSettings?.conflictResolutionType || "NA", 
+        key: Constants.DATA_USED,
+        value: bucketSettings?.basicStats?.dataUsed?.toString() || "NA", 
     });
 
     return details;
@@ -159,7 +151,7 @@ const getGeneralClusterDetails = (serverOverview: ServerOverview|undefined): IKe
     // Couchbase version
     details.push({
         key: Constants.COUCHBASEVERSIONKEY,
-        value: (serverOverview.getNodes()[0] as CBNode).version || "NA"
+        value: (serverOverview.getNodes()[0]).version || "NA"
     });
 
     // Status
@@ -366,22 +358,76 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
     let bucketsSettings = await connection?.cluster?.buckets().getAllBuckets();
     let Buckets = fetchBucketNames(bucketsSettings, connection);
 
-    
+    // General Overview
     let generalClusterDetails = getGeneralClusterDetails(serverOverview);
     let generalQuotaDetails = getGeneralQuotaDetails(serverOverview);
     let generalRAMDetails = getGeneralRAMDetails(serverOverview);
     let generalStorageDetails = getGeneraStorageDetails(serverOverview);
-    
-    let BucketsDetails = new Map<string, BucketDetails>;
-    
+
+    // Buckets Data
+    let bucketsHTML:IKeyValuePair[] = [];
     for (let bucket of Buckets){
         const bucketOverview:BucketOverview|undefined = await restAPIObject.getBucketsOverview(bucket.name);
         let bucketTabDetails = getBucketTabDetails(bucketOverview);
-        BucketsDetails.set(bucket.name,new BucketDetails(bucketTabDetails, null, null));
+        let bucketTabQuotaDetails = getBucketTabQuotaDetails(bucketOverview);
+        let bucketTabStatsDetails = getBucketTabStatsDetails(bucketOverview);
+        
+        let bucketHTML = ` \
+        <div class="bucket-general"> \
+            ${bucketTabDetails?.map((kv) =>
+                (`<div class="field"> \
+                        <div class="field-label"> \
+                            ${kv.key} \
+                        </div> \
+                        <div class="field-value"> \
+                            ${kv.value} \
+                        </div> \
+                    </div> \
+                    `)).join('')} \
+        </div> \
+        <div class="separator-container"> \
+            <span class="separator-text">Quota</span> \
+            <div class="separator"></div> \
+        </div> \
+        <div class="bucket-quota flex"> \
+            ${bucketTabQuotaDetails.map((kv) =>
+            (`<div class="field"> \
+                    <div class="field-label"> \
+                        ${kv.key} \
+                    </div> \
+                    <div class="field-value"> \
+                        ${kv.value} \
+                    </div> \
+                </div> \
+            `)).join('')} \
+        </div> \
+        <div class="separator-container"> \
+            <span class="separator-text">Basic Stats</span> \
+            <div class="separator"></div> \
+        </div> \
+        <div class="bucket-stats flex"> \
+            ${bucketTabStatsDetails.map((kv) =>
+            (`<div class="field"> \
+                    <div class="field-label"> \
+                        ${kv.key} \
+                    </div> \
+                    <div class="field-value"> \
+                        ${kv.value} \
+                    </div> \
+                </div> \
+            `)).join('')} \
+        </div>
+        `;
+        bucketsHTML.push({key: bucket.name, value: bucketHTML});
     }
+
+    // Nodes Data
+    let NodesHTML:IKeyValuePair[] = [];
+    
     
     const ClusterOverviewObject: IClusterOverview = {
         Buckets: Buckets,
+        Nodes: serverOverview?.getNodes() || null,
         Title: "Cluster Overview",
         GeneralDetails: {
             Cluster: generalClusterDetails,
@@ -389,12 +435,12 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
             Storage: generalStorageDetails,
             RAM: generalRAMDetails,
         }, 
-        BucketDetails: BucketsDetails
-        
+        BucketsHTML: bucketsHTML,
+        NodesHTML: NodesHTML,
     };
     try {
         const viewType = `${connection.url}.${node.id}`;
-        currentPanel.webview.html = getClusterOverview(ClusterOverviewObject);
+        currentPanel.webview.html = getClusterOverview(ClusterOverviewObject, context);
     } catch (err) {
         logger.error(`Failed to get Cluster Overview Information \`${node}\``);
         logger.debug(err);
