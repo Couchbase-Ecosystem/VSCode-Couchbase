@@ -1,5 +1,5 @@
 body {
-    background-color: white;
+    background-color: var(--vscode-editor-background);
     margin-top: 20px;
 }
   

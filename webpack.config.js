@@ -99,6 +99,10 @@ const reactConfig = {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],
       },
+      {
+        test: /\.scss$/, // Regular SCSS files (without CSS modules)
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
     ],
   },
   plugins: [
