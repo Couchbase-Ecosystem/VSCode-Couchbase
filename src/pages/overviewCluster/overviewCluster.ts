@@ -13,139 +13,391 @@ import { ServerOverview } from "../../util/apis/ServerOverview";
 import { IKeyValuePair } from "../../types/IKeyValuePair";
 import { BucketOverview } from "../../util/apis/BucketOverview";
 import { BucketDetails } from "../../util/OverviewClusterHelper";
+import { CBNode } from "../../util/apis/CBNode";
 
-
-const getBucketTabDetails = (bucketSettings: BucketOverview | undefined):IKeyValuePair[] => {
+const getNodeTabDetails = (NodeDetails: CBNode | undefined): IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
-    if (bucketSettings === undefined){
+    if (NodeDetails === undefined) {
+        return details;
+    }
+
+    // Couchbase Version
+    details.push({
+        key: Constants.COUCHBASEVERSIONKEY,
+        value: NodeDetails.version
+    });
+
+    // Status
+    details.push({
+        key: Constants.STATUS,
+        value: NodeDetails.status || "NA"
+    });
+
+    // Membership
+    details.push({
+        key: Constants.MEMBERSHIP,
+        value: NodeDetails.clusterMembership || "NA"
+    });
+
+    // Services
+    details.push({
+        key: Constants.SERVICES,
+        value: NodeDetails.services.join(', ') || "NA"
+    });
+
+    // OS
+    details.push({
+        key: Constants.OS,
+        value: NodeDetails.os || "NA"
+    });
+
+    // Hostname
+    details.push({
+        key: Constants.HOSTNAME,
+        value: NodeDetails.hostname || "NA"
+    });
+
+    // Node Encryption
+    details.push({
+        key: Constants.NODE_ENCRYPTION,
+        value: String(NodeDetails.nodeEncryption) || "NA"
+    });
+
+    // Up Time
+    details.push({
+        key: Constants.UPTIME,
+        value: (NodeDetails.uptime) || "NA"
+    });
+    return details;
+};
+
+const getNodeTabHardwareDetails = (NodeDetails: CBNode | undefined): IKeyValuePair[] => {
+    let details: IKeyValuePair[] = [];
+    if (NodeDetails === undefined) {
+        return details;
+    }
+    details.push({
+        key: Constants.TOTAL_MEMORY,
+        value: NodeDetails.memoryTotal?.toString() || "NA"
+    });
+
+    // Free Memory
+    details.push({
+        key: Constants.FREE_MEMORY,
+        value: NodeDetails.memoryFree?.toString() || "NA"
+    });
+
+    // Reserved MCD Memory
+    details.push({
+        key: Constants.RESERVED_MCDMEMORY,
+        value: NodeDetails.mcdMemoryReserved?.toString() || "NA"
+    });
+
+    // Allocated MCD Memory
+    details.push({
+        key: Constants.ALLOCATED_MCDMEMORY,
+        value: NodeDetails.mcdMemoryAllocated?.toString() || "NA"
+    });
+
+    // CPUs
+    details.push({
+        key: Constants.CPUS,
+        value: NodeDetails.cpuCount?.toString() || "NA"
+    });
+
+    return details;
+
+};
+
+const getNodeTabSystemStatsDetails = (NodeDetails: CBNode | undefined): IKeyValuePair[] => {
+    let details: IKeyValuePair[] = [];
+    if (NodeDetails === undefined) {
+        return details;
+    }
+    details.push({
+        key: Constants.CPU_UTILIZATION_RATE,
+        value: NodeDetails.systemStats?.cpu_utilization_rate?.toString() || "NA"
+    });
+
+    // Swap Total
+    details.push({
+        key: Constants.SWAP_TOTAL,
+        value: NodeDetails.systemStats?.swap_total?.toString() || "NA"
+    });
+
+    // Total Memory
+    details.push({
+        key: Constants.TOTAL_MEMORY,
+        value: NodeDetails.systemStats?.mem_total?.toString() || "NA"
+    });
+
+    // Memory Limit
+    details.push({
+        key: Constants.MEMORY_LIMIT,
+        value: NodeDetails.systemStats?.mem_limit?.toString() || "NA"
+    });
+
+    // CPU Stole Rate
+    details.push({
+        key: Constants.CPU_STOLE_RATE,
+        value: NodeDetails.systemStats?.cpu_stolen_rate?.toString() || "NA"
+    });
+
+    // Swap Used
+    details.push({
+        key: Constants.SWAP_USED,
+        value: NodeDetails.systemStats?.swap_used?.toString() || "NA"
+    });
+
+    // Free Memory
+    details.push({
+        key: Constants.FREE_MEMORY,
+        value: NodeDetails.systemStats?.mem_free?.toString() || "NA"
+    });
+
+    // Cores Available
+    details.push({
+        key: Constants.CORES_AVAILABLE,
+        value: NodeDetails.systemStats?.cpu_cores_available?.toString() || "NA"
+    });
+    return details;
+};
+
+const getNodeTabInterestingStatsDetails = (NodeDetails: CBNode | undefined): IKeyValuePair[] => {
+    let details: IKeyValuePair[] = [];
+    if (NodeDetails === undefined) {
+        return details;
+    }
+    // Documents Data Size
+    details.push({
+        key: Constants.DOCUMENTS_DATA_SIZE,
+        value: NodeDetails.interestingStats?.couch_docs_data_size.toString() || "NA"
+    });
+
+    // Documents Data Size on Disk
+    details.push({
+        key: Constants.DOCUMENTS_DATA_SIZE_ON_DISK,
+        value: NodeDetails.interestingStats?.couch_docs_actual_disk_size.toString() || "NA"
+    });
+
+    // Spatial Data Size
+    details.push({
+        key: Constants.SPATIAL_DATA_SIZE,
+        value: NodeDetails.interestingStats?.couch_spatial_data_size?.toString() || "NA"
+    });
+
+    // Spatial Data Size on Disk
+    details.push({
+        key: Constants.SPATIAL_DATA_SIZE_ON_DISK,
+        value: NodeDetails.interestingStats?.couch_spatial_disk_size?.toString() || "NA"
+    });
+
+    // Views Data Size
+    details.push({
+        key: Constants.VIEWS_DATA_SIZE,
+        value: NodeDetails.interestingStats?.couch_views_data_size?.toString() || "NA"
+    });
+
+    // Views Data Size on Disk
+    details.push({
+        key: Constants.VIEWS_DATA_SIZE_ON_DISK,
+        value: NodeDetails.interestingStats?.couch_views_actual_disk_size?.toString() || "NA"
+    });
+
+    // Items
+    details.push({
+        key: Constants.ITEMS,
+        value: NodeDetails.interestingStats?.curr_items?.toString() || "NA"
+    });
+
+    // Total Items
+    details.push({
+        key: Constants.TOTAL_ITEMS,
+        value: NodeDetails.interestingStats?.curr_items_tot?.toString() || "NA"
+    });
+
+    // Ep. Bg. Fetched
+    details.push({
+        key: Constants.EP_BG_FETCHED,
+        value: NodeDetails.interestingStats?.ep_bg_fetched?.toString() || "NA"
+    });
+
+    // Hits
+    details.push({
+        key: Constants.HITS,
+        value: NodeDetails.interestingStats?.get_hits?.toString() || "NA"
+    });
+
+    // Index Data Size
+    details.push({
+        key: Constants.INDEX_DATA_SIZE,
+        value: NodeDetails.interestingStats?.index_data_size?.toString() || "NA"
+    });
+
+    // Index Data Size on Disk
+    details.push({
+        key: Constants.INDEX_DATA_SIZE_ON_DISK,
+        value: NodeDetails.interestingStats?.index_disk_size?.toString() || "NA"
+    });
+
+    // Memory Used
+    details.push({
+        key: Constants.MEMORY_USED,
+        value: NodeDetails.interestingStats?.mem_used?.toString() || "NA"
+    });
+
+    // Ops
+    details.push({
+        key: Constants.OPS,
+        value: NodeDetails.interestingStats?.ops?.toString() || "NA"
+    });
+
+    // # vBucket Non Resident
+    details.push({
+        key: Constants.NUM_ACTIVE_VBUCKET_NR,
+        value: NodeDetails.interestingStats?.vb_replica_curr_items?.toString() || "NA"
+    });
+
+    // Current vBucket Replica Items
+    details.push({
+        key: Constants.CURRENT_VBUCKET_REPLICA_ITEMS,
+        value: NodeDetails.interestingStats?.vb_replica_curr_items?.toString() || "NA"
+    });
+
+    return details;
+};
+
+const getBucketTabDetails = (bucketSettings: BucketOverview | undefined): IKeyValuePair[] => {
+    let details: IKeyValuePair[] = [];
+    if (bucketSettings === undefined) {
         return details;
     }
 
     // Type
     details.push({
         key: Constants.TYPE,
-        value: bucketSettings?.bucketType || "NA", 
+        value: bucketSettings?.bucketType || "NA",
     });
 
     // Storage Backend
     details.push({
         key: Constants.STORAGE_BACKEND,
-        value: bucketSettings?.storageBackend || "NA", 
+        value: bucketSettings?.storageBackend || "NA",
     });
 
-     // Replicas
-     details.push({
+    // Replicas
+    details.push({
         key: Constants.REPLICAS,
-        value: bucketSettings?.replicaNumber?.toString() || "NA", 
+        value: bucketSettings?.replicaNumber?.toString() || "NA",
     });
 
-     // Eviction Policy
-     details.push({
+    // Eviction Policy
+    details.push({
         key: Constants.EVICTION_POLICY,
-        value: bucketSettings?.evictionPolicy || "NA", 
+        value: bucketSettings?.evictionPolicy || "NA",
     });
 
-     // Durabiity Level
-     details.push({
+    // Durabiity Level
+    details.push({
         key: Constants.DURABILITY_LEVEL,
-        value: bucketSettings?.durabilityMinLevel?.toString() || "NA", 
+        value: bucketSettings?.durabilityMinLevel?.toString() || "NA",
     });
 
-     // Max TTL
-     details.push({
+    // Max TTL
+    details.push({
         key: Constants.MAX_TTL,
-        value: bucketSettings?.maxTTL?.toString() || "NA", 
+        value: bucketSettings?.maxTTL?.toString() || "NA",
     });
 
-     // Compression Mode
-     details.push({
+    // Compression Mode
+    details.push({
         key: Constants.COMPRESSION_MODE,
-        value: bucketSettings?.compressionMode || "NA", 
+        value: bucketSettings?.compressionMode || "NA",
     });
 
-     // Conflict Resolution
-     details.push({
+    // Conflict Resolution
+    details.push({
         key: Constants.CONFLICT_RESOLUTION,
-        value: bucketSettings?.conflictResolutionType || "NA", 
+        value: bucketSettings?.conflictResolutionType || "NA",
     });
 
     return details;
 };
 
-const getBucketTabQuotaDetails = (bucketSettings: BucketOverview | undefined):IKeyValuePair[] => {
+const getBucketTabQuotaDetails = (bucketSettings: BucketOverview | undefined): IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
-    if (bucketSettings === undefined){
+    if (bucketSettings === undefined) {
         return details;
     }
 
     // RAM
     details.push({
         key: Constants.RAM,
-        value: bucketSettings?.quota?.ram?.toString() || "NA", 
+        value: bucketSettings?.quota?.ram?.toString() || "NA",
     });
 
     // Raw RAM
     details.push({
         key: Constants.RAW_RAM,
-        value: bucketSettings?.quota?.rawRAM?.toString() || "NA", 
+        value: bucketSettings?.quota?.rawRAM?.toString() || "NA",
     });
     return details;
 };
 
-const getBucketTabStatsDetails = (bucketSettings: BucketOverview | undefined):IKeyValuePair[] => {
+const getBucketTabStatsDetails = (bucketSettings: BucketOverview | undefined): IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
-    if (bucketSettings === undefined){
+    if (bucketSettings === undefined) {
         return details;
     }
 
     // Ops Per Sec
     details.push({
         key: Constants.OPS_PER_SEC,
-        value: bucketSettings?.basicStats?.opsPerSec?.toString() || "NA", 
+        value: bucketSettings?.basicStats?.opsPerSec?.toString() || "NA",
     });
 
     // Disk Fetches
     details.push({
         key: Constants.DISK_FETCHES,
-        value: bucketSettings?.basicStats?.diskFetches?.toString() || "NA", 
+        value: bucketSettings?.basicStats?.diskFetches?.toString() || "NA",
     });
 
-     // Disk Used
-     details.push({
+    // Disk Used
+    details.push({
         key: Constants.DISK_USED,
-        value: bucketSettings?.basicStats?.diskUsed?.toString() || "NA", 
+        value: bucketSettings?.basicStats?.diskUsed?.toString() || "NA",
     });
 
-     // Memory Used
-     details.push({
+    // Memory Used
+    details.push({
         key: Constants.MEMORY_USED,
-        value: bucketSettings?.basicStats?.memUsed?.toString() || "NA", 
+        value: bucketSettings?.basicStats?.memUsed?.toString() || "NA",
     });
 
-     // Item Count
-     details.push({
+    // Item Count
+    details.push({
         key: Constants.ITEM_COUNT,
-        value: bucketSettings?.basicStats?.itemCount?.toString() || "NA", 
+        value: bucketSettings?.basicStats?.itemCount?.toString() || "NA",
     });
 
-     // No of active vBucket Non Resident
-     details.push({
+    // No of active vBucket Non Resident
+    details.push({
         key: Constants.NUM_ACTIVE_VBUCKET_NR,
-        value: bucketSettings?.basicStats?.vbActiveNumNonResident?.toString() || "NA", 
+        value: bucketSettings?.basicStats?.vbActiveNumNonResident?.toString() || "NA",
     });
 
-     // Data Used
-     details.push({
+    // Data Used
+    details.push({
         key: Constants.DATA_USED,
-        value: bucketSettings?.basicStats?.dataUsed?.toString() || "NA", 
+        value: bucketSettings?.basicStats?.dataUsed?.toString() || "NA",
     });
 
     return details;
 };
 
-const getGeneralClusterDetails = (serverOverview: ServerOverview|undefined): IKeyValuePair[] => {
+const getGeneralClusterDetails = (serverOverview: ServerOverview | undefined): IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
-    if (serverOverview === undefined){
+    if (serverOverview === undefined) {
         return details;
     }
     // Couchbase version
@@ -163,7 +415,7 @@ const getGeneralClusterDetails = (serverOverview: ServerOverview|undefined): IKe
     // Services
     details.push({
         key: Constants.SERVICES,
-        value: serverOverview.getNodes()[0].services.concat(', ').toString() || "NA"
+        value: serverOverview.getNodes()[0].services.join(', ').toString() || "NA"
     });
 
     // Nodes
@@ -185,13 +437,13 @@ const getGeneralClusterDetails = (serverOverview: ServerOverview|undefined): IKe
     return details;
 };
 
-const getGeneralQuotaDetails = (serverOverview: ServerOverview|undefined): IKeyValuePair[] => {
+const getGeneralQuotaDetails = (serverOverview: ServerOverview | undefined): IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
-    if (serverOverview === undefined){
+    if (serverOverview === undefined) {
         return details;
     }
-     // Data
-     details.push({
+    // Data
+    details.push({
         key: Constants.DATA,
         value: serverOverview?.getMemoryQuota()?.toString() || "NA"
     });
@@ -224,15 +476,15 @@ const getGeneralQuotaDetails = (serverOverview: ServerOverview|undefined): IKeyV
     return details;
 };
 
-const getGeneralRAMDetails = (serverOverview: ServerOverview|undefined): IKeyValuePair[] => {
+const getGeneralRAMDetails = (serverOverview: ServerOverview | undefined): IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
-    if (serverOverview === undefined){
+    if (serverOverview === undefined) {
         return details;
     }
 
     let ram = serverOverview.getStorageTotals()?.ram;
-     // Total
-     details.push({
+    // Total
+    details.push({
         key: Constants.TOTAL,
         value: ram?.total?.toString() || "NA"
     });
@@ -275,9 +527,9 @@ const getGeneralRAMDetails = (serverOverview: ServerOverview|undefined): IKeyVal
     return details;
 };
 
-const getGeneraStorageDetails = (serverOverview: ServerOverview|undefined): IKeyValuePair[] => {
+const getGeneraStorageDetails = (serverOverview: ServerOverview | undefined): IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
-    if (serverOverview === undefined){
+    if (serverOverview === undefined) {
         return details;
     }
 
@@ -352,7 +604,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
 
     // Fetch server overview details
     const restAPIObject = new CouchbaseRestAPI(connection);
-    const serverOverview:ServerOverview|undefined = await restAPIObject.getOverview();
+    const serverOverview: ServerOverview | undefined = await restAPIObject.getOverview();
 
     // Fetch Buckets
     let bucketsSettings = await connection?.cluster?.buckets().getAllBuckets();
@@ -365,17 +617,17 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
     let generalStorageDetails = getGeneraStorageDetails(serverOverview);
 
     // Buckets Data
-    let bucketsHTML:IKeyValuePair[] = [];
-    for (let bucket of Buckets){
-        const bucketOverview:BucketOverview|undefined = await restAPIObject.getBucketsOverview(bucket.name);
+    let bucketsHTML: IKeyValuePair[] = [];
+    for (let bucket of Buckets) {
+        const bucketOverview: BucketOverview | undefined = await restAPIObject.getBucketsOverview(bucket.name);
         let bucketTabDetails = getBucketTabDetails(bucketOverview);
         let bucketTabQuotaDetails = getBucketTabQuotaDetails(bucketOverview);
         let bucketTabStatsDetails = getBucketTabStatsDetails(bucketOverview);
-        
+
         let bucketHTML = ` \
         <div class="bucket-general"> \
             ${bucketTabDetails?.map((kv) =>
-                (`<div class="field"> \
+        (`<div class="field"> \
                         <div class="field-label"> \
                             ${kv.key} \
                         </div> \
@@ -391,7 +643,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
         </div> \
         <div class="bucket-quota flex"> \
             ${bucketTabQuotaDetails.map((kv) =>
-            (`<div class="field"> \
+        (`<div class="field"> \
                     <div class="field-label"> \
                         ${kv.key} \
                     </div> \
@@ -407,7 +659,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
         </div> \
         <div class="bucket-stats flex"> \
             ${bucketTabStatsDetails.map((kv) =>
-            (`<div class="field"> \
+        (`<div class="field"> \
                     <div class="field-label"> \
                         ${kv.key} \
                     </div> \
@@ -418,13 +670,83 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
             `)).join('')} \
         </div>
         `;
-        bucketsHTML.push({key: bucket.name, value: bucketHTML});
+        bucketsHTML.push({ key: bucket.name, value: bucketHTML });
     }
 
     // Nodes Data
-    let NodesHTML:IKeyValuePair[] = [];
-    
-    
+    let NodesHTML: IKeyValuePair[] = [];
+    for (let node of serverOverview?.getNodes() || []) {
+        let nodeTabDetails = getNodeTabDetails(node);
+        let nodeTabHardwareDetails = getNodeTabHardwareDetails(node);
+        let nodeTabSystemStatsDetails = getNodeTabSystemStatsDetails(node);
+        let nodeTabInterestingStatsDetails = getNodeTabInterestingStatsDetails(node);
+        let nodeHTML = ` \
+        <div class="bucket-general"> \
+            ${nodeTabDetails?.map((kv) =>
+        (`<div class="field"> \
+                        <div class="field-label"> \
+                            ${kv.key} \
+                        </div> \
+                        <div class="field-value"> \
+                            ${kv.value} \
+                        </div> \
+                    </div> \
+                    `)).join('')} \
+                </div> \
+        </div> \
+        <div class="separator-container"> \
+            <span class="separator-text">Hardware</span> \
+            <div class="separator"></div> \
+        </div> \
+        <div class="bucket-quota flex"> \
+            ${nodeTabHardwareDetails.map((kv) =>
+        (`<div class="field"> \
+                    <div class="field-label"> \
+                        ${kv.key} \
+                    </div> \
+                    <div class="field-value"> \
+                        ${kv.value} \
+                    </div> \
+                </div> \
+            `)).join('')} \
+        </div> \
+        <div class="separator-container"> \
+            <span class="separator-text">System Stats</span> \
+            <div class="separator"></div> \
+        </div> \
+        <div class="bucket-quota flex"> \
+            ${nodeTabSystemStatsDetails.map((kv) =>
+        (`<div class="field"> \
+                    <div class="field-label"> \
+                        ${kv.key} \
+                    </div> \
+                    <div class="field-value"> \
+                        ${kv.value} \
+                    </div> \
+                </div> \
+            `)).join('')} \
+        </div> \
+        <div class="separator-container"> \
+            <span class="separator-text">Interesting Stats</span> \
+            <div class="separator"></div> \
+        </div> \
+        <div class="bucket-quota flex"> \
+            ${nodeTabInterestingStatsDetails.map((kv) =>
+        (`<div class="field"> \
+                    <div class="field-label"> \
+                        ${kv.key} \
+                    </div> \
+                    <div class="field-value"> \
+                        ${kv.value} \
+                    </div> \
+                </div> \
+            `)).join('')} \
+        </div> \
+        `;
+        NodesHTML.push({ key: node.hostname, value: nodeHTML });
+    }
+
+
     const ClusterOverviewObject: IClusterOverview = {
         Buckets: Buckets,
         Nodes: serverOverview?.getNodes() || null,
@@ -434,7 +756,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
             Quota: generalQuotaDetails,
             Storage: generalStorageDetails,
             RAM: generalRAMDetails,
-        }, 
+        },
         BucketsHTML: bucketsHTML,
         NodesHTML: NodesHTML,
     };

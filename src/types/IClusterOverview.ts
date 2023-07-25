@@ -16,6 +16,7 @@
 import { Bucket } from "couchbase";
 import { BucketDetails, OverviewGeneral } from "../util/OverviewClusterHelper";
 import { IKeyValuePair } from "./IKeyValuePair";
+import { CBNode } from "../util/apis/CBNode";
 
 
 export interface IClusterOverview {

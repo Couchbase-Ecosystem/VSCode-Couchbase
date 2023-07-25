@@ -33,9 +33,11 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      Nodes
                   </div>
                   <div class="sidebar-list-values-container">
-                     <div class="sidebar-list-value">
-                        node1 <!-- TODO: Add Nodes -->
-                     </div>
+                     ${overview.Nodes?.map((node) =>
+                        (`<div class="sidebar-list-value" onClick="showContainer('Node','${node.hostname}')">
+                           ${node.hostname}
+                        </div>`)).join('')
+                     }
                   </div>
                </div>
                <div class="sidebar-list-container">
@@ -53,7 +55,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                
             </div>
             <div class="main-section">
-               <div id="Overview-tab" hidden>
+               <div id="Overview-tab">
                   <div class="general-cluster">
                      ${overview.GeneralDetails?.Cluster?.map((kv) =>
                         (`<div class="field">
@@ -115,9 +117,8 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                         `)).join('')}
                   </div>
                </div>
-               <div id="Bucket-tab">
-                  
-               </div>
+               <div id="Bucket-tab"> </div>
+               <div id="Node-tab"> </div>
             </div>
          </div>
          <style>
@@ -158,7 +159,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
 
             .main-section {
                background-color: #444444;
-               color: red;
+               color: white;
                flex: 1;
                padding: 10px;
                maxheight: 100vh;
@@ -202,12 +203,16 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
        
          function showContainer( header, subheader) {
             if (header === "Overview"){
-               document.getElementById("Overview-tab").hidden = false;
+               
+               document.getElementById("Node-tab").hidden = true;
                document.getElementById("Bucket-tab").hidden = true;
+               document.getElementById("Overview-tab").hidden = false;
             } else if (header === "Bucket"){
                
-               document.getElementById("Bucket-tab").hidden = false;
+               
+               document.getElementById("Node-tab").hidden = true;
                document.getElementById("Overview-tab").hidden = true;
+               document.getElementById("Bucket-tab").hidden = false;
                let currentBucketHTML = "";
                let buckets = [${overview.BucketsHTML.map((kv)=>{
                   return JSON.stringify(kv);
@@ -220,6 +225,23 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                }
                document.getElementById("Bucket-tab").innerHTML = currentBucketHTML;
                
+            } else if (header === "Node") {
+               document.getElementById("Bucket-tab").hidden = true;
+               document.getElementById("Overview-tab").hidden = true;
+               document.getElementById("Node-tab").hidden = false;
+               let currentNodeHTML = "";
+               let nodes = [${overview.NodesHTML.map((kv)=>{
+                  return JSON.stringify(kv);
+               })}];
+               
+               for (node of nodes) {
+
+                  if(node.key === subheader){
+                     currentNodeHTML = node.value;
+                     break;
+                  }
+               }
+               document.getElementById("Node-tab").innerHTML = currentNodeHTML;
             }
          }
          

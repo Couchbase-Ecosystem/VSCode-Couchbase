@@ -1,4 +1,7 @@
-class CBNode {
+import { InterestingStats } from "./InterestingStats";
+import { SystemStats } from "./SystemStats";
+
+export class CBNode {
     public clusterMembership: string = '';
     public recoveryType: string = '';
     public status: string = '';
@@ -20,12 +23,11 @@ class CBNode {
     public couchApiBase: string = '';
     public couchApiBaseHTTPS: string = '';
     public nodeHash?: number;
-    // public systemStats?: SystemStats;
-    // public interestingStats?: InterestingStats;
+    public systemStats?: SystemStats;
+    public interestingStats?: InterestingStats;
     public uptime: string = '';
     public memoryTotal?: number;
     public memoryFree?: number;
     public mcdMemoryReserved?: number;
     public mcdMemoryAllocated?: number;
-
 }
