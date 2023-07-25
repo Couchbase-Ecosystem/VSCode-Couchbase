@@ -12,7 +12,7 @@
         "es6",
         "DOM",
         "DOM.Iterable",
-        "es2019" // Add "es2017" to the "lib" option
+        "es2019"
       ],
       "typeRoots": [
         "./types"
