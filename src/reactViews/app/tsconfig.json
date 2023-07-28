@@ -4,7 +4,7 @@
       "moduleResolution": "node",
       "baseUrl": "./",
       "paths": {
-        "@components/*": ["components/*"],
+        "components/*": ["components/*"]
       },
       "target": "es6",
       "outDir": "dist",
