@@ -6,38 +6,61 @@ const parser = require('@babel/parser');
 const { execSync } = require('child_process');
 const readlineSync = require('readline-sync');
 const { ENOENT } = require('constants');
+const { constants } = require('buffer');
 
 const pathToCapella = '../couchbase-cloud/cmd/cp-ui-v3/src/';
-const sourceDirs = ['components/query-results'];
+const sourceDirs = ['components/data-table'];
 const destinationPath = 'src/reactViews/app';
 
 // Excluded file extensions
 const excludedExtensions = ['.stories.tsx', '.test.tsx', '.test.ts'];
 
 // Function to recursively create directories
-const createDirectories = (directory) => {
+const createDirectories = (source, directory) => {
   const parentDir = path.dirname(directory);
   if (!fs.existsSync(parentDir)) {
     createDirectories(parentDir);
   }
   if (!fs.existsSync(directory)) {
-    fs.mkdirSync(directory);
+    if(!fs.statSync(source).isFile()) {
+      fs.mkdirSync(directory);
+    }
   }
 };
 
 // Function to recursively copy directories and files
 const copyDirectory = (source, destination) => {
   // Create the destination directory if it doesn't exist
-  try{
-  if (!fs.existsSync(destination)) {
-    fs.mkdirSync(destination);
-  }
-} catch(err) {
-    createDirectories(destination);
-    copyDirectory(source, destination);
+//   try{
+//   if (!fs.existsSync(destination)) {
+//     fs.mkdirSync(destination);
+//   }
+// } catch(err) {
+//     createDirectories(source, destination);
+//     copyDirectory(source, destination);
+// }
+try{
+   if(doesFileExist(source) && !fs.existsSync(destination))
+   {
+     // Create the parent destination directory if it doesn't exist
+     const parentDir = path.dirname(destination);
+     if (!fs.existsSync(parentDir)) {
+       fs.mkdirSync(parentDir, { recursive: true });
+     }
+   }
+   else if (!fs.existsSync(destination)) {
+  fs.mkdirSync(destination, { recursive: true });
 }
 
   // Read the contents of the source directory
+  if(fs.statSync(source).isFile()) {
+    if (!excludedExtensions.some((ext) => source.endsWith(ext))) {
+      // If not excluded, copy the file to the destination directory
+      fs.copyFileSync(source, destination);
+      analyzeImports(source);
+    }
+    return;
+  }
   const files = fs.readdirSync(source);
 
   // Loop through the files and directories in the source directory
@@ -55,29 +78,111 @@ const copyDirectory = (source, destination) => {
       if (!excludedExtensions.some((ext) => sourceFilePath.endsWith(ext))) {
         // If not excluded, copy the file to the destination directory
         fs.copyFileSync(sourceFilePath, destinationFilePath);
+        analyzeImports(sourceFilePath, destinationFilePath);
       }
     }
   });
+} catch(err)
+{
+  console.log(err);
+}
 };
+
+const componentImports = [];
+const componentImported = [];
+const externalDependencies = [];
+
+const doesFileExistInFolder = (filePath) => {
+  try {
+    fs.accessSync(filePath, fs.constants.F_OK);
+    return true; // File exists
+  } catch (err) {
+    return false; // File does not exist
+  }
+};
+
+const doesFileExist = (filePath) => {
+  try {
+    const stats = fs.statSync(filePath);
+    return stats.isFile(); // Returns true if it's a file, false if it's a directory or does not exist.
+  } catch (err) {
+    return false; // File does not exist or there was an error accessing it.
+  }
+};
+
+const isLastTwoComponentsSame = (pathString) => {
+  const components = pathString.split('/');
+  if (components.length < 2) {return false;}
+  const lastComponent = components.pop();
+  const secondLastComponent = components.pop();
+  return lastComponent === secondLastComponent;
+};
+
 
 // Function to read file and analyze import statements
 // Function to read file and analyze import statements
-const analyzeImports = (filePath) => {
+const analyzeImports = (filePath, destinationPath) => {
   const fileContent = fs.readFileSync(filePath, 'utf8');
   const ast = ts.createSourceFile(filePath, fileContent, ts.ScriptTarget.Latest, true);
 
-  const componentImports = [];
-  const externalDependencies = [];
-
   const visitNode = (node) => {
     if (ts.isImportDeclaration(node)) {
-      const importPath = node.moduleSpecifier.text;
-      if (importPath.startsWith('components') || importPath.startsWith('hooks')) {
+      let importPath = node.moduleSpecifier.text;
+      if(importPath.startsWith('types/dayjs') || importPath.startsWith('utils/debounce'))
+      {
+        console.log("HERE");
+      }
+
+      if(isLastTwoComponentsSame(importPath))
+      {
+        importPath = path.dirname(importPath);
+      }
+      const sourceComponentPath = path.join(pathToCapella, importPath + ".ts");
+      // if(path.dirname(importPath)==='.')
+      // {
+      //   if(doesFileExistInFolder(sourceComponentPath) && !componentImports.includes(importPath) && !componentImported.includes(importPath)) {
+      //     componentImports.push(importPath);
+      //   }
+      // }
+      // FIXME
+      if(doesFileExist(sourceComponentPath))
+      {
+        const directoryName = path.dirname(importPath);
+        if(directoryName === "utils" || directoryName === "constants" || directoryName === "types") {
+          importPath = importPath + ".ts";
+        }
+        else {
+        importPath = path.dirname(importPath);
+        }
+      }
+      if (importPath.startsWith('components') || importPath.startsWith('hooks') || importPath.startsWith('types') || importPath.startsWith('utils') || importPath.startsWith('sync') || importPath.startsWith('.') || importPath.startsWith('constants')) {
+        if(importPath.startsWith('.'))
+        {
+        }
+        else if((importPath.endsWith('utils') && !importPath.startsWith('utils')) || importPath.endsWith('types') && !importPath.startsWith('types'))
+        {
+          if(doesFileExist(path.join(destinationPath, importPath)))
+          {}
+          else{
+            const parentDir = path.dirname(importPath);
+            if(!componentImports.includes(parentDir) && !componentImported.includes(parentDir))
+            {
+              componentImports.push(parentDir);
+            }
+          }
+        }
+
         // Component import
-        componentImports.push(importPath);
-      } else if(!importPath.startsWith('types')){
+        else if(!componentImports.includes(importPath) && !componentImported.includes(importPath)) {
+          componentImports.push(importPath);
+        }
+      } else {
         // External dependency import
-        externalDependencies.push(importPath);
+        if(!externalDependencies.includes(importPath))
+        {
+          externalDependencies.push(importPath);
+        }
+       
       }
     }
 
@@ -119,8 +224,11 @@ const installDependencies = (dependencies) => {
 sourceDirs.forEach((sourceDir) => {
   const sourcePath = path.join(pathToCapella, sourceDir);
   // Get the base directory name from the source path
-  const baseDirectoryName = path.basename(sourcePath);
 
+  const baseDirectoryName = path.basename(sourcePath);
+  if (!fs.existsSync(destinationPath + '/components')) {
+      fs.mkdirSync(destinationPath + '/components');
+    }
   // Create the destination directory if it doesn't exist
   const destinationDir = path.join(destinationPath, '/components/', baseDirectoryName);
   if (!fs.existsSync(destinationDir)) {
@@ -132,17 +240,28 @@ sourceDirs.forEach((sourceDir) => {
   const destinationFiles = fs.readdirSync(destinationDir);
   destinationFiles.forEach((file) => {
     const filePath = path.join(destinationDir, file);
-    const { componentImports, externalDependencies } = analyzeImports(filePath);
 
     // Run copyDirectory for each component import
-    componentImports.forEach((importPath) => {
+    while(componentImports.length !== 0) {
+      const importPath = componentImports.pop();
+      if(importPath === ".")
+      {
+        console.log("HERE");
+        continue;
+      }
+      componentImported.push(importPath);
       const sourceComponentPath = path.join(pathToCapella, importPath);
       const destinationComponentPath = path.join(destinationPath, importPath);
-      console.log(destinationComponentPath);
-      copyDirectory(sourceComponentPath, destinationComponentPath);
-    });
-
-    // Install dependencies in destination
-    installDependencies(externalDependencies);
+      if((!importPath.startsWith('utils') && sourceComponentPath.endsWith('utils')) || (sourceComponentPath.endsWith('types') && !importPath.startsWith('types')))
+      {
+        copyDirectory(sourceComponentPath + '.ts', destinationComponentPath + '.ts');
+      }
+      else {
+        copyDirectory(sourceComponentPath, destinationComponentPath);
+      }
+      
+    }
   });
+      // Install dependencies in destination
+      installDependencies(externalDependencies);
 });
