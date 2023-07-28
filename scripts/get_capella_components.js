@@ -128,34 +128,23 @@ const analyzeImports = (filePath, destinationPath) => {
   const visitNode = (node) => {
     if (ts.isImportDeclaration(node)) {
       let importPath = node.moduleSpecifier.text;
-      if(importPath.startsWith('types/dayjs') || importPath.startsWith('utils/debounce'))
-      {
-        console.log("HERE");
-      }
 
       if(isLastTwoComponentsSame(importPath))
       {
         importPath = path.dirname(importPath);
       }
       const sourceComponentPath = path.join(pathToCapella, importPath + ".ts");
-      // if(path.dirname(importPath)==='.')
-      // {
-      //   if(doesFileExistInFolder(sourceComponentPath) && !componentImports.includes(importPath) && !componentImported.includes(importPath)) {
-      //     componentImports.push(importPath);
-      //   }
-      // }
-      // FIXME
       if(doesFileExist(sourceComponentPath))
       {
         const directoryName = path.dirname(importPath);
-        if(directoryName === "utils" || directoryName === "constants" || directoryName === "types") {
+        if(directoryName === "utils" || directoryName === "constants" || directoryName === "types" || directoryName === "error" || directoryName === "sync" ) {
           importPath = importPath + ".ts";
         }
         else {
         importPath = path.dirname(importPath);
         }
       }
-      if (importPath.startsWith('components') || importPath.startsWith('hooks') || importPath.startsWith('types') || importPath.startsWith('utils') || importPath.startsWith('sync') || importPath.startsWith('.') || importPath.startsWith('constants')) {
+      if (importPath.startsWith('components') || importPath.startsWith('hooks') || importPath.startsWith('types') || importPath.startsWith('utils') || importPath.startsWith('sync') || importPath.startsWith('.') || importPath.startsWith('constants') || importPath.startsWith('error')) {
         if(importPath.startsWith('.'))
         {
         }

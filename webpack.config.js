@@ -85,7 +85,8 @@ const reactConfig = {
       'utils': path.resolve(__dirname, 'src/reactViews/app/utils'),
       'constants':  path.resolve(__dirname, 'src/reactViews/app/constants'),
       'sync': path.resolve(__dirname, 'src/reactViews/app/sync'),
-      'hooks': path.resolve(__dirname, 'src/reactViews/app/hooks')
+      'hooks': path.resolve(__dirname, 'src/reactViews/app/hooks'),
+      'error': path.resolve(__dirname, 'src/reactViews/app/error'),
     },
   },
   module: {
