@@ -80,6 +80,13 @@ const reactConfig = {
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
     extensions: [".ts", ".tsx", ".js"],
+    alias: {
+      'components': path.resolve(__dirname, 'src/reactViews/app/components'),
+      'utils': path.resolve(__dirname, 'src/reactViews/app/utils'),
+      'constants':  path.resolve(__dirname, 'src/reactViews/app/constants'),
+      'sync': path.resolve(__dirname, 'src/reactViews/app/sync'),
+      'hooks': path.resolve(__dirname, 'src/reactViews/app/hooks')
+    },
   },
   module: {
     rules: [
@@ -105,25 +112,7 @@ const reactConfig = {
       },
     ],
   },
-  plugins: [
-    new ModuleFederationPlugin({
-      name: "host",
-      filename: "remoteEntry.js",
-      runtime: false,
-      remotes: {
-        sharedComponents:
-          "sharedComponents@http://localhost:5001/remoteEntry.js",
-      },
-      shared: {
-        react: {
-          requiredVersion: "^18.2.0",
-        },
-        "react-dom": {
-          requiredVersion: "^18.2.0",
-        },
-      },
-    }),
-  ],
+  plugins: [],
 };
 
 module.exports = [extensionConfig, reactConfig];
