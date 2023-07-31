@@ -13,7 +13,7 @@ const sourceDirs = ['components/data-table'];
 const destinationPath = 'src/reactViews/app';
 
 // Excluded file extensions
-const excludedExtensions = ['.stories.tsx', '.test.tsx', '.test.ts'];
+const excludedExtensions = ['.stories.tsx', '.stories.ts', '.test.tsx', '.test.ts'];
 
 // Function to recursively create directories
 const createDirectories = (source, directory) => {
@@ -30,15 +30,6 @@ const createDirectories = (source, directory) => {
 
 // Function to recursively copy directories and files
 const copyDirectory = (source, destination) => {
-  // Create the destination directory if it doesn't exist
-//   try{
-//   if (!fs.existsSync(destination)) {
-//     fs.mkdirSync(destination);
-//   }
-// } catch(err) {
-//     createDirectories(source, destination);
-//     copyDirectory(source, destination);
-// }
 try{
    if(doesFileExist(source) && !fs.existsSync(destination))
    {
@@ -92,14 +83,6 @@ const componentImports = [];
 const componentImported = [];
 const externalDependencies = [];
 
-const doesFileExistInFolder = (filePath) => {
-  try {
-    fs.accessSync(filePath, fs.constants.F_OK);
-    return true; // File exists
-  } catch (err) {
-    return false; // File does not exist
-  }
-};
 
 const doesFileExist = (filePath) => {
   try {
@@ -118,8 +101,6 @@ const isLastTwoComponentsSame = (pathString) => {
   return lastComponent === secondLastComponent;
 };
 
-
-// Function to read file and analyze import statements
 // Function to read file and analyze import statements
 const analyzeImports = (filePath, destinationPath) => {
   const fileContent = fs.readFileSync(filePath, 'utf8');
@@ -253,4 +234,55 @@ sourceDirs.forEach((sourceDir) => {
   });
       // Install dependencies in destination
       installDependencies(externalDependencies);
+      removeStarAsFromFile(destinationPath + "/utils/dayjs.ts");
+      fixTypeIssue(destinationPath + "/utils/bytes/bytes.utils.ts");
+      
 });
+
+function fixTypeIssue(filePath) {
+  // Read the content of the file
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error(`Error reading file ${filePath}:`, err);
+    } else {
+      // Remove * as from the content
+      let updatedContent = data.replace(`opts.outputUnit && (isBinaryUnit(opts.outputUnit) ? 'binary' : 'decimal');`, `(opts.outputUnit && (isBinaryUnit(opts.outputUnit) ? 'binary' : 'decimal')) || undefined`);
+      updatedContent = updatedContent.replace(`opts.outputUnit && toByteUnit(opts.outputUnit)`, `(opts.outputUnit && toByteUnit(opts.outputUnit)) || undefined`);
+      // Write the updated content back to the file
+      fs.writeFile(filePath, updatedContent, 'utf8', (err) => {
+        if (err) {
+          console.error(`Error writing to file ${filePath}:`, err);
+        } else {
+          console.log(`Type Error resolved`);
+        }
+      });
+    }
+  });
+}
+
+
+function removeStarAsFromContent(content) {
+  // Regular expression to remove * as from the content
+  return content.replace(/\* as /g, '');
+}
+
+function removeStarAsFromFile(filePath) {
+  // Read the content of the file
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error(`Error reading file ${filePath}:`, err);
+    } else {
+      // Remove * as from the content
+      const updatedContent = removeStarAsFromContent(data);
+
+      // Write the updated content back to the file
+      fs.writeFile(filePath, updatedContent, 'utf8', (err) => {
+        if (err) {
+          console.error(`Error writing to file ${filePath}:`, err);
+        } else {
+          console.log(`Removed * as from ${filePath}.`);
+        }
+      });
+    }
+  });
+}

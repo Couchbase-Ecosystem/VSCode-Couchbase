@@ -14,9 +14,6 @@
         "DOM.Iterable",
         "es2019"
       ],
-      "typeRoots": [
-        "./types"
-      ],
       "jsx": "react-jsx",
       "sourceMap": true,
       "rootDir": "..",
