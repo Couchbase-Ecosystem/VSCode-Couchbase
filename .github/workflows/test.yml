@@ -1,20 +1,25 @@
 name: Test
 on:
   push:
+
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - name: Install dependencies
-        run: |
-          npm install
-      - name: Run tests
-        run: xvfb-run -a npm test
+          node-version: 16.x
+      - name: Install Dependencies
+        run: npm install
+      - name: Run Tests
         if: runner.os == 'Linux'
-      - name: Run tests
-        run: npm test
+        run: xvfb-run -a npm test
+      - name: Run Tests
         if: runner.os != 'Linux'
+        run: npm test
