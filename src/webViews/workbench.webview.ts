@@ -48,6 +48,9 @@ export const getWebviewContent = (
     <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"><h1>Loading...</h1></div>
+        <script nonce="${nonce}">
+        const tsvscode = acquireVsCodeApi();
+        </script>
         <script nonce="${nonce}" src="${reactAppUri}"></script>
     </body>
     </html>`;

@@ -46,7 +46,15 @@ export function openWorkbench(node: ClusterConnectionNode, context: vscode.Exten
                 path.join(context.extensionPath, "dist", "reactBuild.js")
             );
             const reactAppUri = currentPanel.webview.asWebviewUri(reactAppPathOnDisk);
-
+            
+            currentPanel.webview.onDidReceiveMessage(async (message: any) => {
+                switch (message.type) {
+                    case "ReactWorks": {
+                        vscode.window.showInformationMessage("This should work", message.type, message.value);
+                        console.log("this works", message.value);
+                    }
+                }
+            })
             currentPanel.webview.html = getWebviewContent(reactAppUri, context);
 
             currentPanel.onDidDispose(
