@@ -1,6 +1,5 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
-import "./styles.css";
 import "./index.css";
 import { DataTable } from "./components/data-table";
 import hotels from "../mocks/query-results/hotel.json";
@@ -16,28 +15,46 @@ const FALLBACK_MESSAGE = {
 
 
 export const App: React.FC = () => {
-  const [comment, setComment] = React.useState("comment");
-  const onclick = (e)=>{
+  const [queryResult, setQueryResult] = React.useState<Record<string, unknown>[]>(undefined);
+  const handleClick = (e) => {
     e.preventDefault();
-    tsvscode.postMessage({type:"ReactWorks", value: "sent"});
+    tsvscode.postMessage({ command: "runQuery", query: query });
   };
   window.addEventListener('message', event => {
 
     const message = event.data; // The JSON data our extension sent
 
-    switch (message.type) {
-        case 'ReactWorks':
-          setComment("React Chal Raha hai");
-          break;
+    switch (message.command) {
+      case 'queryResult':
+        setQueryResult(message.result.rows);
+        break;
     }
-});
+  });
+
+  const [query, setQuery] = React.useState('SELECT a.country FROM default:`travel-sample`.inventory.airline a WHERE a.name = "Excel Airways"');
+
+  const handleChange = ({ target }) => {
+    setQuery(target.value);
+  };
   return (
-<div>
-  <div className="h-[300px]" style={{ marginTop: "200px" }}>
-    <DataTable data={hotels} dataFallback={[FALLBACK_MESSAGE]} />
-  </div>
-  <a onClick={onclick}>{comment}</a>
-</div>
+    <div className="container">
+      <div className="h-[300px]" style={{ marginTop: "200px" }}>
+        <DataTable data={hotels} dataFallback={[FALLBACK_MESSAGE]} />
+      </div>
+      <textarea
+        className="big-input"
+        name="query"
+        placeholder="Enter Query here..."
+        value={query}
+        onChange={handleChange}
+      />
+      <button className="query-button" onClick={handleClick}>
+        Run Query
+      </button>
+      <div className="query-result-box">
+        <pre>{JSON.stringify(queryResult, null, 2)}</pre>
+      </div>
+    </div>
   );
 };
 root.render(<App />);

@@ -2,4 +2,36 @@ body {
     background-color: var(--vscode-editor-background);
     margin-top: 20px;
 }
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+.big-input {
+    width: 400px;
+    height: 200px;
+    font-size: 16px;
+    padding: 10px;
+    background-color: #adabab;
+  }
   
+  .query-button {
+    background-color: #ff0000;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .query-result-box {
+    background-color: #959595;
+    color: black;
+    padding: 10px;
+    width: 400px;
+    height: 200px;
+    overflow: auto;
+  }

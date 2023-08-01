@@ -19,8 +19,14 @@ import * as path from 'path';
 import { logger } from '../logger/logger';
 import { ClusterConnectionNode } from '../model/ClusterConnectionNode';
 import { getWebviewContent } from '../webViews/workbench.webview';
+import { getActiveConnection } from '../util/connections';
 
 export function openWorkbench(node: ClusterConnectionNode, context: vscode.ExtensionContext, currentPanel: vscode.WebviewPanel | undefined) {
+    const connection = getActiveConnection();
+    if (!connection) {
+        vscode.window.showInformationMessage("Connection not established successfully!");
+        return false;
+    }
     try {
         if (currentPanel && currentPanel.viewType === 'Workbench') {
             const reactAppPathOnDisk = vscode.Uri.file(
@@ -46,13 +52,12 @@ export function openWorkbench(node: ClusterConnectionNode, context: vscode.Exten
                 path.join(context.extensionPath, "dist", "reactBuild.js")
             );
             const reactAppUri = currentPanel.webview.asWebviewUri(reactAppPathOnDisk);
-            
+
             currentPanel.webview.onDidReceiveMessage(async (message: any) => {
-                switch (message.type) {
-                    case "ReactWorks": {
-                        vscode.window.showInformationMessage("This should work", message.type, message.value);
-                        currentPanel?.webview.postMessage({type:"ReactWorks", value: "sent"});
-                        console.log("this works", message.value);
+                switch (message.command) {
+                    case "runQuery": {
+                        const answer = await connection.cluster?.query(message.query);
+                        currentPanel?.webview.postMessage({ command: "queryResult", result: answer });
                     }
                 }
             })
