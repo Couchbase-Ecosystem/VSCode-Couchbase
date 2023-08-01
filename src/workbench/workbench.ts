@@ -51,6 +51,7 @@ export function openWorkbench(node: ClusterConnectionNode, context: vscode.Exten
                 switch (message.type) {
                     case "ReactWorks": {
                         vscode.window.showInformationMessage("This should work", message.type, message.value);
+                        currentPanel?.webview.postMessage({type:"ReactWorks", value: "sent"});
                         console.log("this works", message.value);
                     }
                 }

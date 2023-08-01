@@ -13,19 +13,30 @@ const FALLBACK_MESSAGE = {
   "No data to display": "Hit 'run' button to run query.",
 };
 
-const onclick = (e)=>{
-  e.preventDefault();
-  tsvscode.postMessage({type:"ReactWorks", value: "sent"});
-};
+
 
 export const App: React.FC = () => {
-  
+  const [comment, setComment] = React.useState("comment");
+  const onclick = (e)=>{
+    e.preventDefault();
+    tsvscode.postMessage({type:"ReactWorks", value: "sent"});
+  };
+  window.addEventListener('message', event => {
+
+    const message = event.data; // The JSON data our extension sent
+
+    switch (message.type) {
+        case 'ReactWorks':
+          setComment("React Chal Raha hai");
+          break;
+    }
+});
   return (
 <div>
   <div className="h-[300px]" style={{ marginTop: "200px" }}>
     <DataTable data={hotels} dataFallback={[FALLBACK_MESSAGE]} />
   </div>
-  <a onClick={onclick}>Mai hu jiyan</a>
+  <a onClick={onclick}>{comment}</a>
 </div>
   );
 };
