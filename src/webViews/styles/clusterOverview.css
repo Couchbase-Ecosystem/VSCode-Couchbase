@@ -1,0 +1,92 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  background-color: #3e434c;
+  padding: 10px;
+  width: 150px;
+}
+
+.sidebar-list-container {
+  margin-bottom: 20px;
+}
+
+.sidebar-list-header {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.sidebar-list-value {
+  cursor: pointer;
+  padding: 5px;
+}
+
+.sidebar-list-value:hover {
+  background-color: #eaeaea;
+}
+
+.main-section {
+  background-color: #444444;
+  color: white;
+  flex: 1;
+  padding: 10px;
+  max-height: 100vh;
+}
+.field {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-basis: calc(33.33% - 20px);
+}
+
+@media screen and (max-width: 1200px) {
+  .field {
+    flex-basis: calc(50% - 20px);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .field {
+    flex-basis: 100%;
+  }
+}
+
+.field-label {
+  display: inline;
+  font-weight: 600;
+}
+.field-value {
+  display: inline;
+  font-weight: 400;
+}
+.separator-container {
+  display: flex;
+  align-items: center; /* Center the items vertically */
+  margin: 20px 0; /* Add margin above and below the separator container for spacing */
+}
+
+.separator-text {
+  padding-right: 10px; /* Add some spacing between the text and separator */
+}
+
+.separator {
+  flex: 1;
+  border: none;
+  border-top: 1px solid black;
+}
+.sidebar-list-value {
+  display: block;
+}
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}

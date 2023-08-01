@@ -1,6 +1,7 @@
 import { IClusterOverview } from "../types/IClusterOverview";
 import * as vscode from "vscode";
-export function getClusterOverview(overview: IClusterOverview, context: vscode.ExtensionContext): string {
+import * as path from "path";
+export function getClusterOverview(overview: IClusterOverview, context: vscode.ExtensionContext, styleSrc: vscode.Uri): string {
    return `
     <!DOCTYPE html>
     <html lang="en">
@@ -8,6 +9,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>${overview.Title}</title>
+          <link rel="stylesheet" href="${styleSrc}" type="text/css">
           <style>
              h3 {
              display: inline;
@@ -52,7 +54,6 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      }
                   </div>
                </div>
-               
             </div>
             <div class="main-section">
                <div id="Overview-tab">
@@ -121,82 +122,6 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                <div id="Node-tab"> </div>
             </div>
          </div>
-         <style>
-            body {
-               font-family: Arial, sans-serif;
-               margin: 0;
-               padding: 0;
-            }
-
-            .container {
-               display: flex;
-               height: 100vh;
-            }
-
-            .sidebar {
-               background-color: #333377;
-               padding: 10px;
-               width: 150px;
-            }
-
-            .sidebar-list-container {
-               margin-bottom: 20px;
-            }
-
-            .sidebar-list-header {
-               font-weight: bold;
-               margin-bottom: 5px;
-            }
-
-            .sidebar-list-value {
-               cursor: pointer;
-               padding: 5px;
-            }
-
-            .sidebar-list-value:hover {
-               background-color: #eaeaea;
-            }
-
-            .main-section {
-               background-color: #444444;
-               color: white;
-               flex: 1;
-               padding: 10px;
-               maxheight: 100vh;
-            }
-            .field {
-               display: block;
-            }
-            .field-label {
-               display: inline;
-               font-weight: 600;
-            }
-            .field-value {
-               display: inline;
-               font-weight: 400;
-            }
-            .separator-container {
-               display: flex; /* Use flexbox to align the text and separator horizontally */
-               align-items: center; /* Center the items vertically */
-               margin: 20px 0; /* Add margin above and below the separator container for spacing */
-             }
-             
-             .separator-text {
-               padding-right: 10px; /* Add some spacing between the text and separator */
-             }
-             
-             .separator {
-               flex: 1; /* Make the separator expand to fill the remaining space */
-               border: none; /* Remove the default border of <hr> element */
-               border-top: 1px solid black; /* Add a top border with a solid line */
-             }
-             .sidebar-list-value{
-               display: block;
-             }
-             .flex {
-               display: flex;
-             }
-         </style>
        </body>
        <script>
        const vscode = acquireVsCodeApi();

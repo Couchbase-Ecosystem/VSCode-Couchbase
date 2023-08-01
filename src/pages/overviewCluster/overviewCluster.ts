@@ -762,7 +762,10 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
     };
     try {
         const viewType = `${connection.url}.${node.id}`;
-        currentPanel.webview.html = getClusterOverview(ClusterOverviewObject, context);
+        const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'src/webviews/styles/clusterOverview.css'));
+        const styleSrc = currentPanel.webview.asWebviewUri(onDiskPath);
+        currentPanel.webview.html = getClusterOverview(ClusterOverviewObject, context, styleSrc);
+        
     } catch (err) {
         logger.error(`Failed to get Cluster Overview Information \`${node}\``);
         logger.debug(err);
