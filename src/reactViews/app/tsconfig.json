@@ -1,29 +1,32 @@
 {
     "compilerOptions": {
-        "module": "esnext",
-        "moduleResolution": "node",
-        "target": "es6",
-        "outDir": "dist",
-        "lib": [
-            "es6",
-            "DOM",
-            "DOM.Iterable"
-        ],
-        "typeRoots": [
-            "./types"
-        ],
-        "jsx": "react",
-        "sourceMap": true,
-        "rootDir": "..",
-        "noUnusedLocals": true,
-        "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true,
-        "experimentalDecorators": true,
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "resolveJsonModule": true,
+      "module": "esnext",
+      "moduleResolution": "node",
+      "baseUrl": "./",
+      "paths": {
+        "components/*": ["components/*"]
+      },
+      "target": "es6",
+      "outDir": "dist",
+      "lib": [
+        "es6",
+        "DOM",
+        "DOM.Iterable",
+        "es2019"
+      ],
+      "jsx": "react-jsx",
+      "sourceMap": true,
+      "rootDir": "..",
+      "noUnusedLocals": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "experimentalDecorators": true,
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "resolveJsonModule": true
     },
     "exclude": [
-        "node_modules"
+      "node_modules"
     ]
-}
+  }
+  
