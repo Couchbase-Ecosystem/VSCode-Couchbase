@@ -496,8 +496,8 @@
         "category": "Couchbase"
       },
       {
-        "command": "extension.runQuery",
-        "title": "Run",
+        "command": "vscode-couchbase.runQuery",
+        "title": "Run Query",
         "category": "Couchbase",
         "icon": "$(play)",
         "tooltip": "Run Query"
@@ -506,12 +506,17 @@
     "menus": {
       "editor/title": [
         {
-          "command": "extension.runQuery",
-          "title": "Run SQL++",
+          "command": "vscode-couchbase.runQuery",
           "category": "Couchbase",
           "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
-          "group": "navigation",
-          "icon": "$(play)"
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "vscode-couchbase.runQuery",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
+          "group": "navigation@1"
         }
       ],
       "commandPalette": [
@@ -595,7 +600,6 @@
           "command": "vscode-couchbase.showOutputConsole"
         }
       ],
-      "editor/context": [],
       "view/item/context": [
         {
           "command": "vscode-couchbase.deleteClusterConnection",
