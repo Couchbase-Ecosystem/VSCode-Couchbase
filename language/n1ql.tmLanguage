@@ -9,7 +9,8 @@
 		<string>n1qlnb</string>
 		<string>.n1ql</string>
 		<string>.n1qlnb</string>
-		<string>.sqlpp</string>
+		<string>sqlppnb</string>
+		<string>.sqlppnb</string>
 	</array>
 	<key>keyEquivalent</key>
 	<string>^@S</string>
