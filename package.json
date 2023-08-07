@@ -494,9 +494,26 @@
         "command": "vscode-couchbase.showOutputConsole",
         "title": "Show Output Console",
         "category": "Couchbase"
+      },
+      {
+        "command": "extension.runQuery",
+        "title": "Run",
+        "category": "Couchbase",
+        "icon": "$(play)",
+        "tooltip": "Run Query"
       }
     ],
     "menus": {
+      "editor/title": [
+        {
+          "command": "extension.runQuery",
+          "title": "Run SQL++",
+          "category": "Couchbase",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
+          "group": "navigation",
+          "icon": "$(play)"
+        }
+      ],
       "commandPalette": [
         {
           "command": "vscode-couchbase.refreshConnection",
