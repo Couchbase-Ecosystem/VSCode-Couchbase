@@ -11,6 +11,7 @@ body {
 
 .sidebar {
   background-color: var(--vscode-activityBar-background);
+  color: var(--vscode-activityBar-foreground);
   background-size: 100%;
   padding: 10px;
   width: 150px;
@@ -53,7 +54,7 @@ body {
 .main-section {
   background-color: var(--vscode-editor-background);
   background-size: 100%;
-  color: white;
+  color: var(--vscode-editor-foreground);
   flex: 1;
   padding: 10px;
   max-height: 100vh;
