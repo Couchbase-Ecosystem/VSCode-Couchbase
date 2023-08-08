@@ -49,6 +49,7 @@ import { createScope, removeScope } from "./commands/scopes";
 import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
+import { runCouchbaseQuery } from "./workbench/runQuery";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -372,6 +373,12 @@ export function activate(context: vscode.ExtensionContext) {
       Constants.notebookType, new QueryContentSerializer(), { transientOutputs: true }
     ),
     new QueryKernel()
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(Commands.runQuery, async () => {
+      runCouchbaseQuery();
+    })
   );
 }
 
