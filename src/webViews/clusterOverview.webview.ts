@@ -25,7 +25,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      Overview
                   </div>
                   <div class="sidebar-list-values-container">
-                     <div class="sidebar-list-value" onClick="showContainer('Overview','')">
+                     <div class="sidebar-list-value focussed" id="general-overview" onClick="showContainer('Overview','')">
                         General
                      </div>
                   </div>
@@ -35,8 +35,8 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      Nodes
                   </div>
                   <div class="sidebar-list-values-container">
-                     ${overview.Nodes?.map((node) =>
-                        (`<div class="sidebar-list-value" onClick="showContainer('Node','${node.hostname}')">
+                     ${overview.Nodes?.map((node, index) =>
+                        (`<div class="sidebar-list-value" id="nodes-${index}" onClick="showContainer('Node','${node.hostname}')">
                            ${node.hostname}
                         </div>`)).join('')
                      }
@@ -47,8 +47,8 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      Buckets
                   </div>
                   <div class="sidebar-list-values-container">
-                     ${overview.Buckets?.map((bucket) =>
-                     (`<div class="sidebar-list-value" onClick="showContainer('Bucket','${bucket.name}')">
+                     ${overview.Buckets?.map((bucket, index) =>
+                     (`<div class="sidebar-list-value" id="buckets-${index}" onClick="showContainer('Bucket','${bucket.name}')">
                            ${bucket.name}
                         </div>`)).join('')
                      }
@@ -57,11 +57,11 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
             </div>
             <div class="main-section">
                <div id="Overview-tab">
-                  <div class="general-cluster">
-                     ${overview.GeneralDetails?.Cluster?.map((kv) =>
-                        (`<div class="field">
+                  <div class="general-cluster no-flex">
+                     ${overview.GeneralDetails?.Cluster?.map((kv, index) =>
+                        (`<div class="field" id=general-cluster-${index}">
                               <div class="field-label">
-                                 ${kv.key}
+                                 ${kv.key}:
                               </div>
                               <div class="field-value">
                                  ${kv.value}
@@ -74,10 +74,10 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      <div class="separator"></div>
                   </div>
                   <div class="general-quota flex">
-                     ${overview.GeneralDetails?.Quota?.map((kv) =>
-                        (`<div class="field">
+                     ${overview.GeneralDetails?.Quota?.map((kv, index) =>
+                        (`<div class="field" id=general-quota-${index}">
                               <div class="field-label">
-                                 ${kv.key}
+                                 ${kv.key}:
                               </div>
                               <div class="field-value">
                                  ${kv.value}
@@ -90,10 +90,10 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      <div class="separator"></div>
                   </div>
                   <div class="general-ram flex">
-                     ${overview.GeneralDetails?.RAM?.map((kv) =>
-                        (`<div class="field">
+                     ${overview.GeneralDetails?.RAM?.map((kv, index) =>
+                        (`<div class="field" id=general-ram-${index}">
                               <div class="field-label">
-                                 ${kv.key}
+                                 ${kv.key}:
                               </div>
                               <div class="field-value">
                                  ${kv.value}
@@ -106,10 +106,10 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      <div class="separator"></div>
                   </div>
                   <div class="general-storage flex">
-                     ${overview.GeneralDetails?.Storage?.map((kv) =>
-                        (`<div class="field">
+                     ${overview.GeneralDetails?.Storage?.map((kv, index) =>
+                        (`<div class="field" id=general-storage-${index}">
                               <div class="field-label">
-                                 ${kv.key}
+                                 ${kv.key}:
                               </div>
                               <div class="field-value">
                                  ${kv.value}
@@ -125,23 +125,41 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
        </body>
        <script>
        const vscode = acquireVsCodeApi();
-       
-         function showContainer( header, subheader) {
+       let allSidebarListItems = Array.from(document.querySelectorAll(".sidebar-list-value"));
+            allSidebarListItems.map((item) =>
+               item.addEventListener("click", () => {
+                  deselectAllSidebars(item);
+               })
+            );
+            function deselectAllSidebars(current_target) {
+               allSidebarListItems.map((item) => {
+                 if (current_target !== item) {
+                   const togglerBtn = item;
+                   togglerBtn.classList.remove("focussed");
+                 } else {
+                  const togglerBtn = item;
+                  togglerBtn.classList.add("focussed");
+                 }
+               });
+             }
+         function showContainer(header, subheader) {
+            
             if (header === "Overview"){
-               
                document.getElementById("Node-tab").hidden = true;
                document.getElementById("Bucket-tab").hidden = true;
                document.getElementById("Overview-tab").hidden = false;
+               
+
             } else if (header === "Bucket"){
-               
-               
                document.getElementById("Node-tab").hidden = true;
                document.getElementById("Overview-tab").hidden = true;
                document.getElementById("Bucket-tab").hidden = false;
+
                let currentBucketHTML = "";
                let buckets = [${overview.BucketsHTML.map((kv)=>{
                   return JSON.stringify(kv);
                })}];
+
                for (bucket of buckets) {
                   if(bucket.key === subheader){
                      currentBucketHTML = bucket.value
@@ -154,13 +172,13 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                document.getElementById("Bucket-tab").hidden = true;
                document.getElementById("Overview-tab").hidden = true;
                document.getElementById("Node-tab").hidden = false;
+
                let currentNodeHTML = "";
                let nodes = [${overview.NodesHTML.map((kv)=>{
                   return JSON.stringify(kv);
                })}];
                
                for (node of nodes) {
-
                   if(node.key === subheader){
                      currentNodeHTML = node.value;
                      break;
@@ -169,6 +187,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                document.getElementById("Node-tab").innerHTML = currentNodeHTML;
             }
          }
+      
          
        </script>
     </html>`;

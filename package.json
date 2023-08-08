@@ -51,6 +51,7 @@
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vscode/test-electron": "^2.1.5",
+    "class-transformer": "^0.5.1",
     "cmake-js": "^6.3.2",
     "css-loader": "^6.7.4",
     "electron-rebuild": "^3.2.7",

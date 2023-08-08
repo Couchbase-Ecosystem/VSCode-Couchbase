@@ -12,7 +12,7 @@ import { CouchbaseRestAPI } from "../../util/apis/CouchbaseRestAPI";
 import { ServerOverview } from "../../util/apis/ServerOverview";
 import { IKeyValuePair } from "../../types/IKeyValuePair";
 import { BucketOverview } from "../../util/apis/BucketOverview";
-import { BucketDetails } from "../../util/OverviewClusterHelper";
+import { BucketDetails, fmtByte, formatNumber, mbToGb } from "../../util/OverviewClusterHelper";
 import { CBNode } from "../../util/apis/CBNode";
 
 const getNodeTabDetails = (NodeDetails: CBNode | undefined): IKeyValuePair[] => {
@@ -76,27 +76,28 @@ const getNodeTabHardwareDetails = (NodeDetails: CBNode | undefined): IKeyValuePa
     if (NodeDetails === undefined) {
         return details;
     }
+    // Total Memory
     details.push({
         key: Constants.TOTAL_MEMORY,
-        value: NodeDetails.memoryTotal?.toString() || "NA"
+        value: fmtByte(NodeDetails.memoryTotal || -1)
     });
 
     // Free Memory
     details.push({
         key: Constants.FREE_MEMORY,
-        value: NodeDetails.memoryFree?.toString() || "NA"
+        value: fmtByte(NodeDetails.memoryFree || -1),
     });
 
     // Reserved MCD Memory
     details.push({
         key: Constants.RESERVED_MCDMEMORY,
-        value: NodeDetails.mcdMemoryReserved?.toString() || "NA"
+        value: fmtByte(NodeDetails.mcdMemoryReserved || -1),
     });
 
     // Allocated MCD Memory
     details.push({
         key: Constants.ALLOCATED_MCDMEMORY,
-        value: NodeDetails.mcdMemoryAllocated?.toString() || "NA"
+        value: fmtByte(NodeDetails.mcdMemoryAllocated || -1),
     });
 
     // CPUs
@@ -116,43 +117,43 @@ const getNodeTabSystemStatsDetails = (NodeDetails: CBNode | undefined): IKeyValu
     }
     details.push({
         key: Constants.CPU_UTILIZATION_RATE,
-        value: NodeDetails.systemStats?.cpu_utilization_rate?.toString() || "NA"
+        value: NodeDetails.systemStats?.cpu_utilization_rate?.toFixed(3).toString() || "NA"
     });
 
     // Swap Total
     details.push({
         key: Constants.SWAP_TOTAL,
-        value: NodeDetails.systemStats?.swap_total?.toString() || "NA"
+        value: fmtByte(NodeDetails.systemStats?.swap_total || -1)
     });
 
     // Total Memory
     details.push({
         key: Constants.TOTAL_MEMORY,
-        value: NodeDetails.systemStats?.mem_total?.toString() || "NA"
+        value: fmtByte(NodeDetails.systemStats?.mem_total || -1)
     });
 
     // Memory Limit
     details.push({
         key: Constants.MEMORY_LIMIT,
-        value: NodeDetails.systemStats?.mem_limit?.toString() || "NA"
+        value: fmtByte(NodeDetails.systemStats?.mem_limit || -1)
     });
 
     // CPU Stole Rate
     details.push({
         key: Constants.CPU_STOLE_RATE,
-        value: NodeDetails.systemStats?.cpu_stolen_rate?.toString() || "NA"
+        value: NodeDetails.systemStats?.cpu_stolen_rate?.toFixed(3).toString() || "NA"
     });
 
     // Swap Used
     details.push({
         key: Constants.SWAP_USED,
-        value: NodeDetails.systemStats?.swap_used?.toString() || "NA"
+        value: fmtByte(NodeDetails.systemStats?.swap_used || -1)
     });
 
     // Free Memory
     details.push({
         key: Constants.FREE_MEMORY,
-        value: NodeDetails.systemStats?.mem_free?.toString() || "NA"
+        value: fmtByte(NodeDetails.systemStats?.mem_free || -1)
     });
 
     // Cores Available
@@ -171,49 +172,49 @@ const getNodeTabInterestingStatsDetails = (NodeDetails: CBNode | undefined): IKe
     // Documents Data Size
     details.push({
         key: Constants.DOCUMENTS_DATA_SIZE,
-        value: NodeDetails.interestingStats?.couch_docs_data_size.toString() || "NA"
+        value: fmtByte(NodeDetails.interestingStats?.couch_docs_data_size || -1),
     });
 
     // Documents Data Size on Disk
     details.push({
         key: Constants.DOCUMENTS_DATA_SIZE_ON_DISK,
-        value: NodeDetails.interestingStats?.couch_docs_actual_disk_size.toString() || "NA"
+        value: fmtByte(NodeDetails.interestingStats?.couch_docs_actual_disk_size || -1),
     });
 
     // Spatial Data Size
     details.push({
         key: Constants.SPATIAL_DATA_SIZE,
-        value: NodeDetails.interestingStats?.couch_spatial_data_size?.toString() || "NA"
+        value: fmtByte(NodeDetails.interestingStats?.couch_spatial_data_size || -1),
     });
 
     // Spatial Data Size on Disk
     details.push({
         key: Constants.SPATIAL_DATA_SIZE_ON_DISK,
-        value: NodeDetails.interestingStats?.couch_spatial_disk_size?.toString() || "NA"
+        value: fmtByte(NodeDetails.interestingStats?.couch_spatial_disk_size || -1),
     });
 
     // Views Data Size
     details.push({
         key: Constants.VIEWS_DATA_SIZE,
-        value: NodeDetails.interestingStats?.couch_views_data_size?.toString() || "NA"
+        value: fmtByte(NodeDetails.interestingStats?.couch_views_data_size || -1),
     });
 
     // Views Data Size on Disk
     details.push({
         key: Constants.VIEWS_DATA_SIZE_ON_DISK,
-        value: NodeDetails.interestingStats?.couch_views_actual_disk_size?.toString() || "NA"
+        value: fmtByte(NodeDetails.interestingStats?.couch_views_actual_disk_size || -1),
     });
 
     // Items
     details.push({
         key: Constants.ITEMS,
-        value: NodeDetails.interestingStats?.curr_items?.toString() || "NA"
+        value: formatNumber(NodeDetails.interestingStats?.curr_items || -1)
     });
 
     // Total Items
     details.push({
         key: Constants.TOTAL_ITEMS,
-        value: NodeDetails.interestingStats?.curr_items_tot?.toString() || "NA"
+        value: formatNumber(NodeDetails.interestingStats?.curr_items_tot || -1)
     });
 
     // Ep. Bg. Fetched
@@ -225,31 +226,31 @@ const getNodeTabInterestingStatsDetails = (NodeDetails: CBNode | undefined): IKe
     // Hits
     details.push({
         key: Constants.HITS,
-        value: NodeDetails.interestingStats?.get_hits?.toString() || "NA"
+        value: NodeDetails.interestingStats?.get_hits?.toFixed(3).toString() || "NA"
     });
 
     // Index Data Size
     details.push({
         key: Constants.INDEX_DATA_SIZE,
-        value: NodeDetails.interestingStats?.index_data_size?.toString() || "NA"
+        value: fmtByte(NodeDetails.interestingStats?.index_data_size || -1),
     });
 
     // Index Data Size on Disk
     details.push({
         key: Constants.INDEX_DATA_SIZE_ON_DISK,
-        value: NodeDetails.interestingStats?.index_disk_size?.toString() || "NA"
+        value: fmtByte(NodeDetails.interestingStats?.index_disk_size || -1),
     });
 
     // Memory Used
     details.push({
         key: Constants.MEMORY_USED,
-        value: NodeDetails.interestingStats?.mem_used?.toString() || "NA"
+        value: fmtByte(NodeDetails.interestingStats?.mem_used || -1),
     });
 
     // Ops
     details.push({
         key: Constants.OPS,
-        value: NodeDetails.interestingStats?.ops?.toString() || "NA"
+        value: NodeDetails.interestingStats?.ops?.toFixed(3).toString() || "NA"
     });
 
     // # vBucket Non Resident
@@ -276,7 +277,7 @@ const getBucketTabDetails = (bucketSettings: BucketOverview | undefined): IKeyVa
     // Type
     details.push({
         key: Constants.TYPE,
-        value: bucketSettings?.bucketType || "NA",
+        value: bucketSettings?.bucketType.replace("membase", "couchbase") || "NA",
     });
 
     // Storage Backend
@@ -333,13 +334,13 @@ const getBucketTabQuotaDetails = (bucketSettings: BucketOverview | undefined): I
     // RAM
     details.push({
         key: Constants.RAM,
-        value: bucketSettings?.quota?.ram?.toString() || "NA",
+        value: fmtByte(bucketSettings?.quota?.ram || -1)
     });
 
     // Raw RAM
     details.push({
         key: Constants.RAW_RAM,
-        value: bucketSettings?.quota?.rawRAM?.toString() || "NA",
+        value: fmtByte(bucketSettings?.quota?.rawRAM || -1)
     });
     return details;
 };
@@ -353,31 +354,31 @@ const getBucketTabStatsDetails = (bucketSettings: BucketOverview | undefined): I
     // Ops Per Sec
     details.push({
         key: Constants.OPS_PER_SEC,
-        value: bucketSettings?.basicStats?.opsPerSec?.toString() || "NA",
+        value: bucketSettings?.basicStats?.opsPerSec?.toFixed(3).toString() || "NA",
     });
 
     // Disk Fetches
     details.push({
         key: Constants.DISK_FETCHES,
-        value: bucketSettings?.basicStats?.diskFetches?.toString() || "NA",
+        value: formatNumber(bucketSettings?.basicStats?.diskFetches || -1)
     });
 
     // Disk Used
     details.push({
         key: Constants.DISK_USED,
-        value: bucketSettings?.basicStats?.diskUsed?.toString() || "NA",
+        value: fmtByte(bucketSettings?.basicStats?.diskUsed || -1)
     });
 
     // Memory Used
     details.push({
         key: Constants.MEMORY_USED,
-        value: bucketSettings?.basicStats?.memUsed?.toString() || "NA",
+        value: fmtByte(bucketSettings?.basicStats?.memUsed || -1)
     });
 
     // Item Count
     details.push({
         key: Constants.ITEM_COUNT,
-        value: bucketSettings?.basicStats?.itemCount?.toString() || "NA",
+        value: formatNumber(bucketSettings?.basicStats?.itemCount || -1)
     });
 
     // No of active vBucket Non Resident
@@ -389,7 +390,7 @@ const getBucketTabStatsDetails = (bucketSettings: BucketOverview | undefined): I
     // Data Used
     details.push({
         key: Constants.DATA_USED,
-        value: bucketSettings?.basicStats?.dataUsed?.toString() || "NA",
+        value: fmtByte(bucketSettings?.basicStats?.dataUsed || -1)
     });
 
     return details;
@@ -445,35 +446,34 @@ const getGeneralQuotaDetails = (serverOverview: ServerOverview | undefined): IKe
     // Data
     details.push({
         key: Constants.DATA,
-        value: serverOverview?.getMemoryQuota()?.toString() || "NA"
+        value: mbToGb(serverOverview?.getMemoryQuota() || -1)
     });
 
     // Eventing
     details.push({
         key: Constants.EVENTING,
-        value: serverOverview?.getEventingMemoryQuota()?.toString() || "NA"
+        value: mbToGb(serverOverview?.getEventingMemoryQuota() || -1)
     });
 
     // Index
     details.push({
         key: Constants.INDEX,
-        value: serverOverview?.getIndexMemoryQuota()?.toString() || "NA"
+        value: mbToGb(serverOverview?.getIndexMemoryQuota() || -1),
     });
 
     // Analytics
     details.push({
         key: Constants.ANALYTICS,
-        value: serverOverview?.getCbasMemoryQuota()?.toString() || "NA"
+        value: mbToGb(serverOverview?.getCbasMemoryQuota() || -1),
     });
 
     // Search
     details.push({
         key: Constants.SEARCH,
-        value: serverOverview?.getFtsMemoryQuota()?.toString() || "NA"
+        value: mbToGb(serverOverview?.getFtsMemoryQuota() || -1),
     });
-
-
     return details;
+
 };
 
 const getGeneralRAMDetails = (serverOverview: ServerOverview | undefined): IKeyValuePair[] => {
@@ -486,43 +486,43 @@ const getGeneralRAMDetails = (serverOverview: ServerOverview | undefined): IKeyV
     // Total
     details.push({
         key: Constants.TOTAL,
-        value: ram?.total?.toString() || "NA"
+        value: fmtByte(ram?.total || -1)
     });
 
     // Used
     details.push({
         key: Constants.USED,
-        value: ram?.used?.toString() || "NA"
+        value: fmtByte(ram?.used || -1),
     });
 
     // Quota Total
     details.push({
         key: Constants.QUOTA_TOTAL,
-        value: ram?.quotaTotal?.toString() || "NA"
+        value: fmtByte(ram?.quotaTotal || -1),
     });
 
     // Quota Used
     details.push({
         key: Constants.QUOTA_USED,
-        value: ram?.quotaUsed?.toString() || "NA"
+        value: fmtByte(ram?.quotaUsed || -1),
     });
 
     // Quota Used per node
     details.push({
         key: Constants.QUOTA_USED_PER_NODE,
-        value: ram?.quotaUsedPerNode?.toString() || "NA"
+        value: fmtByte(ram?.quotaUsedPerNode || -1),
     });
 
     // Quota Total per node
     details.push({
-        key: Constants.USED,
-        value: ram?.quotaTotalPerNode?.toString() || "NA"
+        key: Constants.QUOTA_TOTAL_PER_NODE,
+        value: fmtByte(ram?.quotaTotalPerNode || -1),
     });
 
     // Used by Data
     details.push({
         key: Constants.USED_BY_DATA,
-        value: ram?.usedByData?.toString() || "NA"
+        value: fmtByte(ram?.usedByData || -1),
     });
     return details;
 };
@@ -538,31 +538,31 @@ const getGeneraStorageDetails = (serverOverview: ServerOverview | undefined): IK
     // Total
     details.push({
         key: Constants.TOTAL,
-        value: hdd?.total?.toString() || "NA"
+        value: fmtByte(hdd?.total || -1)
     });
 
     // Used
     details.push({
         key: Constants.USED,
-        value: hdd?.used?.toString() || "NA"
+        value: fmtByte(hdd?.used || -1),
     });
 
     // Quota Total
     details.push({
         key: Constants.QUOTA_TOTAL,
-        value: hdd?.quotaTotal?.toString() || "NA"
+        value: fmtByte(hdd?.quotaTotal || -1),
     });
 
     // Used by Data
     details.push({
         key: Constants.USED_BY_DATA,
-        value: hdd?.usedByData?.toString() || "NA"
+        value: fmtByte(hdd?.usedByData || -1),
     });
 
     // Free
     details.push({
         key: Constants.FREE,
-        value: hdd?.free?.toString() || "NA"
+        value: fmtByte(hdd?.free || -1),
     });
 
     return details;
@@ -625,11 +625,11 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
         let bucketTabStatsDetails = getBucketTabStatsDetails(bucketOverview);
 
         let bucketHTML = ` \
-        <div class="bucket-general"> \
+        <div class="bucket-general no-flex"> \
             ${bucketTabDetails?.map((kv) =>
         (`<div class="field"> \
                         <div class="field-label"> \
-                            ${kv.key} \
+                            ${kv.key}: \
                         </div> \
                         <div class="field-value"> \
                             ${kv.value} \
@@ -645,7 +645,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
             ${bucketTabQuotaDetails.map((kv) =>
         (`<div class="field"> \
                     <div class="field-label"> \
-                        ${kv.key} \
+                        ${kv.key}: \
                     </div> \
                     <div class="field-value"> \
                         ${kv.value} \
@@ -661,7 +661,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
             ${bucketTabStatsDetails.map((kv) =>
         (`<div class="field"> \
                     <div class="field-label"> \
-                        ${kv.key} \
+                        ${kv.key}: \
                     </div> \
                     <div class="field-value"> \
                         ${kv.value} \
@@ -681,11 +681,11 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
         let nodeTabSystemStatsDetails = getNodeTabSystemStatsDetails(node);
         let nodeTabInterestingStatsDetails = getNodeTabInterestingStatsDetails(node);
         let nodeHTML = ` \
-        <div class="bucket-general"> \
+        <div class="bucket-general no-flex"> \
             ${nodeTabDetails?.map((kv) =>
         (`<div class="field"> \
                         <div class="field-label"> \
-                            ${kv.key} \
+                            ${kv.key}: \
                         </div> \
                         <div class="field-value"> \
                             ${kv.value} \
@@ -702,7 +702,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
             ${nodeTabHardwareDetails.map((kv) =>
         (`<div class="field"> \
                     <div class="field-label"> \
-                        ${kv.key} \
+                        ${kv.key}: \
                     </div> \
                     <div class="field-value"> \
                         ${kv.value} \
@@ -718,7 +718,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
             ${nodeTabSystemStatsDetails.map((kv) =>
         (`<div class="field"> \
                     <div class="field-label"> \
-                        ${kv.key} \
+                        ${kv.key}: \
                     </div> \
                     <div class="field-value"> \
                         ${kv.value} \
@@ -734,7 +734,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
             ${nodeTabInterestingStatsDetails.map((kv) =>
         (`<div class="field"> \
                     <div class="field-label"> \
-                        ${kv.key} \
+                        ${kv.key}: \
                     </div> \
                     <div class="field-value"> \
                         ${kv.value} \
@@ -765,7 +765,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
         const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'src/webviews/styles/clusterOverview.css'));
         const styleSrc = currentPanel.webview.asWebviewUri(onDiskPath);
         currentPanel.webview.html = getClusterOverview(ClusterOverviewObject, context, styleSrc);
-        
+
     } catch (err) {
         logger.error(`Failed to get Cluster Overview Information \`${node}\``);
         logger.debug(err);

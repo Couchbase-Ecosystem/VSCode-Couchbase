@@ -10,14 +10,17 @@ body {
 }
 
 .sidebar {
-  background-color: #3e434c;
+  background-color: var(--vscode-activityBar-background);
+  background-size: 100%;
   padding: 10px;
   width: 150px;
 }
 
 .sidebar-list-container {
   margin-bottom: 20px;
+  
 }
+
 
 .sidebar-list-header {
   font-weight: bold;
@@ -30,42 +33,53 @@ body {
 }
 
 .sidebar-list-value:hover {
-  background-color: #eaeaea;
+  color: var(--vscode-list-hoverForeground);
+  background-color: var(--vscode-list-hoverBackground);
+}
+
+
+.focussed {
+  color: var(--vscode-list-activeSelectionForeground);
+  background-color: var(--vscode-list-activeSelectionBackground);
+  outline: 1px solid var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)));
+}
+
+.focussed:hover {
+  color: var(--vscode-list-activeSelectionForeground) !important; 
+  background-color: var(--vscode-list-activeSelectionBackground) !important;
+  outline: 1px solid var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline))) !important;
 }
 
 .main-section {
-  background-color: #444444;
+  background-color: var(--vscode-editor-background);
+  background-size: 100%;
   color: white;
   flex: 1;
   padding: 10px;
   max-height: 100vh;
 }
 .field {
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   flex-basis: calc(33.33% - 20px);
+  display: flex;
 }
-
-@media screen and (max-width: 1200px) {
-  .field {
-    flex-basis: calc(50% - 20px);
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .field {
-    flex-basis: 100%;
-  }
-}
-
 .field-label {
   display: inline;
   font-weight: 600;
+  padding-right: 5px;
+  flex-basis: 55%;
+  line-height: 2;
 }
+
+
 .field-value {
+  bottom: 0;
+  flex: 1;
   display: inline;
   font-weight: 400;
+  line-height: 2;
 }
 .separator-container {
   display: flex;
@@ -89,4 +103,26 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+}
+.no-flex > .field > .field-label{
+  flex-basis: 25%;
+}
+
+
+@media screen and (max-width: 1200px) {
+  .field {
+    flex-basis: calc(50% - 20px);
+  }
+  .no-flex > .field > .field-label{
+    flex-basis: 35%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .field {
+    flex-basis: 100%;
+  }
+  .no-flex > .field > .field-label{
+    flex-basis: 55%;
+  }
 }
