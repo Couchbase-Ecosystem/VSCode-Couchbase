@@ -6,12 +6,13 @@ body {
 
 .container {
   display: flex;
-  height: 100vh;
+  height: 100%;
 }
 
 .sidebar {
   background-color: var(--vscode-activityBar-background);
   color: var(--vscode-activityBar-foreground);
+  background-attachment: fixed;
   background-size: 100%;
   padding: 10px;
   width: 150px;
