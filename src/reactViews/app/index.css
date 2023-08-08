@@ -1,36 +1,5 @@
-.container {
-    margin-top: 180px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-  
-  h1 {
-    font-size: 62px;
-    color: black;
-    margin-bottom: 20px;
-  }
-  
-  h3 {
-    font-size: 32px;
-    color: black;
-  }
-  
-  p {
-    font-size: 24px;
-    margin-bottom: 40px;
-    color: black;
-  }
-  
-  body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-image: linear-gradient(to bottom, white 75%, #FC9C0C 25%);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    overflow: hidden;
-  }
+body {
+    background-color: var(--vscode-editor-background);
+    margin-top: 20px;
+}
   

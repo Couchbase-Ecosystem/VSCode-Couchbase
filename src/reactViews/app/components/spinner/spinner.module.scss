@@ -1,0 +1,41 @@
+.spinner {
+  &-outer-circle {
+    opacity: 0.8;
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 8px;
+    stroke-miterlimit: 10;
+    stroke-dasharray: 93.64044952392578;
+    stroke-dashoffset: 0;
+  }
+  &-inner-circle {
+    fill: none;
+    stroke: var(--color-surface-active);
+    stroke-width: 6px;
+    stroke-miterlimit: 10;
+    stroke-dasharray: 94.5;
+    stroke-dashoffset: 73;
+    transform: rotate(0deg);
+    transform-origin: 50% 50%;
+    animation: preloader-inner-circle-scale cubic-bezier(0.215, 0.61, 0.355, 1) 1250ms normal forwards,
+      spinner-inner-circle-animation linear 500ms infinite forwards;
+  }
+}
+
+@keyframes preloader-inner-circle-scale {
+  0% {
+    stroke-dashoffset: 83;
+  }
+  100% {
+    stroke-dashoffset: 73;
+  }
+}
+
+@keyframes spinner-inner-circle-animation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

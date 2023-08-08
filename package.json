@@ -29,7 +29,8 @@
     "rebuild:cmake": "cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8",
     "build:v3": "cd ../couchbase-cloud/cmd/cp-ui-v3; npm run build",
     "postbuild:v3": "cp -r ../couchbase-cloud/cmd/cp-ui-v3/dist/styles.css ./src/reactViews/app/styles.css && cp -r ../couchbase-cloud/cmd/cp-ui-v3/dist/types ./src/reactViews/app/",
-    "compile": "npm run build:v3 && npm run postbuild:v3 && node scripts/fix_sharedComponent.js && npm-run-all compile:*",
+    "compile-capella-v3": "npm run build:v3 && npm run postbuild:v3 && node scripts/fix_sharedComponent.js && npm-run-all compile:*",
+    "compile": "npm-run-all compile:*",
     "watch": "npm-run-all -p watch:*",
     "compile:extension": "tsc -p ./",
     "compile:views": "webpack --mode development",
@@ -38,9 +39,11 @@
     "test": "node ./out/test/runTest.js",
     "format": "prettier 'src/**/*.ts' --write",
     "lint": "eslint src --ext ts --fix",
-    "pretest": "npm run test-compile && npm run lint"
+    "pretest": "npm run compile:extension"
   },
   "devDependencies": {
+    "@babel/parser": "^7.22.7",
+    "@babel/traverse": "^7.22.8",
     "@types/glob": "^7.2.0",
     "@types/mocha": "^8.2.3",
     "@types/node": "^12.20.42",
@@ -53,29 +56,45 @@
     "@vscode/test-electron": "^2.1.5",
     "class-transformer": "^0.5.1",
     "cmake-js": "^6.3.2",
-    "css-loader": "^6.7.4",
+    "concurrently": "^8.2.0",
+    "css-loader": "^6.8.1",
     "electron-rebuild": "^3.2.7",
     "eslint": "^7.32.0",
     "glob": "^7.2.0",
     "mocha": "^9.2.2",
     "node-loader": "^2.0.0",
+    "node-sass": "^9.0.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.5.1",
+    "readline-sync": "^1.4.10",
+    "recast": "^0.23.3",
+    "sass": "^1.64.1",
+    "sass-loader": "^13.3.2",
     "style-loader": "^3.3.3",
     "ts-loader": "^8.3.0",
-    "typescript": "^4.1.3",
+    "typescript": "^5.0.4",
     "vsce": "^2.6.3",
     "webpack": "^5.75.0",
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
-    "axios": "^0.21.4",
+    "@popperjs/core": "^2.11.8",
+    "ag-grid-community": "^29.3.5",
+    "ag-grid-react": "^29.3.5",
+    "axios": "^1.4.0",
+    "clsx": "^2.0.0",
     "couchbase": "^4.2.1",
+    "dayjs": "^1.11.9",
     "gitly": "^2.4.2",
     "keytar": "^7.7.0",
     "node-addon-api": "^6.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.45.2",
+    "react-merge-refs": "^2.0.2",
+    "react-popper": "^2.3.0",
+    "react-popper-tooltip": "^4.4.2",
+    "react-router-dom": "^6.14.2"
   },
   "activationEvents": [
     "onFileSystem:couchbase",
@@ -358,7 +377,7 @@
         "displayName": "SQL++ Query",
         "selector": [
           {
-            "filenamePattern": "*.n1qlnb"
+            "filenamePattern": "*.{n1qlnb,sqlpp,n1ql}"
           }
         ]
       }
