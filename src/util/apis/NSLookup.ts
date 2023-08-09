@@ -25,13 +25,11 @@ async function lookupCapellaServers(serverURL: string): Promise<string[]> {
         for (const record of srvRecords) {
             const server = record.name.replace('cloud.couchbase.com.', 'cloud.couchbase.com');
             servers.push(server);
-           
-            console.log(server);
         }
         return servers;
     } catch (err) {
-        console.error('Error performing lookup');
-        console.error(err);
+        logger.error('Error performing lookup')
+        logger.error(err);
         return [];
     }
 }

@@ -32,6 +32,7 @@ const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connect
 };
 
 export async function fetchClusterOverview(node: ClusterConnectionNode, context: vscode.ExtensionContext) {
+
     const connection = Memory.state.get<IConnection>("activeConnection");
 
     if (!connection) {
@@ -47,48 +48,63 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
             enableForms: true,
         }
     );
+
     currentPanel.iconPath = vscode.Uri.file(
         path.join(__filename, "..", "..", "images", "cb-logo-icon.svg")
     );
-
-    // Fetch server overview details
-    const restAPIObject = new CouchbaseRestAPI(connection);
-    const serverOverview: ServerOverview | undefined = await restAPIObject.getOverview();
-
-    // Fetch Buckets
-    let bucketsSettings = await connection?.cluster?.buckets().getAllBuckets();
-    let Buckets = fetchBucketNames(bucketsSettings, connection);
-
-    // General Overview
-    let generalClusterDetails = getGeneralClusterDetails(serverOverview);
-    let generalQuotaDetails = getGeneralQuotaDetails(serverOverview);
-    let generalRAMDetails = getGeneralRAMDetails(serverOverview);
-    let generalStorageDetails = getGeneraStorageDetails(serverOverview);
-
-    // Buckets Data
-    let bucketsHTML: IKeyValuePair[] = [];
-    for (let bucket of Buckets) {
-        const bucketOverview: BucketOverview | undefined = await restAPIObject.getBucketsOverview(bucket.name);
-        let bucketHTML = bucketOverview !== undefined ? getBucketData(bucketOverview) : '';
-        bucketsHTML.push({ key: bucket.name, value: bucketHTML });
-    }
-
-    // Nodes Data
-    const NodesHTML: IKeyValuePair[] = serverOverview !== undefined ? getNodeTabData(serverOverview) : [];
-
-    const ClusterOverviewObject: IClusterOverview = {
-        Buckets: Buckets,
-        Nodes: serverOverview?.getNodes() || null,
-        Title: "Cluster Overview",
-        GeneralDetails: {
-            Cluster: generalClusterDetails,
-            Quota: generalQuotaDetails,
-            Storage: generalStorageDetails,
-            RAM: generalRAMDetails,
-        },
-        BucketsHTML: bucketsHTML,
-        NodesHTML: NodesHTML,
+    currentPanel.webview.html = `Loading....`;
+    let ClusterOverviewObject: IClusterOverview = {
+        GeneralDetails: null,
+        Buckets: null,
+        Nodes: null,
+        Title: '',
+        BucketsHTML: [],
+        NodesHTML: []
     };
+
+    try {
+        // Fetch server overview details
+        const restAPIObject = new CouchbaseRestAPI(connection);
+        const serverOverview: ServerOverview | undefined = await restAPIObject.getOverview();
+
+        // Fetch Buckets
+        let bucketsSettings = await connection?.cluster?.buckets().getAllBuckets();
+        let Buckets = fetchBucketNames(bucketsSettings, connection);
+
+        // General Overview
+        let generalClusterDetails = getGeneralClusterDetails(serverOverview);
+        let generalQuotaDetails = getGeneralQuotaDetails(serverOverview);
+        let generalRAMDetails = getGeneralRAMDetails(serverOverview);
+        let generalStorageDetails = getGeneraStorageDetails(serverOverview);
+
+        // Buckets Data
+        let bucketsHTML: IKeyValuePair[] = [];
+        for (let bucket of Buckets) {
+            const bucketOverview: BucketOverview | undefined = await restAPIObject.getBucketsOverview(bucket.name);
+            let bucketHTML = bucketOverview !== undefined ? getBucketData(bucketOverview) : '';
+            bucketsHTML.push({ key: bucket.name, value: bucketHTML });
+        }
+
+        // Nodes Data
+        const NodesHTML: IKeyValuePair[] = serverOverview !== undefined ? getNodeTabData(serverOverview) : [];
+
+        ClusterOverviewObject = {
+            Buckets: Buckets,
+            Nodes: serverOverview?.getNodes() || null,
+            Title: "Cluster Overview",
+            GeneralDetails: {
+                Cluster: generalClusterDetails,
+                Quota: generalQuotaDetails,
+                Storage: generalStorageDetails,
+                RAM: generalRAMDetails,
+            },
+            BucketsHTML: bucketsHTML,
+            NodesHTML: NodesHTML,
+        };
+    } catch (err) {
+        logger.error("Failed to get Cluster Overview Data, error: " + err);
+        currentPanel.webview.html = `Error while loading cluster, Please try again later!`;
+    }
     try {
         const viewType = `${connection.url}.${node.id}`;
         const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'src/webviews/styles/clusterOverview.css'));
