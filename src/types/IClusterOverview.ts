@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 import { Bucket } from "couchbase";
-import { BucketDetails, OverviewGeneral } from "../util/OverviewClusterHelper";
+import { BucketDetails, OverviewGeneral } from "../util/OverviewClusterUtils/OverviewClusterHelper";
 import { IKeyValuePair } from "./IKeyValuePair";
 import { CBNode } from "../util/apis/CBNode";
 

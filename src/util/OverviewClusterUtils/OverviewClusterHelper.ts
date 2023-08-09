@@ -1,4 +1,4 @@
-import { IKeyValuePair } from "../types/IKeyValuePair";
+import { IKeyValuePair } from "../../types/IKeyValuePair";
 
 export class OverviewGeneral {
     public Cluster: IKeyValuePair[] | null;
