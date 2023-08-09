@@ -12,7 +12,7 @@ import { CouchbaseRestAPI } from "../../util/apis/CouchbaseRestAPI";
 import { ServerOverview } from "../../util/apis/ServerOverview";
 import { IKeyValuePair } from "../../types/IKeyValuePair";
 import { BucketOverview } from "../../util/apis/BucketOverview";
-import { BucketDetails, fmtByte, formatNumber, mbToGb } from "../../util/OverviewClusterHelper";
+import { fmtByte, formatDuration, formatNumber, formatServices, mbToGb } from "../../util/OverviewClusterHelper";
 import { CBNode } from "../../util/apis/CBNode";
 
 const getNodeTabDetails = (NodeDetails: CBNode | undefined): IKeyValuePair[] => {
@@ -42,7 +42,7 @@ const getNodeTabDetails = (NodeDetails: CBNode | undefined): IKeyValuePair[] => 
     // Services
     details.push({
         key: Constants.SERVICES,
-        value: NodeDetails.services.join(', ') || "NA"
+        value: formatServices(NodeDetails.services.join(', ')) || "NA"
     });
 
     // OS
@@ -66,7 +66,7 @@ const getNodeTabDetails = (NodeDetails: CBNode | undefined): IKeyValuePair[] => 
     // Up Time
     details.push({
         key: Constants.UPTIME,
-        value: (NodeDetails.uptime) || "NA"
+        value: formatDuration(parseInt(NodeDetails.uptime, 10)) || "NA"
     });
     return details;
 };
@@ -268,6 +268,72 @@ const getNodeTabInterestingStatsDetails = (NodeDetails: CBNode | undefined): IKe
     return details;
 };
 
+const getNodeTabHtml = (nodeTabDetails: IKeyValuePair[], nodeTabHardwareDetails: IKeyValuePair[], nodeTabSystemStatsDetails: IKeyValuePair[], nodeTabInterestingStatsDetails: IKeyValuePair[]): string => {
+    return `\
+    <div class="bucket-general no-flex"> \
+        ${nodeTabDetails?.map((kv) =>
+    (`<div class="field"> \
+                    <div class="field-label"> \
+                        ${kv.key}: \
+                    </div> \
+                    <div class="field-value ${kv.key === Constants.STATUS && kv.value === 'healthy' ? 'status-node-value-green' : kv.key === Constants.STATUS && 'status-node-value-red'}"> \
+                        ${kv.value} \
+                    </div> \
+                </div> \
+                `)).join('')} \
+            </div> \
+    </div> \
+    <div class="separator-container"> \
+        <span class="separator-text">Hardware</span> \
+        <div class="separator"></div> \
+    </div> \
+    <div class="bucket-quota flex"> \
+        ${nodeTabHardwareDetails.map((kv) =>
+    (`<div class="field"> \
+                <div class="field-label"> \
+                    ${kv.key}: \
+                </div> \
+                <div class="field-value"> \
+                    ${kv.value} \
+                </div> \
+            </div> \
+        `)).join('')} \
+    </div> \
+    <div class="separator-container"> \
+        <span class="separator-text">System Stats</span> \
+        <div class="separator"></div> \
+    </div> \
+    <div class="bucket-quota flex"> \
+        ${nodeTabSystemStatsDetails.map((kv) =>
+    (`<div class="field"> \
+                <div class="field-label"> \
+                    ${kv.key}: \
+                </div> \
+                <div class="field-value"> \
+                    ${kv.value} \
+                </div> \
+            </div> \
+        `)).join('')} \
+    </div> \
+    <div class="separator-container"> \
+        <span class="separator-text">Interesting Stats</span> \
+        <div class="separator"></div> \
+    </div> \
+    <div class="bucket-quota flex"> \
+        ${nodeTabInterestingStatsDetails.map((kv) =>
+    (`<div class="field"> \
+                <div class="field-label"> \
+                    ${kv.key}: \
+                </div> \
+                <div class="field-value"> \
+                    ${kv.value} \
+                </div> \
+            </div> \
+        `)).join('')} \
+    </div> \
+    `;
+}
+
 const getBucketTabDetails = (bucketSettings: BucketOverview | undefined): IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
     if (bucketSettings === undefined) {
@@ -277,7 +343,7 @@ const getBucketTabDetails = (bucketSettings: BucketOverview | undefined): IKeyVa
     // Type
     details.push({
         key: Constants.TYPE,
-        value: bucketSettings?.bucketType.replace("membase", "couchbase") || "NA",
+        value: bucketSettings?.bucketType.replace("membase", "Couchbase") || "NA",
     });
 
     // Storage Backend
@@ -396,6 +462,55 @@ const getBucketTabStatsDetails = (bucketSettings: BucketOverview | undefined): I
     return details;
 };
 
+const getBucketTabHtml = (bucketTabDetails: IKeyValuePair[], bucketTabQuotaDetails: IKeyValuePair[], bucketTabStatsDetails: IKeyValuePair[]): string => {
+    return ` \
+        <div class="bucket-general no-flex"> \
+            ${bucketTabDetails?.map((kv) =>
+    (`<div class="field"> \
+                        <div class="field-label"> \
+                            ${kv.key}: \
+                        </div> \
+                        <div class="field-value"> \
+                            ${kv.value} \
+                        </div> \
+                    </div> \
+                    `)).join('')} \
+        </div> \
+        <div class="separator-container"> \
+            <span class="separator-text">Quota</span> \
+            <div class="separator"></div> \
+        </div> \
+        <div class="bucket-quota flex"> \
+            ${bucketTabQuotaDetails.map((kv) =>
+    (`<div class="field"> \
+                    <div class="field-label"> \
+                        ${kv.key}: \
+                    </div> \
+                    <div class="field-value"> \
+                        ${kv.value} \
+                    </div> \
+                </div> \
+            `)).join('')} \
+        </div> \
+        <div class="separator-container"> \
+            <span class="separator-text">Basic Stats</span> \
+            <div class="separator"></div> \
+        </div> \
+        <div class="bucket-stats flex"> \
+            ${bucketTabStatsDetails.map((kv) =>
+    (`<div class="field"> \
+                    <div class="field-label"> \
+                        ${kv.key}: \
+                    </div> \
+                    <div class="field-value"> \
+                        ${kv.value} \
+                    </div> \
+                </div> \
+            `)).join('')} \
+        </div>
+        `;
+}
+
 const getGeneralClusterDetails = (serverOverview: ServerOverview | undefined): IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
     if (serverOverview === undefined) {
@@ -416,7 +531,7 @@ const getGeneralClusterDetails = (serverOverview: ServerOverview | undefined): I
     // Services
     details.push({
         key: Constants.SERVICES,
-        value: serverOverview.getNodes()[0].services.join(', ').toString() || "NA"
+        value: formatServices(serverOverview.getNodes()[0].services.join(', ').toString()) || "NA"
     });
 
     // Nodes
@@ -623,53 +738,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
         let bucketTabDetails = getBucketTabDetails(bucketOverview);
         let bucketTabQuotaDetails = getBucketTabQuotaDetails(bucketOverview);
         let bucketTabStatsDetails = getBucketTabStatsDetails(bucketOverview);
-
-        let bucketHTML = ` \
-        <div class="bucket-general no-flex"> \
-            ${bucketTabDetails?.map((kv) =>
-        (`<div class="field"> \
-                        <div class="field-label"> \
-                            ${kv.key}: \
-                        </div> \
-                        <div class="field-value"> \
-                            ${kv.value} \
-                        </div> \
-                    </div> \
-                    `)).join('')} \
-        </div> \
-        <div class="separator-container"> \
-            <span class="separator-text">Quota</span> \
-            <div class="separator"></div> \
-        </div> \
-        <div class="bucket-quota flex"> \
-            ${bucketTabQuotaDetails.map((kv) =>
-        (`<div class="field"> \
-                    <div class="field-label"> \
-                        ${kv.key}: \
-                    </div> \
-                    <div class="field-value"> \
-                        ${kv.value} \
-                    </div> \
-                </div> \
-            `)).join('')} \
-        </div> \
-        <div class="separator-container"> \
-            <span class="separator-text">Basic Stats</span> \
-            <div class="separator"></div> \
-        </div> \
-        <div class="bucket-stats flex"> \
-            ${bucketTabStatsDetails.map((kv) =>
-        (`<div class="field"> \
-                    <div class="field-label"> \
-                        ${kv.key}: \
-                    </div> \
-                    <div class="field-value"> \
-                        ${kv.value} \
-                    </div> \
-                </div> \
-            `)).join('')} \
-        </div>
-        `;
+        let bucketHTML = getBucketTabHtml(bucketTabDetails, bucketTabQuotaDetails, bucketTabStatsDetails);
         bucketsHTML.push({ key: bucket.name, value: bucketHTML });
     }
 
@@ -680,69 +749,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
         let nodeTabHardwareDetails = getNodeTabHardwareDetails(node);
         let nodeTabSystemStatsDetails = getNodeTabSystemStatsDetails(node);
         let nodeTabInterestingStatsDetails = getNodeTabInterestingStatsDetails(node);
-        let nodeHTML = ` \
-        <div class="bucket-general no-flex"> \
-            ${nodeTabDetails?.map((kv) =>
-        (`<div class="field"> \
-                        <div class="field-label"> \
-                            ${kv.key}: \
-                        </div> \
-                        <div class="field-value"> \
-                            ${kv.value} \
-                        </div> \
-                    </div> \
-                    `)).join('')} \
-                </div> \
-        </div> \
-        <div class="separator-container"> \
-            <span class="separator-text">Hardware</span> \
-            <div class="separator"></div> \
-        </div> \
-        <div class="bucket-quota flex"> \
-            ${nodeTabHardwareDetails.map((kv) =>
-        (`<div class="field"> \
-                    <div class="field-label"> \
-                        ${kv.key}: \
-                    </div> \
-                    <div class="field-value"> \
-                        ${kv.value} \
-                    </div> \
-                </div> \
-            `)).join('')} \
-        </div> \
-        <div class="separator-container"> \
-            <span class="separator-text">System Stats</span> \
-            <div class="separator"></div> \
-        </div> \
-        <div class="bucket-quota flex"> \
-            ${nodeTabSystemStatsDetails.map((kv) =>
-        (`<div class="field"> \
-                    <div class="field-label"> \
-                        ${kv.key}: \
-                    </div> \
-                    <div class="field-value"> \
-                        ${kv.value} \
-                    </div> \
-                </div> \
-            `)).join('')} \
-        </div> \
-        <div class="separator-container"> \
-            <span class="separator-text">Interesting Stats</span> \
-            <div class="separator"></div> \
-        </div> \
-        <div class="bucket-quota flex"> \
-            ${nodeTabInterestingStatsDetails.map((kv) =>
-        (`<div class="field"> \
-                    <div class="field-label"> \
-                        ${kv.key}: \
-                    </div> \
-                    <div class="field-value"> \
-                        ${kv.value} \
-                    </div> \
-                </div> \
-            `)).join('')} \
-        </div> \
-        `;
+        let nodeHTML = getNodeTabHtml(nodeTabDetails, nodeTabHardwareDetails, nodeTabSystemStatsDetails, nodeTabInterestingStatsDetails)
         NodesHTML.push({ key: node.hostname, value: nodeHTML });
     }
 

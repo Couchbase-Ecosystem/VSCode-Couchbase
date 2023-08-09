@@ -92,3 +92,13 @@ export function mbToGb(sizeInMb: number): string {
     return `${sizeInGb.toFixed(2)} Gb`;
   }
 }
+
+export function formatServices(services: string): string {
+  return services
+      .replace("backup", "Backup")
+      .replace("eventing", "Eventing")
+      .replace("fts", "Search")
+      .replace("index", "Index")
+      .replace("kv", "Data")
+      .replace("n1ql", "Query");
+}

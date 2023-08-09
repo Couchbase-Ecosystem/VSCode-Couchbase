@@ -26,7 +26,8 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                   </div>
                   <div class="sidebar-list-values-container">
                      <div class="sidebar-list-value focussed" id="general-overview" onClick="showContainer('Overview','')">
-                        General
+                     <span class="sidebar-list-value-text">General</span>
+                        <span class="tooltip">General</span>
                      </div>
                   </div>
                </div>
@@ -37,7 +38,8 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                   <div class="sidebar-list-values-container">
                      ${overview.Nodes?.map((node, index) =>
                         (`<div class="sidebar-list-value" id="nodes-${index}" onClick="showContainer('Node','${node.hostname}')">
-                           ${node.hostname}
+                        <span class="sidebar-list-value-text">${node.hostname}</span>
+                           <span class="tooltip">${node.hostname}</span>
                         </div>`)).join('')
                      }
                   </div>
@@ -49,7 +51,8 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                   <div class="sidebar-list-values-container">
                      ${overview.Buckets?.map((bucket, index) =>
                      (`<div class="sidebar-list-value" id="buckets-${index}" onClick="showContainer('Bucket','${bucket.name}')">
-                           ${bucket.name}
+                           <span class="sidebar-list-value-text">${bucket.name}</span>
+                           <span class="tooltip">${bucket.name}</span>
                         </div>`)).join('')
                      }
                   </div>
@@ -63,7 +66,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                               <div class="field-label">
                                  ${kv.key}:
                               </div>
-                              <div class="field-value">
+                              <div class="field-value ${kv.key === 'Status' && kv.value === 'healthy' ? 'status-node-value-green' : kv.key === 'Status' && 'status-node-value-red'}">
                                  ${kv.value}
                               </div>
                           </div>
@@ -118,6 +121,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                         `)).join('')}
                   </div>
                </div>
+               <!-- Below tabs are completely written in ts in overviewCluster -->
                <div id="Bucket-tab"> </div>
                <div id="Node-tab"> </div>
             </div>
@@ -125,23 +129,27 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
        </body>
        <script>
        const vscode = acquireVsCodeApi();
+
+       // This is used to focus/defocus a sidebar based on selection
        let allSidebarListItems = Array.from(document.querySelectorAll(".sidebar-list-value"));
-            allSidebarListItems.map((item) =>
-               item.addEventListener("click", () => {
-                  deselectAllSidebars(item);
-               })
-            );
-            function deselectAllSidebars(current_target) {
-               allSidebarListItems.map((item) => {
-                 if (current_target !== item) {
-                   const togglerBtn = item;
-                   togglerBtn.classList.remove("focussed");
-                 } else {
+         allSidebarListItems.map((item) =>
+            item.addEventListener("click", () => {
+               deselectAllSidebars(item);
+            })
+         );
+         function deselectAllSidebars(current_target) {
+            allSidebarListItems.map((item) => {
+               if (current_target !== item) {
                   const togglerBtn = item;
-                  togglerBtn.classList.add("focussed");
-                 }
-               });
-             }
+                  togglerBtn.classList.remove("focussed");
+               } else {
+               const togglerBtn = item;
+               togglerBtn.classList.add("focussed");
+               }
+            });
+         }
+
+         // The below code shows the particular container based on the sidebar value chosen
          function showContainer(header, subheader) {
             
             if (header === "Overview"){

@@ -20,9 +20,7 @@ body {
 
 .sidebar-list-container {
   margin-bottom: 20px;
-  
 }
-
 
 .sidebar-list-header {
   font-weight: bold;
@@ -30,8 +28,17 @@ body {
 }
 
 .sidebar-list-value {
+  display: block;
   cursor: pointer;
   padding: 5px;
+  position: relative;
+  white-space: nowrap;
+}
+
+.sidebar-list-value-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar-list-value:hover {
@@ -39,6 +46,47 @@ body {
   background-color: var(--vscode-list-hoverBackground);
 }
 
+.sidebar-list-value:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip {
+  width: max-content;
+  visibility: hidden;
+  padding: 3px;
+  background-color: #555;
+  color: #fff;
+  /* text-align: center; */
+  padding: 5px;
+  border-radius: 6px;
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 50%;
+  max-width: 500px;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.status-node-value-green {
+  color: green;
+}
+.status-node-value-green::first-letter{
+  text-transform: capitalize;
+}
+
+.status-node-value-red {
+  color: red;
+}
+
+.status-node-value-red::first-letter{
+    text-transform: capitalize;
+}
 
 .focussed {
   color: var(--vscode-list-activeSelectionForeground);
@@ -85,12 +133,12 @@ body {
 }
 .separator-container {
   display: flex;
-  align-items: center; /* Center the items vertically */
-  margin: 20px 0; /* Add margin above and below the separator container for spacing */
+  align-items: center;
+  margin: 20px 0; 
 }
 
 .separator-text {
-  padding-right: 10px; /* Add some spacing between the text and separator */
+  padding-right: 10px;
 }
 
 .separator {
@@ -98,9 +146,7 @@ body {
   border: none;
   border-top: 1px solid black;
 }
-.sidebar-list-value {
-  display: block;
-}
+
 .flex {
   display: flex;
   flex-wrap: wrap;
