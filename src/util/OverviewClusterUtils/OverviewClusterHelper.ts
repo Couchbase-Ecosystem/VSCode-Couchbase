@@ -1,37 +1,23 @@
 import { IKeyValuePair } from "../../types/IKeyValuePair";
 
 export class OverviewGeneral {
-    public Cluster: IKeyValuePair[] | null;
-    public Quota: IKeyValuePair[] | null;
+    public cluster: IKeyValuePair[] | null;
+    public quota: IKeyValuePair[] | null;
     public RAM: IKeyValuePair[] | null;
-    public Storage: IKeyValuePair[] | null;
+    public storage: IKeyValuePair[] | null;
     constructor(
-        Cluster: IKeyValuePair[] | null,
-        Quota: IKeyValuePair[] | null,
+        cluster: IKeyValuePair[] | null,
+        quota: IKeyValuePair[] | null,
         RAM: IKeyValuePair[] | null,
-        Storage: IKeyValuePair[] | null
+        storage: IKeyValuePair[] | null
       ) {
-        this.Cluster = Cluster;
-        this.Quota = Quota;
+        this.cluster = cluster;
+        this.quota = quota;
         this.RAM = RAM;
-        this.Storage = Storage;
+        this.storage = storage;
       }
 }
 
-export class BucketDetails {
-  public Bucket: IKeyValuePair[] | null;
-  public Quota: IKeyValuePair[] | null;
-  public BasicStats: IKeyValuePair[] | null;
-  constructor(
-    Bucket: IKeyValuePair[] | null,
-    Quota: IKeyValuePair[] | null,
-    BasicStats: IKeyValuePair[] | null
-  ){
-    this.Bucket = Bucket;
-    this.Quota = Quota;
-    this.BasicStats = BasicStats;
-  }
-}
 
 export function fmtByte(bytes: number): string {
   if(bytes === -1){

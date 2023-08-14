@@ -28,7 +28,7 @@ async function lookupCapellaServers(serverURL: string): Promise<string[]> {
         }
         return servers;
     } catch (err) {
-        logger.error('Error performing lookup')
+        logger.error('Error performing lookup');
         logger.error(err);
         return [];
     }

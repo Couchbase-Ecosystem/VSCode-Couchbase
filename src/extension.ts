@@ -366,11 +366,6 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.getClusterOverview",
       async (node: ClusterConnectionNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-
-        if (!connection) {
-          return;
-        }
         fetchClusterOverview(node, context);
       }
     )
