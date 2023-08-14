@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
+import * as path from 'path';
 import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
@@ -50,6 +51,9 @@ import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
+// import { Worker, isMainThread, parentPort } from 'worker_threads';
+import * as child_process from 'child_process';
+import DependenciesDownloader from "./handlers/handleCLIDownloader";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -60,6 +64,21 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.getConfiguration("vscode-couchbase")
   );
   logger.info(`Activating extension ${Constants.extensionID} v${Constants.extensionVersion}`);
+
+  // Creating thread to download CLI tools in a child process
+  // const scriptPath = path.join(context.extensionPath, './scripts/dependency_downloader.js');
+  // child_process.exec(`node ${scriptPath}`, (error, stdout,stderr) => {
+  //   console.log(`stdout: ${stdout}`);
+  //       console.log(`stderr: ${stderr}`);
+  //       if (error !== null) {
+  //           console.log(`exec error: ${error}`);
+  //       }
+  // });
+
+  let cliDownloader = new DependenciesDownloader();
+  cliDownloader.handleCLIDownloader();
+
+  
   const uriToCasMap = new Map<string, string>();
   let currentPanel: vscode.WebviewPanel | undefined = undefined;
 
