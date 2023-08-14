@@ -50,7 +50,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
     currentPanel.iconPath = vscode.Uri.file(
         path.join(__filename, "..", "..", "images", "cb-logo-icon.svg")
     );
-    currentPanel.webview.html = `Loading....`;
+    currentPanel.webview.html = `<h1>Loading....</h1>`;
     let clusterOverviewObject: IClusterOverview = {
         generalDetails: null,
         buckets: null,
@@ -101,7 +101,9 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
         };
     } catch (err) {
         logger.error("Failed to get Cluster Overview Data, error: " + err);
-        currentPanel.webview.html = `Error while loading cluster, Please try again later!`;
+        currentPanel.webview.html = `<h1>Error!<h1>`;
+
+        vscode.window.showErrorMessage("Error while loading cluster overview details, Please try again later!",{ modal: true });
     }
     try {
         const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'src/webviews/styles/clusterOverview.css'));
