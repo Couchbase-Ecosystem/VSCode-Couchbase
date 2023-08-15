@@ -1,4 +1,4 @@
-import { CBTools, ToolStatus, Type } from "../util/DependencyDownloaderUtils/CBTool";
+import { CBTools, ToolStatus, Type as CBToolsType } from "../util/DependencyDownloaderUtils/CBTool";
 import OSUtil from "../util/DependencyDownloaderUtils/OSUtils";
 import { createFolder, makeFilesExecutable } from "../util/DependencyDownloaderUtils/fileUtils";
 import ToolSpec from "../util/DependencyDownloaderUtils/ToolSpec";
@@ -6,7 +6,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import axios from "axios";
 import decompress from 'decompress';
-import * as child_process from 'child_process';
 import * as vscode from 'vscode';
 
 class DependenciesDownloader {
@@ -26,20 +25,20 @@ class DependenciesDownloader {
         }
     }
 
-    private getToolsMap(toolKey: string, os: string): Map<Type, string> {
+    private getToolsMap(toolKey: string, os: string): Map<CBToolsType, string> {
         const suffix = os.includes('mac') || os.includes('linux') ? '' : '.exe';
         const pathPrefix = 'bin' + path.sep;
 
-        const map = new Map<Type, string>();
+        const map = new Map<CBToolsType, string>();
 
         if (toolKey === this.TOOL_SHELL) {
-            map.set(Type.SHELL, 'cbsh' + suffix);
+            map.set(CBToolsType.SHELL, 'cbsh' + suffix);
         } else if (toolKey === this.TOOL_IMPORT_EXPORT) {
-            map.set(Type.CB_IMPORT, path.join(pathPrefix, 'cbimport' + suffix));
-            map.set(Type.CB_EXPORT, path.join(pathPrefix, 'cbexport' + suffix));
+            map.set(CBToolsType.CB_IMPORT, path.join(pathPrefix, 'cbimport' + suffix));
+            map.set(CBToolsType.CB_EXPORT, path.join(pathPrefix, 'cbexport' + suffix));
         } else if (toolKey === this.ALL_TOOLS) {
-            map.set(Type.CBC_PILLOW_FIGHT, path.join(pathPrefix, 'cbc-pillowfight' + suffix));
-            map.set(Type.MCTIMINGS, path.join(pathPrefix, 'mctimings' + suffix));
+            map.set(CBToolsType.CBC_PILLOW_FIGHT, path.join(pathPrefix, 'cbc-pillowfight' + suffix));
+            map.set(CBToolsType.MCTIMINGS, path.join(pathPrefix, 'mctimings' + suffix));
         } else {
             throw new Error('Not implemented yet');
         }
@@ -96,14 +95,14 @@ class DependenciesDownloader {
             return;
         }
         const shellPath = path.join(toolsPath, shell.getInstallationPath());
-        const shellTool = CBTools.getTool(Type.SHELL);
+        const shellTool = CBTools.getTool(CBToolsType.SHELL);
         const shellStatus = shellTool.status;
         const toolShellDownloadsMap = downloads.get(this.TOOL_SHELL);
         if (toolShellDownloadsMap === undefined){
             return;
         }
         console.log(shellPath, shellTool, shellStatus)
-        if (shellStatus === ToolStatus.NOT_AVAILABLE && !this.isInstalled(toolsPath, toolShellDownloadsMap, Type.SHELL)) {
+        if (shellStatus === ToolStatus.NOT_AVAILABLE && !this.isInstalled(toolsPath, toolShellDownloadsMap, CBToolsType.SHELL)) {
             // Avoiding 2 threads to install the same thing at the same time
             console.log("Downloading CB Shell.");
             shellTool.status = (ToolStatus.DOWNLOADING);
@@ -112,12 +111,39 @@ class DependenciesDownloader {
             console.debug("CBShell is already installed");
             this.setToolActive(ToolStatus.AVAILABLE, shellPath, shell);
         }
+
+        const cbImport: ToolSpec | undefined = downloads.get(this.TOOL_IMPORT_EXPORT);
+        if (cbImport === undefined){
+            return;
+        }
+        const cbImportDir: string = path.join(toolsPath, cbImport.getInstallationPath());
+        const toolImpExportMap = downloads.get(this.TOOL_IMPORT_EXPORT);
+        if (toolImpExportMap === undefined){
+            return;
+        }
+        if (
+            CBTools.getTool(CBToolsType.CB_IMPORT).status === ToolStatus.NOT_AVAILABLE &&
+            !this.isInstalled(toolsPath, toolImpExportMap, CBToolsType.CB_EXPORT)
+        ) {
+            console.log("Downloading CB Import/Export. The feature will be automatically enabled when the download is complete.");
+
+            const cbExportTool = CBTools.getTool(CBToolsType.CB_EXPORT);
+            const cbImportTool = CBTools.getTool(CBToolsType.CB_IMPORT);
+
+            cbExportTool.status = (ToolStatus.DOWNLOADING);
+            cbImportTool.status = (ToolStatus.DOWNLOADING);
+
+            this.downloadAndUnzip(cbImportDir, cbImport);
+        } else {
+            console.log("CB Import/Export is already installed");
+            this.setToolActive(ToolStatus.AVAILABLE, cbImportDir, cbImport);
+        }
     
     };
 
     private setToolActive(status: ToolStatus, path: string, spec: ToolSpec): void {
         for (const [key, value] of Object.entries(spec.getToolsMap())) {
-            const toolType = Type[key as keyof typeof Type];
+            const toolType = CBToolsType[key as keyof typeof CBToolsType];
             if (toolType !== undefined) {
                 CBTools.getTool(toolType).path = (`${path}/${value}`);
                 CBTools.getTool(toolType).status = status;
@@ -140,7 +166,7 @@ class DependenciesDownloader {
                         console.log("Unzipped Successfully");
                         fs.unlinkSync(localFilePath);
                         makeFilesExecutable(targetDir);
-                        this.runFile(targetDir);
+                        //this.runFile(targetDir);
                     });
                  });
                 
@@ -153,7 +179,7 @@ class DependenciesDownloader {
     }
     
 
-    public isInstalled(pluginPath: string, spec: ToolSpec, type: Type): boolean {
+    public isInstalled(pluginPath: string, spec: ToolSpec, type: CBToolsType): boolean {
         let toolsPathType = spec.getToolsMap().get(type);
         if (toolsPathType === undefined) {
             return false;

@@ -391,6 +391,15 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.tools.dataExport",
+      async (node: ClusterConnectionNode) => {
+        fetchClusterOverview(node, context);
+      }
+    )
+  );
+
+  subscriptions.push(
     vscode.commands.registerCommand(Commands.getSampleProjects, async () => {
       getSampleProjects(context);
     })

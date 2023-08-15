@@ -502,6 +502,11 @@
         "command": "vscode-couchbase.getClusterOverview",
         "title": "Cluster Overview",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.tools.dataExport",
+        "title": "Data Export",
+        "category": "Couchbase"
       }
     ],
     "menus": {
