@@ -8,7 +8,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
        <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>${overview.Title}</title>
+          <title>${overview.title}</title>
           <link rel="stylesheet" href="${styleSrc}" type="text/css">
           <style>
              h3 {
@@ -36,7 +36,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      Nodes
                   </div>
                   <div class="sidebar-list-values-container">
-                     ${overview.Nodes?.map((node, index) =>
+                     ${overview.nodes?.map((node, index) =>
                         (`<div class="sidebar-list-value" id="nodes-${index}" onClick="showContainer('Node','${node.hostname}')">
                         <span class="sidebar-list-value-text">${node.hostname}</span>
                            <span class="tooltip">${node.hostname}</span>
@@ -49,7 +49,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      Buckets
                   </div>
                   <div class="sidebar-list-values-container">
-                     ${overview.Buckets?.map((bucket, index) =>
+                     ${overview.buckets?.map((bucket, index) =>
                      (`<div class="sidebar-list-value" id="buckets-${index}" onClick="showContainer('Bucket','${bucket.name}')">
                            <span class="sidebar-list-value-text">${bucket.name}</span>
                            <span class="tooltip">${bucket.name}</span>
@@ -61,7 +61,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
             <div class="main-section">
                <div id="Overview-tab">
                   <div class="general-cluster no-flex">
-                     ${overview.GeneralDetails?.Cluster?.map((kv, index) =>
+                     ${overview.generalDetails?.cluster?.map((kv, index) =>
                         (`<div class="field" id=general-cluster-${index}">
                               <div class="field-label">
                                  ${kv.key}:
@@ -77,7 +77,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      <div class="separator"></div>
                   </div>
                   <div class="general-quota flex">
-                     ${overview.GeneralDetails?.Quota?.map((kv, index) =>
+                     ${overview.generalDetails?.quota?.map((kv, index) =>
                         (`<div class="field" id=general-quota-${index}">
                               <div class="field-label">
                                  ${kv.key}:
@@ -93,7 +93,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      <div class="separator"></div>
                   </div>
                   <div class="general-ram flex">
-                     ${overview.GeneralDetails?.RAM?.map((kv, index) =>
+                     ${overview.generalDetails?.RAM?.map((kv, index) =>
                         (`<div class="field" id=general-ram-${index}">
                               <div class="field-label">
                                  ${kv.key}:
@@ -109,7 +109,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                      <div class="separator"></div>
                   </div>
                   <div class="general-storage flex">
-                     ${overview.GeneralDetails?.Storage?.map((kv, index) =>
+                     ${overview.generalDetails?.storage?.map((kv, index) =>
                         (`<div class="field" id=general-storage-${index}">
                               <div class="field-label">
                                  ${kv.key}:
@@ -164,7 +164,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                document.getElementById("Bucket-tab").hidden = false;
 
                let currentBucketHTML = "";
-               let buckets = [${overview.BucketsHTML.map((kv)=>{
+               let buckets = [${overview.bucketsHTML.map((kv)=>{
                   return JSON.stringify(kv);
                })}];
 
@@ -182,7 +182,7 @@ export function getClusterOverview(overview: IClusterOverview, context: vscode.E
                document.getElementById("Node-tab").hidden = false;
 
                let currentNodeHTML = "";
-               let nodes = [${overview.NodesHTML.map((kv)=>{
+               let nodes = [${overview.nodesHTML.map((kv)=>{
                   return JSON.stringify(kv);
                })}];
                
