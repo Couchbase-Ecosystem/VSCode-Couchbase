@@ -50,6 +50,7 @@ import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
+import { WorkbenchWebviewProvider } from "./util/workbenchWebviewProvider";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -68,6 +69,8 @@ export function activate(context: vscode.ExtensionContext) {
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context
   );
+
+  
 
   // Set up the global error handler
   process.on('uncaughtException', (error) => {
@@ -369,6 +372,10 @@ export function activate(context: vscode.ExtensionContext) {
         fetchClusterOverview(node, context);
       }
     )
+  );
+
+  subscriptions.push(
+    vscode.window.registerWebviewViewProvider('vscode-couchbase.couchbase-query-workbench', new WorkbenchWebviewProvider())
   );
 
   subscriptions.push(
