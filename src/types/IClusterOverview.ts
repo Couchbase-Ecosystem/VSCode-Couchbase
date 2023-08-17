@@ -13,13 +13,17 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-import { Cluster } from "couchbase";
+import { Bucket } from "couchbase";
+import {  OverviewGeneral } from "../util/OverviewClusterUtils/OverviewClusterHelper";
+import { IKeyValuePair } from "./IKeyValuePair";
+import { CBNode } from "../util/apis/CBNode";
 
-export interface IConnection {
-  readonly url: string;
-  readonly username: string;
-  readonly password?: string;
-  readonly connectionIdentifier: string;
-  readonly isSecure: boolean;
-  cluster?: Cluster;
+
+export interface IClusterOverview {
+  readonly generalDetails: OverviewGeneral | null;
+  readonly buckets: Bucket[] | null;
+  readonly nodes: CBNode[] | null;
+  readonly title: string;
+  readonly bucketsHTML: IKeyValuePair[];
+  readonly nodesHTML: IKeyValuePair[];
 }

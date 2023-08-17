@@ -49,6 +49,7 @@ import { createScope, removeScope } from "./commands/scopes";
 import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
+import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -357,6 +358,15 @@ export function activate(context: vscode.ExtensionContext) {
           return;
         }
         openWorkbench(node, context, currentPanel);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.getClusterOverview",
+      async (node: ClusterConnectionNode) => {
+        fetchClusterOverview(node, context);
       }
     )
   );

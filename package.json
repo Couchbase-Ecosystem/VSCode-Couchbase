@@ -54,6 +54,7 @@
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vscode/test-electron": "^2.1.5",
+    "class-transformer": "^0.5.1",
     "cmake-js": "^6.3.2",
     "concurrently": "^8.2.0",
     "css-loader": "^6.8.1",
@@ -494,6 +495,11 @@
         "command": "vscode-couchbase.showOutputConsole",
         "title": "Show Output Console",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.getClusterOverview",
+        "title": "Cluster Overview",
+        "category": "Couchbase"
       }
     ],
     "menus": {
@@ -576,6 +582,10 @@
         },
         {
           "command": "vscode-couchbase.showOutputConsole"
+        },
+        {
+          "command": "vscode-couchbase.getClusterOverview",
+          "when": "false"
         }
       ],
       "editor/context": [],
@@ -585,18 +595,19 @@
           "when": "view == couchbase && viewItem == connection"
         },
         {
-          "command": "vscode-couchbase.deleteClusterConnection",
+          "command": "vscode-couchbase.getClusterOverview",
           "when": "view == couchbase && viewItem == active_connection",
-          "group": "activePrimary@2"
-        },
-        {
-          "command": "vscode-couchbase.useClusterConnection",
-          "when": "view == couchbase && viewItem == connection"
+          "group": "activePrimary"
         },
         {
           "command": "vscode-couchbase.disconnectClusterConnection",
           "when": "view == couchbase && viewItem == active_connection",
-          "group": "activePrimary@1"
+          "group": "activeSecondary@1"
+        },
+        {
+          "command": "vscode-couchbase.deleteClusterConnection",
+          "when": "view == couchbase && viewItem == active_connection",
+          "group": "activeSecondary@2"
         },
         {
           "command": "vscode-couchbase.openQueryNotebook",
@@ -605,6 +616,10 @@
         {
           "command": "vscode-couchbase.openQueryWorkbench",
           "when": "view == couchbase && viewItem == active_connection"
+        },
+        {
+          "command": "vscode-couchbase.useClusterConnection",
+          "when": "view == couchbase && viewItem == connection"
         },
         {
           "command": "vscode-couchbase.createDocument",
