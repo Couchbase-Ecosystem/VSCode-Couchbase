@@ -50,6 +50,7 @@ import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
 import { QueryWorkbench } from "./workbench/runQuery";
+import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -85,6 +86,10 @@ export function activate(context: vscode.ExtensionContext) {
         logger.showOutput();
       }
     )
+  );
+
+  subscriptions.push(
+    vscode.window.registerWebviewViewProvider('vscode-couchbase.couchbase-query-workbench', new WorkbenchWebviewProvider())
   );
 
   subscriptions.push(

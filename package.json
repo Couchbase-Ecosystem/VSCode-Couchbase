@@ -368,6 +368,13 @@
           "title": "Couchbase",
           "icon": "images/couchbase.svg"
         }
+      ],
+      "panel": [
+        {
+          "id": "couchbase-workbench-panel",
+          "title": "Couchbase",
+          "icon": "images/couchbase.svg"
+        }
       ]
     },
     "notebooks": [
@@ -708,6 +715,13 @@
         {
           "id": "couchbase",
           "name": "Couchbase"
+        }
+      ],
+      "couchbase-workbench-panel": [
+        {
+          "id": "vscode-couchbase.couchbase-query-workbench",
+          "name": "Couchbase",
+          "type": "webview"
         }
       ]
     },
