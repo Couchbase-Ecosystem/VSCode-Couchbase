@@ -49,7 +49,7 @@ import { createScope, removeScope } from "./commands/scopes";
 import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
-import { runCouchbaseQuery } from "./workbench/runQuery";
+import { QueryWorkbench } from "./workbench/runQuery";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -62,6 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
   logger.info(`Activating extension ${Constants.extensionID} v${Constants.extensionVersion}`);
   const uriToCasMap = new Map<string, string>();
   let currentPanel: vscode.WebviewPanel | undefined = undefined;
+  const workbench = new QueryWorkbench();
 
   const subscriptions = context.subscriptions;
 
@@ -357,7 +358,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (!connection) {
           return;
         }
-        openWorkbench(node, context, currentPanel);
+        workbench.openWorkbench(node, context, currentPanel);
       }
     )
   );
@@ -377,7 +378,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.runQuery, async () => {
-      runCouchbaseQuery();
+      workbench.runCouchbaseQuery();
     })
   );
 }
