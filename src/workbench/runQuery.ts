@@ -20,8 +20,15 @@ import { logger } from '../logger/logger';
 import { ClusterConnectionNode } from '../model/ClusterConnectionNode';
 import { getWebviewContent } from '../webViews/workbench.webview';
 import { getActiveConnection } from '../util/connections';
+import UntitledSqlppDocumentService from './controller';
 
 export class QueryWorkbench {
+    private _untitledSqlppDocumentService: UntitledSqlppDocumentService;
+
+    constructor() {
+        this._untitledSqlppDocumentService = new UntitledSqlppDocumentService();
+    }
+
     runCouchbaseQuery = async () => {
         const connection = getActiveConnection();
         if (!connection) {
@@ -37,54 +44,19 @@ export class QueryWorkbench {
             // Get the text content of the active text editor.
             const query = activeTextEditor.document.getText();
             const result = await connection.cluster?.query(query);
-            // Create and show a new webview
-            const panel = vscode.window.createWebviewPanel(
-                'queryResult', // Identifies the type of the webview. Used internally
-                'Query Result', // Title of the panel displayed to the user
-                { viewColumn: vscode.ViewColumn.Active, preserveFocus: true }, // Show the webview beside the current active editor and preserve focus
-                {} // Webview options. More on these later.
-            );
-            panel.webview.html = `<h1>Query Result</h1><pre>${JSON.stringify(result, null, 2)}</pre>`;
+            
+            // // Create and show a new webview
+            // const panel = vscode.window.createWebviewPanel(
+            //     'queryResult', // Identifies the type of the webview. Used internally
+            //     'Query Result', // Title of the panel displayed to the user
+            //     { viewColumn: vscode.ViewColumn.Active, preserveFocus: true }, // Show the webview beside the current active editor and preserve focus
+            //     {} // Webview options. More on these later.
+            // );
+            // panel.webview.html = `<h1>Query Result</h1><pre>${JSON.stringify(result, null, 2)}</pre>`;
         }
     };
 
     openWorkbench(node: ClusterConnectionNode, context: vscode.ExtensionContext, currentPanel: vscode.WebviewPanel | undefined) {
-        try {
-            if (currentPanel && currentPanel.viewType === 'Workbench') {
-                const reactAppPathOnDisk = vscode.Uri.file(
-                    path.join(context.extensionPath, "dist", "reactBuild.js")
-                );
-                const reactAppUri = currentPanel.webview.asWebviewUri(reactAppPathOnDisk);
-                currentPanel.webview.html = getWebviewContent(reactAppUri, context);
-                currentPanel.reveal(vscode.ViewColumn.One);
-            } else {
-                currentPanel = vscode.window.createWebviewPanel(
-                    'Workbench',
-                    'New Workbench',
-                    vscode.ViewColumn.One,
-                    {
-                        enableScripts: true,
-                        localResourceRoots: [
-                            vscode.Uri.file(path.join(context.extensionPath, "dist"))
-                        ]
-                    }
-                );
-                const reactAppPathOnDisk = vscode.Uri.file(
-                    path.join(context.extensionPath, "dist", "reactBuild.js")
-                );
-                const reactAppUri = currentPanel.webview.asWebviewUri(reactAppPathOnDisk);
-                currentPanel.webview.html = getWebviewContent(reactAppUri, context);
-                currentPanel.onDidDispose(
-                    () => {
-                        currentPanel = undefined;
-                    },
-                    undefined,
-                    context.subscriptions
-                );
-            }
-        } catch (err) {
-            logger.error("Failed to open Query Workbench");
-            logger.debug(err);
-        }
+        this._untitledSqlppDocumentService.newQuery();
     };
 }

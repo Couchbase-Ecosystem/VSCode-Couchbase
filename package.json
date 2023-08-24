@@ -97,6 +97,7 @@
   },
   "activationEvents": [
     "onFileSystem:couchbase",
+    "onLanguage:SQL++",
     "onCommand:vscode-couchbase.createClusterConnection",
     "onCommand:vscode-couchbase.openSampleProjects",
     "onCommand:vscode-couchbase.refreshConnection",
@@ -339,6 +340,9 @@
           ".n1qlnb",
           ".n1ql",
           ".sqlpp"
+        ],
+        "aliases": [
+          "SQL++"
         ],
         "configuration": "./language/language-configuration.json"
       }
