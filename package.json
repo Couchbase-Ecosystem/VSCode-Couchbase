@@ -500,6 +500,12 @@
         "command": "vscode-couchbase.getClusterOverview",
         "title": "Cluster Overview",
         "category": "Couchbase"
+      },
+      {
+        "title": "Query Context",
+        "command": "vscode-couchbase.queryContext",
+        "category": "Couchbase",
+        "icon": "images/couchbase.svg"
       }
     ],
     "menus": {
@@ -586,9 +592,21 @@
         {
           "command": "vscode-couchbase.getClusterOverview",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.queryContext",
+          "when": "false"
         }
       ],
-      "editor/context": [],
+      "editor/title": [
+        {
+          "title": "Query Context",
+          "command": "vscode-couchbase.queryContext",
+          "icon":  "images/couchbase.svg",
+          "group": "navigation",
+          "when": "resourceFilename =~ /\\.sqlpp$/"
+        }
+      ],
       "view/item/context": [
         {
           "command": "vscode-couchbase.deleteClusterConnection",
@@ -598,6 +616,10 @@
           "command": "vscode-couchbase.getClusterOverview",
           "when": "view == couchbase && viewItem == active_connection",
           "group": "activePrimary"
+        },
+        {
+          "command": "vscode-couchbase.queryContext",
+          "when": "true"
         },
         {
           "command": "vscode-couchbase.disconnectClusterConnection",

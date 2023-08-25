@@ -50,6 +50,7 @@ import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
+import { fetchQueryContext } from "./pages/queryContext/queryContext";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -368,6 +369,15 @@ export function activate(context: vscode.ExtensionContext) {
       async (node: ClusterConnectionNode) => {
         fetchClusterOverview(node, context);
       }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.queryContext",
+        ()=> {
+          fetchQueryContext(context);
+        }
     )
   );
 
