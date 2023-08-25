@@ -506,6 +506,12 @@
         "command": "vscode-couchbase.queryContext",
         "category": "Couchbase",
         "icon": "images/couchbase.svg"
+      },
+      {
+        "title": "Show Favorite Queries",
+        "command": "vscode-couchbase.showFavoriteQueries",
+        "category": "Couchbase",
+        "icon": "images/couchbase.svg"
       }
     ],
     "menus": {
@@ -596,12 +602,23 @@
         {
           "command": "vscode-couchbase.queryContext",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.showFavoriteQueries",
+          "when": "false"
         }
       ],
       "editor/title": [
         {
           "title": "Query Context",
           "command": "vscode-couchbase.queryContext",
+          "icon":  "images/couchbase.svg",
+          "group": "navigation",
+          "when": "resourceFilename =~ /\\.sqlpp$/"
+        },
+        {
+          "title" : "Show Favorite Queries",
+          "command": "vscode-couchbase.showFavoriteQueries",
           "icon":  "images/couchbase.svg",
           "group": "navigation",
           "when": "resourceFilename =~ /\\.sqlpp$/"

@@ -51,6 +51,7 @@ import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 import { fetchQueryContext } from "./pages/queryContext/queryContext";
+import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -377,6 +378,15 @@ export function activate(context: vscode.ExtensionContext) {
       "vscode-couchbase.queryContext",
         ()=> {
           fetchQueryContext(context);
+        }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.showFavoriteQueries",
+        ()=> {
+          fetchFavoriteQueries(context);
         }
     )
   );
