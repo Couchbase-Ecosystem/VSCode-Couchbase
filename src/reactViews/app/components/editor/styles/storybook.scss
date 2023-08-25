@@ -1,0 +1,15 @@
+/**
+Custom CSS to force overflowing suggestions to be visible on the Storybook docs page.
+ */
+
+.sbdocs.sbdocs-preview {
+  overflow: visible !important;
+}
+
+.sbdocs.sbdocs-preview > div.docs-story {
+  overflow: visible !important;
+}
+
+.sbdocs.sbdocs-preview > div.docs-story > div {
+  overflow: visible !important;
+}
