@@ -48,7 +48,7 @@ import { createScope, removeScope } from "./commands/scopes";
 import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
-import { QueryWorkbench } from "./workbench/queryworkbench";
+import { QueryWorkbench } from "./workbench/queryWorkbench";
 import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 
