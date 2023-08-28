@@ -40,4 +40,5 @@ export namespace Commands {
     export const loadMore: string = "vscode-couchbase.loadMore";
     export const showOutputConsole: string = "vscode-couchbase.showOutputConsole";
     export const runQuery: string = "vscode-couchbase.runQuery";
+    export const queryWorkbench: string = "vscode-couchbase.couchbase-query-workbench";
 }

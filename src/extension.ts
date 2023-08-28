@@ -89,7 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
-    vscode.window.registerWebviewViewProvider('vscode-couchbase.couchbase-query-workbench', workbenchWebviewProvider)
+    vscode.window.registerWebviewViewProvider(Commands.queryWorkbench, workbenchWebviewProvider)
   );
 
   subscriptions.push(
