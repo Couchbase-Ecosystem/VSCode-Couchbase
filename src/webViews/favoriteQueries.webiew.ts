@@ -13,6 +13,9 @@ export const showFavoriteQueries = (): string => {
             query: "Select * from c"
         }
     ];
+    let pasteQueryts =  (query: string)=>{
+
+    };
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -51,6 +54,7 @@ export const showFavoriteQueries = (): string => {
 
             function pasteQuery(){
                 let query = document.querySelector(".favorite-queries-value").innerHTML;
+                ${pasteQueryts(`query`)}
             }
         </script>
     </html>

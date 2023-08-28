@@ -123,7 +123,8 @@
     "onNotebook:vscode-couchbase.couchbase-query-notebook",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
-    "onView:couchbase-activity-bar"
+    "onView:couchbase-activity-bar",
+    "onView:query-history"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -512,6 +513,12 @@
         "command": "vscode-couchbase.showFavoriteQueries",
         "category": "Couchbase",
         "icon": "images/couchbase.svg"
+      },
+      {
+        "title": "Mark Favorite Query",
+        "command": "vscode-couchbase.markFavoriteQuery",
+        "category": "Couchbase",
+        "icon": "images/couchbase.svg"
       }
     ],
     "menus": {
@@ -606,6 +613,10 @@
         {
           "command": "vscode-couchbase.showFavoriteQueries",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.markFavoriteQuery",
+          "when": "false"
         }
       ],
       "editor/title": [
@@ -619,6 +630,13 @@
         {
           "title" : "Show Favorite Queries",
           "command": "vscode-couchbase.showFavoriteQueries",
+          "icon":  "images/couchbase.svg",
+          "group": "navigation",
+          "when": "resourceFilename =~ /\\.sqlpp$/"
+        },
+        {
+          "title" : "Mark Favorite Query",
+          "command": "vscode-couchbase.markFavoriteQuery",
           "icon":  "images/couchbase.svg",
           "group": "navigation",
           "when": "resourceFilename =~ /\\.sqlpp$/"
@@ -741,6 +759,11 @@
         {
           "id": "couchbase",
           "name": "Couchbase"
+        },
+        {
+          "id": "query-history",
+          "name": "Query history",
+          "icon": "images/couchbase.svg"
         }
       ]
     },

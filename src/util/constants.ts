@@ -17,6 +17,7 @@ const pkg = require('../../package.json');
 export class Constants {
   public static extensionID = "vscode-couchbase";
   public static connectionKeys = "cluster.connections";
+  public static QUERY_HISTORY = "cluster.queryHistory";
   public static notebookType = "couchbase-query-notebook";
   public static capellaUrlPostfix = "cloud.couchbase.com";
   public static prefixSecureURL = "couchbases://";

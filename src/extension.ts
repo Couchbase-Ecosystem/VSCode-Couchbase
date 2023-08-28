@@ -52,6 +52,8 @@ import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChang
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 import { fetchQueryContext } from "./pages/queryContext/queryContext";
 import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
+import { markFavoriteQuery } from "./commands/favoriteQueries/markFavoriteQuery";
+import { QueryHistoryTreeProvider } from "./tree/QueryHistoryTreeProvider";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -390,6 +392,18 @@ export function activate(context: vscode.ExtensionContext) {
         }
     )
   );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.markFavoriteQuery",
+        ()=> {
+          markFavoriteQuery(context);
+        }
+    )
+  );
+
+  let queryHistoryTreeProvider = new QueryHistoryTreeProvider(context);
+  vscode.window.registerTreeDataProvider('query-history',queryHistoryTreeProvider);
 
   subscriptions.push(
     vscode.commands.registerCommand(Commands.getSampleProjects, async () => {

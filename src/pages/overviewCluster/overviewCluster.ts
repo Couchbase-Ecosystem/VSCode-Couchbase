@@ -14,8 +14,25 @@ import { BucketOverview } from "../../util/apis/BucketOverview";
 import { getNodeTabData } from "../../util/OverviewClusterUtils/ClusterOverviewNodeTab";
 import { getBucketData } from "../../util/OverviewClusterUtils/ClusterOverviewBucketTab";
 import { getGeneraStorageDetails, getGeneralClusterDetails, getGeneralQuotaDetails, getGeneralRAMDetails } from "../../util/OverviewClusterUtils/ClusterOverviewGeneralTab";
+import { saveQuery } from "../../util/queryHistory";
+
+const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+function generateString(length: number) {
+    let result = ' ';
+    const charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return result;
+}
+
 
 const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connection: IConnection): Array<Bucket> => {
+    let query = generateString(10);
+    saveQuery({query});
+
     let allBuckets: Array<Bucket> = [];
     if (bucketsSettings !== undefined) {
         for (let bucketSettings of bucketsSettings) {
