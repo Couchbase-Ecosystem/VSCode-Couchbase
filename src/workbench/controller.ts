@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 import * as vscode from 'vscode';
+import { MemFS } from '../util/fileSystemProvider';
 
 class SqlppDocumentContentProvider implements vscode.TextDocumentContentProvider {
     provideTextDocumentContent(uri: vscode.Uri): string {
@@ -46,10 +47,17 @@ export default class UntitledSqlppDocumentService {
  * @return A promise that resolves to a [document](#TextDocument).
  * @see vscode.workspace.openTextDocument
  */
-    public openSqlppTextDocument(): Thenable<vscode.TextDocument> {
-        const uri = vscode.Uri.parse(`${this.sqlppScheme}:workbench-${this.untitledCount}.sqlpp`);
+    public async openSqlppTextDocument(memFs: MemFS): Promise<Thenable<vscode.TextDocument>> {
+        const uri = vscode.Uri.parse(`couchbase:/workbench-${this.untitledCount}.sqlpp`);
         this.untitledCount++;
+        let documentContent = Buffer.from('');
+        memFs.writeFile(uri, documentContent, {
+            create: true,
+            overwrite: true,
+        });
 
+        const document = await vscode.workspace.openTextDocument(uri);
+        await vscode.window.showTextDocument(document, { preview: false });
         return vscode.workspace.openTextDocument(uri);
     }
 
@@ -71,27 +79,12 @@ export default class UntitledSqlppDocumentService {
     /**
      * Creates new untitled document for SQL query and opens in new editor tab
      */
-    public newQuery(): Promise<boolean> {
-
+    public newQuery(memFs: MemFS): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             try {
 
                 // Open an untitled document. So the  file doesn't have to exist in disk
-                this.openSqlppTextDocument().then(doc => {
-                    vscode.window.showTextDocument(doc, { viewColumn: vscode.ViewColumn.One, preserveFocus: false }).then(() => {
-                        resolve(true);
-                    });
-                });
-
-                // const uri = vscode.Uri.parse(`workbench-${this.untitledCount}.sqlpp`);
-                // this.untitledCount++;
-
-                // vscode.workspace.openTextDocument().then((doc) => {
-                //     // Save the document before showing it
-                //     doc.save().then(() => {
-                //         vscode.window.showTextDocument(doc, { viewColumn: vscode.ViewColumn.One, preserveFocus: false });
-                //     });
-                // });
+                this.openSqlppTextDocument(memFs);
             } catch (error) {
                 reject(error);
             }

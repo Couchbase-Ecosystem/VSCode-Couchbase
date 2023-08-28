@@ -39,7 +39,6 @@ import { createNotebook } from "./notebook/notebook";
 import IndexNode from "./model/IndexNode";
 import { CollectionDirectory } from "./model/CollectionDirectory";
 import { IndexDirectory } from "./model/IndexDirectory";
-import { openWorkbench } from "./workbench/workbench";
 import { openIndexInfo } from "./commands/indexes/openIndexInformation";
 import { Commands } from "./commands/extensionCommands/commands";
 import { createDocument, removeDocument, searchDocument, getDocumentMetaData, openDocument } from "./commands/documents";
@@ -49,7 +48,7 @@ import { createScope, removeScope } from "./commands/scopes";
 import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
-import { QueryWorkbench } from "./workbench/runQuery";
+import { QueryWorkbench } from "./workbench/queryworkbench";
 import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -66,6 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
   const workbench = new QueryWorkbench();
 
   const subscriptions = context.subscriptions;
+  const workbenchWebviewProvider = new WorkbenchWebviewProvider(context);
 
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context
@@ -89,7 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
-    vscode.window.registerWebviewViewProvider('vscode-couchbase.couchbase-query-workbench', new WorkbenchWebviewProvider())
+    vscode.window.registerWebviewViewProvider('vscode-couchbase.couchbase-query-workbench', workbenchWebviewProvider)
   );
 
   subscriptions.push(
@@ -363,7 +363,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (!connection) {
           return;
         }
-        workbench.openWorkbench(node, context, currentPanel);
+        workbench.openWorkbench(memFs);
       }
     )
   );
@@ -383,7 +383,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.runQuery, async () => {
-      workbench.runCouchbaseQuery();
+      workbench.runCouchbaseQuery(workbenchWebviewProvider);
     })
   );
 }

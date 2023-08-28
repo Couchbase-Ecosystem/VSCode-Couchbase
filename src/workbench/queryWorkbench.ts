@@ -15,12 +15,10 @@
  */
 
 import * as vscode from 'vscode';
-import * as path from 'path';
-import { logger } from '../logger/logger';
-import { ClusterConnectionNode } from '../model/ClusterConnectionNode';
-import { getWebviewContent } from '../webViews/workbench.webview';
 import { getActiveConnection } from '../util/connections';
 import UntitledSqlppDocumentService from './controller';
+import { WorkbenchWebviewProvider } from './workbenchWebviewProvider';
+import { MemFS } from '../util/fileSystemProvider';
 
 export class QueryWorkbench {
     private _untitledSqlppDocumentService: UntitledSqlppDocumentService;
@@ -29,7 +27,7 @@ export class QueryWorkbench {
         this._untitledSqlppDocumentService = new UntitledSqlppDocumentService();
     }
 
-    runCouchbaseQuery = async () => {
+    runCouchbaseQuery = async (workbenchWebviewProvider: WorkbenchWebviewProvider) => {
         const connection = getActiveConnection();
         if (!connection) {
             vscode.window.showInformationMessage("Kindly establish a connection with the cluster before executing query.");
@@ -44,19 +42,12 @@ export class QueryWorkbench {
             // Get the text content of the active text editor.
             const query = activeTextEditor.document.getText();
             const result = await connection.cluster?.query(query);
-            
-            // // Create and show a new webview
-            // const panel = vscode.window.createWebviewPanel(
-            //     'queryResult', // Identifies the type of the webview. Used internally
-            //     'Query Result', // Title of the panel displayed to the user
-            //     { viewColumn: vscode.ViewColumn.Active, preserveFocus: true }, // Show the webview beside the current active editor and preserve focus
-            //     {} // Webview options. More on these later.
-            // );
-            // panel.webview.html = `<h1>Query Result</h1><pre>${JSON.stringify(result, null, 2)}</pre>`;
+            workbenchWebviewProvider.setQueryResult(result);
+
         }
     };
 
-    openWorkbench(node: ClusterConnectionNode, context: vscode.ExtensionContext, currentPanel: vscode.WebviewPanel | undefined) {
-        this._untitledSqlppDocumentService.newQuery();
+    openWorkbench(memFs: MemFS) {
+        this._untitledSqlppDocumentService.newQuery(memFs);
     };
 }
