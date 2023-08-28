@@ -39,7 +39,6 @@ import { createNotebook } from "./notebook/notebook";
 import IndexNode from "./model/IndexNode";
 import { CollectionDirectory } from "./model/CollectionDirectory";
 import { IndexDirectory } from "./model/IndexDirectory";
-import { openWorkbench } from "./workbench/workbench";
 import { openIndexInfo } from "./commands/indexes/openIndexInformation";
 import { Commands } from "./commands/extensionCommands/commands";
 import { createDocument, removeDocument, searchDocument, getDocumentMetaData, openDocument } from "./commands/documents";
@@ -49,6 +48,8 @@ import { createScope, removeScope } from "./commands/scopes";
 import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
+import { QueryWorkbench } from "./workbench/queryWorkbench";
+import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 import { fetchQueryContext } from "./pages/queryContext/queryContext";
 import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
@@ -66,8 +67,10 @@ export function activate(context: vscode.ExtensionContext) {
   logger.info(`Activating extension ${Constants.extensionID} v${Constants.extensionVersion}`);
   const uriToCasMap = new Map<string, string>();
   let currentPanel: vscode.WebviewPanel | undefined = undefined;
+  const workbench = new QueryWorkbench();
 
   const subscriptions = context.subscriptions;
+  const workbenchWebviewProvider = new WorkbenchWebviewProvider(context);
 
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context
@@ -88,6 +91,10 @@ export function activate(context: vscode.ExtensionContext) {
         logger.showOutput();
       }
     )
+  );
+
+  subscriptions.push(
+    vscode.window.registerWebviewViewProvider(Commands.queryWorkbench, workbenchWebviewProvider)
   );
 
   subscriptions.push(
@@ -361,7 +368,7 @@ export function activate(context: vscode.ExtensionContext) {
         if (!connection) {
           return;
         }
-        openWorkbench(node, context, currentPanel);
+        workbench.openWorkbench(memFs);
       }
     )
   );
@@ -416,6 +423,12 @@ export function activate(context: vscode.ExtensionContext) {
       Constants.notebookType, new QueryContentSerializer(), { transientOutputs: true }
     ),
     new QueryKernel()
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(Commands.runQuery, async () => {
+      workbench.runCouchbaseQuery(workbenchWebviewProvider);
+    })
   );
 }
 
