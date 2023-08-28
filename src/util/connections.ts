@@ -50,7 +50,7 @@ export function setPreviousConnection(connection: IConnection) {
 }
 
 async function saveConnection(connection: IConnection): Promise<string> {
-  const { url, username, connectionIdentifier } = connection;
+  const { url, username, connectionIdentifier, isSecure } = connection;
   let connections = getConnections();
   if (!connections) {
     connections = {};
@@ -59,7 +59,8 @@ async function saveConnection(connection: IConnection): Promise<string> {
   connections[id] = {
     url,
     username,
-    connectionIdentifier
+    connectionIdentifier,
+    isSecure
   };
   const password =
     connection.password ||
@@ -94,7 +95,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
     switch (message.command) {
       case 'submit':
         const url = message.isSecure ? (Constants.prefixSecureURL + message.url) : (Constants.prefixURL + message.url);
-        const connection: IConnection = { url, username: message.username, password: message.password, connectionIdentifier: message.connectionIdentifier };
+        const connection: IConnection = { url, username: message.username, password: message.password, connectionIdentifier: message.connectionIdentifier, isSecure: message.isSecure };
         const connections = getConnections();
         const connectionId = getConnectionId(connection);
         if (connections && connections[connectionId]) {
