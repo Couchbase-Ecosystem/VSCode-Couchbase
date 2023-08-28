@@ -203,7 +203,7 @@ export const displayBytes = (
   const unit = toByteUnit(inputUnit);
 
   const outMeasurement = (opts.outputUnit && (isBinaryUnit(opts.outputUnit) ? 'binary' : 'decimal')) || undefined
-  const outUnit = (opts.outputUnit && toByteUnit(opts.outputUnit)) || undefined;
+  const outUnit = (((opts.outputUnit && toByteUnit(opts.outputUnit)) || undefined) || undefined) || undefined;
 
   const byteValue = toByteValue(bytes, { measurement, unit, decimalPlaces: 4 }, { measurement: outMeasurement, unit: outUnit });
   const decimalPlaces = opts?.decimalPlaces ?? determineDecimalPlaces(byteValue);

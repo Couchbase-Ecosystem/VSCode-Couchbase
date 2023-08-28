@@ -78,6 +78,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.5.2",
     "@popperjs/core": "^2.11.8",
     "ag-grid-community": "^29.3.5",
     "ag-grid-react": "^29.3.5",
@@ -87,6 +88,7 @@
     "dayjs": "^1.11.9",
     "gitly": "^2.4.2",
     "keytar": "^7.7.0",
+    "monaco-editor": "^0.38.0",
     "node-addon-api": "^6.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -98,6 +100,7 @@
   },
   "activationEvents": [
     "onFileSystem:couchbase",
+    "onLanguage:SQL++",
     "onCommand:vscode-couchbase.createClusterConnection",
     "onCommand:vscode-couchbase.openSampleProjects",
     "onCommand:vscode-couchbase.refreshConnection",
@@ -341,6 +344,9 @@
           ".n1ql",
           ".sqlpp"
         ],
+        "aliases": [
+          "SQL++"
+        ],
         "configuration": "./language/language-configuration.json"
       }
     ],
@@ -369,6 +375,13 @@
           "title": "Couchbase",
           "icon": "images/couchbase.svg"
         }
+      ],
+      "panel": [
+        {
+          "id": "couchbase-workbench-panel",
+          "title": "Couchbase",
+          "icon": "images/couchbase.svg"
+        }
       ]
     },
     "notebooks": [
@@ -377,7 +390,7 @@
         "displayName": "SQL++ Query",
         "selector": [
           {
-            "filenamePattern": "*.{n1qlnb,sqlpp,n1ql}"
+            "filenamePattern": "*.sqlppnb"
           }
         ]
       }
@@ -497,12 +510,34 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.runQuery",
+        "title": "Run Query",
+        "category": "Couchbase",
+        "icon": "$(play)",
+        "tooltip": "Run Query"
+      },
+      {
         "command": "vscode-couchbase.getClusterOverview",
         "title": "Cluster Overview",
         "category": "Couchbase"
       }
     ],
     "menus": {
+      "editor/title": [
+        {
+          "command": "vscode-couchbase.runQuery",
+          "category": "Couchbase",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "vscode-couchbase.runQuery",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
+          "group": "navigation@1"
+        }
+      ],
       "commandPalette": [
         {
           "command": "vscode-couchbase.refreshConnection",
@@ -588,7 +623,6 @@
           "when": "false"
         }
       ],
-      "editor/context": [],
       "view/item/context": [
         {
           "command": "vscode-couchbase.deleteClusterConnection",
@@ -702,6 +736,13 @@
         {
           "id": "couchbase",
           "name": "Couchbase"
+        }
+      ],
+      "couchbase-workbench-panel": [
+        {
+          "id": "vscode-couchbase.couchbase-query-workbench",
+          "name": "Couchbase",
+          "type": "webview"
         }
       ]
     },
