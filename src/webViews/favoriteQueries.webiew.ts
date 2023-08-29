@@ -1,18 +1,7 @@
+import { getFavoriteQueries } from "../util/favoriteQuery";
+
 export const showFavoriteQueries = (): string => {
-    let favQueries = [
-        {
-            key: "k1",
-            query: "Select * from a"
-        },
-        {
-            key: "k2",
-            query: "Select * from b"
-        },
-        {
-            key: "k3",
-            query: "Select * from c"
-        }
-    ];
+    let favQueries = getFavoriteQueries();
     let pasteQueryts =  (query: string)=>{
 
     };
@@ -34,8 +23,8 @@ export const showFavoriteQueries = (): string => {
                 <div class="favorite-queries-table">
 
                     <div class="favorite-queries-keys">
-                        ${favQueries.map((kv)=>{
-                            return (`<div class="favorite-queries-keys" onClick="openQuery('${kv.query}')">${kv.key}</div>`);
+                        ${favQueries !== undefined && favQueries.map((kv)=>{
+                            return (`<div class="favorite-queries-keys" onClick="openQuery('${kv.value}')">${kv.key}</div>`);
                         }).join('')}
                     </div>
                     <div class="favorite-queries-value">
@@ -48,8 +37,8 @@ export const showFavoriteQueries = (): string => {
             </div>
         </body>
         <script>
-            function openQuery(kv) {
-                document.querySelector(".favorite-queries-value").innerHTML = kv;
+            function openQuery(queryValue) {
+                document.querySelector(".favorite-queries-value").innerHTML = queryValue;
             }
 
             function pasteQuery(){

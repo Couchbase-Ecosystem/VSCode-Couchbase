@@ -539,6 +539,12 @@
         "command": "vscode-couchbase.markFavoriteQuery",
         "category": "Couchbase",
         "icon": "images/couchbase.svg"
+      },
+      {
+        "title": "Apply Query History",
+        "command": "vscode-couchbase.applyQueryHistory",
+        "category": "Couchbase",
+        "icon": "images/couchbase.svg"
       }
     ],
     "menus": {
@@ -548,6 +554,30 @@
           "category": "Couchbase",
           "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
           "group": "navigation"
+        },
+        {
+          "title": "Query Context",
+          "command": "vscode-couchbase.queryContext",
+          "category": "Couchbase",
+          "icon":  "images/couchbase.svg",
+          "group": "navigation",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
+        },
+        {
+          "title" : "Show Favorite Queries",
+          "command": "vscode-couchbase.showFavoriteQueries",
+          "category": "Couchbase",
+          "icon":  "images/couchbase.svg",
+          "group": "navigation",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
+        },
+        {
+          "title" : "Mark Favorite Query",
+          "command": "vscode-couchbase.markFavoriteQuery",
+          "category": "Couchbase",
+          "icon":  "images/couchbase.svg",
+          "group": "navigation",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
         }
       ],
       "editor/context": [
@@ -652,29 +682,6 @@
         {
           "command": "vscode-couchbase.markFavoriteQuery",
           "when": "false"
-        }
-      ],
-      "editor/title": [
-        {
-          "title": "Query Context",
-          "command": "vscode-couchbase.queryContext",
-          "icon":  "images/couchbase.svg",
-          "group": "navigation",
-          "when": "resourceFilename =~ /\\.sqlpp$/"
-        },
-        {
-          "title" : "Show Favorite Queries",
-          "command": "vscode-couchbase.showFavoriteQueries",
-          "icon":  "images/couchbase.svg",
-          "group": "navigation",
-          "when": "resourceFilename =~ /\\.sqlpp$/"
-        },
-        {
-          "title" : "Mark Favorite Query",
-          "command": "vscode-couchbase.markFavoriteQuery",
-          "icon":  "images/couchbase.svg",
-          "group": "navigation",
-          "when": "resourceFilename =~ /\\.sqlpp$/"
         }
       ],
       "view/item/context": [

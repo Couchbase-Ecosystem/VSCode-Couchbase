@@ -54,7 +54,7 @@ import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 import { fetchQueryContext } from "./pages/queryContext/queryContext";
 import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
 import { markFavoriteQuery } from "./commands/favoriteQueries/markFavoriteQuery";
-import { QueryHistoryTreeProvider } from "./tree/QueryHistoryTreeProvider";
+import { QueryHistoryTreeProvider, applyQueryHistory } from "./tree/QueryHistoryTreeProvider";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -403,9 +403,18 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.markFavoriteQuery",
-        ()=> {
-          markFavoriteQuery(context);
+        async ()=> {
+          await markFavoriteQuery(context);
         }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.applyQueryHistory",
+      (item)=>{
+        applyQueryHistory(item);
+      }
     )
   );
 

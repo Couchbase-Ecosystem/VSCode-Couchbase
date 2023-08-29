@@ -11,11 +11,14 @@ export async function saveQuery(newQuery: IQuery): Promise<IQuery> {
     let queryHistory = getQueryHistory();
     if (!queryHistory) {
         queryHistory = [];
+    } else if(queryHistory[0].query === newQuery.query){
+      // No need to add query in history as last query was same
+      return newQuery;
     }
-    
-   queryHistory.push(newQuery);
+  
+   queryHistory.unshift(newQuery);
    if(queryHistory.length > 100) {
-    queryHistory.shift();
+    queryHistory.pop();
    }
 
     await Global.state.update(Constants.QUERY_HISTORY, queryHistory);

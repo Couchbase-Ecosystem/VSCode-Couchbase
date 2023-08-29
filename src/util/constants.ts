@@ -18,6 +18,7 @@ export class Constants {
   public static extensionID = "vscode-couchbase";
   public static connectionKeys = "cluster.connections";
   public static QUERY_HISTORY = "cluster.queryHistory";
+  public static FAVORITE_QUERY = "cluster.favoriteQueries";
   public static notebookType = "couchbase-query-notebook";
   public static capellaUrlPostfix = "cloud.couchbase.com";
   public static prefixSecureURL = "couchbases://";

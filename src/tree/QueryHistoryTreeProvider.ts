@@ -26,6 +26,11 @@ export class QueryHistoryTreeProvider implements vscode.TreeDataProvider<IQuery>
                     "images/dark",
                     "checkmark.svg"
                 )
+            },
+            command: {
+                command: 'vscode-couchbase.applyQueryHistory',
+                title: 'Apply Query History',
+                arguments: [element] // Pass the item as an argument to the command
             }
         };
     }
@@ -35,3 +40,27 @@ export class QueryHistoryTreeProvider implements vscode.TreeDataProvider<IQuery>
         return getQueryHistory();
     }
 }
+
+export const applyQueryHistory = (query: IQuery) => {
+    vscode.workspace.findFiles('**/*.sqlpp', '').then((uris) => {
+        
+        if (uris.length > 0) {
+            // If there are .sqlpp files, open the first one found
+            vscode.workspace.openTextDocument(uris[0]).then((document) => {
+                vscode.window.showTextDocument(document);
+                // Set the content of the opened document to the query
+                vscode.window.activeTextEditor?.edit((editBuilder) => {
+                    editBuilder.replace(
+                        new vscode.Range(0, 0, document.lineCount, 0),
+                        query.query // Replace the entire content with the query
+                    );
+                });
+            });
+        } else {
+            // If no .sqlpp files found, open a new one and set the content
+            vscode.workspace.openTextDocument({ language: 'sqlpp', content: query.query }).then((document) => {
+                vscode.window.showTextDocument(document);
+            });
+        }
+    });
+};

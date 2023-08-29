@@ -19,6 +19,7 @@ import { getActiveConnection } from '../util/connections';
 import UntitledSqlppDocumentService from './controller';
 import { WorkbenchWebviewProvider } from './workbenchWebviewProvider';
 import { MemFS } from '../util/fileSystemProvider';
+import { saveQuery } from '../util/queryHistory';
 
 export class QueryWorkbench {
     private _untitledSqlppDocumentService: UntitledSqlppDocumentService;
@@ -43,7 +44,7 @@ export class QueryWorkbench {
             const query = activeTextEditor.document.getText();
             const result = await connection.cluster?.query(query);
             workbenchWebviewProvider.setQueryResult(result);
-
+            saveQuery({query: query});
         }
     };
 
