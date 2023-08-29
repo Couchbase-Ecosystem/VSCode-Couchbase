@@ -11,7 +11,6 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
             enableScripts: true,
             enableForms: true,
         },
-        
     );
 
     try {
@@ -20,8 +19,6 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
         console.log(context);
         const onDiskPathEditLogo = vscode.Uri.joinPath(context.extensionUri, 'images', 'edit-icon.svg');
         const editLogo = currentPanel.webview.asWebviewUri(onDiskPathEditLogo);
-
-       
 
         currentPanel.webview.html = showFavoriteQueries();
 
