@@ -21,6 +21,7 @@ import { WorkbenchWebviewProvider } from './workbenchWebviewProvider';
 import { MemFS } from '../util/fileSystemProvider';
 import { saveQuery } from '../util/queryHistory';
 import { getUUID } from '../util/util';
+import { QueryHistoryTreeProvider } from '../tree/QueryHistoryTreeProvider';
 
 export class QueryWorkbench {
     private _untitledSqlppDocumentService: UntitledSqlppDocumentService;
@@ -29,7 +30,7 @@ export class QueryWorkbench {
         this._untitledSqlppDocumentService = new UntitledSqlppDocumentService();
     }
 
-    runCouchbaseQuery = async (workbenchWebviewProvider: WorkbenchWebviewProvider) => {
+    runCouchbaseQuery = async (workbenchWebviewProvider: WorkbenchWebviewProvider, queryHistoryTreeProvider: QueryHistoryTreeProvider) => {
         const connection = getActiveConnection();
         if (!connection) {
             vscode.window.showInformationMessage("Kindly establish a connection with the cluster before executing query.");
@@ -45,7 +46,9 @@ export class QueryWorkbench {
             const query = activeTextEditor.document.getText();
             const result = await connection.cluster?.query(query);
             workbenchWebviewProvider.setQueryResult(result);
-            saveQuery({query: query, id: getUUID()});
+            await saveQuery({query: query, id: getUUID()});
+            queryHistoryTreeProvider.refresh();
+
         }
     };
 

@@ -424,8 +424,8 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.deleteQueryHistoryItem",
-      (item)=>{
-        deleteQueryItem(item);
+       async (item)=>{
+        await deleteQueryItem(item, queryHistoryTreeProvider);
       }
     )
   );
@@ -435,6 +435,15 @@ export function activate(context: vscode.ExtensionContext) {
       "vscode-couchbase.copyQueryHistoryItem",
       (item)=>{
         copyQuery(item);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.refreshQueryHistory",
+      ()=> {
+        queryHistoryTreeProvider.refresh();
       }
     )
   );
@@ -457,7 +466,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.runQuery, async () => {
-      workbench.runCouchbaseQuery(workbenchWebviewProvider);
+      workbench.runCouchbaseQuery(workbenchWebviewProvider, queryHistoryTreeProvider);
     })
   );
 }

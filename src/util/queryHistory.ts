@@ -36,8 +36,10 @@ export async function saveQuery(newQuery: IQuery): Promise<IQuery> {
     for (let i=0;i<lenQueries;i++){
         if(delQuery.id === queryHistory[i].id){
           queryHistory.splice(i,1);
+          break;
         }
     }
+    
     await Global.state.update(Constants.QUERY_HISTORY, queryHistory);
     return queryHistory;
   }
