@@ -14,7 +14,6 @@ import { BucketOverview } from "../../util/apis/BucketOverview";
 import { getNodeTabData } from "../../util/OverviewClusterUtils/ClusterOverviewNodeTab";
 import { getBucketData } from "../../util/OverviewClusterUtils/ClusterOverviewBucketTab";
 import { getGeneraStorageDetails, getGeneralClusterDetails, getGeneralQuotaDetails, getGeneralRAMDetails } from "../../util/OverviewClusterUtils/ClusterOverviewGeneralTab";
-import { saveQuery } from "../../util/queryHistory";
 
 const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connection: IConnection): Array<Bucket> => {
 

@@ -54,7 +54,10 @@ import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 import { fetchQueryContext } from "./pages/queryContext/queryContext";
 import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
 import { markFavoriteQuery } from "./commands/favoriteQueries/markFavoriteQuery";
-import { QueryHistoryTreeProvider, applyQueryHistory } from "./tree/QueryHistoryTreeProvider";
+import { QueryHistoryTreeProvider } from "./tree/QueryHistoryTreeProvider";
+import { deleteQueryItem } from "./commands/queryHistory/deleteQuery";
+import { copyQuery } from "./commands/queryHistory/copyQuery";
+import { applyQuery } from "./commands/queryHistory/applyQuery";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -413,7 +416,25 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.applyQueryHistory",
       (item)=>{
-        applyQueryHistory(item);
+        applyQuery(item);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.deleteQueryHistoryItem",
+      (item)=>{
+        deleteQueryItem(item);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      "vscode-couchbase.copyQueryHistoryItem",
+      (item)=>{
+        copyQuery(item);
       }
     )
   );

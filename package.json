@@ -545,6 +545,18 @@
         "command": "vscode-couchbase.applyQueryHistory",
         "category": "Couchbase",
         "icon": "images/couchbase.svg"
+      },
+      {
+        "title": "Delete Query History Item",
+        "command": "vscode-couchbase.deleteQueryHistoryItem",
+        "category": "Couchbase",
+        "icon": "images/couchbase.svg"
+      },
+      {
+        "title": "Copy History Item",
+        "command": "vscode-couchbase.copyQueryHistoryItem",
+        "category": "Couchbase",
+        "icon": "images/couchbase.svg"
       }
     ],
     "menus": {
@@ -778,6 +790,16 @@
         {
           "command": "vscode-couchbase.refreshIndexes",
           "when": "view == couchbase && viewItem == indexDirectory"
+        },
+        {
+          "command": "vscode-couchbase.deleteQueryHistoryItem",
+          "when": "view == query-history",
+          "group": "inline"
+        },
+        {
+          "command": "vscode-couchbase.copyQueryHistoryItem",
+          "when": "view == query-history",
+          "group": "inline"
         }
       ],
       "view/title": [
