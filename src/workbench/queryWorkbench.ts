@@ -19,6 +19,7 @@ import { getActiveConnection } from '../util/connections';
 import UntitledSqlppDocumentService from './controller';
 import { WorkbenchWebviewProvider } from './workbenchWebviewProvider';
 import { MemFS } from '../util/fileSystemProvider';
+import { QueryOptions, QueryProfileMode } from 'couchbase';
 
 export class QueryWorkbench {
     private _untitledSqlppDocumentService: UntitledSqlppDocumentService;
@@ -41,7 +42,11 @@ export class QueryWorkbench {
         ) {
             // Get the text content of the active text editor.
             const query = activeTextEditor.document.getText();
-            const result = await connection.cluster?.query(query);
+            const queryOptions: QueryOptions = {
+                profile: QueryProfileMode.Timings,
+                metrics: true,
+            };
+            const result = await connection.cluster?.query(query, queryOptions);
             workbenchWebviewProvider.setQueryResult(result);
 
         }
