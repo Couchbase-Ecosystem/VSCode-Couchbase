@@ -7,7 +7,7 @@ import { Commands } from '../extensionCommands/commands';
 export const applyQuery = async (query: IQuery) => {
     const connection = Memory.state.get<IConnection>("activeConnection");
     if (!connection) {
-        vscode.window.showErrorMessage("Please connect to a cluster from opening editor");
+        vscode.window.showErrorMessage("Please connect to a cluster before opening editor");
         return;
     }
     const activeTextEditor = vscode.window.activeTextEditor;
@@ -37,7 +37,8 @@ export const applyQuery = async (query: IQuery) => {
                     newActiveTextEditor.edit((editBuilder)=>{
                         editBuilder.replace(
                             new vscode.Range(0, 0, lineCount, 0),
-                            query.query 
+                            query.query
+                             
                         );
                     });
                     break;

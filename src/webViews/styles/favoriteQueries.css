@@ -1,0 +1,121 @@
+.favorite-queries-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: var(--vscode-activityBar-background);
+    color: var(--vscode-activityBar-foreground);
+}
+
+.favorite-queries-table {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.favorite-queries-keys {
+
+    display: block;
+    position: relative;
+    white-space: nowrap;
+    width: 30%;
+    border-right: 1px solid #ccc;
+    margin-right: 5px;
+    
+}
+.favorite-queries-keys-header {
+    
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+    margin-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+
+}
+
+.favorite-queries-key {
+    
+    cursor: pointer;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.favorite-queries-key:hover {
+    background-color: #f0f0f0; /* Highlight background color on hover */
+}
+
+.favorite-queries-key.selected {
+    background-color: #007acc; /* Selected background color */
+    color: #fff; /* Selected text color */
+}
+
+.favorite-queries-value {
+    width: 70%;
+    padding: 10px;
+    overflow: scroll;
+    font-family: "SF Mono",Monaco,Menlo,Courier,monospace;
+}
+
+/* Container for the buttons */
+.favorite-query-buttons {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Styles for the individual buttons */
+.favorite-query-copy-button,
+.favorite-query-delete-button,
+.favorite-query-paste-button {
+    flex: 1; /* Adjust column width as needed */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s ease-in-out;
+    max-width: 80px;
+}
+
+.favorite-query-copy-button {
+    background-color: #4caf50; /* Green color */
+    color: #fff;
+}
+
+.favorite-query-copy-button:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+.favorite-query-delete-button {
+    background-color: #f44336; /* Red color */
+    color: #fff;
+}
+
+.favorite-query-delete-button:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
+.favorite-query-paste-button {
+    background-color: #007acc; /* Blue color */
+    color: #fff;
+}
+
+.favorite-query-paste-button:hover {
+    background-color: #005d99; /* Darker blue on hover */
+}

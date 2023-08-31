@@ -532,13 +532,16 @@
         "title": "Show Favorite Queries",
         "command": "vscode-couchbase.showFavoriteQueries",
         "category": "Couchbase",
-        "icon": "images/couchbase.svg"
+        "icon": {
+          "light": "images/light/favorites-list.svg",
+          "dark": "images/dark/favorites-list.svg"
+        }
       },
       {
         "title": "Mark Favorite Query",
         "command": "vscode-couchbase.markFavoriteQuery",
         "category": "Couchbase",
-        "icon": "images/couchbase.svg"
+        "icon": "$(star-empty)"
       },
       {
         "title": "Apply Query History",

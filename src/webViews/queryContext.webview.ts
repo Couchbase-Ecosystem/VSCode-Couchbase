@@ -134,7 +134,6 @@ export const getQueryContext = (vscodeURIs:IQueryContextWebviewParams) :string =
 
             // Add a click event listener to the document body to hide the dropdown when clicking anywhere else
             document.body.addEventListener('click', () => {
-               console.log("anywhere else click", isDropdownDisplayed);
                if (isDropdownDisplayed) {
                   toggleBucketValues();
                }

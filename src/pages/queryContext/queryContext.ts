@@ -29,7 +29,6 @@ export function fetchQueryContext(context: vscode.ExtensionContext) {
     try {
         const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'src/webviews/styles/queryContext.css'));
         const styleSrc = currentPanel.webview.asWebviewUri(onDiskPath);
-        console.log(context);
         const onDiskPathEditLogo = vscode.Uri.joinPath(context.extensionUri, 'images', 'edit-icon.svg');
         const editLogo = currentPanel.webview.asWebviewUri(onDiskPathEditLogo);
 

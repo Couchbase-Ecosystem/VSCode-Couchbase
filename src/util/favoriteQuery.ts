@@ -1,4 +1,5 @@
 
+import { fetchFavoriteQueries } from "../pages/FavoriteQueries/FavoriteQueries";
 import { favoriteQueryType } from "../types/FavoriteQueryType";
 import { IKeyValuePair } from "../types/IKeyValuePair";
 import { IQuery } from "../types/IQuery";
@@ -7,7 +8,6 @@ import { Global, Memory } from "./util";
 import * as vscode from "vscode";
 
 export function getFavoriteQueries():favoriteQueryType {
-    console.log(Global.state.get<favoriteQueryType>(Constants.FAVORITE_QUERY));
     let favQueries = Global.state.get<favoriteQueryType>(Constants.FAVORITE_QUERY);
     if (favQueries === undefined){
         Global.state.update(Constants.FAVORITE_QUERY, []);
@@ -16,6 +16,7 @@ export function getFavoriteQueries():favoriteQueryType {
         return favQueries;
     }
 }
+
 
 export async function saveFavoriteQuery(newQuery: IKeyValuePair): Promise<favoriteQueryType> {
     let favoriteQueries = getFavoriteQueries();
@@ -27,10 +28,11 @@ export async function saveFavoriteQuery(newQuery: IKeyValuePair): Promise<favori
     }
     favoriteQueries.push({key: newQuery.key, value: newQuery.value});
     await Global.state.update(Constants.FAVORITE_QUERY, favoriteQueries);
+    
     return favoriteQueries;
 }
 
-export async function deleteFavoriteQuery(key: string): Promise<favoriteQueryType> {
+export async function deleteFavoriteQuery(key: string, context: vscode.ExtensionContext): Promise<favoriteQueryType> {
     let favoriteQueries = getFavoriteQueries();
     let lenOfFavQueries = favoriteQueries.length;
     let deleted = false;
@@ -46,6 +48,7 @@ export async function deleteFavoriteQuery(key: string): Promise<favoriteQueryTyp
         return favoriteQueries;
     } else {
         await Global.state.update(Constants.FAVORITE_QUERY, favoriteQueries);
+        fetchFavoriteQueries(context);
         vscode.window.showInformationMessage("Query deleted successfully");
         return favoriteQueries;
     }

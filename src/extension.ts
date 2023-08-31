@@ -407,6 +407,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.markFavoriteQuery",
         async ()=> {
+          
           await markFavoriteQuery(context);
         }
     )
