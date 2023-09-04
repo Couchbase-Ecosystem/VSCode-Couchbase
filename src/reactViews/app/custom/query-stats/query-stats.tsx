@@ -1,5 +1,4 @@
 import { clsx } from "clsx";
-// import { Icon } from 'components/icon';
 import type { QueryStatsProps } from "./query-stats.types";
 import successImage from "../../images/success.svg";
 import errorImage from "../../images/error.svg";
