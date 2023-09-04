@@ -87,6 +87,7 @@ const reactConfig = {
       'sync': path.resolve(__dirname, 'src/reactViews/app/sync'),
       'hooks': path.resolve(__dirname, 'src/reactViews/app/hooks'),
       'error': path.resolve(__dirname, 'src/reactViews/app/error'),
+      'custom': path.resolve(__dirname, 'src/reactViews/app/custom'),
     },
   },
   module: {
@@ -100,9 +101,21 @@ const reactConfig = {
             options: {
               configFile: "src/reactViews/app/tsconfig.json",
             },
+
           },
         ],
       },
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: "file-loader", // You can also use "url-loader" if you prefer
+            options: {
+              name: "[name].[ext]", // Output file name and extension
+            },
+          },
+        ],
+      }, 
       {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],
