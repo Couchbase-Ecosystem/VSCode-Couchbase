@@ -46,8 +46,19 @@ export class QueryWorkbench {
                 profile: QueryProfileMode.Timings,
                 metrics: true,
             };
+            const start = Date.now();
             const result = await connection.cluster?.query(query, queryOptions);
-            workbenchWebviewProvider.setQueryResult(result);
+            const end = Date.now();
+            const rtt = end - start;
+            const queryStatusProps = {
+                queryStatus: result?.meta.status,
+                rtt: rtt.toString() + " MS",
+                elapsed: result?.meta.metrics?.elapsedTime.toString() + " MS",
+                executionTime: result?.meta.metrics?.executionTime + " MS",
+                numDocs: result?.meta.metrics?.resultCount,
+                size: result?.meta.metrics?.resultSize.toString() + " Bytes" ,
+            };
+            workbenchWebviewProvider.setQueryResult(result, queryStatusProps);
 
         }
     };

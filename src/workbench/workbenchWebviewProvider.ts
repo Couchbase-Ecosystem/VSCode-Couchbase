@@ -1,7 +1,17 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { getWebviewContent } from '../webViews/workbench.webview';
-import { QueryResult } from 'couchbase';
+import { QueryResult, QueryStatus } from 'couchbase';
+
+
+type IQueryStatusProps = {
+    queryStatus: QueryStatus | undefined;
+    rtt: string;
+    elapsed: string;
+    executionTime: string;
+    numDocs: number | undefined;
+    size: string,
+};
 export class WorkbenchWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
     public _context: vscode.ExtensionContext;
@@ -31,9 +41,9 @@ export class WorkbenchWebviewProvider implements vscode.WebviewViewProvider {
         this._view.webview.html = getWebviewContent(reactAppUri, this._context);;
     }
 
-    setQueryResult(queryResult: QueryResult | undefined) {
+    setQueryResult(queryResult: QueryResult | undefined, queryStatus: IQueryStatusProps) {
         this._queryResult = queryResult;
-        this._view?.webview.postMessage({ command: "queryResult", result: queryResult });
+        this._view?.webview.postMessage({ command: "queryResult", result: queryResult, queryStatus: queryStatus });
         this._view?.show();
     }
 }
