@@ -5,7 +5,7 @@ export interface QueryStatsProps {
   rtt: string;
   elapsed: string;
   executionTime: string;
-  numDocs: number | undefined;
+  numDocs: string | undefined;
   size: string,
   className?: string;
 }

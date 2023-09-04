@@ -86,7 +86,7 @@ export function QueryStats({
         <>
           <span className="query-stats-text">|</span>
           <p className="query-stats-text">
-            <b>DOCS:</b> {numDocs} docs
+            <b>DOCS:</b> {numDocs}
           </p>
         </>
       )}

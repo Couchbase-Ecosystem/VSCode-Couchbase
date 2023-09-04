@@ -14,12 +14,12 @@
  *   limitations under the License.
  */
 
-import * as vscode from 'vscode';
-import { getActiveConnection } from '../util/connections';
-import UntitledSqlppDocumentService from './controller';
-import { WorkbenchWebviewProvider } from './workbenchWebviewProvider';
-import { MemFS } from '../util/fileSystemProvider';
-import { QueryOptions, QueryProfileMode } from 'couchbase';
+import * as vscode from "vscode";
+import { getActiveConnection } from "../util/connections";
+import UntitledSqlppDocumentService from "./controller";
+import { WorkbenchWebviewProvider } from "./workbenchWebviewProvider";
+import { MemFS } from "../util/fileSystemProvider";
+import { CouchbaseError, QueryOptions, QueryProfileMode, QueryStatus } from "couchbase";
 
 export class QueryWorkbench {
     private _untitledSqlppDocumentService: UntitledSqlppDocumentService;
@@ -28,42 +28,80 @@ export class QueryWorkbench {
         this._untitledSqlppDocumentService = new UntitledSqlppDocumentService();
     }
 
-    runCouchbaseQuery = async (workbenchWebviewProvider: WorkbenchWebviewProvider) => {
+    runCouchbaseQuery = async (
+        workbenchWebviewProvider: WorkbenchWebviewProvider
+    ) => {
         const connection = getActiveConnection();
         if (!connection) {
-            vscode.window.showInformationMessage("Kindly establish a connection with the cluster before executing query.");
+            vscode.window.showInformationMessage(
+                "Kindly establish a connection with the cluster before executing query."
+            );
             return false;
         }
         // Get the active text editor
         const activeTextEditor = vscode.window.activeTextEditor;
-        if (
-            activeTextEditor &&
-            activeTextEditor.document.languageId === "SQL++"
-        ) {
+        if (activeTextEditor && activeTextEditor.document.languageId === "SQL++") {
             // Get the text content of the active text editor.
             const query = activeTextEditor.document.getText();
             const queryOptions: QueryOptions = {
                 profile: QueryProfileMode.Timings,
                 metrics: true,
             };
-            const start = Date.now();
-            const result = await connection.cluster?.query(query, queryOptions);
-            const end = Date.now();
-            const rtt = end - start;
-            const queryStatusProps = {
-                queryStatus: result?.meta.status,
-                rtt: rtt.toString() + " MS",
-                elapsed: result?.meta.metrics?.elapsedTime.toString() + " MS",
-                executionTime: result?.meta.metrics?.executionTime + " MS",
-                numDocs: result?.meta.metrics?.resultCount,
-                size: result?.meta.metrics?.resultSize.toString() + " Bytes" ,
-            };
-            workbenchWebviewProvider.setQueryResult(result, queryStatusProps);
-
+            try {
+                const start = Date.now();
+                const result = await connection.cluster?.query(query, queryOptions);
+                const end = Date.now();
+                const rtt = end - start;
+                const queryStatusProps = {
+                    queryStatus: result?.meta.status,
+                    rtt: rtt.toString() + " MS",
+                    elapsed: result?.meta.metrics?.elapsedTime.toString() + " MS",
+                    executionTime: result?.meta.metrics?.executionTime + " MS",
+                    numDocs: result?.meta.metrics?.resultCount.toString() + " docs",
+                    size: result?.meta.metrics?.resultSize.toString() + " Bytes",
+                };
+                workbenchWebviewProvider.setQueryResult(
+                    JSON.stringify(result?.rows),
+                    queryStatusProps
+                );
+            } catch (err) {
+                const errorArray = [];
+                if (err instanceof CouchbaseError) {
+                    const { first_error_code, first_error_message, statement } =
+                        err.cause as any;
+                    if (
+                        first_error_code !== undefined ||
+                        first_error_message !== undefined ||
+                        statement !== undefined
+                    ) {
+                        errorArray.push({
+                            code: first_error_code,
+                            msg: first_error_message,
+                            query: statement,
+                        });
+                    } else {
+                        errorArray.push(err);
+                    }
+                } else {
+                    errorArray.push(err);
+                }
+                const queryStatusProps = {
+                    queryStatus: QueryStatus.Fatal,
+                    rtt: "-",
+                    elapsed: "-",
+                    executionTime: "-",
+                    numDocs: "-",
+                    size: "-",
+                };
+                workbenchWebviewProvider.setQueryResult(
+                    JSON.stringify(errorArray),
+                    queryStatusProps
+                );
+            }
         }
     };
 
     openWorkbench(memFs: MemFS) {
         this._untitledSqlppDocumentService.newQuery(memFs);
-    };
+    }
 }

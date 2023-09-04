@@ -24,7 +24,7 @@ export const App: React.FC = () => {
   
     switch (message.command) {
       case 'queryResult':
-        setQueryResult(message.result.rows);
+        setQueryResult(JSON.parse(message.result));
         setQueryStatus(message.queryStatus);
         break;
     }
