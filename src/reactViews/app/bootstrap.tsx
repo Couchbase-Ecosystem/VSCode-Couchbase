@@ -3,6 +3,10 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 import "./index.css";
 import { Editor } from "components/editor";
+import { DataTable } from "components/data-table";
+import { QueryTabs, TAB_BAR_ITEMS, TabBarMenu } from "custom/tab-bar/tab-bar";
+import { QueryStats } from "custom/query-stats/query-stats";
+import { QueryStatsProps } from "custom/query-stats/query-stats.types";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -13,26 +17,33 @@ const FALLBACK_MESSAGE = {
 
 export const App: React.FC = () => {
   const [queryResult, setQueryResult] = React.useState<Record<string, unknown>[]>(undefined);
+  const [queryStatus, setQueryStatus] = React.useState<QueryStatsProps | undefined>(undefined);
+  const [currentTab, setCurrentTab] = React.useState<QueryTabs>(QueryTabs.JSON); // TODO: initial value should be chart
   window.addEventListener('message', event => {
     const message = event.data; // The JSON data our extension sent
   
     switch (message.command) {
       case 'queryResult':
-        setQueryResult(message.result.rows);
+        setQueryResult(JSON.parse(message.result));
+        setQueryStatus(message.queryStatus);
         break;
     }
   });
   return (
-      <div className="h-[300px]">
-        <Editor
+    <div className="h-full">
+      <QueryStats {...queryStatus} />
+      <TabBarMenu items={TAB_BAR_ITEMS} value={currentTab} onChange={setCurrentTab} />
+      <div className="h-[300px]" style={{marginTop: "3px"}}>
+      {currentTab === QueryTabs.JSON && <Editor
           value={JSON.stringify(queryResult ?? FALLBACK_MESSAGE, null, 2)}
           fontSize={13}
           height="100%"
           readOnly
           theme="vs-dark"
           language="json"
-        />
-        {/* <DataTable data={hotels} dataFallback={[FALLBACK_MESSAGE]} /> */}
+        />}
+        {currentTab === QueryTabs.Table && <DataTable data={queryResult} dataFallback={[FALLBACK_MESSAGE]} />}
+      </div>
       </div>
   );
 };
