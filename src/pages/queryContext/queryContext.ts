@@ -1,9 +1,8 @@
 import { IConnection } from "../../types/IConnection";
 import { Memory } from "../../util/util";
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { logger } from "../../logger/logger";
-import { Bucket, BucketSettings, ScopeSpec } from "couchbase";
+import { Bucket, BucketSettings } from "couchbase";
 import { QueryWorkbench } from "../../workbench/queryWorkbench";
 import { showQueryContextStatusbar } from "../../util/queryContextUtils";
 
@@ -48,7 +47,6 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
             return;
         }
 
-        // Method 1: Quick Pick
         let bucketItems = allBuckets.map((bucket:Bucket)=>{return {label: bucket.name, iconPath: new vscode.ThemeIcon("database")};});
         let selectedItem = await vscode.window.showQuickPick([
             {label: "Clears any active query context", kind: vscode.QuickPickItemKind.Separator},
@@ -63,6 +61,7 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
             vscode.window.showInformationMessage("No buckets selected.");
             return;
         }
+
         let bucketNameSelected = selectedItem.label;
         if(bucketNameSelected === 'Clear Context'){
             workbench.editorToContext.delete(activeEditor.document.uri.toString());
@@ -73,7 +72,6 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
             ?.bucket(bucketNameSelected)
             .collections()
             .getAllScopes();
-        
         if (scopes === undefined || scopes.length === 0){
             vscode.window.showErrorMessage('No scopes found.');
             return;
