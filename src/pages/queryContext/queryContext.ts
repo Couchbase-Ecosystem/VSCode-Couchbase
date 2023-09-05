@@ -3,8 +3,6 @@ import { Memory } from "../../util/util";
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { logger } from "../../logger/logger";
-import { getQueryContext } from "../../webViews/queryContext.webview";
-import { IQueryContextWebviewParams } from "../../types/IQueryContextWebviewParams";
 import { Bucket, BucketSettings, ScopeSpec } from "couchbase";
 import { QueryWorkbench } from "../../workbench/queryWorkbench";
 import { showQueryContextStatusbar } from "../../util/queryContextUtils";

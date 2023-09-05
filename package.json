@@ -836,8 +836,7 @@
         },
         {
           "id": "query-history",
-          "name": "Query history",
-          "icon": "images/couchbase.svg"
+          "name": "Query history"
         }
       ],
       "couchbase-workbench-panel": [
