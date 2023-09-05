@@ -4,11 +4,11 @@ import { getQueryHistory } from '../util/queryHistory';
 
 export class QueryHistoryTreeProvider implements vscode.TreeDataProvider<IQuery> {
     private _onDidChangeTreeData: vscode.EventEmitter<
-    IQuery | undefined | null | void
+        IQuery | undefined | null | void
     > = new vscode.EventEmitter<IQuery | undefined | null | void>();
 
-    readonly onDidChangeTreeData: vscode.Event<IQuery | undefined | null | void> = this._onDidChangeTreeData.event;    
-    
+    readonly onDidChangeTreeData: vscode.Event<IQuery | undefined | null | void> = this._onDidChangeTreeData.event;
+
     refresh(): void {
         this._onDidChangeTreeData.fire();
     }

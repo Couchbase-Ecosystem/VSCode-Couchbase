@@ -389,9 +389,9 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.queryContext",
-        ()=> {
-          fetchQueryContext(workbench, context);
-        }
+      () => {
+        fetchQueryContext(workbench, context);
+      }
     )
   );
 
@@ -408,26 +408,26 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.showFavoriteQueries",
-        ()=> {
-          fetchFavoriteQueries(context);
-        }
+      () => {
+        fetchFavoriteQueries(context);
+      }
     )
   );
 
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.markFavoriteQuery",
-        async ()=> {
-          
-          await markFavoriteQuery(context);
-        }
+      async () => {
+
+        await markFavoriteQuery(context);
+      }
     )
   );
 
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.applyQueryHistory",
-      (item)=>{
+      (item) => {
         applyQuery(item);
       }
     )
@@ -436,7 +436,7 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.deleteQueryHistoryItem",
-       async (item)=>{
+      async (item) => {
         await deleteQueryItem(item, queryHistoryTreeProvider);
       }
     )
@@ -445,7 +445,7 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.copyQueryHistoryItem",
-      (item)=>{
+      (item) => {
         copyQuery(item);
       }
     )
@@ -454,14 +454,14 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.refreshQueryHistory",
-      ()=> {
+      () => {
         queryHistoryTreeProvider.refresh();
       }
     )
   );
 
   let queryHistoryTreeProvider = new QueryHistoryTreeProvider(context);
-  vscode.window.registerTreeDataProvider('query-history',queryHistoryTreeProvider);
+  vscode.window.registerTreeDataProvider('query-history', queryHistoryTreeProvider);
 
   subscriptions.push(
     vscode.commands.registerCommand(Commands.getSampleProjects, async () => {

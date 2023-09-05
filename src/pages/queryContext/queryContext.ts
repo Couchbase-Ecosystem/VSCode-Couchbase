@@ -32,12 +32,12 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
         let activeEditor = vscode.window.activeTextEditor;
         if (
             !(activeEditor &&
-            activeEditor.document.languageId === "SQL++")
+                activeEditor.document.languageId === "SQL++")
         ) {
             vscode.window.showErrorMessage("workbench is not active");
             return;
         }
-       
+
         // Fetch all buckets
         let bucketsSettings = await connection?.cluster?.buckets().getAllBuckets();
         let allBuckets = fetchBucketNames(bucketsSettings, connection);
@@ -47,23 +47,23 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
             return;
         }
 
-        let bucketItems = allBuckets.map((bucket:Bucket)=>{return {label: bucket.name, iconPath: new vscode.ThemeIcon("database")};});
+        let bucketItems = allBuckets.map((bucket: Bucket) => { return { label: bucket.name, iconPath: new vscode.ThemeIcon("database") }; });
         let selectedItem = await vscode.window.showQuickPick([
-            {label: "Clears any active query context", kind: vscode.QuickPickItemKind.Separator},
-            {label:"Clear Context", iconPath: new vscode.ThemeIcon("clear-all")},
-            {kind: vscode.QuickPickItemKind.Separator, label:"Buckets"},
+            { label: "Clears any active query context", kind: vscode.QuickPickItemKind.Separator },
+            { label: "Clear Context", iconPath: new vscode.ThemeIcon("clear-all") },
+            { kind: vscode.QuickPickItemKind.Separator, label: "Buckets" },
             ...bucketItems
         ], {
             canPickMany: false,
             placeHolder: 'Query Context: Select a bucket',
         });
-        if (!selectedItem){
+        if (!selectedItem) {
             vscode.window.showInformationMessage("No buckets selected.");
             return;
         }
 
         let bucketNameSelected = selectedItem.label;
-        if(bucketNameSelected === 'Clear Context'){
+        if (bucketNameSelected === 'Clear Context') {
             workbench.editorToContext.delete(activeEditor.document.uri.toString());
             showQueryContextStatusbar(activeEditor, workbench);
             return;
@@ -72,12 +72,12 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
             ?.bucket(bucketNameSelected)
             .collections()
             .getAllScopes();
-        if (scopes === undefined || scopes.length === 0){
+        if (scopes === undefined || scopes.length === 0) {
             vscode.window.showErrorMessage('No scopes found.');
             return;
         }
 
-        let scopeNameSelected = await vscode.window.showQuickPick(scopes.map((scope)=>{return {label :scope.name, iconPath: new vscode.ThemeIcon("file-submodule")};}) ,{placeHolder: 'Query Context: Select a scope'});
+        let scopeNameSelected = await vscode.window.showQuickPick(scopes.map((scope) => { return { label: scope.name, iconPath: new vscode.ThemeIcon("file-submodule") }; }), { placeHolder: 'Query Context: Select a scope' });
         if (!scopeNameSelected) {
             vscode.window.showInformationMessage('No scope selected.');
             return;
@@ -89,7 +89,7 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
         showQueryContextStatusbar(activeEditor, workbench);
 
     } catch (err) {
-       logger.error("failed to open and set query context: " + err);
+        logger.error("failed to open and set query context: " + err);
         logger.debug(err);
     }
 }

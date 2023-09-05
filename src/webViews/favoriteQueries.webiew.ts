@@ -3,7 +3,6 @@ import { getFavoriteQueries } from "../util/favoriteQuery";
 
 export const showFavoriteQueries = (vscodeURIs: IFavoriteQueriesWebviewParams): string => {
     let favQueries = getFavoriteQueries();
-
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -24,7 +23,7 @@ export const showFavoriteQueries = (vscodeURIs: IFavoriteQueriesWebviewParams): 
                     <div class="favorite-queries-keys">
                         <div class="favorite-queries-keys-header">Keys</div>
                         <div class="favorite-queries-key-container">
-                            ${favQueries !== undefined && favQueries.map((kv, index)=>{
+                            ${favQueries !== undefined && favQueries.map((kv, index) => {
                                 return (`<div class="favorite-queries-key" onClick="openQuery('${index}')">${kv.key}</div>`);
                             }).join('')}
                         </div>

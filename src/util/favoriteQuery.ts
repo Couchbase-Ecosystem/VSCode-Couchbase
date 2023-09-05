@@ -7,28 +7,27 @@ import { Constants } from "./constants";
 import { Global, Memory } from "./util";
 import * as vscode from "vscode";
 
-export function getFavoriteQueries():favoriteQueryType {
+export function getFavoriteQueries(): favoriteQueryType {
     let favQueries = Global.state.get<favoriteQueryType>(Constants.FAVORITE_QUERY);
-    if (favQueries === undefined){
+    if (favQueries === undefined) {
         Global.state.update(Constants.FAVORITE_QUERY, []);
         return [];
-    } else{
+    } else {
         return favQueries;
     }
 }
 
-
 export async function saveFavoriteQuery(newQuery: IKeyValuePair): Promise<favoriteQueryType> {
     let favoriteQueries = getFavoriteQueries();
-    for(let query of favoriteQueries){
-        if (query.key === newQuery.key){
+    for (let query of favoriteQueries) {
+        if (query.key === newQuery.key) {
             vscode.window.showErrorMessage("Key already exists: please try again with a new key");
             return favoriteQueries;
         }
     }
-    favoriteQueries.push({key: newQuery.key, value: newQuery.value});
+    favoriteQueries.push({ key: newQuery.key, value: newQuery.value });
     await Global.state.update(Constants.FAVORITE_QUERY, favoriteQueries);
-    
+
     return favoriteQueries;
 }
 
@@ -36,9 +35,9 @@ export async function deleteFavoriteQuery(key: string, context: vscode.Extension
     let favoriteQueries = getFavoriteQueries();
     let lenOfFavQueries = favoriteQueries.length;
     let deleted = false;
-    for (let i=0;i<lenOfFavQueries;i++){
-        if (favoriteQueries[i].key === key){
-            favoriteQueries.splice(i,1);
+    for (let i = 0; i < lenOfFavQueries; i++) {
+        if (favoriteQueries[i].key === key) {
+            favoriteQueries.splice(i, 1);
             deleted = true;
             break;
         }

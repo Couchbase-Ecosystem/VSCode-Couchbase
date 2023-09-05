@@ -22,10 +22,10 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
         return;
     }
     const favoriteQueryWebviewDetails = Memory.state.get<IFavoriteQueriesWebviewState>("favoriteQueriesWebview");
-    if(favoriteQueryWebviewDetails){
+    if (favoriteQueryWebviewDetails) {
         // Favorite Queries Webview already exists, Closing existing and creating new
         favoriteQueryWebviewDetails.webviewPanel.dispose();
-        Memory.state.update("favoriteQueriesWebview",null);
+        Memory.state.update("favoriteQueriesWebview", null);
     }
     const currentPanel = vscode.window.createWebviewPanel(
         "showFavoriteQueries",
@@ -52,9 +52,9 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
                     // Handle the message received from the webview
                     const dataFromWebview = message.query;
                     currentPanel.dispose();
-                    await new Promise((resolve)=>setTimeout(resolve, 200));
-                    applyQuery({query: dataFromWebview, id: getUUID()});
-                    
+                    await new Promise((resolve) => setTimeout(resolve, 200));
+                    applyQuery({ query: dataFromWebview, id: getUUID() });
+
                     break;
                 case 'vscode-couchbase.deleteQuery':
                     const queryId = message.id;
@@ -64,17 +64,17 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
             }
         });
 
-        currentPanel.onDidDispose(()=>{
-            Memory.state.update("favoriteQueriesWebview",null);
+        currentPanel.onDidDispose(() => {
+            Memory.state.update("favoriteQueriesWebview", null);
         });
 
-        Memory.state.update("favoriteQueriesWebview",{
+        Memory.state.update("favoriteQueriesWebview", {
             webviewPanel: currentPanel
         });
-        
+
 
     } catch (err) {
-       logger.error("failed to open and set query context: " + err);
+        logger.error("failed to open and set query context: " + err);
         logger.debug(err);
     }
 };

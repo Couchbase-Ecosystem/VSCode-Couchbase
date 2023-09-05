@@ -31,7 +31,7 @@ export class QueryWorkbench {
 
     constructor() {
         this._untitledSqlppDocumentService = new UntitledSqlppDocumentService();
-        this.editorToContext = new Map<string,IQueryContext>();
+        this.editorToContext = new Map<string, IQueryContext>();
     }
 
     runCouchbaseQuery = async (
@@ -71,7 +71,7 @@ export class QueryWorkbench {
                     JSON.stringify(result?.rows),
                     queryStatusProps
                 );
-                await saveQuery({query: query, id: getUUID()});
+                await saveQuery({ query: query, id: getUUID() });
                 queryHistoryTreeProvider.refresh();
             } catch (err) {
                 const errorArray = [];
