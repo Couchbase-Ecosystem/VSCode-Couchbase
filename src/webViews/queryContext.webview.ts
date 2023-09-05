@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { IQueryContextWebviewParams } from '../types/IQueryContextWebviewParams';
 
-export const getQueryContext = (vscodeURIs:IQueryContextWebviewParams) :string => {
+export const getQueryContext = (webviewParams:IQueryContextWebviewParams) :string => {
    type ScopeDetails = {
       scopeName: string
    };
@@ -32,7 +32,7 @@ export const getQueryContext = (vscodeURIs:IQueryContextWebviewParams) :string =
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Query Context</title>
-          <link rel="stylesheet" href="${vscodeURIs.styleSrc}" type="text/css">
+          <link rel="stylesheet" href="${webviewParams.styleSrc}" type="text/css">
           <style>
              h3 {
              display: inline;
@@ -43,7 +43,7 @@ export const getQueryContext = (vscodeURIs:IQueryContextWebviewParams) :string =
         <div class="query-context-container"> 
           <div class="query-context-edit"> 
             <div class="query-context-edit-button">
-               <img class="query-context-edit-icon" src="${vscodeURIs.editLogo}" height="30px" width="30px" />
+               <img class="query-context-edit-icon" src="${webviewParams.editLogo}" height="30px" width="30px" />
             </div>
             <div class="query-context-view" id="query-context-selected-value">
                No Query Context Selected
@@ -56,18 +56,16 @@ export const getQueryContext = (vscodeURIs:IQueryContextWebviewParams) :string =
           <div class="query-context-bucket-dropdown">
             <div class="query-context-bucket-button"> Buckets <span></span></div>
             <div class="query-context-bucket-values">
-               ${buckets.map((bucket, index)=>{
+               ${webviewParams.buckets.map((bucket, index)=>{
                  return (`<div class="query-context-bucket-value">
-                     ${bucket.bucketName} <span></span>
+                     ${bucket.name} <span></span>
                      <div class="query-context-scope-dropdown" id="scopeDropdown-${index}">
-                     
-                        
                         <div class="query-context-scope-values">
                         <div class="query-context-scope-value"> Scopes</div>
-                           ${bucket.scopes.map((scope)=>{
+                           ${webviewParams.scopes[index].map((scope)=>{
                              return (`
                                  <div class="query-context-scope-value">
-                                    ${scope.scopeName}
+                                    ${scope.name}
                                  </div>
                               `);
                            }).join('')}

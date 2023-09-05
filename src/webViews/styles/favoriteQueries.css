@@ -3,16 +3,14 @@
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    background-color: var(--vscode-activityBar-background);
-    color: var(--vscode-activityBar-foreground);
+    
 }
 
 .favorite-queries-table {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: 1px solid var(--vscode-settings-sashBorder);
 }
 
 .favorite-queries-keys {
@@ -21,44 +19,52 @@
     position: relative;
     white-space: nowrap;
     width: 30%;
-    border-right: 1px solid #ccc;
-    margin-right: 5px;
+    border-right: 1px solid var(--vscode-settings-sashBorder);
+    background-color: var(--vscode-sideBar-background);
+    color: var(--vscode-sideBar-foreground);
+    
+   /* margin-right: 5px; */
     
 }
 .favorite-queries-keys-header {
     
-    display: block;
+    display:block;
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 5px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--vscode-settings-sashBorder);
     text-align: center;
-    margin-bottom: 5px;
     padding-left: 10px;
     padding-right: 10px;
 
 }
 
+.favorite-queries-key-container {
+    max-height: 65vh;
+    overflow-y: overlay;
+    padding-top: 1px;
+}
+
 .favorite-queries-key {
-    
     cursor: pointer;
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-left: 10px;
-    margin-right: 10px;
-    margin-bottom: 5px;
+    margin-left: 1px;
+    margin-right: 1px;
+    margin-bottom: 1px;
     padding: 5px;
-    border-radius: 4px;
 }
 
 .favorite-queries-key:hover {
-    background-color: #f0f0f0; /* Highlight background color on hover */
+    color: var(--vscode-list-activeSelectionForeground) !important; 
+    background-color: var(--vscode-list-activeSelectionBackground) !important;
 }
 
 .favorite-queries-key.selected {
-    background-color: #007acc; /* Selected background color */
-    color: #fff; /* Selected text color */
+    color: var(--vscode-list-activeSelectionForeground);
+    background-color: var(--vscode-list-activeSelectionBackground);
+    outline: 1px solid var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)));
 }
 
 .favorite-queries-value {
@@ -66,6 +72,7 @@
     padding: 10px;
     overflow: scroll;
     font-family: "SF Mono",Monaco,Menlo,Courier,monospace;
+    color: var(--vscode-editor-foreground)
 }
 
 /* Container for the buttons */
@@ -94,28 +101,29 @@
 }
 
 .favorite-query-copy-button {
-    background-color: #4caf50; /* Green color */
-    color: #fff;
+    background-color: var(--vscode-button-secondaryBackground); /* Red color */
+    color: var(--vscode-button-secondaryForeground);
 }
 
 .favorite-query-copy-button:hover {
-    background-color: #45a049; /* Darker green on hover */
+    background-color: var(--vscode-button-secondaryHoverBackground) /* Darker green on hover */
 }
 
 .favorite-query-delete-button {
-    background-color: #f44336; /* Red color */
-    color: #fff;
+    background-color: var(--vscode-button-secondaryBackground); /* Red color */
+    color: var(--vscode-button-secondaryForeground);
 }
 
 .favorite-query-delete-button:hover {
-    background-color: #d32f2f; /* Darker red on hover */
+    background-color: var(--vscode-button-secondaryHoverBackground) /* Darker red on hover */
 }
 
 .favorite-query-paste-button {
-    background-color: #007acc; /* Blue color */
-    color: #fff;
+    background-color: var(--vscode-button-background);/* Green color */
+    color: var(--vscode-button-foreground);
 }
 
+
 .favorite-query-paste-button:hover {
-    background-color: #005d99; /* Darker blue on hover */
+    background-color: var(--vscode-button-hoverBackground); /* Darker green on hover */
 }

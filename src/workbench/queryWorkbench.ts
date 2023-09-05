@@ -22,12 +22,15 @@ import { MemFS } from '../util/fileSystemProvider';
 import { saveQuery } from '../util/queryHistory';
 import { getUUID } from '../util/util';
 import { QueryHistoryTreeProvider } from '../tree/QueryHistoryTreeProvider';
+import { IQueryContext } from '../types/IQueryContext';
 
 export class QueryWorkbench {
     private _untitledSqlppDocumentService: UntitledSqlppDocumentService;
+    public editorToContext: Map<string, IQueryContext>;
 
     constructor() {
         this._untitledSqlppDocumentService = new UntitledSqlppDocumentService();
+        this.editorToContext = new Map<string,IQueryContext>();
     }
 
     runCouchbaseQuery = async (workbenchWebviewProvider: WorkbenchWebviewProvider, queryHistoryTreeProvider: QueryHistoryTreeProvider) => {

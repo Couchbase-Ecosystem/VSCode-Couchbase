@@ -3,6 +3,7 @@ import { getFavoriteQueries } from "../util/favoriteQuery";
 
 export const showFavoriteQueries = (vscodeURIs: IFavoriteQueriesWebviewParams): string => {
     let favQueries = getFavoriteQueries();
+
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -22,9 +23,11 @@ export const showFavoriteQueries = (vscodeURIs: IFavoriteQueriesWebviewParams): 
                 <div class="favorite-queries-table">
                     <div class="favorite-queries-keys">
                         <div class="favorite-queries-keys-header">Keys</div>
-                        ${favQueries !== undefined && favQueries.map((kv, index)=>{
-                            return (`<div class="favorite-queries-key" onClick="openQuery('${index}')">${kv.key}</div>`);
-                        }).join('')}
+                        <div class="favorite-queries-key-container">
+                            ${favQueries !== undefined && favQueries.map((kv, index)=>{
+                                return (`<div class="favorite-queries-key" onClick="openQuery('${index}')">${kv.key}</div>`);
+                            }).join('')}
+                        </div>
                     </div>
                     
                     <div class="favorite-queries-value">
@@ -32,14 +35,14 @@ export const showFavoriteQueries = (vscodeURIs: IFavoriteQueriesWebviewParams): 
                     </div>
                 </div>
                 <div class="favorite-query-buttons">
+                    <div class="favorite-query-paste-button" id="favorite-query-paste-button" onClick="pasteQuery()">
+                        Paste
+                    </div>
                     <div class="favorite-query-copy-button" id="favorite-query-copy-button" onClick="copyQuery()">
                         Copy
                     </div>
                     <div class="favorite-query-delete-button" id="favorite-query-delete-button" onClick="deleteQuery()">
                         Delete
-                    </div>
-                    <div class="favorite-query-paste-button" id="favorite-query-paste-button" onClick="pasteQuery()">
-                        Paste
                     </div>
                 </div>
 
@@ -59,6 +62,7 @@ export const showFavoriteQueries = (vscodeURIs: IFavoriteQueriesWebviewParams): 
 
             function pasteQuery(){
                 if(document.getElementById("favorite-query-paste-button").disabled){
+                    vscode.window.showErrorMessage("Please select a query");
                     return;
                 }
                 let query = document.querySelector(".favorite-queries-value").innerHTML;

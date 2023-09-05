@@ -58,6 +58,7 @@ import { QueryHistoryTreeProvider } from "./tree/QueryHistoryTreeProvider";
 import { deleteQueryItem } from "./commands/queryHistory/deleteQuery";
 import { copyQuery } from "./commands/queryHistory/copyQuery";
 import { applyQuery } from "./commands/queryHistory/applyQuery";
+import { handleQueryContextStatusbar } from "./handlers/handleQueryContextStatusbar";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -389,10 +390,20 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.queryContext",
         ()=> {
-          fetchQueryContext(context);
+          fetchQueryContext(workbench, context);
         }
     )
   );
+
+  // subscription to make sure query context status bar is only visible on sqlpp files
+  subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+      await handleQueryContextStatusbar(editor, workbench);
+    })
+  );
+  // Handle initial view of context status bar
+  let activeEditor = vscode.window.activeTextEditor;
+  handleQueryContextStatusbar(activeEditor, workbench);
 
   subscriptions.push(
     vscode.commands.registerCommand(

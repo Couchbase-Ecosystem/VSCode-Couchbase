@@ -21,7 +21,6 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
         vscode.window.showErrorMessage("Please connect to a cluster before opening favorite queries");
         return;
     }
-
     const favoriteQueryWebviewDetails = Memory.state.get<IFavoriteQueriesWebviewState>("favoriteQueriesWebview");
     if(favoriteQueryWebviewDetails){
         // Favorite Queries Webview already exists, Closing existing and creating new
@@ -47,7 +46,6 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
             styleSrc: styleSrc
         };
         currentPanel.webview.html = showFavoriteQueries(UriData);
-
         currentPanel.webview.onDidReceiveMessage(async (message) => {
             switch (message.command) {
                 case 'vscode-couchbase.pasteQuery':

@@ -526,7 +526,7 @@
         "title": "Query Context",
         "command": "vscode-couchbase.queryContext",
         "category": "Couchbase",
-        "icon": "images/couchbase.svg"
+        "icon": "$(group-by-ref-type)"
       },
       {
         "title": "Show Favorite Queries",
@@ -546,8 +546,7 @@
       {
         "title": "Apply Query History",
         "command": "vscode-couchbase.applyQueryHistory",
-        "category": "Couchbase",
-        "icon": "images/couchbase.svg"
+        "category": "Couchbase"
       },
       {
         "title": "Delete Query History Item",
@@ -714,10 +713,6 @@
           "command": "vscode-couchbase.getClusterOverview",
           "when": "view == couchbase && viewItem == active_connection",
           "group": "activePrimary"
-        },
-        {
-          "command": "vscode-couchbase.queryContext",
-          "when": "true"
         },
         {
           "command": "vscode-couchbase.disconnectClusterConnection",

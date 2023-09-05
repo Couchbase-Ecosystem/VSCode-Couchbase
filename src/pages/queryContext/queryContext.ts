@@ -5,39 +5,92 @@ import * as path from 'path';
 import { logger } from "../../logger/logger";
 import { getQueryContext } from "../../webViews/queryContext.webview";
 import { IQueryContextWebviewParams } from "../../types/IQueryContextWebviewParams";
+import { Bucket, BucketSettings, ScopeSpec } from "couchbase";
+import { QueryWorkbench } from "../../workbench/queryWorkbench";
+import { showQueryContextStatusbar } from "../../util/queryContextUtils";
 
-export function fetchQueryContext(context: vscode.ExtensionContext) {
+const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connection: IConnection): Array<Bucket> => {
+    let allBuckets: Array<Bucket> = [];
+    if (bucketsSettings !== undefined) {
+        for (let bucketSettings of bucketsSettings) {
+            let bucketName: string = bucketSettings.name;
+            let bucket: Bucket | undefined = connection?.cluster?.bucket(bucketName);
+            if (bucket !== undefined) {
+                allBuckets.push(bucket);
+            }
+        }
+    }
+    return allBuckets;
+};
+
+export async function fetchQueryContext(workbench: QueryWorkbench, context: vscode.ExtensionContext) {
     const connection = Memory.state.get<IConnection>("activeConnection");
 
     if (!connection) {
         vscode.window.showErrorMessage("Please connect to a cluster before setting query context");
         return;
     }
-    
-    const currentPanel = vscode.window.createWebviewPanel(
-        "queryContext",
-        "Query Context",
-        vscode.ViewColumn.Beside,
-        {
-            enableScripts: true,
-            enableForms: true,
-            
-        },
-        
-    );
-    currentPanel.webview.html = "Loading...";
     try {
-        const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'src/webviews/styles/queryContext.css'));
-        const styleSrc = currentPanel.webview.asWebviewUri(onDiskPath);
-        const onDiskPathEditLogo = vscode.Uri.joinPath(context.extensionUri, 'images', 'edit-icon.svg');
-        const editLogo = currentPanel.webview.asWebviewUri(onDiskPathEditLogo);
+        // Fetch active editor
+        let activeEditor = vscode.window.activeTextEditor;
+        if (
+            !(activeEditor &&
+            activeEditor.document.languageId === "SQL++")
+        ) {
+            vscode.window.showErrorMessage("workbench is not active");
+            return;
+        }
+       
+        // Fetch all buckets
+        let bucketsSettings = await connection?.cluster?.buckets().getAllBuckets();
+        let allBuckets = fetchBucketNames(bucketsSettings, connection);
 
-        const vscodeURIs: IQueryContextWebviewParams = {
-            styleSrc: styleSrc,
-            editLogo: editLogo
-        };
+        if (!allBuckets || allBuckets.length === 0) {
+            vscode.window.showErrorMessage('No buckets found.');
+            return;
+        }
 
-        currentPanel.webview.html = getQueryContext(vscodeURIs);
+        // Method 1: Quick Pick
+        let bucketItems = allBuckets.map((bucket:Bucket)=>{return {label: bucket.name, iconPath: new vscode.ThemeIcon("database")};});
+        let selectedItem = await vscode.window.showQuickPick([
+            {label: "Clears any active query context", kind: vscode.QuickPickItemKind.Separator},
+            {label:"Clear Context", iconPath: new vscode.ThemeIcon("clear-all")},
+            {kind: vscode.QuickPickItemKind.Separator, label:"Buckets"},
+            ...bucketItems
+        ], {
+            canPickMany: false,
+            placeHolder: 'Query Context: Select a bucket',
+        });
+        if (!selectedItem){
+            vscode.window.showInformationMessage("No buckets selected.");
+            return;
+        }
+        let bucketNameSelected = selectedItem.label;
+        if(bucketNameSelected === 'Clear Context'){
+            workbench.editorToContext.delete(activeEditor.document.uri.toString());
+            showQueryContextStatusbar(activeEditor, workbench);
+            return;
+        }
+        let scopes = await connection.cluster
+            ?.bucket(bucketNameSelected)
+            .collections()
+            .getAllScopes();
+        
+        if (scopes === undefined || scopes.length === 0){
+            vscode.window.showErrorMessage('No scopes found.');
+            return;
+        }
+
+        let scopeNameSelected = await vscode.window.showQuickPick(scopes.map((scope)=>{return {label :scope.name, iconPath: new vscode.ThemeIcon("file-submodule")};}) ,{placeHolder: 'Query Context: Select a scope'});
+        if (!scopeNameSelected) {
+            vscode.window.showInformationMessage('No scope selected.');
+            return;
+        }
+        workbench.editorToContext.set(activeEditor.document.uri.toString(), {
+            bucketName: bucketNameSelected,
+            scopeName: scopeNameSelected.label
+        });
+        showQueryContextStatusbar(activeEditor, workbench);
 
     } catch (err) {
        logger.error("failed to open and set query context: " + err);

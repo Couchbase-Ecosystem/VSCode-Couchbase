@@ -1,12 +1,6 @@
 import * as vscode from 'vscode';
 import { IQuery } from '../types/IQuery';
 import { getQueryHistory } from '../util/queryHistory';
-import * as path from 'path';
-import { Memory } from '../util/util';
-import { IConnection } from '../types/IConnection';
-import { QueryWorkbench } from '../workbench/queryWorkbench';
-import { MemFS } from '../util/fileSystemProvider';
-import { Commands } from '../commands/extensionCommands/commands';
 
 export class QueryHistoryTreeProvider implements vscode.TreeDataProvider<IQuery> {
     private _onDidChangeTreeData: vscode.EventEmitter<
@@ -26,22 +20,7 @@ export class QueryHistoryTreeProvider implements vscode.TreeDataProvider<IQuery>
     getTreeItem(element: IQuery): vscode.TreeItem {
         return {
             label: element.query,
-            iconPath: {
-                light: path.join(
-                    __filename,
-                    "..",
-                    "..",
-                    "images/light",
-                    "checkmark.svg"
-                ),
-                dark: path.join(
-                    __filename,
-                    "..",
-                    "..",
-                    "images/dark",
-                    "checkmark.svg"
-                )
-            },
+            iconPath: new vscode.ThemeIcon("check"),
             command: {
                 command: 'vscode-couchbase.applyQueryHistory',
                 title: 'Apply Query History',
@@ -55,4 +34,3 @@ export class QueryHistoryTreeProvider implements vscode.TreeDataProvider<IQuery>
         return getQueryHistory();
     }
 }
-
