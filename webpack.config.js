@@ -88,6 +88,8 @@ const reactConfig = {
       'hooks': path.resolve(__dirname, 'src/reactViews/app/hooks'),
       'error': path.resolve(__dirname, 'src/reactViews/app/error'),
       'custom': path.resolve(__dirname, 'src/reactViews/app/custom'),
+      'types':  path.resolve(__dirname, 'src/reactViews/app/types'),
+      'assets':  path.resolve(__dirname, 'src/reactViews/app/assets'),
     },
   },
   module: {
