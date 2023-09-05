@@ -50,9 +50,12 @@ export class QueryWorkbench {
         if (activeTextEditor && activeTextEditor.document.languageId === "SQL++") {
             // Get the text content of the active text editor.
             const query = activeTextEditor.document.getText();
+            const queryContext = this.editorToContext.get(activeTextEditor.document.uri.toString());
+            const queryContextString = queryContext && (queryContext?.bucketName + '.' + queryContext?.scopeName);
             const queryOptions: QueryOptions = {
                 profile: QueryProfileMode.Timings,
                 metrics: true,
+                queryContext: queryContextString
             };
             try {
                 const start = Date.now();
