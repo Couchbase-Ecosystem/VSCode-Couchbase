@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import makeDataAutoId from 'utils/make-data-auto-id';
 import { IconName, IconSize, IconStyle } from './icon.types';
 
 interface IconProps {
@@ -7,6 +8,7 @@ interface IconProps {
   style?: IconStyle;
   className?: string;
   size?: IconSize;
+  dataAutoId?: string;
 }
 
 const sizeClass: { [P in IconSize]: string } = {
@@ -26,16 +28,18 @@ const sizeClass: { [P in IconSize]: string } = {
   default: 'w-4 h-4',
 };
 
-export function Icon({ title, name, size = 'default', style = 'default', className }: IconProps) {
-  const symbolId = `#icon-${name}`;
+export function Icon({ title, name, size = 'default', style = 'default', className, dataAutoId }: IconProps) {
+  const maybeDataAutoId = makeDataAutoId(dataAutoId, 'icon');
+  const iconPath = "../../assets/icons/" + name;
 
   return (
     <svg
+      data-auto-id={maybeDataAutoId()}
       className={clsx(sizeClass[size], className, 'fill-inherit text-inherit', style === 'default' && 'inline-block align-middle')}
       aria-hidden="true"
     >
       {title && <title>{title}</title>}
-      <use href={symbolId} />
+      {iconPath && <use xlinkHref={iconPath} />}
     </svg>
   );
 }

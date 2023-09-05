@@ -7,6 +7,8 @@ import { DataTable } from "components/data-table";
 import { QueryTabs, TAB_BAR_ITEMS, TabBarMenu } from "custom/tab-bar/tab-bar";
 import { QueryStats } from "custom/query-stats/query-stats";
 import { QueryStatsProps } from "custom/query-stats/query-stats.types";
+import { VisualExplainPlan } from "custom/visual-explain-plan";
+import { mockPlan1 } from "../mocks/explain-plan/explain-plan";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -43,6 +45,7 @@ export const App: React.FC = () => {
           language="json"
         />}
         {currentTab === QueryTabs.Table && <DataTable data={queryResult} dataFallback={[FALLBACK_MESSAGE]} />}
+        {currentTab === QueryTabs.PLAN && <VisualExplainPlan plan={mockPlan1} hideControls={false} />}
       </div>
       </div>
   );

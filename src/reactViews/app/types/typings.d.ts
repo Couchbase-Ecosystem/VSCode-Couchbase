@@ -4,3 +4,9 @@ declare module '*.module.scss' {
 }
 
 declare module '*.svg';
+
+declare namespace __WebpackModuleApi {
+    const RequireContext: any;
+}
+
+declare const __webpack_require__: any;
