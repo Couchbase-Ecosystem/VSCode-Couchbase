@@ -300,3 +300,8 @@ ul.wb-explain-tooltip-list li ul li {
 .index-header {
   font-style: italic;
 }
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

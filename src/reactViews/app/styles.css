@@ -23685,6 +23685,7 @@ mark {
 }
 .italic {
   font-style: italic;
+  color: grey;
 }
 .leading-21 {
   line-height: 1.3125rem;
