@@ -60,9 +60,11 @@ export class QueryWorkbench {
                     numDocs: result?.meta.metrics?.resultCount.toString() + " docs",
                     size: result?.meta.metrics?.resultSize.toString() + " Bytes",
                 };
+                const explainPlan = JSON.stringify(result?.meta.profile.executionTimings);
                 workbenchWebviewProvider.setQueryResult(
                     JSON.stringify(result?.rows),
-                    queryStatusProps
+                    queryStatusProps,
+                    explainPlan
                 );
             } catch (err) {
                 const errorArray = [];
@@ -95,7 +97,8 @@ export class QueryWorkbench {
                 };
                 workbenchWebviewProvider.setQueryResult(
                     JSON.stringify(errorArray),
-                    queryStatusProps
+                    queryStatusProps,
+                    null
                 );
             }
         }
