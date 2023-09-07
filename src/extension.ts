@@ -51,6 +51,7 @@ import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChang
 import { QueryWorkbench } from "./workbench/queryWorkbench";
 import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
+import { sqlppFormatter } from "./commands/formatting/sqlppFormatter";
 import { fetchQueryContext } from "./pages/queryContext/queryContext";
 import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
 import { markFavoriteQuery } from "./commands/favoriteQueries/markFavoriteQuery";
@@ -376,6 +377,12 @@ export function activate(context: vscode.ExtensionContext) {
       }
     )
   );
+
+  vscode.languages.registerDocumentFormattingEditProvider('SQL++', {
+    provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
+      return sqlppFormatter(document);
+    }
+  });
 
   subscriptions.push(
     vscode.commands.registerCommand(
