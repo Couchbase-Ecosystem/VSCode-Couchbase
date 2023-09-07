@@ -19,7 +19,7 @@ function processText(text: string, step: number): string {
     const ar: string[] = [];
     let deep = 0;
     let parenthesisLevel = 0;
-    let strArray: string[] = [];
+    let strString: string = '';
     let ix = 0;
     const shift = createShiftArr(step);
 
@@ -31,7 +31,6 @@ function processText(text: string, step: number): string {
             ar.push(...parts);
         }
     }
-
     const selectPattern = /\s*SELECT\s*/i;
     const setPattern = /\s*SET\s*/i;
     const selectParenthesisPattern = /\s*\(\s*SELECT\s*/i;
@@ -41,37 +40,32 @@ function processText(text: string, step: number): string {
     for (ix = 0; ix < len; ix++) {
         parenthesisLevel = isSubquery(ar[ix], parenthesisLevel);
 
-        if (selectPattern.test(ar[ix])) {
+        if (ar[ix].match(selectPattern)) {
             ar[ix] = ar[ix].replace(",", `,\n${getSpaces(step)}${getSpaces(step)}`);
         }
 
-        if (setPattern.test(ar[ix])) {
+        if (ar[ix].match(setPattern)) {
             ar[ix] = ar[ix].replace(",", `,\n${getSpaces(step)}${getSpaces(step)}`);
         }
-
-        if (selectParenthesisPattern.test(ar[ix])) {
+        if (ar[ix].match(selectParenthesisPattern)) {
             deep++;
-            strArray.push(shift[deep]);
-            strArray.push(ar[ix]);
-        } else if (singleQuotePattern.test(ar[ix])) {
+            strString += shift[deep];
+            strString += ar[ix];
+        } else if (ar[ix].match(singleQuotePattern)) {
             if (parenthesisLevel < 1 && deep > 0) {
                 deep--;
             }
-            strArray.push(ar[ix]);
-        } else {
-            strArray.push(shift[deep]);
-            strArray.push(ar[ix]);
+            strString += ar[ix];
+        } else {            
+            strString += shift[deep];
+            strString += ar[ix];
             if (parenthesisLevel < 1 && deep > 0) {
                 deep--;
             }
         }
     }
-    strArray = strArray.join('\n').replace(/^\n+/, '').replace(/\n+/g, '\n').split('\n');
-    let resultStr = '';
-    for (let currStr of strArray) {
-        resultStr += currStr + '\n';
-    }
-    return resultStr;
+    strString = strString.replace(/^\n+/, '').replace(/\n+/g, '\n');
+    return strString;
 }
 
 
