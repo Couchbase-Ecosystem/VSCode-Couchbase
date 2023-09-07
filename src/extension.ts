@@ -52,6 +52,14 @@ import { QueryWorkbench } from "./workbench/queryWorkbench";
 import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 import { sqlppFormatter } from "./commands/formatting/sqlppFormatter";
+import { fetchQueryContext } from "./pages/queryContext/queryContext";
+import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
+import { markFavoriteQuery } from "./commands/favoriteQueries/markFavoriteQuery";
+import { QueryHistoryTreeProvider } from "./tree/QueryHistoryTreeProvider";
+import { deleteQueryItem } from "./commands/queryHistory/deleteQuery";
+import { copyQuery } from "./commands/queryHistory/copyQuery";
+import { applyQuery } from "./commands/queryHistory/applyQuery";
+import { handleQueryContextStatusbar } from "./handlers/handleQueryContextStatusbar";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -238,7 +246,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.refreshCollection,
       async (node: CollectionNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
+        const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
         if (!connection) {
           return;
         }
@@ -338,7 +346,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.refreshIndexes,
       async (node: IndexDirectory) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
+        const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
         if (!connection) {
           return;
         }
@@ -360,7 +368,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.openQueryWorkbench,
       async (node: ClusterConnectionNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
+        const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
 
         if (!connection) {
           return;
@@ -378,12 +386,88 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.getClusterOverview",
+      Commands.getClusterOverview,
       async (node: ClusterConnectionNode) => {
         fetchClusterOverview(node, context);
       }
     )
   );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.queryContext,
+      () => {
+        fetchQueryContext(workbench, context);
+      }
+    )
+  );
+
+  // subscription to make sure query context status bar is only visible on sqlpp files
+  subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+      await handleQueryContextStatusbar(editor, workbench);
+    })
+  );
+  // Handle initial view of context status bar
+  let activeEditor = vscode.window.activeTextEditor;
+  handleQueryContextStatusbar(activeEditor, workbench);
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.showFavoriteQueries,
+      () => {
+        fetchFavoriteQueries(context);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.markFavoriteQuery,
+      async () => {
+        await markFavoriteQuery(context);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.applyQueryHistory,
+      (item) => {
+        applyQuery(item);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.deleteQueryHistoryItem,
+      async (item) => {
+        await deleteQueryItem(item, queryHistoryTreeProvider);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.copyQueryHistoryItem,
+      (item) => {
+        copyQuery(item);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.refreshQueryHistory,
+      () => {
+        queryHistoryTreeProvider.refresh();
+      }
+    )
+  );
+
+  let queryHistoryTreeProvider = new QueryHistoryTreeProvider(context);
+  vscode.window.registerTreeDataProvider('query-history', queryHistoryTreeProvider);
 
   subscriptions.push(
     vscode.commands.registerCommand(Commands.getSampleProjects, async () => {
@@ -400,7 +484,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.runQuery, async () => {
-      workbench.runCouchbaseQuery(workbenchWebviewProvider);
+      workbench.runCouchbaseQuery(workbenchWebviewProvider, queryHistoryTreeProvider);
     })
   );
 }

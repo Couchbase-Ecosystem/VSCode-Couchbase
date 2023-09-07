@@ -17,6 +17,11 @@ const pkg = require('../../package.json');
 export class Constants {
   public static extensionID = "vscode-couchbase";
   public static connectionKeys = "cluster.connections";
+  public static QUERY_HISTORY = "cluster.queryHistory";
+  public static FAVORITE_QUERY = "cluster.favoriteQueries";
+  public static ACTIVE_CONNECTION = "activeConnection";
+  public static FAVORITE_QUERIES_WEBVIEW = "favoriteQueriesWebview";
+  public static QUERY_CONTEXT_STATUS_BAR = "queryContextStatusBar";
   public static notebookType = "couchbase-query-notebook";
   public static capellaUrlPostfix = "cloud.couchbase.com";
   public static prefixSecureURL = "couchbases://";

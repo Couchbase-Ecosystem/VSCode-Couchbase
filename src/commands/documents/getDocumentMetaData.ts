@@ -20,9 +20,10 @@ import { Memory } from "../../util/util";
 import { logger } from "../../logger/logger";
 import { getDocumentMetaDataView } from "../../webViews/metaData.webview";
 import DocumentNode from "../../model/DocumentNode";
+import { Constants } from "../../util/constants";
 
 export const getDocumentMetaData = async (node: DocumentNode, context: vscode.ExtensionContext) => {
-    const connection = Memory.state.get<IConnection>("activeConnection");
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
     }

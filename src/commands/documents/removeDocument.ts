@@ -19,9 +19,10 @@ import { logger } from "../../logger/logger";
 import { MemFS } from "../../util/fileSystemProvider";
 import { Memory } from "../../util/util";
 import { IConnection } from "../../types/IConnection";
+import { Constants } from "../../util/constants";
 
 export const removeDocument = async (node: DocumentNode, uriToCasMap: Map<string, string>, memFs: MemFS) => {
-    const connection = Memory.state.get<IConnection>("activeConnection");
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
     }

@@ -34,11 +34,11 @@ export function getConnections() {
 }
 
 export function getActiveConnection(): IConnection | undefined {
-  return Memory.state.get<IConnection>("activeConnection");
+  return Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
 }
 
 export function setActiveConnection(connection?: IConnection) {
-  Memory.state.update("activeConnection", connection);
+  Memory.state.update(Constants.ACTIVE_CONNECTION, connection);
 }
 
 export function getPreviousConnection(): IConnection | undefined {
