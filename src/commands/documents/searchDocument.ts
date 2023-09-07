@@ -22,9 +22,10 @@ import { IConnection } from "../../types/IConnection";
 import { IDocumentData } from "../../types/IDocument";
 import { getDocument } from "../../util/documentUtils/getDocument";
 import CollectionNode from "../../model/CollectionNode";
+import { Constants } from "../../util/constants";
 
 export const searchDocument = async (node: CollectionNode, uriToCasMap: Map<string, string>, memFs: MemFS) => {
-    const connection = Memory.state.get<IConnection>("activeConnection");
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
     }

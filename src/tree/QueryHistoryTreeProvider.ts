@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { IQuery } from '../types/IQuery';
 import { getQueryHistory } from '../util/queryHistory';
+import { Commands } from '../commands/extensionCommands/commands';
 
 export class QueryHistoryTreeProvider implements vscode.TreeDataProvider<IQuery> {
     private _onDidChangeTreeData: vscode.EventEmitter<
@@ -21,7 +22,7 @@ export class QueryHistoryTreeProvider implements vscode.TreeDataProvider<IQuery>
             label: element.query,
             iconPath: new vscode.ThemeIcon("check"),
             command: {
-                command: 'vscode-couchbase.applyQueryHistory',
+                command: Commands.applyQueryHistory,
                 title: 'Apply Query History',
                 arguments: [element]
             }

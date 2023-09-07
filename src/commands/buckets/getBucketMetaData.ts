@@ -20,9 +20,10 @@ import { Memory } from "../../util/util";
 import { logger } from "../../logger/logger";
 import { BucketNode } from "../../model/BucketNode";
 import { getBucketMetaDataView } from "../../webViews/metaData.webview";
+import { Constants } from "../../util/constants";
 
 export const getBucketMetaData = async (node: BucketNode, context: vscode.ExtensionContext) => {
-    const connection = Memory.state.get<IConnection>("activeConnection");
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
     }

@@ -14,9 +14,9 @@ import { BucketOverview } from "../../util/apis/BucketOverview";
 import { getNodeTabData } from "../../util/OverviewClusterUtils/ClusterOverviewNodeTab";
 import { getBucketData } from "../../util/OverviewClusterUtils/ClusterOverviewBucketTab";
 import { getGeneraStorageDetails, getGeneralClusterDetails, getGeneralQuotaDetails, getGeneralRAMDetails } from "../../util/OverviewClusterUtils/ClusterOverviewGeneralTab";
+import { Constants } from "../../util/constants";
 
 const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connection: IConnection): Array<Bucket> => {
-
     let allBuckets: Array<Bucket> = [];
     if (bucketsSettings !== undefined) {
         for (let bucketSettings of bucketsSettings) {
@@ -31,9 +31,7 @@ const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connect
 };
 
 export async function fetchClusterOverview(node: ClusterConnectionNode, context: vscode.ExtensionContext) {
-
-    const connection = Memory.state.get<IConnection>("activeConnection");
-
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
     }
@@ -101,7 +99,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
             nodesHTML: nodesHTML,
         };
     } catch (err) {
-        logger.error("Failed to get Cluster Overview Data, error: " + err);
+        logger.error(`Failed to get Cluster Overview Data, error: ${err}`);
         currentPanel.webview.html = `<h1>Error!<h1>`;
 
         vscode.window.showErrorMessage("Error while loading cluster overview details, Please try again later!",{ modal: true });

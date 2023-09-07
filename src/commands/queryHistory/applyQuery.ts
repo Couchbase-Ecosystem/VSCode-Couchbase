@@ -3,9 +3,10 @@ import { IQuery } from '../../types/IQuery';
 import { Memory } from '../../util/util';
 import { IConnection } from '../../types/IConnection';
 import { Commands } from '../extensionCommands/commands';
+import { Constants } from '../../util/constants';
 
 export const applyQuery = async (query: IQuery) => {
-    const connection = Memory.state.get<IConnection>("activeConnection");
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         vscode.window.showErrorMessage("Please connect to a cluster before opening editor");
         return;

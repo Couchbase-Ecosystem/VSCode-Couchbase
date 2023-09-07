@@ -245,7 +245,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.refreshCollection,
       async (node: CollectionNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
+        const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
         if (!connection) {
           return;
         }
@@ -345,7 +345,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.refreshIndexes,
       async (node: IndexDirectory) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
+        const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
         if (!connection) {
           return;
         }
@@ -367,7 +367,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.openQueryWorkbench,
       async (node: ClusterConnectionNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
+        const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
 
         if (!connection) {
           return;
@@ -379,7 +379,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.getClusterOverview",
+      Commands.getClusterOverview,
       async (node: ClusterConnectionNode) => {
         fetchClusterOverview(node, context);
       }
@@ -388,7 +388,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.queryContext",
+      Commands.queryContext,
       () => {
         fetchQueryContext(workbench, context);
       }
@@ -407,7 +407,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.showFavoriteQueries",
+      Commands.showFavoriteQueries,
       () => {
         fetchFavoriteQueries(context);
       }
@@ -416,9 +416,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.markFavoriteQuery",
+      Commands.markFavoriteQuery,
       async () => {
-
         await markFavoriteQuery(context);
       }
     )
@@ -426,7 +425,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.applyQueryHistory",
+      Commands.applyQueryHistory,
       (item) => {
         applyQuery(item);
       }
@@ -435,7 +434,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.deleteQueryHistoryItem",
+      Commands.deleteQueryHistoryItem,
       async (item) => {
         await deleteQueryItem(item, queryHistoryTreeProvider);
       }
@@ -444,7 +443,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.copyQueryHistoryItem",
+      Commands.copyQueryHistoryItem,
       (item) => {
         copyQuery(item);
       }
@@ -453,7 +452,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      "vscode-couchbase.refreshQueryHistory",
+      Commands.refreshQueryHistory,
       () => {
         queryHistoryTreeProvider.refresh();
       }

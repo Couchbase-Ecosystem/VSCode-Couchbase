@@ -51,7 +51,7 @@ export class QueryWorkbench {
             // Get the text content of the active text editor.
             const query = activeTextEditor.document.getText();
             const queryContext = this.editorToContext.get(activeTextEditor.document.uri.toString());
-            const queryContextString = queryContext && (queryContext?.bucketName + '.' + queryContext?.scopeName);
+            const queryContextString = queryContext && (`${queryContext?.bucketName}.${queryContext?.scopeName}`); // Query context string is of format bucketName.ScopeName
             const queryOptions: QueryOptions = {
                 profile: QueryProfileMode.Timings,
                 metrics: true,

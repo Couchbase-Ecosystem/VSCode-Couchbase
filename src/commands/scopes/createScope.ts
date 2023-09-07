@@ -18,9 +18,10 @@ import { IConnection } from "../../types/IConnection";
 import { Memory } from "../../util/util";
 import { logger } from "../../logger/logger";
 import { BucketNode } from "../../model/BucketNode";
+import { Constants } from "../../util/constants";
 
 export const createScope = async (node: BucketNode) => {
-    const connection = Memory.state.get<IConnection>("activeConnection");
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
     }

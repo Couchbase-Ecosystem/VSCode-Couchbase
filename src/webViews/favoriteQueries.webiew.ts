@@ -61,7 +61,9 @@ export const showFavoriteQueries = (vscodeURIs: IFavoriteQueriesWebviewParams): 
 
             function pasteQuery(){
                 if(document.getElementById("favorite-query-paste-button").disabled){
-                    vscode.window.showErrorMessage("Please select a query");
+                    vscode.postMessage({
+                        command: 'vscode-couchbase.queryNotSelected'
+                    });
                     return;
                 }
                 let query = document.querySelector(".favorite-queries-value").innerHTML;
@@ -73,6 +75,9 @@ export const showFavoriteQueries = (vscodeURIs: IFavoriteQueriesWebviewParams): 
 
             function copyQuery(){
                 if(document.getElementById("favorite-query-paste-button").disabled){
+                    vscode.postMessage({
+                        command: 'vscode-couchbase.queryNotSelected'
+                    });
                     return;
                 }
                 let query = document.querySelector(".favorite-queries-value").innerHTML;
@@ -81,12 +86,17 @@ export const showFavoriteQueries = (vscodeURIs: IFavoriteQueriesWebviewParams): 
 
             function deleteQuery(){
                 if(document.getElementById("favorite-query-paste-button").disabled){
+                    vscode.postMessage({
+                        command: 'vscode-couchbase.queryNotSelected'
+                    });
                     return;
                 }
                 let key = document.querySelector(".favorite-queries-value").id;
+                let query = document.querySelector(".favorite-queries-value").innerHTML;
                 vscode.postMessage({
                     command: 'vscode-couchbase.deleteQuery',
                     id: key,
+                    query: query,
                 });
             }
 

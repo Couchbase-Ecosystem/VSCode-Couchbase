@@ -5,6 +5,7 @@ import { logger } from "../../logger/logger";
 import { Bucket, BucketSettings } from "couchbase";
 import { QueryWorkbench } from "../../workbench/queryWorkbench";
 import { showQueryContextStatusbar } from "../../util/queryContextUtils";
+import { Constants } from "../../util/constants";
 
 const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connection: IConnection): Array<Bucket> => {
     let allBuckets: Array<Bucket> = [];
@@ -21,7 +22,7 @@ const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connect
 };
 
 export async function fetchQueryContext(workbench: QueryWorkbench, context: vscode.ExtensionContext) {
-    const connection = Memory.state.get<IConnection>("activeConnection");
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
 
     if (!connection) {
         vscode.window.showErrorMessage("Please connect to a cluster before setting query context");
@@ -89,7 +90,7 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
         showQueryContextStatusbar(activeEditor, workbench);
 
     } catch (err) {
-        logger.error("failed to open and set query context: " + err);
+        logger.error(`failed to open and set query context: ${err}`);
         logger.debug(err);
     }
 }

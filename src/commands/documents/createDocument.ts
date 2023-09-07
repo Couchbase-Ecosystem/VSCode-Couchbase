@@ -20,9 +20,10 @@ import { Memory } from "../../util/util";
 import { logger } from "../../logger/logger";
 import { DocumentNotFoundError } from "couchbase";
 import { MemFS } from "../../util/fileSystemProvider";
+import { Constants } from "../../util/constants";
 
 export const createDocument = async (node: CollectionNode, memFs: MemFS, uriToCasMap: Map<string, string>) => {
-    const connection = Memory.state.get<IConnection>("activeConnection");
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
     }
