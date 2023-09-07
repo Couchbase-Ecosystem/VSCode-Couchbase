@@ -1,6 +1,12 @@
 import { clsx } from 'clsx';
 import makeDataAutoId from 'utils/make-data-auto-id';
 import { IconName, IconSize, IconStyle } from './icon.types';
+import plus from '../../assets/icons/plus.svg';
+import minus from '../../assets/icons/minus.svg';
+import downChevron from '../../assets/icons/chevron-down.svg';
+import upChevron from '../../assets/icons/chevron-up.svg';
+import leftChevron from '../../assets/icons/chevron-left.svg';
+import rightChevron from '../../assets/icons/chevron-right.svg';
 
 interface IconProps {
   title?: string;
@@ -29,17 +35,26 @@ const sizeClass: { [P in IconSize]: string } = {
 };
 
 export function Icon({ title, name, size = 'default', style = 'default', className, dataAutoId }: IconProps) {
-  const maybeDataAutoId = makeDataAutoId(dataAutoId, 'icon');
-  const iconPath = "../../assets/icons/" + name;
-
+    // Create a mapping of icon names to their import paths
+    const iconMap = {
+      'plus': plus,
+      'minus': minus,
+      'down-chevron': downChevron,
+      'up-chevron': upChevron,
+      'left-chevron': leftChevron,
+      'right-chevron': rightChevron,
+    };
+  
+    // Get the icon path based on the 'name' prop
+    const iconPath = iconMap[name];
+    const maybeDataAutoId = makeDataAutoId(dataAutoId, 'icon');
+  
+    if (!iconPath) {
+      // Handle the case where an invalid icon name is provided
+      console.warn(`Invalid icon name: ${name}`);
+      return null; // or return a default icon
+    }
   return (
-    <svg
-      data-auto-id={maybeDataAutoId()}
-      className={clsx(sizeClass[size], className, 'fill-inherit text-inherit', style === 'default' && 'inline-block align-middle')}
-      aria-hidden="true"
-    >
-      {title && <title>{title}</title>}
-      {iconPath && <use xlinkHref={iconPath} />}
-    </svg>
+    <img src= {iconPath} className={clsx(sizeClass[size], className, 'fill-inherit text-inherit', style === 'default' && 'inline-block align-middle')} aria-hidden="true" data-auto-id={maybeDataAutoId}/>
   );
 }

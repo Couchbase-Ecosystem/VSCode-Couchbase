@@ -83,13 +83,13 @@ const reactConfig = {
     alias: {
       'components': path.resolve(__dirname, 'src/reactViews/app/components'),
       'utils': path.resolve(__dirname, 'src/reactViews/app/utils'),
-      'constants':  path.resolve(__dirname, 'src/reactViews/app/constants'),
+      'constants': path.resolve(__dirname, 'src/reactViews/app/constants'),
       'sync': path.resolve(__dirname, 'src/reactViews/app/sync'),
       'hooks': path.resolve(__dirname, 'src/reactViews/app/hooks'),
       'error': path.resolve(__dirname, 'src/reactViews/app/error'),
       'custom': path.resolve(__dirname, 'src/reactViews/app/custom'),
-      'types':  path.resolve(__dirname, 'src/reactViews/app/types'),
-      'assets':  path.resolve(__dirname, 'src/reactViews/app/assets'),
+      'types': path.resolve(__dirname, 'src/reactViews/app/types'),
+      'assets': path.resolve(__dirname, 'src/reactViews/app/assets'),
     },
   },
   module: {

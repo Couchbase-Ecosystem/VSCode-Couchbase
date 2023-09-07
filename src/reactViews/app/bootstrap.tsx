@@ -7,7 +7,7 @@ import { DataTable } from "components/data-table";
 import { QueryTabs, TAB_BAR_ITEMS, TabBarMenu } from "custom/tab-bar/tab-bar";
 import { QueryStats } from "custom/query-stats/query-stats";
 import { QueryStatsProps } from "custom/query-stats/query-stats.types";
-import { VisualExplainPlan } from "custom/visual-explain-plan";
+import { VisualExplainPlan } from "components/visual-explain-plan";
 import { mockPlan1 } from "../mocks/explain-plan/explain-plan";
 
 const container = document.getElementById("root");
