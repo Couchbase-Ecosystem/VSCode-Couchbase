@@ -41,4 +41,12 @@ export namespace Commands {
     export const showOutputConsole: string = "vscode-couchbase.showOutputConsole";
     export const runQuery: string = "vscode-couchbase.runQuery";
     export const queryWorkbench: string = "vscode-couchbase.couchbase-query-workbench";
+    export const getClusterOverview: string = "vscode-couchbase.getClusterOverview";
+    export const queryContext: string = "vscode-couchbase.queryContext";
+    export const showFavoriteQueries: string = "vscode-couchbase.showFavoriteQueries";
+    export const markFavoriteQuery: string = "vscode-couchbase.markFavoriteQuery";
+    export const applyQueryHistory: string = "vscode-couchbase.applyQueryHistory";
+    export const deleteQueryHistoryItem: string = "vscode-couchbase.deleteQueryHistoryItem";
+    export const copyQueryHistoryItem: string = "vscode-couchbase.copyQueryHistoryItem";
+    export const refreshQueryHistory: string = "vscode-couchbase.refreshQueryHistory";
 }

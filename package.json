@@ -127,7 +127,8 @@
     "onNotebook:vscode-couchbase.couchbase-query-notebook",
     "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
-    "onView:couchbase-activity-bar"
+    "onView:couchbase-activity-bar",
+    "onView:query-history"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -521,6 +522,50 @@
         "command": "vscode-couchbase.getClusterOverview",
         "title": "Cluster Overview",
         "category": "Couchbase"
+      },
+      {
+        "title": "Query Context",
+        "command": "vscode-couchbase.queryContext",
+        "category": "Couchbase",
+        "icon": "$(group-by-ref-type)"
+      },
+      {
+        "title": "Show Favorite Queries",
+        "command": "vscode-couchbase.showFavoriteQueries",
+        "category": "Couchbase",
+        "icon": {
+          "light": "images/light/favorites-list.svg",
+          "dark": "images/dark/favorites-list.svg"
+        }
+      },
+      {
+        "title": "Mark Favorite Query",
+        "command": "vscode-couchbase.markFavoriteQuery",
+        "category": "Couchbase",
+        "icon": "$(star-empty)"
+      },
+      {
+        "title": "Apply Query History",
+        "command": "vscode-couchbase.applyQueryHistory",
+        "category": "Couchbase"
+      },
+      {
+        "title": "Delete Query History Item",
+        "command": "vscode-couchbase.deleteQueryHistoryItem",
+        "category": "Couchbase",
+        "icon": "$(trash)"
+      },
+      {
+        "title": "Copy History Item",
+        "command": "vscode-couchbase.copyQueryHistoryItem",
+        "category": "Couchbase",
+        "icon": "$(clippy)"
+      },
+      {
+        "title": "Refresh Query History",
+        "command": "vscode-couchbase.refreshQueryHistory",
+        "category": "Couchbase",
+        "icon": "$(refresh)"
       }
     ],
     "menus": {
@@ -530,6 +575,30 @@
           "category": "Couchbase",
           "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
           "group": "navigation"
+        },
+        {
+          "title": "Query Context",
+          "command": "vscode-couchbase.queryContext",
+          "category": "Couchbase",
+          "icon": "images/couchbase.svg",
+          "group": "navigation",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
+        },
+        {
+          "title": "Show Favorite Queries",
+          "command": "vscode-couchbase.showFavoriteQueries",
+          "category": "Couchbase",
+          "icon": "images/couchbase.svg",
+          "group": "navigation",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
+        },
+        {
+          "title": "Mark Favorite Query",
+          "command": "vscode-couchbase.markFavoriteQuery",
+          "category": "Couchbase",
+          "icon": "images/couchbase.svg",
+          "group": "navigation",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
         }
       ],
       "editor/context": [
@@ -621,6 +690,18 @@
         },
         {
           "command": "vscode-couchbase.getClusterOverview",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.queryContext",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.showFavoriteQueries",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.markFavoriteQuery",
           "when": "false"
         }
       ],
@@ -714,6 +795,16 @@
         {
           "command": "vscode-couchbase.refreshIndexes",
           "when": "view == couchbase && viewItem == indexDirectory"
+        },
+        {
+          "command": "vscode-couchbase.deleteQueryHistoryItem",
+          "when": "view == query-history",
+          "group": "inline"
+        },
+        {
+          "command": "vscode-couchbase.copyQueryHistoryItem",
+          "when": "view == query-history",
+          "group": "inline"
         }
       ],
       "view/title": [
@@ -729,6 +820,11 @@
         {
           "command": "vscode-couchbase.openSampleProjects",
           "when": "view == couchbase"
+        },
+        {
+          "command": "vscode-couchbase.refreshQueryHistory",
+          "when": "view == query-history",
+          "group": "navigation"
         }
       ]
     },
@@ -737,6 +833,10 @@
         {
           "id": "couchbase",
           "name": "Couchbase"
+        },
+        {
+          "id": "query-history",
+          "name": "Query history"
         }
       ],
       "couchbase-workbench-panel": [

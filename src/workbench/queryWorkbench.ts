@@ -14,22 +14,29 @@
  *   limitations under the License.
  */
 
-import * as vscode from "vscode";
-import { getActiveConnection } from "../util/connections";
-import UntitledSqlppDocumentService from "./controller";
-import { WorkbenchWebviewProvider } from "./workbenchWebviewProvider";
-import { MemFS } from "../util/fileSystemProvider";
+import * as vscode from 'vscode';
+import { getActiveConnection } from '../util/connections';
+import UntitledSqlppDocumentService from './controller';
+import { WorkbenchWebviewProvider } from './workbenchWebviewProvider';
+import { MemFS } from '../util/fileSystemProvider';
 import { CouchbaseError, QueryOptions, QueryProfileMode, QueryStatus } from "couchbase";
+import { saveQuery } from '../util/queryHistory';
+import { getUUID } from '../util/util';
+import { QueryHistoryTreeProvider } from '../tree/QueryHistoryTreeProvider';
+import { IQueryContext } from '../types/IQueryContext';
 
 export class QueryWorkbench {
     private _untitledSqlppDocumentService: UntitledSqlppDocumentService;
+    public editorToContext: Map<string, IQueryContext>;
 
     constructor() {
         this._untitledSqlppDocumentService = new UntitledSqlppDocumentService();
+        this.editorToContext = new Map<string, IQueryContext>();
     }
 
     runCouchbaseQuery = async (
-        workbenchWebviewProvider: WorkbenchWebviewProvider
+        workbenchWebviewProvider: WorkbenchWebviewProvider,
+        queryHistoryTreeProvider: QueryHistoryTreeProvider
     ) => {
         const connection = getActiveConnection();
         if (!connection) {
@@ -43,9 +50,12 @@ export class QueryWorkbench {
         if (activeTextEditor && activeTextEditor.document.languageId === "SQL++") {
             // Get the text content of the active text editor.
             const query = activeTextEditor.document.getText();
+            const queryContext = this.editorToContext.get(activeTextEditor.document.uri.toString());
+            const queryContextString = queryContext && (`${queryContext?.bucketName}.${queryContext?.scopeName}`); // Query context string is of format bucketName.ScopeName
             const queryOptions: QueryOptions = {
                 profile: QueryProfileMode.Timings,
                 metrics: true,
+                queryContext: queryContextString
             };
             try {
                 const start = Date.now();
@@ -64,6 +74,8 @@ export class QueryWorkbench {
                     JSON.stringify(result?.rows),
                     queryStatusProps
                 );
+                await saveQuery({ query: query, id: getUUID() });
+                queryHistoryTreeProvider.refresh();
             } catch (err) {
                 const errorArray = [];
                 if (err instanceof CouchbaseError) {
@@ -98,6 +110,7 @@ export class QueryWorkbench {
                     queryStatusProps
                 );
             }
+
         }
     };
 
