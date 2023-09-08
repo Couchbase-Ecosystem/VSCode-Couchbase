@@ -27,6 +27,7 @@ export type IconName =
   | 'brackets-curly'
   | 'bucket'
   | 'building-user'
+  | 'cabinet-filing'
   | 'calendar'
   | 'capella-logo-color'
   | 'caret-down-solid'
@@ -38,6 +39,7 @@ export type IconName =
   | 'chevron-left'
   | 'chevron-right'
   | 'chevron-up'
+  | 'chevron-up-white'
   | 'chevrons-left'
   | 'chevrons-right'
   | 'circle-check'
@@ -93,9 +95,11 @@ export type IconName =
   | 'eye-slash'
   | 'eye'
   | 'file-chart-column'
+  | 'file-code'
   | 'file-invoice-dollar'
   | 'file-magnifying-glass'
   | 'file-shield'
+  | 'file-text'
   | 'file-xmark'
   | 'filter'
   | 'fts'
@@ -223,7 +227,9 @@ export type IconName =
   | 'user'
   | 'users'
   | 'view'
-  | 'warning';
+  | 'warning'
+  | 'terminal'
+  | 'arrow-up-arrow-down';
 
 export type IconSize =
   | 'xsmall'

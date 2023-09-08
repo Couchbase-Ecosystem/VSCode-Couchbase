@@ -1,5 +1,13 @@
 import { clsx } from 'clsx';
+// import makeDataAutoId from 'utils/make-data-auto-id';
 import { IconName, IconSize, IconStyle } from './icon.types';
+import plus from '../../assets/icons/plus.svg';
+import minus from '../../assets/icons/minus.svg';
+import downChevron from '../../assets/icons/chevron-down.svg';
+import upChevron from '../../assets/icons/chevron-up.svg';
+import leftChevron from '../../assets/icons/chevron-left.svg';
+import rightChevron from '../../assets/icons/chevron-right.svg';
+import sort from '../../assets/icons/sort.svg';
 
 interface IconProps {
   title?: string;
@@ -7,6 +15,7 @@ interface IconProps {
   style?: IconStyle;
   className?: string;
   size?: IconSize;
+  dataAutoId?: string;
 }
 
 const sizeClass: { [P in IconSize]: string } = {
@@ -26,16 +35,28 @@ const sizeClass: { [P in IconSize]: string } = {
   default: 'w-4 h-4',
 };
 
-export function Icon({ title, name, size = 'default', style = 'default', className }: IconProps) {
-  const symbolId = `#icon-${name}`;
-
+export function Icon({ title, name, size = 'default', style = 'default', className, dataAutoId }: IconProps) {
+    // Create a mapping of icon names to their import paths
+    const iconMap = {
+      'plus': plus,
+      'minus': minus,
+      'down-chevron': downChevron,
+      'up-chevron': upChevron,
+      'left-chevron': leftChevron,
+      'right-chevron': rightChevron,
+      'sort': sort
+    };
+  
+    // Get the icon path based on the 'name' prop
+    const iconPath = iconMap[name];
+    // const maybeDataAutoId = makeDataAutoId(dataAutoId, 'icon');
+  
+    if (!iconPath) {
+      // Handle the case where an invalid icon name is provided
+      console.warn(`Invalid icon name: ${name}`);
+      return null; // or return a default icon
+    }
   return (
-    <svg
-      className={clsx(sizeClass[size], className, 'fill-inherit text-inherit', style === 'default' && 'inline-block align-middle')}
-      aria-hidden="true"
-    >
-      {title && <title>{title}</title>}
-      <use href={symbolId} />
-    </svg>
+    <img src= {iconPath} className={clsx(sizeClass[size], className, 'fill-inherit text-inherit', style === 'default' && 'inline-block align-middle')} aria-hidden="true" />
   );
 }
