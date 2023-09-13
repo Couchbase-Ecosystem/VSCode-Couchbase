@@ -101,34 +101,9 @@
   },
   "activationEvents": [
     "onFileSystem:couchbase",
-    "onLanguage:SQL++",
-    "onCommand:vscode-couchbase.createClusterConnection",
-    "onCommand:vscode-couchbase.openSampleProjects",
-    "onCommand:vscode-couchbase.refreshConnection",
-    "onCommand:vscode-couchbase.deleteClusterConnection",
-    "onCommand:vscode-couchbase.useClusterConnection",
-    "onCommand:vscode-couchbase.disconnectClusterConnection",
-    "onCommand:vscode-couchbase.createDocument",
-    "onCommand:vscode-couchbase.searchDocument",
-    "onCommand:vscode-couchbase.removeDocument",
-    "onCommand:vscode-couchbase.refreshCollection",
-    "onCommand:vscode-couchbase.getBucketInfo",
-    "onCommand:vscode-couchbase.createScope",
-    "onCommand:vscode-couchbase.removeScope",
-    "onCommand:vscode-couchbase.refreshScopes",
-    "onCommand:vscode-couchbase.createCollection",
-    "onCommand:vscode-couchbase.removeCollection",
-    "onCommand:vscode-couchbase.refreshCollections",
-    "onCommand:vscode-couchbase.getDocumentMetaData",
-    "onCommand:vscode-couchbase.openQueryNotebook",
-    "onCommand:vscode-couchbase.openQueryWorkbench",
-    "onCommand:vscode-couchbase.refreshIndexes",
-    "onCommand:vscode-couchbase.showOutputConsole",
     "onNotebook:vscode-couchbase.couchbase-query-notebook",
-    "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
-    "onView:couchbase-activity-bar",
-    "onView:query-history"
+    "onView:couchbase-activity-bar"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -452,6 +427,11 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.filterDocuments",
+        "title": "Filter Documents",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.removeDocument",
         "title": "Remove Document",
         "category": "Couchbase"
@@ -682,6 +662,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.filterDocuments",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.refreshIndexes",
           "when": "false"
         },
@@ -744,6 +728,11 @@
         },
         {
           "command": "vscode-couchbase.searchDocument",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
+          "group": "primary"
+        },
+        {
+          "command": "vscode-couchbase.filterDocuments",
           "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
           "group": "primary"
         },
