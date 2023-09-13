@@ -38,5 +38,5 @@ export const filterDocuments = async (node: CollectionNode, clusterConnectionTre
     );
 
     // Refresh collections
-    clusterConnectionTreeProvider.refresh(node);
+    clusterConnectionTreeProvider.refresh(node.parentNode);
 };
