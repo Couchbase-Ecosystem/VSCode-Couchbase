@@ -39,9 +39,15 @@ export class WorkbenchWebviewProvider implements vscode.WebviewViewProvider {
         this._view.webview.html = getWebviewContent(reactAppUri, this._context);;
     }
 
-    setQueryResult(queryResult: string, queryStatus: IQueryStatusProps, plan: string | null) {
+    async sendQueryResult(queryResult: string, queryStatus: IQueryStatusProps, plan: string | null) {
+        const isDarkTheme: boolean = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark;
+        this._view?.webview.postMessage({ command: "queryResult", result: queryResult, queryStatus: queryStatus, explainPlan: plan, isDarkTheme });
+    }
+
+    async setQueryResult(queryResult: string, queryStatus: IQueryStatusProps, plan: string | null) {
+        this._view?.show();
         this._queryResult = queryResult;
-        this._view?.webview.postMessage({ command: "queryResult", result: queryResult, queryStatus: queryStatus, explainPlan: plan });
+        this.sendQueryResult(queryResult, queryStatus, plan);
         this._view?.show();
     }
 }
