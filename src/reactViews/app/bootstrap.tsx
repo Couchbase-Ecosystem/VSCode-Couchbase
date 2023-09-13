@@ -34,6 +34,9 @@ export const App: React.FC = () => {
         setExplainPlan(JSON.parse(message.explainPlan));
         message.isDarkTheme ? setTheme("vs-dark") : setTheme("vs-light");
         break;
+      case 'theme':
+        message.isDarkTheme ? setTheme("vs-dark") : setTheme("vs-light");
+        break;
     }
   });
   return (
