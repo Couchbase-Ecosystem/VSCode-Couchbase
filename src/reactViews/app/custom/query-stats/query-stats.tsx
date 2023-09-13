@@ -45,10 +45,11 @@ export function QueryStats({
         <>
           <span className="query-stats-text">|</span>
           <p
-            title={`Round-Trip Time (RTT) is the total time taken to send a request and receive a response from the server`}
             className="query-stats-text"
           >
-            <b>RTT:</b> {rtt}
+            <b className="tooltip">
+              <span className="tooltiptext">Round-Trip Time (RTT) is the total time taken to send a request and receive a response from the server</span>
+              RTT:</b> {rtt}
           </p>
         </>
       )}
@@ -56,10 +57,11 @@ export function QueryStats({
         <>
           <span className="query-stats-text">|</span>
           <p
-            title={`Round-Trip Time (RTT) is the total time taken to send a request and receive a response from the server`}
             className="query-stats-text"
           >
-            <b>SIZE:</b> {size}
+            <b className="tooltip">
+              <span className="tooltiptext">Total size of documents returned</span>
+              SIZE:</b> {size}
           </p>
         </>
       )}
@@ -67,10 +69,11 @@ export function QueryStats({
         <>
           <span className="query-stats-text">|</span>
           <p
-            title={`Round-Trip Time (RTT) is the total time taken to send a request and receive a response from the server`}
             className="query-stats-text"
           >
-            <b>ELAPSED:</b> {elapsed}
+            <b className="tooltip">
+              <span className="tooltiptext">Elapsed is the time taken by the server to process the request</span>
+              ELAPSED:</b> {elapsed}
           </p>
         </>
       )}
@@ -78,7 +81,9 @@ export function QueryStats({
         <>
           <span className="query-stats-text">|</span>
           <p className="query-stats-text">
-            <b>EXECUTION:</b> {executionTime}
+            <b className="tooltip">
+              <span className="tooltiptext">Execution is the time taken by the server to execute the query</span>
+              EXECUTION:</b> {executionTime}
           </p>
         </>
       )}
@@ -86,7 +91,9 @@ export function QueryStats({
         <>
           <span className="query-stats-text">|</span>
           <p className="query-stats-text">
-            <b>DOCS:</b> {numDocs}
+            <b className="tooltip">
+              <span className="tooltiptext">Count of documents returned</span>
+              DOCS:</b> {numDocs}
           </p>
         </>
       )}

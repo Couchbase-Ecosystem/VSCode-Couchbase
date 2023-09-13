@@ -2,6 +2,7 @@ import { createPortal } from 'react-dom';
 import { TriggerType, usePopperTooltip } from 'react-popper-tooltip';
 import { Placement, PositioningStrategy } from '@popperjs/core';
 import { clsx } from 'clsx';
+import makeDataAutoId from 'utils/make-data-auto-id';
 
 type TooltipProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
   renderContent: () => React.ReactNode;
@@ -10,6 +11,8 @@ type TooltipProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>
   trigger?: TriggerType;
   dark?: boolean;
   withPortal?: boolean;
+  interactive?: boolean;
+  dataAutoId?: string;
 };
 
 const [TOOLTIP_OFFSET_X, TOOLTIP_OFFSET_Y] = [0, 12];
@@ -27,10 +30,14 @@ export function Tooltip({
   dark = false,
   renderContent,
   withPortal = false,
+  interactive = true,
+  dataAutoId,
   ...props
 }: TooltipProps) {
+  const maybeDataAutoId = makeDataAutoId(dataAutoId, 'tooltip');
+
   const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible, state } = usePopperTooltip(
-    { trigger, placement, offset: [TOOLTIP_OFFSET_X, TOOLTIP_OFFSET_Y], interactive: true, delayHide: 100 },
+    { trigger, placement, offset: [TOOLTIP_OFFSET_X, TOOLTIP_OFFSET_Y], interactive, delayHide: 100 },
     { strategy }
   );
   const content = renderContent();
@@ -42,7 +49,7 @@ export function Tooltip({
     <div
       {...getTooltipProps({
         className: clsx(
-          'tooltip-parent absolute text-xs leading-normal font-normal border rounded border-on-background-decoration shadow py-2 px-3 cursor-auto select-text',
+          'tooltip-parent absolute text-xs leading-normal font-normal border rounded border-on-background-decoration shadow py-2 px-3 cursor-auto select-text z-[51]',
           dark ? 'bg-on-inactive text-background' : 'bg-background text-on-background-alternate',
           corePlacement
         ),
@@ -51,6 +58,7 @@ export function Tooltip({
         },
       })}
       ref={setTooltipRef}
+      data-auto-id={maybeDataAutoId()}
     >
       <div
         {...getArrowProps({

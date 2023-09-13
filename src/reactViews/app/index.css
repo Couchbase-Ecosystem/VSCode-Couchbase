@@ -2,3 +2,306 @@ body {
     background-color: var(--vscode-editor-background);
     margin-top: 20px;
 }
+
+/* COLORS */
+:root {
+  /* background */
+  --color-background: #fff;
+  --color-on-background-menu: #f4f4f4;
+  --color-on-background: #262626;
+  --color-on-background-alternate: #737373;
+  --color-on-background-decoration: #e5e5e5;
+  --color-on-background-link: #0266c2;
+  --color-on-background-link-hover: #004b90;
+
+  /* primary */
+  --color-primary: #0266c2;
+  --color-primary-hover: #004b90;
+  --color-primary-active: #003b73;
+  --color-on-primary: #fff;
+  --color-on-primary-alternate: #fff;
+  --color-on-primary-decoration: #fff;
+  --color-on-primary-link: #fff;
+  --color-on-primary-link-hover: #fff;
+
+  --color-secondary: #fc9c0c;
+  --color-secondary-hover: #f4753b;
+  --color-secondary-active: #f4753b;
+  --color-on-secondary: #000;
+  --color-on-secondary-alternate: #000;
+  --color-on-secondary-decoration: #000;
+  --color-on-secondary-link: #000;
+  --color-on-secondary-link-hover: #000;
+
+  /* surface */
+  --color-surface: #f7faff;
+  /* --color-surface-hover: #; */
+  --color-surface-active: #9ac2e7;
+  --color-on-surface: #262626;
+  --color-on-surface-alternate: #737373;
+  --color-on-surface-decoration: #0266c2;
+  --color-on-surface-link: #0266c2;
+  --color-on-surface-link-hover: #0266c2;
+
+  /* information */
+  --color-information: #d9e8f6;
+  --color-on-information: #262626;
+  --color-on-information-alternate: #737373;
+  --color-on-information-decoration: #0266c2;
+  --color-on-information-link: #0266c2;
+  --color-on-information-link-hover: #0266c2;
+
+  /* success */
+  --color-success: #bde7a6;
+  --color-on-success: #262626;
+  --color-on-success-alternate: #737373;
+  --color-on-success-decoration: #2e7d32;
+  --color-on-success-link: #262626;
+  --color-on-success-link-hover: #262626;
+
+  /* warning */
+  --color-warning: #fbe4a8;
+  /* --color-warning-hover: #; */
+  /* --color-warning-active: #; */
+  --color-on-warning: #262626;
+  --color-on-warning-alternate: #737373;
+  --color-on-warning-decoration: #fcab30;
+  --color-on-warning-link: #262626;
+  --color-on-warning-link-hover: #262626;
+  --color-on-warning-border: #cb7e0a;
+  --color-on-warning-pane: #fff6e7;
+
+  /* error */
+  --color-error: #f2a4a2;
+  --color-on-error: #262626;
+  --color-on-error-alternate: #737373;
+  --color-on-error-decoration: #c62828;
+  --color-on-error-link: #262626;
+  --color-on-error-link-hover: #262626;
+
+  /* notice */
+  --color-notice: #e5e5e5;
+  /* --color-notice-hover: #; */
+  /* --color-notice-active: #; */
+  --color-on-notice: #262626;
+  --color-on-notice-alternate: #737373;
+  --color-on-notice-decoration: #262626;
+  --color-on-notice-link: #262626;
+  --color-on-notice-link-hover: #262626;
+
+  /* danger */
+  --color-danger: #b00020;
+  --color-danger-hover: #970007;
+  --color-danger-active: #7d0000;
+  --color-on-danger: #fff;
+  --color-on-danger-alternate: #fff;
+  --color-on-danger-decoration: #fff;
+  --color-on-danger-link: #fff;
+  --color-on-danger-link-hover: #fff;
+  --color-on-danger-border: #ea2328;
+  --color-on-danger-pane: #fde9ea;
+
+  /* inactive */
+  --color-inactive: #e5e5e5;
+  --color-on-inactive: #4c4c4c;
+
+  /* shadow */
+  --color-shadow: rgba(0, 0, 0, 0.15);
+  --color-shadow-variant: rgba(155, 200, 243, 0.5);
+
+  /* chart */
+  --color-chart-1: #0266c2;
+  --color-chart-2: #4dac5f;
+  --color-chart-3: #fc9c0c;
+  --color-chart-4: #013666;
+  --color-chart-5: #367842;
+  --color-chart-6: #cc7e0a;
+  --color-chart-7: #9ac2e7;
+  --color-chart-8: #9dfaaf;
+  --color-chart-9: #fed79e;
+
+  /* brand */
+  --color-brand-primary: #ed2226;
+  --color-brand-secondary: #000000;
+  --color-brand-tertiary: #ffffff;
+  --color-appbar-bg: #202124;
+
+  /* workbench, appbar, interactive colors */
+  --color-panel-queue: #fafafa;
+  --color-panel-queue-highlight: #ececec;
+  --color-workbench-tooltip: #333;
+  --color-workbench-plan-orient: #a1a1a1;
+  --color-workbench-explain-node: #bfe2ba;
+  --color-workbench-explain-node-expensive-1: #f9ca7b;
+  --color-workbench-explain-node-expensive-2: #fbdba7;
+  --color-workbench-explain-node-expensive-3: #fdedd3;
+  --color-workbench-explain-node-hover: #b3cfef;
+  --color-workbench-explain-node-link: #979797;
+  --color-wb-explain-tooltip-border-top: #4287d6;
+
+  /* data grid */
+  --color-master-row-border: #0266c2;
+
+  /* wizard */
+  --color-wizard-stepper: #2689e5;
+  --color-wizard-line: #eeeeee;
+
+  /* accordion */
+  --color-accordion: #f8faff;
+}
+
+/* styles for D3-based query explain plan ---------------------------------- */
+.wb-explain-summary {
+  font-size: 0.75rem;
+  padding: 0.25rem 1rem;
+}
+.wb-explain-summary .column {
+  flex-grow: 1;
+  margin: 0 1.5rem 0 0;
+  padding: 0;
+}
+.wb-explain-summary .column:last-child {
+  flex-grow: 0.5;
+  margin-right: 0;
+}
+.wb-explain-d3-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  font-family: OpenSans;
+  border-top: 1px solid var(--color-panel-queue-highlight);
+}
+
+.wb-explain-node {
+  cursor: pointer;
+  fill: var(--color-workbench-explain-node);
+}
+.wb-explain-node text {
+  pointer-events: none;
+}
+.wb-explain-node-expensive-3 {
+  fill: var(--color-workbench-explain-node-expensive-3);
+}
+.wb-explain-node-expensive-2 {
+  fill: var(--color-workbench-explain-node-expensive-2);
+}
+.wb-explain-node-expensive-1 {
+  fill: var(--color-workbench-explain-node-expensive-1);
+}
+
+.wb-explain-node:hover,
+.wb-explain-node-expensive-1:hover,
+.wb-explain-node-expensive-2:hover,
+.wb-explain-node-expensive-3:hover {
+  cursor: hand;
+  fill: var(--color-workbench-explain-node-hover);
+}
+.wb-explain-node-text {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--color-on-secondary);
+  fill-opacity: 1;
+  text-anchor: middle;
+}
+.wb-explain-node-text-details {
+  font-size: 9px;
+  fill: var(--color-on-secondary);
+  fill-opacity: 1;
+  text-anchor: middle;
+}
+.wb-explain-link {
+  fill: none;
+  stroke: var(--color-workbench-explain-node-link);
+  stroke-width: 1px;
+}
+.wb-clone-link {
+  /* analytics plans can have duplicate edges "clones" which need to be hidden */
+  fill: none;
+  stroke-width: 0px;
+}
+.wb-marker {
+  fill: var(--color-workbench-tooltip);
+}
+.wb-explain-plan-zoom {
+  color: var(--color-workbench-plan-orient);
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  font-size: 18px;
+}
+.wb-explain-plan-zoom:hover {
+  color: var(--color-on-secondary);
+  border: 1px solid var(--color-workbench-plan-orient);
+}
+.wb-explain-plan-zoom:active {
+  color: var(--color-on-secondary);
+  border: 1px solid var(--color-workbench-tooltip);
+}
+
+.wb-explain-plan-orient {
+  display: inline-block;
+  color: var(--color-workbench-plan-orient);
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  font-size: 18px;
+}
+.wb-explain-plan-orient:hover {
+  color: var(--color-on-secondary);
+  border: 1px solid var(--color-workbench-plan-orient);
+}
+.wb-explain-plan-orient:active {
+  color: var(--color-on-secondary);
+  border: 1px solid var(--color-workbench-tooltip);
+}
+.wb-explain-plan-selected-orient {
+  color: var(--color-on-secondary) !important;
+}
+
+/* special tooltips for the explain plan ----------------------------------- */
+.wb-explain-tooltip {
+  position: absolute;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-workbench-tooltip);
+  background-color: var(--color-background);
+  border-radius: 3px;
+  border-top: solid 0.25rem var(--color-wb-explain-tooltip-border-top);
+  box-shadow: var(--color-shadow);
+  min-width: 200px;
+  z-index: 10;
+}
+.wb-explain-tooltip h5 {
+  margin-right: 1rem;
+}
+ul.wb-explain-tooltip-list {
+  padding: 0;
+  margin: 0.25rem 0 0.5rem 0;
+}
+ul.wb-explain-tooltip-list li {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.75rem;
+}
+ul.wb-explain-tooltip-list li ul {
+  padding-left: 1rem;
+}
+ul.wb-explain-tooltip-list li ul li {
+  list-style-type: circle !important;
+  padding: 0;
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.index-header {
+  font-style: italic;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -7,6 +7,8 @@ import { DataTable } from "components/data-table";
 import { QueryTabs, TAB_BAR_ITEMS, TabBarMenu } from "custom/tab-bar/tab-bar";
 import { QueryStats } from "custom/query-stats/query-stats";
 import { QueryStatsProps } from "custom/query-stats/query-stats.types";
+import { VisualExplainPlan } from "components/visual-explain-plan";
+import { Plan } from "types/plan";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -18,6 +20,7 @@ const FALLBACK_MESSAGE = {
 export const App: React.FC = () => {
   const [queryResult, setQueryResult] = React.useState<Record<string, unknown>[]>(undefined);
   const [queryStatus, setQueryStatus] = React.useState<QueryStatsProps | undefined>(undefined);
+  const [explainPlan, setExplainPlan] = React.useState<Plan>(null);
   const [currentTab, setCurrentTab] = React.useState<QueryTabs>(QueryTabs.JSON); // TODO: initial value should be chart
   window.addEventListener('message', event => {
     const message = event.data; // The JSON data our extension sent
@@ -26,6 +29,7 @@ export const App: React.FC = () => {
       case 'queryResult':
         setQueryResult(JSON.parse(message.result));
         setQueryStatus(message.queryStatus);
+        setExplainPlan(JSON.parse(message.explainPlan));
         break;
     }
   });
@@ -43,6 +47,7 @@ export const App: React.FC = () => {
           language="json"
         />}
         {currentTab === QueryTabs.Table && <DataTable data={queryResult} dataFallback={[FALLBACK_MESSAGE]} />}
+        {currentTab === QueryTabs.PLAN && <VisualExplainPlan plan={explainPlan} hideControls={false} />}
       </div>
       </div>
   );

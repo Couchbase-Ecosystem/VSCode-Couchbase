@@ -1,13 +1,18 @@
 import { ComponentProps } from 'react';
 import { IconName, IconSize } from 'components/icon';
+import { SpinnerSize } from 'components/spinner/spinner.types';
 
 export type DefaultButtonProps = ComponentProps<'button'> & {
   icon?: IconName;
+  tooltip?: React.ReactNode;
   iconPosition?: ButtonIconPosition;
   iconClassName?: string;
   variant?: ButtonVariant;
   loading?: boolean;
   block?: boolean;
+  contentClassName?: string;
+  spinnerSize?: SpinnerSize;
+  dataAutoId?: string;
 };
 
 export type IconOnlyButtonProps = ComponentProps<'button'> & {
@@ -17,6 +22,7 @@ export type IconOnlyButtonProps = ComponentProps<'button'> & {
   variant?: IconOnlyButtonVariant;
   label?: string;
   size?: IconSize;
+  dataAutoId?: string;
 };
 
 export type ButtonProps = DefaultButtonProps | IconOnlyButtonProps;
@@ -36,6 +42,6 @@ export type ButtonVariant =
   | 'quick-start'
   | 'danger';
 
-export type IconOnlyButtonVariant = 'primary' | 'secondary' | 'secondary-error' | 'warning' | 'surface' | 'success';
+export type IconOnlyButtonVariant = 'primary' | 'secondary' | 'secondary-error' | 'warning' | 'surface' | 'success' | 'copy' | 'accordion';
 
 export type ButtonIconPosition = 'left' | 'right';

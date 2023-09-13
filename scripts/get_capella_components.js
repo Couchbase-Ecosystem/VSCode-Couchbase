@@ -9,7 +9,7 @@ const { ENOENT } = require('constants');
 const { constants } = require('buffer');
 
 const pathToCapella = '../couchbase-cloud/cmd/cp-ui-v3/src/';
-const sourceDirs = ['components/editor'];
+const sourceDirs = ['components/visual-explain-plan'];
 const destinationPath = 'src/reactViews/app';
 
 // Excluded file extensions
