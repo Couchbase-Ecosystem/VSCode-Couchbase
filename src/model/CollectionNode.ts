@@ -25,6 +25,7 @@ import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
 import { Memory } from "../util/util";
 import { IFilterDocuments } from "../types/IFilterDocuments";
+import { SchemaDirectory } from "./SchemaDirectory";
 
 export default class CollectionNode implements INode {
   constructor(
@@ -72,6 +73,7 @@ export default class CollectionNode implements INode {
 
   public async getChildren(): Promise<INode[]> {
     let documentList: INode[] = [];
+    documentList.push(new SchemaDirectory(this, this.connection, "Schema", this.bucketName, this.scopeName, this.collectionName, vscode.TreeItemCollapsibleState.None));
     // TODO: default limit could be managed as user settings / preference
     let result;
     // A primary index is required for database querying. If one is present, a result will be obtained.
