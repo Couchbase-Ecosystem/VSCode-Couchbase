@@ -7,6 +7,7 @@ import "./query-stats.scss";
 const statusColors = {
   success: "text-on-success-decoration fill-on-success-decoration",
   fatal: "text-on-error-decoration fill-on-error-decoration",
+  running: "fill-on-running-decoration"
 };
 
 export function QueryStats({
@@ -31,12 +32,13 @@ export function QueryStats({
             justifySelf: "center",
           }}
         >
-          <img
-            src={queryStatus === "success" ? successImage : errorImage}
-            height="13px"
-            width="13px"
-            className={clsx(statusColors[queryStatus], "mr-1")}
-          />
+          {queryStatus !== "running" &&
+            <img
+              src={queryStatus === "success" ? successImage : errorImage}
+              height="13px"
+              width="13px"
+              className={clsx(statusColors[queryStatus], "mr-1")}
+            />}
           {queryStatus}
         </span>
       )}

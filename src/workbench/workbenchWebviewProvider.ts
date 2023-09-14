@@ -36,12 +36,20 @@ export class WorkbenchWebviewProvider implements vscode.WebviewViewProvider {
         );
 
         const reactAppUri = this._view.webview.asWebviewUri(reactAppPathOnDisk);
-        this._view.webview.html = getWebviewContent(reactAppUri, this._context);;
+        this._view.webview.html = getWebviewContent(reactAppUri, this._context);
+        const isDarkTheme: boolean = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark;
+        this._view?.webview.postMessage({ command: "theme", isDarkTheme });
     }
 
-    setQueryResult(queryResult: string, queryStatus: IQueryStatusProps, plan: string | null) {
+    async sendQueryResult(queryResult: string, queryStatus: IQueryStatusProps, plan: string | null) {
+        const isDarkTheme: boolean = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark;
+        this._view?.webview.postMessage({ command: "queryResult", result: queryResult, queryStatus: queryStatus, explainPlan: plan, isDarkTheme });
+    }
+
+    async setQueryResult(queryResult: string, queryStatus: IQueryStatusProps, plan: string | null) {
+        this._view?.show();
         this._queryResult = queryResult;
-        this._view?.webview.postMessage({ command: "queryResult", result: queryResult, queryStatus: queryStatus, explainPlan: plan });
+        this.sendQueryResult(queryResult, queryStatus, plan);
         this._view?.show();
     }
 }

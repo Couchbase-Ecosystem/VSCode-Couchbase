@@ -305,3 +305,21 @@ button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.ag-root-wrapper 
+.ag-header-viewport,
+.ag-floating-top-viewport,
+.ag-body-viewport,
+.ag-center-cols-viewport,
+.ag-floating-bottom-viewport,
+.ag-body-horizontal-scroll-viewport,
+.ag-body-vertical-scroll-viewport,
+.ag-virtual-list-viewport,
+.ag-sticky-top-viewport
+.ag-header-cell,
+.ag-header-group-cell,
+.ag-cell
+{
+  background-color: var(--vscode-editor-background);;
+  color: var(--vscode-editor-foreground);
+}
