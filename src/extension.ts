@@ -61,6 +61,7 @@ import { copyQuery } from "./commands/queryHistory/copyQuery";
 import { applyQuery } from "./commands/queryHistory/applyQuery";
 import { handleQueryContextStatusbar } from "./handlers/handleQueryContextStatusbar";
 import { filterDocuments } from "./commands/documents/filterDocuments";
+import { clearDocumentFilter } from "./commands/documents/clearDocumentFilter";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -347,7 +348,28 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.filterDocuments,
       async (node: CollectionNode) => {
-        await filterDocuments(node, clusterConnectionTreeProvider);
+        await filterDocuments(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.editDocumentFilter,
+      async (node: CollectionNode) => {
+        await filterDocuments(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.clearDocumentFilter,
+      async (node: CollectionNode) => {
+        await clearDocumentFilter(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
       }
     )
   );
