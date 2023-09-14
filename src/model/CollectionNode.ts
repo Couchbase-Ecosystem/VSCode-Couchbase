@@ -23,6 +23,8 @@ import { abbreviateCount } from "../util/common";
 import { PlanningFailureError } from "couchbase";
 import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
+import { Memory } from "../util/util";
+import { IFilterDocuments } from "../types/IFilterDocuments";
 
 export default class CollectionNode implements INode {
   constructor(
@@ -74,9 +76,14 @@ export default class CollectionNode implements INode {
     let result;
     // A primary index is required for database querying. If one is present, a result will be obtained.
     // If not, the user will be prompted to create a primary index before querying.
+    let docFilter = Memory.state.get<IFilterDocuments>(`filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`);
+    let filter: string = "";
+    if (docFilter && docFilter.filter.length>0){
+      filter = docFilter.filter;
+    }
     try {
       result = await this.connection.cluster?.query(
-        `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
+        `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length>0 ? "WHERE "+filter: ""} LIMIT ${this.limit}`
       );
     } catch (err) {
       if (err instanceof PlanningFailureError) {
@@ -92,7 +99,7 @@ export default class CollectionNode implements INode {
           );
           logger.info(`Created Primay Index on ${this.bucketName} ${this.scopeName} ${this.collectionName} USING GSI`);
           result = await this.connection.cluster?.query(
-            `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
+            `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length>0 ? "WHERE "+filter: ""} LIMIT ${this.limit}`
           );
         }
         else {

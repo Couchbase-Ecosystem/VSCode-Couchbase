@@ -60,6 +60,7 @@ import { deleteQueryItem } from "./commands/queryHistory/deleteQuery";
 import { copyQuery } from "./commands/queryHistory/copyQuery";
 import { applyQuery } from "./commands/queryHistory/applyQuery";
 import { handleQueryContextStatusbar } from "./handlers/handleQueryContextStatusbar";
+import { filterDocuments } from "./commands/documents/filterDocuments";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -344,6 +345,15 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
+      Commands.filterDocuments,
+      async (node: CollectionNode) => {
+        await filterDocuments(node, clusterConnectionTreeProvider);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
       Commands.refreshIndexes,
       async (node: IndexDirectory) => {
         const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
@@ -367,9 +377,8 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       Commands.openQueryWorkbench,
-      async (node: ClusterConnectionNode) => {
+      async () => {
         const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
-
         if (!connection) {
           return;
         }

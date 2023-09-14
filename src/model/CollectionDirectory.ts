@@ -20,6 +20,8 @@ import { INode } from "../types/INode";
 import CollectionNode from "./CollectionNode";
 import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
+import { Memory } from "../util/util";
+import { IFilterDocuments } from "../types/IFilterDocuments";
 
 export class CollectionDirectory implements INode {
     constructor(
@@ -66,8 +68,13 @@ export class CollectionDirectory implements INode {
         let collectionList: INode[] = [];
         for (const collection of this.collections) {
             try {
+                let docFilter = Memory.state.get<IFilterDocuments>(`filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`);
+                let filter: string = "";
+                if (docFilter && docFilter.filter.length>0){
+                    filter = docFilter.filter;
+                }
                 const queryResult = await this.connection.cluster?.query(
-                    `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\`;`
+                    `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\` ${filter.length>0 ? "WHERE "+filter: ""};`
                 );
                 const count = queryResult?.rows[0].count;
 
