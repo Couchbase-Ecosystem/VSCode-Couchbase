@@ -432,7 +432,7 @@
       },
       {
         "command": "vscode-couchbase.filterDocuments",
-        "title": "Filter Documents",
+        "title": "Add Document Filter",
         "category": "Couchbase"
       },
       {
@@ -550,6 +550,16 @@
         "command": "vscode-couchbase.refreshQueryHistory",
         "category": "Couchbase",
         "icon": "$(refresh)"
+      },
+      {
+        "title": "Edit Document Filter",
+        "command": "vscode-couchbase.editDocumentFilter",
+        "category": "Couchbase"
+      },
+      {
+        "title": "Clear Document Filter",
+        "command": "vscode-couchbase.clearDocumentFilter",
+        "category": "Couchbase"
       }
     ],
     "menus": {
@@ -691,6 +701,14 @@
         {
           "command": "vscode-couchbase.markFavoriteQuery",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.editDocumentFilter",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.clearDocumentFilter",
+          "when": "false"
         }
       ],
       "view/item/context": [
@@ -727,18 +745,18 @@
         },
         {
           "command": "vscode-couchbase.createDocument",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter || viewItem == collection_filter)",
           "group": "primary"
         },
         {
           "command": "vscode-couchbase.searchDocument",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter || viewItem == collection_filter)",
           "group": "primary"
         },
         {
           "command": "vscode-couchbase.filterDocuments",
           "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
-          "group": "primary"
+          "group": "secondary"
         },
         {
           "command": "vscode-couchbase.removeDocument",
@@ -750,8 +768,8 @@
         },
         {
           "command": "vscode-couchbase.refreshCollection",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
-          "group": "secondary"
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter || viewItem == collection_filter)",
+          "group": "tertiary"
         },
         {
           "command": "vscode-couchbase.getBucketInfo",
@@ -778,7 +796,17 @@
         },
         {
           "command": "vscode-couchbase.removeCollection",
-          "when": "view == couchbase && viewItem == collection",
+          "when": "view == couchbase && (viewItem == collection || viewItem == collection_filter)",
+          "group": "tertiary"
+        },
+        {
+          "command": "vscode-couchbase.editDocumentFilter",
+          "when": "view == couchbase && (viewItem == collection_filter || viewItem == default_collection_filter)",
+          "group": "secondary"
+        },
+        {
+          "command": "vscode-couchbase.clearDocumentFilter",
+          "when": "view == couchbase && (viewItem == collection_filter || viewItem == default_collection_filter)",
           "group": "secondary"
         },
         {

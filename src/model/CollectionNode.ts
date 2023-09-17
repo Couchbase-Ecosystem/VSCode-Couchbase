@@ -34,6 +34,7 @@ export default class CollectionNode implements INode {
     public readonly documentCount: number,
     public readonly bucketName: string,
     public readonly collectionName: string,
+    public readonly filter: boolean,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public limit: number = 10
   ) {
@@ -50,21 +51,21 @@ export default class CollectionNode implements INode {
         this.documentCount
       )})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      contextValue: this.collectionName === '_default' ? "default_collection" : "collection",
+      contextValue: (this.collectionName === '_default' ? "default_collection" : "collection") + (this.filter ? "_filter" : ""),
       iconPath: {
         light: path.join(
           __filename,
           "..",
           "..",
           "images/light",
-          "documents-icon.svg"
+          this.filter ? "filter.svg" : "documents-icon.svg"
         ),
         dark: path.join(
           __filename,
           "..",
           "..",
           "images/dark",
-          "documents-icon.svg"
+          this.filter ? "filter.svg" : "documents-icon.svg"
         ),
       },
     };
@@ -78,12 +79,12 @@ export default class CollectionNode implements INode {
     // If not, the user will be prompted to create a primary index before querying.
     let docFilter = Memory.state.get<IFilterDocuments>(`filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`);
     let filter: string = "";
-    if (docFilter && docFilter.filter.length>0){
+    if (docFilter && docFilter.filter.length > 0) {
       filter = docFilter.filter;
     }
     try {
       result = await this.connection.cluster?.query(
-        `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length>0 ? "WHERE "+filter: ""} LIMIT ${this.limit}`
+        `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""} LIMIT ${this.limit}`
       );
     } catch (err) {
       if (err instanceof PlanningFailureError) {
@@ -99,7 +100,7 @@ export default class CollectionNode implements INode {
           );
           logger.info(`Created Primay Index on ${this.bucketName} ${this.scopeName} ${this.collectionName} USING GSI`);
           result = await this.connection.cluster?.query(
-            `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length>0 ? "WHERE "+filter: ""} LIMIT ${this.limit}`
+            `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""} LIMIT ${this.limit}`
           );
         }
         else {
