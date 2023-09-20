@@ -91,6 +91,10 @@ const reactConfig = {
       'types': path.resolve(__dirname, 'src/reactViews/app/types'),
       'assets': path.resolve(__dirname, 'src/reactViews/app/assets'),
     },
+    fallback: {
+      "path": false,
+      "fs": false
+    }
   },
   module: {
     rules: [
