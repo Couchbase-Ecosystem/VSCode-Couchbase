@@ -61,7 +61,7 @@ export class QueryWorkbench {
                 // Reveal the webview when the extension is activated
                 vscode.commands.executeCommand('workbench.view.extension.couchbase-workbench-panel');
                 vscode.commands.executeCommand("workbench.action.focusPanel");
-                await new Promise((resolve) => setTimeout(resolve, 400));
+                await new Promise((resolve) => setTimeout(resolve, 500));
                 workbenchWebviewProvider.sendQueryResult(JSON.stringify([{ "status": "Executing statement" }]), { queryStatus: QueryStatus.Running }, null);
                 const start = Date.now();
                 const result = await connection.cluster?.query(query, queryOptions);
