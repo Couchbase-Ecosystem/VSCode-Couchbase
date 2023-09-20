@@ -1,7 +1,6 @@
-import { IFavoriteQueriesWebviewParams } from "../pages/FavoriteQueries/FavoriteQueries";
 import { getFavoriteQueries } from "../util/favoriteQuery";
 
-export const showFavoriteQueries = (vscodeURIs: IFavoriteQueriesWebviewParams): string => {
+export const showFavoriteQueries = (): string => {
     let favQueries = getFavoriteQueries();
     return `
     <!DOCTYPE html>
@@ -9,13 +8,137 @@ export const showFavoriteQueries = (vscodeURIs: IFavoriteQueriesWebviewParams): 
        <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <link rel="stylesheet" href="${vscodeURIs.styleSrc}" type="text/css">
           <title>Query Context</title>
+          
           <style>
              h3 {
              display: inline;
              }
+             .favorite-queries-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px;
+              }
+              
+              .favorite-queries-table {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                border: 1px solid var(--vscode-settings-sashBorder);
+              }
+              
+              .favorite-queries-keys {
+                display: block;
+                position: relative;
+                white-space: nowrap;
+                width: 30%;
+                border-right: 1px solid var(--vscode-settings-sashBorder);
+                background-color: var(--vscode-sideBar-background);
+                color: var(--vscode-sideBar-foreground);
+              }
+              .favorite-queries-keys-header {
+                display: block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding: 5px;
+                border-bottom: 1px solid var(--vscode-settings-sashBorder);
+                text-align: center;
+                padding-left: 10px;
+                padding-right: 10px;
+              }
+              
+              .favorite-queries-key-container {
+                max-height: 65vh;
+                overflow-y: overlay;
+                padding-top: 1px;
+              }
+              
+              .favorite-queries-key {
+                cursor: pointer;
+                display: block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-left: 1px;
+                margin-right: 1px;
+                margin-bottom: 1px;
+                padding: 5px;
+              }
+              
+              .favorite-queries-key:hover {
+                color: var(--vscode-list-activeSelectionForeground) !important;
+                background-color: var(--vscode-list-activeSelectionBackground) !important;
+              }
+              
+              .favorite-queries-key.selected {
+                color: var(--vscode-list-activeSelectionForeground);
+                background-color: var(--vscode-list-activeSelectionBackground);
+                outline: 1px solid
+                  var(
+                    --vscode-list-focusAndSelectionOutline,
+                    var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline))
+                  );
+              }
+              
+              .favorite-queries-value {
+                width: 70%;
+                padding: 10px;
+                overflow: scroll;
+                font-family: "SF Mono", Monaco, Menlo, Courier, monospace;
+                color: var(--vscode-editor-foreground);
+              }
+              
+              .favorite-query-buttons {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                margin-top: 20px;
+                flex-wrap: wrap;
+                gap: 20px;
+              }
+              
+              .favorite-query-copy-button,
+              .favorite-query-delete-button,
+              .favorite-query-paste-button {
+                flex: 1;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+                text-align: center;
+                transition: background-color 0.3s ease-in-out;
+                max-width: 80px;
+              }
+              
+              .favorite-query-copy-button {
+                background-color: var(--vscode-button-secondaryBackground);
+                color: var(--vscode-button-secondaryForeground);
+              }
+              
+              .favorite-query-copy-button:hover {
+                background-color: var(--vscode-button-secondaryHoverBackground);
+              }
+              
+              .favorite-query-delete-button {
+                background-color: var(--vscode-button-secondaryBackground);
+                color: var(--vscode-button-secondaryForeground);
+              }
+              
+              .favorite-query-delete-button:hover {
+                background-color: var(--vscode-button-secondaryHoverBackground);
+              }
+              
+              .favorite-query-paste-button {
+                background-color: var(--vscode-button-background);
+                color: var(--vscode-button-foreground);
+              }
+              
+              .favorite-query-paste-button:hover {
+                background-color: var(--vscode-button-hoverBackground);
+              }
           </style>
+
        </head>
        <body>
             <div class="favorite-queries-container">
