@@ -23,36 +23,31 @@ export class SchemaDirectory implements INode {
     }
 
     public async getChildren(): Promise<INode[]> {
-        try{
+        try {
             // get all schemas
             let query = "INFER `" + this.bucketName + "`.`" + this.scopeName + "`.`" + this.collectionName + "` WITH {\"sample_size\": 2000}";
-            const queryOptions: QueryOptions = {
-                profile: QueryProfileMode.Timings,
-                metrics: false,
-            };
-            const result = await this.connection.cluster?.query(query, queryOptions);
-            let schemaChildren:INode[] = [];
-            let patternCnt:number = result?.rows[0].length || 0;
-            for(let i=0;i<patternCnt;i++){
+            const result = await this.connection.cluster?.query(query);
+            let schemaChildren: INode[] = [];
+            let patternCnt: number = result?.rows[0].length || 0;
+            for (let i = 0; i < patternCnt; i++) {
                 let row = result?.rows[0][i];
                 let childrenNode = this.treeTraversal(row.properties);
                 let patternDirectory = new SchemaNode(
-                    `Pattern #${i+1}`,
-                    childrenNode.length>0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+                    `Pattern #${i + 1}`,
+                    childrenNode.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
                     childrenNode
                 );
                 schemaChildren.push(patternDirectory);
             }
             return schemaChildren;
-        } catch(err){
-            logger.error("Error while getting schema: "+ err);
+        } catch (err) {
+            logger.error("Error while getting schema: " + err);
             return [];
         }
-
     }
 
     private treeTraversal(treeNode: any): INode[] {
-        if(!treeNode){
+        if (!treeNode) {
             return [];
         }
         let currentNodes: INode[] = [];
@@ -77,13 +72,13 @@ export class SchemaDirectory implements INode {
                 }
             } else {
                 // Leaf node condition
-                try{
+                try {
                     let currentType: string = type.toString();
-                    currentType = currentType.replace(',' , " | ");
+                    currentType = currentType.replace(',', " | ");
                     currentNodes.push(new SchemaNode(`${property[0]}: ${currentType}`, vscode.TreeItemCollapsibleState.None));
-                } catch(e){
-                    logger.error("Type can't be stringified: "+ e);
-                }            
+                } catch (e) {
+                    logger.error("Type can't be stringified: " + e);
+                }
             }
         });
         return currentNodes;
