@@ -73,61 +73,28 @@ export class IndexDirectory implements INode {
     public async getChildren(): Promise<INode[]> {
         let indexesList: INode[] = [];
         let result;
-        // Check if the connection is capella, if it does, use the Couchbase SDK to query indexes from the database.
-        if (this.connection.url.endsWith(Constants.capellaUrlPostfix)) {
-            try {
-                //TODO: Change it to not include IndexNode with undefined scope once the issues with undefined scope and collections fixed
-                result = await this.connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
-                if (result === undefined) { return []; }
-                for (const query of result) {
-                    if (query.scopeName === this.scopeName || this.scopeName === "_default") {
-                        const indexNode = new IndexNode(
-                            this,
-                            this.connection,
-                            this.scopeName,
-                            this.bucketName,
-                            `${query.name.substring(1)}_${(query.collectionName ?? "")}`,
-                            getIndexDefinition(query),
-                            vscode.TreeItemCollapsibleState.None
-                        );
-                        indexesList.push(indexNode);
-                    }
+        try {
+            //TODO: Change it to not include IndexNode with undefined scope once the issues with undefined scope and collections fixed
+            result = await this.connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
+            if (result === undefined) { return []; }
+            for (const query of result) {
+                if (query.scopeName === this.scopeName || this.scopeName === "_default") {
+                    const indexNode = new IndexNode(
+                        this,
+                        this.connection,
+                        this.scopeName,
+                        this.bucketName,
+                        `${query.name.substring(1)}_${(query.collectionName ?? "")}`,
+                        getIndexDefinition(query),
+                        vscode.TreeItemCollapsibleState.None
+                    );
+                    indexesList.push(indexNode);
+                }
 
-                }
-            } catch (err) {
-                logger.error("Failed to load Indexes");
-                logger.debug(err);
             }
-        }
-        // If the connection is local, use http call to request index status
-        else {
-            try {
-                const password = await keytar.getPassword(Constants.extensionID, getConnectionId(this.connection));
-                if (!password) {
-                    return [];
-                }
-                const requestURL = `http://${this.connection.username}:${password}@127.0.0.1:9102/getIndexStatus\?bucket\=${this.bucketName}\&scope\=${this.scopeName}`;
-                result = await axios.get(requestURL);
-                if (result.data.status) {
-                    for (const query of result.data.status) {
-                        if (query.scope === this.scopeName) {
-                            const indexNode = new IndexNode(
-                                this,
-                                this.connection,
-                                this.scopeName,
-                                this.bucketName,
-                                `${query.indexName.substring(1)}_${query.collection}`,
-                                query.definition,
-                                vscode.TreeItemCollapsibleState.None
-                            );
-                            indexesList.push(indexNode);
-                        }
-                    }
-                }
-            } catch (err) {
-                logger.error("Failed to load Indexes");
-                logger.debug(err);
-            };
+        } catch (err) {
+            logger.error("Failed to load Indexes");
+            logger.debug(err);
         }
         if (indexesList.length === 0) {
             indexesList.push(new InformationNode("No Indexes found"));

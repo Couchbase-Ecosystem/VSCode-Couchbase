@@ -25,35 +25,30 @@ import { handleSaveTextDocumentConflict } from "./handleSaveDocumentConflict";
 
 
 export const handleOnSaveTextDocument = async (document: vscode.TextDocument, uriToCasMap: Map<string, string>, memFs: MemFS) => {
-    if (
-        document.languageId === "json" &&
-        document.uri.scheme === "couchbase"
-    ) {
-        const activeConnection = getActiveConnection();
-        if (!activeConnection) {
+    const activeConnection = getActiveConnection();
+    if (!activeConnection) {
+        return;
+    }
+    const documentInfo = await extractDocumentInfo(document.uri.path);
+    let remoteDocument = undefined;
+    try {
+        remoteDocument = await getDocument(activeConnection, documentInfo);
+    }
+    catch (err) {
+        if (!(err instanceof DocumentNotFoundError)) {
             return;
         }
-        const documentInfo = await extractDocumentInfo(document.uri.path);
-        let remoteDocument = undefined;
-        try {
-            remoteDocument = await getDocument(activeConnection, documentInfo);
-        }
-        catch (err) {
-            if (!(err instanceof DocumentNotFoundError)) {
-                return;
-            }
-        }
-        if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
-            handleSaveTextDocumentConflict(remoteDocument, document, activeConnection, documentInfo, memFs, uriToCasMap);
-        } else {
-            const cas = await updateDocumentToServer(activeConnection, documentInfo, document);
-            if (cas !== "") {
-                vscode.window.setStatusBarMessage("Document saved", 2000);
-                uriToCasMap.set(document.uri.toString(), cas);
-            }
+    }
+    if (remoteDocument && remoteDocument.cas.toString() !== uriToCasMap.get(document.uri.toString())) {
+        handleSaveTextDocumentConflict(remoteDocument, document, activeConnection, documentInfo, memFs, uriToCasMap);
+    } else {
+        const cas = await updateDocumentToServer(activeConnection, documentInfo, document);
+        if (cas !== "") {
             vscode.window.setStatusBarMessage("Document saved", 2000);
-            logger.info(`Document with id ${documentInfo.name} has been updated`);
             uriToCasMap.set(document.uri.toString(), cas);
         }
+        vscode.window.setStatusBarMessage("Document saved", 2000);
+        logger.info(`Document with id ${documentInfo.name} has been updated`);
+        uriToCasMap.set(document.uri.toString(), cas);
     }
 };
