@@ -8,10 +8,6 @@ import { deleteFavoriteQuery } from '../../util/favoriteQuery';
 import { IConnection } from '../../types/IConnection';
 import { Constants } from '../../util/constants';
 
-export interface IFavoriteQueriesWebviewParams {
-    styleSrc: vscode.Uri;
-}
-
 export interface IFavoriteQueriesWebviewState {
     webviewPanel: vscode.WebviewPanel
 }
@@ -34,12 +30,7 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
     );
 
     try {
-        const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'src/webviews/styles/favoriteQueries.css'));
-        const styleSrc = currentPanel.webview.asWebviewUri(onDiskPath);
-        const UriData: IFavoriteQueriesWebviewParams = {
-            styleSrc: styleSrc
-        };
-        currentPanel.webview.html = showFavoriteQueries(UriData);
+        currentPanel.webview.html = showFavoriteQueries();
         currentPanel.webview.onDidReceiveMessage(async (message) => {
             switch (message.command) {
                 case 'vscode-couchbase.pasteQuery':

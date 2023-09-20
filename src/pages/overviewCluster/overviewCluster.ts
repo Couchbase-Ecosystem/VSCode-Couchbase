@@ -105,9 +105,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
         vscode.window.showErrorMessage("Error while loading cluster overview details, Please try again later!",{ modal: true });
     }
     try {
-        const onDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'src/webviews/styles/clusterOverview.css'));
-        const styleSrc = currentPanel.webview.asWebviewUri(onDiskPath);
-        currentPanel.webview.html = getClusterOverview(clusterOverviewObject, context, styleSrc);
+        currentPanel.webview.html = getClusterOverview(clusterOverviewObject);
 
     } catch (err) {
         logger.error(`Failed to get Cluster Overview Information \`${node}\``);
