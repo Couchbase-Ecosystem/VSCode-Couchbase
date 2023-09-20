@@ -50,6 +50,5 @@ export class WorkbenchWebviewProvider implements vscode.WebviewViewProvider {
         this._view?.show();
         this._queryResult = queryResult;
         this.sendQueryResult(queryResult, queryStatus, plan);
-        this._view?.show();
     }
 }

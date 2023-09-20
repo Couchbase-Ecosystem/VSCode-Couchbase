@@ -9,6 +9,7 @@
 - Implement Query context in workbench
 - Implement Favourite Query in workbench
 - Add document filter
+- Add Cluster Overview Window
 
 ## [v0.6.4]
 - Create Query Notebook
