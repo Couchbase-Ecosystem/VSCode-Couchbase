@@ -106,19 +106,27 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-      if (!editor) {
-        return;
+      if (editor &&
+        (editor.document.languageId === "json" &&
+          editor.document.uri.scheme === "couchbase")
+      ) {
+        await handleActiveEditorChange(editor, uriToCasMap, memFs);
+        clusterConnectionTreeProvider.refresh();
       }
-      await handleActiveEditorChange(editor, uriToCasMap, memFs);
-      clusterConnectionTreeProvider.refresh();
+
     })
   );
 
   subscriptions.push(
     vscode.workspace.onDidSaveTextDocument(
       async (document: vscode.TextDocument) => {
-        await handleOnSaveTextDocument(document, uriToCasMap, memFs);
-        clusterConnectionTreeProvider.refresh();
+        if (
+          document && document.languageId === "json" &&
+          document.uri.scheme === "couchbase"
+        ) {
+          await handleOnSaveTextDocument(document, uriToCasMap, memFs);
+          clusterConnectionTreeProvider.refresh();
+        }
       }
     )
   );
