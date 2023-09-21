@@ -27,7 +27,7 @@ export async function saveFavoriteQuery(newQuery: IKeyValuePair): Promise<favori
     }
     favoriteQueries.push({ key: newQuery.key, value: newQuery.value });
     await Global.state.update(Constants.FAVORITE_QUERY, favoriteQueries);
-
+    vscode.window.showInformationMessage('Favorite Query Saved Successfully');
     return favoriteQueries;
 }
 

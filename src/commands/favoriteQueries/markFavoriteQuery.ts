@@ -29,7 +29,6 @@ export const markFavoriteQuery = async (context: vscode.ExtensionContext) =>{
         }
         saveFavoriteQuery({key: queryKey, value: queryValue});
         fetchFavoriteQueries(context);
-        vscode.window.showInformationMessage('Favorite Query Saved Successfully');
     } else {
         vscode.window.showErrorMessage('No active text editor.');
     }
