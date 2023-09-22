@@ -560,6 +560,12 @@
         "title": "Clear Document Filter",
         "command": "vscode-couchbase.clearDocumentFilter",
         "category": "Couchbase"
+      },
+      {
+        "title": "Refresh Cluster Overview",
+        "command":"vscode-couchbase.refreshClusterOverview",
+        "icon": "$(refresh)",
+        "category": "Couchbase"
       }
     ],
     "menus": {
@@ -574,7 +580,6 @@
           "title": "Query Context",
           "command": "vscode-couchbase.queryContext",
           "category": "Couchbase",
-          "icon": "images/couchbase.svg",
           "group": "navigation",
           "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
         },
@@ -582,7 +587,6 @@
           "title": "Show Favorite Queries",
           "command": "vscode-couchbase.showFavoriteQueries",
           "category": "Couchbase",
-          "icon": "images/couchbase.svg",
           "group": "navigation",
           "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
         },
@@ -590,9 +594,15 @@
           "title": "Mark Favorite Query",
           "command": "vscode-couchbase.markFavoriteQuery",
           "category": "Couchbase",
-          "icon": "images/couchbase.svg",
           "group": "navigation",
           "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
+        },
+        {
+          "title": "Refresh Cluster Overview",
+          "command": "vscode-couchbase.refreshClusterOverview",
+          "category": "Couchbase",
+          "group": "navigation",
+          "when": "activeWebviewPanelId == clusterOverview"
         }
       ],
       "editor/context": [

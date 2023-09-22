@@ -26,4 +26,5 @@ export interface IClusterOverview {
   readonly title: string;
   readonly bucketsHTML: IKeyValuePair[];
   readonly nodesHTML: IKeyValuePair[];
+  readonly currentConnection: string;
 }
