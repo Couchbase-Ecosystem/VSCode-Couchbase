@@ -5,35 +5,27 @@ import { ClusterConnectionNode } from "../../model/ClusterConnectionNode";
 import { Memory } from "../../util/util";
 import { IConnection } from "../../types/IConnection";
 import { logger } from "../../logger/logger";
-import { IClusterOverview } from "../../types/IClusterOverview";
-import { Bucket, BucketSettings } from "couchbase";
-import { CouchbaseRestAPI } from "../../util/apis/CouchbaseRestAPI";
-import { ServerOverview } from "../../util/apis/ServerOverview";
-import { IKeyValuePair } from "../../types/IKeyValuePair";
-import { BucketOverview } from "../../util/apis/BucketOverview";
-import { getNodeTabData } from "../../util/OverviewClusterUtils/ClusterOverviewNodeTab";
-import { getBucketData } from "../../util/OverviewClusterUtils/ClusterOverviewBucketTab";
-import { getGeneraStorageDetails, getGeneralClusterDetails, getGeneralQuotaDetails, getGeneralRAMDetails } from "../../util/OverviewClusterUtils/ClusterOverviewGeneralTab";
 import { Constants } from "../../util/constants";
+import { getClusterOverviewData } from "../../util/OverviewClusterUtils/getOverviewClusterData";
 
-const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connection: IConnection): Array<Bucket> => {
-    let allBuckets: Array<Bucket> = [];
-    if (bucketsSettings !== undefined) {
-        for (let bucketSettings of bucketsSettings) {
-            let bucketName: string = bucketSettings.name;
-            let bucket: Bucket | undefined = connection?.cluster?.bucket(bucketName);
-            if (bucket !== undefined) {
-                allBuckets.push(bucket);
-            }
-        }
-    }
-    return allBuckets;
-};
+export interface IClusterOverviewWebviewState {
+    webviewPanel: vscode.WebviewPanel
+}
 
-export async function fetchClusterOverview(node: ClusterConnectionNode, context: vscode.ExtensionContext) {
+export async function fetchClusterOverview(node: ClusterConnectionNode, refresh: boolean = false) {
     const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
+    }
+    const clusterOverviewWebviewDetails = Memory.state.get<IClusterOverviewWebviewState>(Constants.CLUSTER_OVERVIEW_WEBVIEW);
+    if (clusterOverviewWebviewDetails) {
+        // Cluster Overview Webview already exists, Closing existing and creating new
+        try {
+            clusterOverviewWebviewDetails.webviewPanel.dispose();
+        } catch (e) {
+            logger.error("Error while disposing cluster overview webview: " + e);
+        }
+        Memory.state.update(Constants.CLUSTER_OVERVIEW_WEBVIEW, null);
     }
 
     const currentPanel = vscode.window.createWebviewPanel(
@@ -45,70 +37,34 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
             enableForms: true,
         }
     );
+    Memory.state.update(Constants.CLUSTER_OVERVIEW_WEBVIEW, {
+        webviewPanel: currentPanel
+    });
 
     currentPanel.iconPath = vscode.Uri.file(
         path.join(__filename, "..", "..", "images", "cb-logo-icon.svg")
     );
-    currentPanel.webview.html = `<h1>Loading....</h1>`;
-    let clusterOverviewObject: IClusterOverview = {
-        generalDetails: null,
-        buckets: null,
-        nodes: null,
-        title: '',
-        bucketsHTML: [],
-        nodesHTML: []
-    };
-
+    currentPanel.webview.html = `<h1>Loading....</h1>
+        <h3>This may take a while.</h3>
+    `;
     try {
-        // Fetch server overview details
-        const restAPIObject = new CouchbaseRestAPI(connection);
-        const serverOverview: ServerOverview | undefined = await restAPIObject.getOverview();
-
-        // Fetch Buckets
-        let bucketsSettings = await connection?.cluster?.buckets().getAllBuckets();
-        let allBuckets = fetchBucketNames(bucketsSettings, connection);
-
-        // General Overview
-        let generalClusterDetails = getGeneralClusterDetails(serverOverview);
-        let generalQuotaDetails = getGeneralQuotaDetails(serverOverview);
-        let generalRAMDetails = getGeneralRAMDetails(serverOverview);
-        let generalStorageDetails = getGeneraStorageDetails(serverOverview);
-
-        // Buckets Data
-        let bucketsHTML: IKeyValuePair[] = [];
-        for (let bucket of allBuckets) {
-            const bucketOverview: BucketOverview | undefined = await restAPIObject.getBucketsOverview(bucket.name);
-            let bucketHTML = bucketOverview !== undefined ? getBucketData(bucketOverview) : '';
-            bucketsHTML.push({ key: bucket.name, value: bucketHTML });
-        }
-
-        // Nodes Data
-        const nodesHTML: IKeyValuePair[] = serverOverview !== undefined ? getNodeTabData(serverOverview) : [];
-
-        clusterOverviewObject = {
-            buckets: allBuckets,
-            nodes: serverOverview?.getNodes() || null,
-            title: "Cluster Overview",
-            generalDetails: {
-                cluster: generalClusterDetails,
-                quota: generalQuotaDetails,
-                storage: generalStorageDetails,
-                RAM: generalRAMDetails,
-            },
-            bucketsHTML: bucketsHTML,
-            nodesHTML: nodesHTML,
-        };
-    } catch (err) {
-        logger.error(`Failed to get Cluster Overview Data, error: ${err}`);
-        currentPanel.webview.html = `<h1>Error!<h1>`;
-
-        vscode.window.showErrorMessage("Error while loading cluster overview details, Please try again later!",{ modal: true });
-    }
-    try {
+        let clusterOverviewObject = await getClusterOverviewData(refresh);
         currentPanel.webview.html = getClusterOverview(clusterOverviewObject);
-
     } catch (err) {
         logger.error(`Failed to get Cluster Overview Information \`${node}\``);
         logger.debug(err);
+        try {
+            currentPanel.webview.html = `Failed to receive cluster overview Data; Please try again later`;
+        } catch (e) {
+            logger.debug("Cluster overview webview may have been already disposed: " + e);
+        }
+
     }
+
+    currentPanel.onDidDispose(() => {
+        Memory.state.update(Constants.CLUSTER_OVERVIEW_WEBVIEW, null);
+    });
+
+
+
 }

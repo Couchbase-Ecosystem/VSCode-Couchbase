@@ -62,6 +62,7 @@ import { applyQuery } from "./commands/queryHistory/applyQuery";
 import { handleQueryContextStatusbar } from "./handlers/handleQueryContextStatusbar";
 import { filterDocuments } from "./commands/documents/filterDocuments";
 import { clearDocumentFilter } from "./commands/documents/clearDocumentFilter";
+import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewClusterData";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -184,6 +185,7 @@ export function activate(context: vscode.ExtensionContext) {
       async (node: ClusterConnectionNode) => {
         await useConnection(node.connection);
         clusterConnectionTreeProvider.refresh();
+        getClusterOverviewData();
       }
     )
   );
@@ -427,7 +429,16 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.getClusterOverview,
       async (node: ClusterConnectionNode) => {
-        fetchClusterOverview(node, context);
+        fetchClusterOverview(node, false);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.refreshClusterOverview,
+      async (node: ClusterConnectionNode) => {
+        fetchClusterOverview(node, true); // Setting refresh to true so that all data is refetched
       }
     )
   );
