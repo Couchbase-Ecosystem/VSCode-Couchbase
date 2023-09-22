@@ -86,6 +86,8 @@ export const showFavoriteQueries = (): string => {
                 overflow: scroll;
                 font-family: "SF Mono", Monaco, Menlo, Courier, monospace;
                 color: var(--vscode-editor-foreground);
+                background-color: var(--vscode-editor-background);
+                resize: none;
               }
               
               .favorite-query-buttons {
@@ -152,9 +154,7 @@ export const showFavoriteQueries = (): string => {
                         </div>
                     </div>
                     
-                    <div class="favorite-queries-value">
-                        No Query Selected
-                    </div>
+                    <textarea class="favorite-queries-value" disabled>No Query Selected</textarea>
                 </div>
                 <div class="favorite-query-buttons">
                     <div class="favorite-query-paste-button" id="favorite-query-paste-button" onClick="pasteQuery()">
