@@ -49,7 +49,7 @@ export class QueryWorkbench {
         const activeTextEditor = vscode.window.activeTextEditor;
         if (activeTextEditor && activeTextEditor.document.languageId === "SQL++") {
             // Get the text content of the active text editor.
-            const query = activeTextEditor.document.getText();
+            const query = activeTextEditor.selection.isEmpty ? activeTextEditor.document.getText() : activeTextEditor.document.getText(activeTextEditor.selection);
             const queryContext = this.editorToContext.get(activeTextEditor.document.uri.toString());
             const queryContextString = queryContext && (`${queryContext?.bucketName}.${queryContext?.scopeName}`); // Query context string is of format bucketName.ScopeName
             const queryOptions: QueryOptions = {
