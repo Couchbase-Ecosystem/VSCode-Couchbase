@@ -12,7 +12,7 @@ export interface IClusterOverviewWebviewState {
     webviewPanel: vscode.WebviewPanel
 }
 
-export async function fetchClusterOverview(node: ClusterConnectionNode, refresh:boolean = false) {
+export async function fetchClusterOverview(node: ClusterConnectionNode, refresh: boolean = false) {
     const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
@@ -20,10 +20,10 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, refresh:
     const clusterOverviewWebviewDetails = Memory.state.get<IClusterOverviewWebviewState>(Constants.CLUSTER_OVERVIEW_WEBVIEW);
     if (clusterOverviewWebviewDetails) {
         // Cluster Overview Webview already exists, Closing existing and creating new
-        try{
+        try {
             clusterOverviewWebviewDetails.webviewPanel.dispose();
-        }catch(e){
-            logger.error("Error while disposing cluster overview webview: "+ e);
+        } catch (e) {
+            logger.error("Error while disposing cluster overview webview: " + e);
         }
         Memory.state.update(Constants.CLUSTER_OVERVIEW_WEBVIEW, null);
     }
@@ -53,18 +53,18 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, refresh:
     } catch (err) {
         logger.error(`Failed to get Cluster Overview Information \`${node}\``);
         logger.debug(err);
-        try{
+        try {
             currentPanel.webview.html = `Failed to receive cluster overview Data; Please try again later`;
-        } catch(e){
-            logger.debug("Cluster overview webview may have been already disposed: "+ e);
+        } catch (e) {
+            logger.debug("Cluster overview webview may have been already disposed: " + e);
         }
-       
+
     }
 
     currentPanel.onDidDispose(() => {
         Memory.state.update(Constants.CLUSTER_OVERVIEW_WEBVIEW, null);
     });
 
-    
+
 
 }

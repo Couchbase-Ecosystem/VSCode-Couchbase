@@ -437,7 +437,7 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       Commands.refreshClusterOverview,
-      async (node: ClusterConnectionNode)=>{
+      async (node: ClusterConnectionNode) => {
         fetchClusterOverview(node, true); // Setting refresh to true so that all data is refetched
       }
     )

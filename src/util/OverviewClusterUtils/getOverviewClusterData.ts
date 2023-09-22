@@ -26,8 +26,8 @@ const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connect
     return allBuckets;
 };
 
-export const getClusterOverviewData = async (refreshRequired:boolean = false):Promise<IClusterOverview> => {
-    let clusterOverviewData:IClusterOverview = {
+export const getClusterOverviewData = async (refreshRequired: boolean = false): Promise<IClusterOverview> => {
+    let clusterOverviewData: IClusterOverview = {
         generalDetails: null,
         buckets: null,
         nodes: null,
@@ -42,17 +42,17 @@ export const getClusterOverviewData = async (refreshRequired:boolean = false):Pr
         return clusterOverviewData;
     }
 
-    
-    if(!refreshRequired){ // If explicit refresh is not required, check for change in connection
+
+    if (!refreshRequired) { // If explicit refresh is not required, check for change in connection
         const currentClusterOverviewData = Memory.state.get<IClusterOverview>(Constants.CLUSTER_OVERVIEW_DATA);
-        if(currentClusterOverviewData){
-            if(currentClusterOverviewData.currentConnection === connection.connectionIdentifier){
+        if (currentClusterOverviewData) {
+            if (currentClusterOverviewData.currentConnection === connection.connectionIdentifier) {
                 // No Refresh required case, returning old data;
                 return currentClusterOverviewData;
             }
         }
     }
-    
+
     try {
         // Fetch server overview details
         const restAPIObject = new CouchbaseRestAPI(connection);
