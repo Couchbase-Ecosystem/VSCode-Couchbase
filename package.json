@@ -568,33 +568,41 @@
         "category": "Couchbase"
       }
     ],
+    "keybindings": [
+      {
+        "command": "vscode-couchbase.runQuery",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ "
+      }
+    ],
     "menus": {
       "editor/title": [
         {
           "command": "vscode-couchbase.runQuery",
           "category": "Couchbase",
           "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
-          "group": "navigation"
+          "group": "navigation@1"
         },
         {
           "title": "Query Context",
           "command": "vscode-couchbase.queryContext",
           "category": "Couchbase",
-          "group": "navigation",
+          "group": "navigation@2",
           "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
         },
         {
           "title": "Show Favorite Queries",
           "command": "vscode-couchbase.showFavoriteQueries",
           "category": "Couchbase",
-          "group": "navigation",
+          "group": "navigation@3",
           "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
         },
         {
           "title": "Mark Favorite Query",
           "command": "vscode-couchbase.markFavoriteQuery",
           "category": "Couchbase",
-          "group": "navigation",
+          "group": "navigation@4",
           "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
         },
         {
