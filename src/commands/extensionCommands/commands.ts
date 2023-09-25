@@ -53,4 +53,5 @@ export namespace Commands {
     export const editDocumentFilter: string = "vscode-couchbase.editDocumentFilter";
     export const clearDocumentFilter: string = "vscode-couchbase.clearDocumentFilter";
     export const refreshClusterOverview: string = "vscode-couchbase.refreshClusterOverview";
+    export const checkAndCreatePrimaryIndex: string = "vscode-couchbase.checkAndCreatePrimaryIndex";
 }

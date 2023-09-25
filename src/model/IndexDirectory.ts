@@ -15,13 +15,9 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import * as keytar from "keytar";
 import { IConnection } from "../types/IConnection";
 import { INode } from "../types/INode";
 import IndexNode from "./IndexNode";
-import axios from "axios";
-import { Constants } from "../util/constants";
-import { getConnectionId } from "../util/connections";
 import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
 import { getIndexDefinition } from "../util/indexUtils";
