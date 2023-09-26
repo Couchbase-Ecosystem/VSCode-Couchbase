@@ -112,9 +112,7 @@ export function activate(context: vscode.ExtensionContext) {
           editor.document.uri.scheme === "couchbase")
       ) {
         await handleActiveEditorChange(editor, uriToCasMap, memFs);
-        clusterConnectionTreeProvider.refresh();
       }
-
     })
   );
 
@@ -126,7 +124,6 @@ export function activate(context: vscode.ExtensionContext) {
           document.uri.scheme === "couchbase"
         ) {
           await handleOnSaveTextDocument(document, uriToCasMap, memFs);
-          clusterConnectionTreeProvider.refresh();
         }
       }
     )

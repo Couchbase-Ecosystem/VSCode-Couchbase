@@ -22,6 +22,7 @@ import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
 import { Memory } from "../util/util";
 import { IFilterDocuments } from "../types/IFilterDocuments";
+import { getActiveConnection } from "../util/connections";
 
 export class CollectionDirectory implements INode {
     constructor(
@@ -70,7 +71,8 @@ export class CollectionDirectory implements INode {
             try {
                 let docFilter = Memory.state.get<IFilterDocuments>(`filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`);
                 const filter: string = (docFilter && docFilter.filter.length > 0) ? docFilter.filter : "";
-                const queryResult = await this.connection.cluster?.query(
+                const connection = getActiveConnection();
+                const queryResult = await connection?.cluster?.query(
                     `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\` ${filter.length > 0 ? "WHERE " + filter : ""};`
                 );
                 const count = queryResult?.rows[0].count;

@@ -21,7 +21,7 @@ import { INode } from "../types/INode";
 import IndexNode from "./IndexNode";
 import axios from "axios";
 import { Constants } from "../util/constants";
-import { getConnectionId } from "../util/connections";
+import { getActiveConnection, getConnectionId } from "../util/connections";
 import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
 import { getIndexDefinition } from "../util/indexUtils";
@@ -74,8 +74,9 @@ export class IndexDirectory implements INode {
         let indexesList: INode[] = [];
         let result;
         try {
+            const connection = getActiveConnection();
             //TODO: Change it to not include IndexNode with undefined scope once the issues with undefined scope and collections fixed
-            result = await this.connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
+            result = await connection?.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
             if (result === undefined) { return []; }
             for (const query of result) {
                 if (query.scopeName === this.scopeName || this.scopeName === "_default") {

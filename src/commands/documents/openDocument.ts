@@ -19,33 +19,35 @@ import { DocumentNotFoundError } from "couchbase/dist/errors";
 import { logger } from "../../logger/logger";
 import { MemFS } from "../../util/fileSystemProvider";
 import ClusterConnectionTreeProvider from "../../tree/ClusterConnectionTreeProvider";
+import { getActiveConnection } from "../../util/connections";
 
 export const openDocument = async (documentNode: DocumentNode, clusterConnectionTreeProvider: ClusterConnectionTreeProvider, uriToCasMap: Map<string, string>, memFs: MemFS) => {
-    try {
-        const result = await documentNode.connection.cluster
-          ?.bucket(documentNode.bucketName)
-          .scope(documentNode.scopeName)
-          .collection(documentNode.collectionName)
-          .get(documentNode.documentName);
-        const uri = vscode.Uri.parse(
-          `couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/Collections/${documentNode.collectionName}/${documentNode.documentName}.json`
-        );
-        if (result) {
-          uriToCasMap.set(uri.toString(), result.cas.toString());
-        }
-        memFs.writeFile(
-          uri,
-          Buffer.from(JSON.stringify(result?.content, null, 2)),
-          { create: true, overwrite: true }
-        );
-        const document = await vscode.workspace.openTextDocument(uri);
-        await vscode.window.showTextDocument(document, { preview: false });
-        return true;
-      } catch (err: any) {
-        if (err instanceof vscode.FileSystemError && err.name === 'EntryNotFound (FileSystemError)' || err instanceof DocumentNotFoundError) {
-          clusterConnectionTreeProvider.refresh();
-        }
-        logger.error("Failed to open Document");
-        logger.debug(err);
-      }
+  try {
+    const connection = getActiveConnection();
+    const result = await connection?.cluster
+      ?.bucket(documentNode.bucketName)
+      .scope(documentNode.scopeName)
+      .collection(documentNode.collectionName)
+      .get(documentNode.documentName);
+    const uri = vscode.Uri.parse(
+      `couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/Collections/${documentNode.collectionName}/${documentNode.documentName}.json`
+    );
+    if (result) {
+      uriToCasMap.set(uri.toString(), result.cas.toString());
+    }
+    memFs.writeFile(
+      uri,
+      Buffer.from(JSON.stringify(result?.content, null, 2)),
+      { create: true, overwrite: true }
+    );
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document, { preview: false });
+    return true;
+  } catch (err: any) {
+    if (err instanceof vscode.FileSystemError && err.name === 'EntryNotFound (FileSystemError)' || err instanceof DocumentNotFoundError) {
+      clusterConnectionTreeProvider.refresh();
+    }
+    logger.error("Failed to open Document");
+    logger.debug(err);
+  }
 };

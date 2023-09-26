@@ -26,6 +26,7 @@ import { logger } from "../logger/logger";
 import { Memory } from "../util/util";
 import { IFilterDocuments } from "../types/IFilterDocuments";
 import { SchemaDirectory } from "./SchemaDirectory";
+import { getActiveConnection } from "../util/connections";
 
 export default class CollectionNode implements INode {
   constructor(
@@ -85,7 +86,8 @@ export default class CollectionNode implements INode {
       filter = docFilter.filter;
     }
     try {
-      result = await this.connection.cluster?.query(
+      const connection = getActiveConnection();
+      result = await connection?.cluster?.query(
         `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""} LIMIT ${this.limit}`
       );
     } catch (err) {
