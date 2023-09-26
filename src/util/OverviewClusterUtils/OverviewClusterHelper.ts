@@ -1,31 +1,3 @@
-import { IKeyValuePair } from "../../types/IKeyValuePair";
-
-export interface IOverviewGeneral {
-  cluster: IKeyValuePair[] | null;
-  quota: IKeyValuePair[] | null;
-  RAM: IKeyValuePair[] | null;
-  storage: IKeyValuePair[] | null;
-}
-
-export class OverviewGeneral {
-  public cluster: IKeyValuePair[] | null;
-  public quota: IKeyValuePair[] | null;
-  public RAM: IKeyValuePair[] | null;
-  public storage: IKeyValuePair[] | null;
-  constructor(
-    cluster: IKeyValuePair[] | null,
-    quota: IKeyValuePair[] | null,
-    RAM: IKeyValuePair[] | null,
-    storage: IKeyValuePair[] | null
-  ) {
-    this.cluster = cluster;
-    this.quota = quota;
-    this.RAM = RAM;
-    this.storage = storage;
-  }
-}
-
-
 export function fmtByte(bytes: number): string {
   if (bytes === -1) {
     return "NA";

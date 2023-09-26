@@ -14,11 +14,15 @@
  *   limitations under the License.
  */
 import { Bucket } from "couchbase";
-import { IOverviewGeneral } from "../util/OverviewClusterUtils/OverviewClusterHelper";
 import { IKeyValuePair } from "./IKeyValuePair";
 import { CBNode } from "../util/apis/CBNode";
 
-
+export interface IOverviewGeneral {
+  cluster: IKeyValuePair[] | null;
+  quota: IKeyValuePair[] | null;
+  RAM: IKeyValuePair[] | null;
+  storage: IKeyValuePair[] | null;
+}
 export interface IClusterOverview {
   readonly generalDetails: IOverviewGeneral | null;
   readonly buckets: Bucket[] | null;
