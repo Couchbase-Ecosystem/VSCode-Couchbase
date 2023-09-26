@@ -25,6 +25,7 @@ import InformationNode from "./InformationNode";
 import { Memory } from "../util/util";
 import { IFilterDocuments } from "../types/IFilterDocuments";
 import { SchemaDirectory } from "./SchemaDirectory";
+import { getActiveConnection } from "../util/connections";
 import { Commands } from "../commands/extensionCommands/commands";
 
 export default class CollectionNode implements INode {
@@ -84,15 +85,15 @@ export default class CollectionNode implements INode {
     if (docFilter && docFilter.filter.length > 0) {
       filter = docFilter.filter;
     }
+    const connection = getActiveConnection();
     try {
-      result = await this.connection.cluster?.query(
+      result = await connection?.cluster?.query(
         `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""} LIMIT ${this.limit}`
       );
     } catch (err) {
       if (err instanceof PlanningFailureError) {
         const infoNode: InformationNode = new InformationNode("No indexes available, click to create one", "No indexes available to list the documents in this collection", Commands.checkAndCreatePrimaryIndex, this);
         documentList.push(infoNode);
-        
       }
     }
     result?.rows.forEach((documentName: string) => {

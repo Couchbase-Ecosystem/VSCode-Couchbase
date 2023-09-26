@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { QueryOptions, QueryProfileMode } from "couchbase";
 import SchemaNode from "./SchemaNode";
 import { logger } from "../logger/logger";
+import { getActiveConnection } from "../util/connections";
 
 export class SchemaDirectory implements INode {
     constructor(public readonly parentNode: INode,
@@ -26,7 +27,8 @@ export class SchemaDirectory implements INode {
         try {
             // get all schemas
             let query = "INFER `" + this.bucketName + "`.`" + this.scopeName + "`.`" + this.collectionName + "` WITH {\"sample_size\": 2000}";
-            const result = await this.connection.cluster?.query(query);
+            const connection = getActiveConnection();
+            const result = await connection?.cluster?.query(query);
             let schemaChildren: INode[] = [];
             let patternCnt: number = result?.rows[0].length || 0;
             for (let i = 0; i < patternCnt; i++) {

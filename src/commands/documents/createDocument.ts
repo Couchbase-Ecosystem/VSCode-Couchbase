@@ -46,7 +46,7 @@ export const createDocument = async (node: CollectionNode, memFs: MemFS, uriToCa
     // Try block is trying to retrieve the document with the same key first
     // If returns an error go to catch block create a new empty document
     try {
-        const result = await node.connection.cluster
+        const result = await connection.cluster
             ?.bucket(node.bucketName)
             .scope(node.scopeName)
             .collection(node.collectionName)

@@ -33,8 +33,7 @@ export const removeScope = async (node: ScopeNode) => {
     if (answer !== "Yes") {
         return;
     }
-
-    const collectionManager = await node.connection.cluster
+    const collectionManager = await connection.cluster
         ?.bucket(node.bucketName)
         .collections();
     await collectionManager?.dropScope(node.scopeName);

@@ -6,6 +6,7 @@ import { Bucket, BucketSettings } from "couchbase";
 import { QueryWorkbench } from "../../workbench/queryWorkbench";
 import { showQueryContextStatusbar } from "../../util/queryContextUtils";
 import { Constants } from "../../util/constants";
+import { getActiveConnection } from "../../util/connections";
 
 const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connection: IConnection): Array<Bucket> => {
     let allBuckets: Array<Bucket> = [];
@@ -22,7 +23,7 @@ const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connect
 };
 
 export async function fetchQueryContext(workbench: QueryWorkbench, context: vscode.ExtensionContext) {
-    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
+    const connection = getActiveConnection();
 
     if (!connection) {
         vscode.window.showErrorMessage("Please connect to a cluster before setting query context");

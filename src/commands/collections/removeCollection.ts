@@ -34,7 +34,7 @@ export const removeCollection = async (node: CollectionNode) => {
       return;
     }
 
-    const collectionManager = await node.connection.cluster
+    const collectionManager = await connection.cluster
       ?.bucket(node.bucketName)
       .collections();
     await collectionManager?.dropCollection(

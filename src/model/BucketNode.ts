@@ -21,6 +21,7 @@ import { ScopeNode } from "./ScopeNode";
 import { ScopeSpec } from "couchbase";
 import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
+import { getActiveConnection } from "../util/connections";
 
 export class BucketNode implements INode {
   constructor(
@@ -59,7 +60,11 @@ export class BucketNode implements INode {
     const nodes: INode[] = [];
     if (this.isScopesandCollections) {
       try {
-        let scopes = await this.connection.cluster
+        const activeConnection = getActiveConnection();
+        if (!activeConnection) {
+          return nodes;
+        };
+        let scopes = await activeConnection.cluster
           ?.bucket(this.bucketName)
           .collections()
           .getAllScopes();

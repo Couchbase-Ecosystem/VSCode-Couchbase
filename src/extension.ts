@@ -113,9 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
           editor.document.uri.scheme === "couchbase")
       ) {
         await handleActiveEditorChange(editor, uriToCasMap, memFs);
-        clusterConnectionTreeProvider.refresh();
       }
-
     })
   );
 
