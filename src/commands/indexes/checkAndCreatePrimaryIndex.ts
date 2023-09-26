@@ -10,10 +10,16 @@ export const checkAndCreatePrimaryIndex = async (elementData: any) => {
         "No"
     );
     if (answer === "Yes") {
-        await elementData.connection.cluster?.query(
-            `CREATE PRIMARY INDEX ON \`${elementData.bucketName}\`.\`${elementData.scopeName}\`.\`${elementData.collectionName}\` USING GSI`
-        );
-        logger.info(`Created Primay Index on ${elementData.bucketName} ${elementData.scopeName} ${elementData.collectionName} USING GSI`);
-        vscode.commands.executeCommand(Commands.refreshCollection, elementData.parentNode);
+        try{
+            vscode.window.showInformationMessage("Creating primary index");
+            await elementData.connection.cluster?.query(
+                `CREATE PRIMARY INDEX ON \`${elementData.bucketName}\`.\`${elementData.scopeName}\`.\`${elementData.collectionName}\` USING GSI`
+            );
+            logger.info(`Created Primay Index on ${elementData.bucketName} ${elementData.scopeName} ${elementData.collectionName} USING GSI`);
+            vscode.commands.executeCommand(Commands.refreshCollection, elementData.parentNode);
+        } catch(e){
+            vscode.window.showErrorMessage("Error while creating primary index "+e);
+            logger.error("Error while creating primary index "+ e);
+        }
     }
 };
