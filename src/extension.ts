@@ -63,6 +63,7 @@ import { handleQueryContextStatusbar } from "./handlers/handleQueryContextStatus
 import { filterDocuments } from "./commands/documents/filterDocuments";
 import { clearDocumentFilter } from "./commands/documents/clearDocumentFilter";
 import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewClusterData";
+import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePrimaryIndex";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -533,6 +534,12 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.runQuery, async () => {
       workbench.runCouchbaseQuery(workbenchWebviewProvider, queryHistoryTreeProvider);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(Commands.checkAndCreatePrimaryIndex, async (elementData: any) => {
+      checkAndCreatePrimaryIndex(elementData);
     })
   );
 }

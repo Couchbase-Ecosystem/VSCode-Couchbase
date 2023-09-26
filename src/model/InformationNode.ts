@@ -18,7 +18,12 @@ import * as path from "path";
 import { INode } from "../types/INode";
 
 export default class InformationNode implements INode {
-    constructor(public readonly message: string, public readonly tooltip?: string) { }
+    constructor(
+        public readonly message: string,
+        public readonly tooltip: string | undefined = undefined,
+        public readonly command: string | undefined = undefined,
+        public readonly elementData: any = {}
+    ) { }
 
     public async getTreeItem(): Promise<vscode.TreeItem> {
         return {
@@ -34,14 +39,15 @@ export default class InformationNode implements INode {
                     "images/light",
                     "info-icon.svg"
                 ),
-                dark: path.join(
-                    __filename,
-                    "..",
-                    "..",
-                    "images/dark",
-                    "info-icon.svg"
-                ),
+                dark: path.join(__filename, "..", "..", "images/dark", "info-icon.svg"),
             },
+            command: this.command
+                ? {
+                    command: this.command,
+                    title: "Create Primary Index",
+                    arguments: [this.elementData],
+                }
+                : undefined,
         };
     }
 

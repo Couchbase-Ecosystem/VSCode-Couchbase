@@ -566,6 +566,11 @@
         "command":"vscode-couchbase.refreshClusterOverview",
         "icon": "$(refresh)",
         "category": "Couchbase"
+      },
+      {
+        "title": "Check and Create Primary Index",
+        "command": "vscode-couchbase.checkAndCreatePrimaryIndex",
+        "category": "Couchbase"
       }
     ],
     "keybindings": [
@@ -726,6 +731,10 @@
         },
         {
           "command": "vscode-couchbase.clearDocumentFilter",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.checkAndCreatePrimaryIndex",
           "when": "false"
         }
       ],
