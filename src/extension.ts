@@ -124,6 +124,7 @@ export function activate(context: vscode.ExtensionContext) {
           document.uri.scheme === "couchbase"
         ) {
           await handleOnSaveTextDocument(document, uriToCasMap, memFs);
+          clusterConnectionTreeProvider.refresh();
         }
       }
     )

@@ -41,7 +41,7 @@ export const createScope = async (node: BucketNode) => {
         return;
     }
 
-    const collectionManager = await node.connection.cluster
+    const collectionManager = await connection.cluster
         ?.bucket(node.bucketName)
         .collections();
     await collectionManager?.createScope(scopeName);

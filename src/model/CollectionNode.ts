@@ -85,8 +85,8 @@ export default class CollectionNode implements INode {
     if (docFilter && docFilter.filter.length > 0) {
       filter = docFilter.filter;
     }
+    const connection = getActiveConnection();
     try {
-      const connection = getActiveConnection();
       result = await connection?.cluster?.query(
         `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""} LIMIT ${this.limit}`
       );
@@ -99,11 +99,11 @@ export default class CollectionNode implements INode {
           "No"
         );
         if (answer === "Yes") {
-          await this.connection.cluster?.query(
+          await connection?.cluster?.query(
             `CREATE PRIMARY INDEX ON \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` USING GSI`
           );
           logger.info(`Created Primay Index on ${this.bucketName} ${this.scopeName} ${this.collectionName} USING GSI`);
-          result = await this.connection.cluster?.query(
+          result = await connection?.cluster?.query(
             `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""} LIMIT ${this.limit}`
           );
         }
