@@ -14,13 +14,13 @@
  *   limitations under the License.
  */
 import { Bucket } from "couchbase";
-import { OverviewGeneral } from "../util/OverviewClusterUtils/OverviewClusterHelper";
+import { IOverviewGeneral } from "../util/OverviewClusterUtils/OverviewClusterHelper";
 import { IKeyValuePair } from "./IKeyValuePair";
 import { CBNode } from "../util/apis/CBNode";
 
 
 export interface IClusterOverview {
-  readonly generalDetails: OverviewGeneral | null;
+  readonly generalDetails: IOverviewGeneral | null;
   readonly buckets: Bucket[] | null;
   readonly nodes: CBNode[] | null;
   readonly title: string;

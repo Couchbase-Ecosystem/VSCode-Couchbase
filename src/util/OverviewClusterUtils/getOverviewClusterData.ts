@@ -11,6 +11,7 @@ import { getBucketData } from "./ClusterOverviewBucketTab";
 import { getGeneralClusterDetails, getGeneralQuotaDetails, getGeneralRAMDetails, getGeneraStorageDetails } from "./ClusterOverviewGeneralTab";
 import { getNodeTabData } from "./ClusterOverviewNodeTab";
 import { IClusterOverview } from "../../types/IClusterOverview";
+import { getActiveConnection } from "../connections";
 
 const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connection: IConnection): Array<Bucket> => {
     let allBuckets: Array<Bucket> = [];
@@ -36,7 +37,7 @@ export const getClusterOverviewData = async (refreshRequired: boolean = false): 
         nodesHTML: [],
         currentConnection: '',
     };
-    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
+    const connection = getActiveConnection();
     if (!connection) {
         Memory.state.update(Constants.CLUSTER_OVERVIEW_DATA, clusterOverviewData);
         return clusterOverviewData;

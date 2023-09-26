@@ -1,26 +1,33 @@
 import { IKeyValuePair } from "../../types/IKeyValuePair";
 
+export interface IOverviewGeneral {
+  cluster: IKeyValuePair[] | null;
+  quota: IKeyValuePair[] | null;
+  RAM: IKeyValuePair[] | null;
+  storage: IKeyValuePair[] | null;
+}
+
 export class OverviewGeneral {
-    public cluster: IKeyValuePair[] | null;
-    public quota: IKeyValuePair[] | null;
-    public RAM: IKeyValuePair[] | null;
-    public storage: IKeyValuePair[] | null;
-    constructor(
-        cluster: IKeyValuePair[] | null,
-        quota: IKeyValuePair[] | null,
-        RAM: IKeyValuePair[] | null,
-        storage: IKeyValuePair[] | null
-      ) {
-        this.cluster = cluster;
-        this.quota = quota;
-        this.RAM = RAM;
-        this.storage = storage;
-      }
+  public cluster: IKeyValuePair[] | null;
+  public quota: IKeyValuePair[] | null;
+  public RAM: IKeyValuePair[] | null;
+  public storage: IKeyValuePair[] | null;
+  constructor(
+    cluster: IKeyValuePair[] | null,
+    quota: IKeyValuePair[] | null,
+    RAM: IKeyValuePair[] | null,
+    storage: IKeyValuePair[] | null
+  ) {
+    this.cluster = cluster;
+    this.quota = quota;
+    this.RAM = RAM;
+    this.storage = storage;
+  }
 }
 
 
 export function fmtByte(bytes: number): string {
-  if(bytes === -1){
+  if (bytes === -1) {
     return "NA";
   }
   const sizeInMB: number = bytes / (1024.0 * 1024.0);
@@ -56,9 +63,9 @@ export function formatDuration(seconds: number | null): string | null {
 }
 
 export function formatNumber(number: number): string {
-  if (number === -1){
+  if (number === -1) {
     return "NA";
-  } 
+  }
   const formatter = new Intl.NumberFormat('en-us', {
     useGrouping: true,
     minimumFractionDigits: 2,
@@ -69,7 +76,7 @@ export function formatNumber(number: number): string {
 }
 
 export function mbToGb(sizeInMb: number): string {
-  if (sizeInMb === -1){
+  if (sizeInMb === -1) {
     return "NA";
   } if (sizeInMb < 1024) {
     return `${sizeInMb} Mb`;
@@ -81,10 +88,10 @@ export function mbToGb(sizeInMb: number): string {
 
 export function formatServices(services: string): string {
   return services
-      .replace("backup", "Backup")
-      .replace("eventing", "Eventing")
-      .replace("fts", "Search")
-      .replace("index", "Index")
-      .replace("kv", "Data")
-      .replace("n1ql", "Query");
+    .replace("backup", "Backup")
+    .replace("eventing", "Eventing")
+    .replace("fts", "Search")
+    .replace("index", "Index")
+    .replace("kv", "Data")
+    .replace("n1ql", "Query");
 }

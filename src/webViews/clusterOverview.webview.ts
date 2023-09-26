@@ -1,6 +1,4 @@
 import { IClusterOverview } from "../types/IClusterOverview";
-import * as vscode from "vscode";
-import * as path from "path";
 export function getClusterOverview(overview: IClusterOverview): string {
    return `
     <!DOCTYPE html>
