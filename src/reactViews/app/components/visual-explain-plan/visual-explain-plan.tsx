@@ -163,7 +163,7 @@ export function VisualExplainPlan({ plan, hideControls }: VisualExplainPlanProps
           </div>
         </div>
       )}
-      <div className={`h-full w-full ${FS_EXCLUDE}`} ref={ref} />
+      <div className={`w-full ${FS_EXCLUDE}`}  style={{ height: 'calc(100vh - 120px)'}} ref={ref} />
     </div>
   );
 }
