@@ -67,13 +67,14 @@ export class QueryWorkbench {
                 const result = await connection.cluster?.query(query, queryOptions);
                 const end = Date.now();
                 const rtt = end - start;
+                const resultSize = result?.meta.metrics?.resultSize;
                 const queryStatusProps = {
                     queryStatus: result?.meta.status,
                     rtt: rtt.toString() + " MS",
                     elapsed: result?.meta.metrics?.elapsedTime.toString() + " MS",
                     executionTime: result?.meta.metrics?.executionTime + " MS",
                     numDocs: result?.meta.metrics?.resultCount.toString() + " docs",
-                    size: result?.meta.metrics?.resultSize.toString() + " Bytes",
+                    size: resultSize ? (resultSize > 1000 ? (resultSize / 1000).toFixed(2) + " KB" : resultSize + " Bytes") : ""
                 };
                 const explainPlan = JSON.stringify(result?.meta.profile.executionTimings);
                 await workbenchWebviewProvider.setQueryResult(
