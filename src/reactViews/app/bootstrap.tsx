@@ -26,7 +26,7 @@ export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = React.useState<QueryTabs>(QueryTabs.JSON); // TODO: initial value should be chart
   window.addEventListener('message', event => {
     const message = event.data; // The JSON data our extension sent
-  
+
     switch (message.command) {
       case 'queryResult':
         setQueryResult(JSON.parse(message.result));
@@ -40,22 +40,22 @@ export const App: React.FC = () => {
     }
   });
   return (
-    <div className="h-full">
+    <div className="h-screen">
       <QueryStats {...queryStatus} />
       <TabBarMenu items={TAB_BAR_ITEMS} value={currentTab} onChange={setCurrentTab} />
-      <div className="h-[300px]" style={{marginTop: "3px"}}>
-      {currentTab === QueryTabs.JSON && <Editor
+      <div style={{ height: 'calc(100vh - 80px)', marginTop: '3px' }}>
+        {currentTab === QueryTabs.JSON && <Editor
           value={JSON.stringify(queryResult ?? FALLBACK_MESSAGE, null, 2)}
           fontSize={13}
           height="100%"
           readOnly
-          theme = {theme}
+          theme={theme}
           language="json"
         />}
         {currentTab === QueryTabs.Table && <DataTable data={queryResult} dataFallback={[FALLBACK_MESSAGE]} />}
         {currentTab === QueryTabs.PLAN && <VisualExplainPlan plan={explainPlan} hideControls={false} />}
       </div>
-      </div>
+    </div>
   );
 };
 root.render(<App />);
