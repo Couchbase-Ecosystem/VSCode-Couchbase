@@ -37,8 +37,8 @@ export class CouchbaseRestAPI {
         });
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
         let status: string = content.status.toString();
-        if(!(status.length === 3 && status.charAt(2) === '2')){
-            logger.error(`Failed to fetch overview data, url:${url}`);
+        if(!(status.length === 3 && status.charAt(0) === '2')){
+            logger.error(`Failed to fetch overview data, url:${url}, status:${status}`);
         }
         let serverOverview = plainToClass(ServerOverview, (content.data));
         return serverOverview;
@@ -68,8 +68,8 @@ export class CouchbaseRestAPI {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
         let bucketOverview = plainToClass(BucketOverview, (content.data));
         let status: string = content.status.toString();
-        if(!(status.length === 3 && status.charAt(2) === '2')){
-            logger.error(`Failed to fetch bucket data, bucketName:${bucketName} , url:${url}`);
+        if(!(status.length === 3 && status.charAt(0) === '2')){
+            logger.error(`Failed to fetch bucket data, bucketName:${bucketName} , url:${url}, status:${status}`);
         }
         return bucketOverview;
     }

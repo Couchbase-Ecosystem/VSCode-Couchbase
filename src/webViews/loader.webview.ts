@@ -15,56 +15,67 @@ export const getLoader = (): string => {
                 position: absolute;
                 background-color: var(--vscode-editor-background);
                 color: var(--vscode-editor-foreground);
-                top: 40%;
-                left: 20%;
+                top: 30%;
+                left: 25%;
+                width: 50%;
+                padding: 10px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
             }
             
             h1 {
-                text-align: center;
                 font-family: "Heebo", sans-serif;
-                font-weight: 100;
-                margin: 10px 20px 0 0;
-                font-size: 18px;
-                margin-bottom: 10px;
+                font-weight: 400;
+                font-size: 30px;
+                margin-bottom: 20px;
             }
             
-            .progress-bar {
+
+            .lds-ring {
+                display: inline-block;
                 position: relative;
-                height: 10px;
-                width: 200px;
-                background-color: var(--vscode-list-activeSelectionBackground);
-                border: 1px solid var(--vscode-list-activeSelectionBackground);
-                border-radius: 25px;
-            }
-            
-            .progress-fill {
+                width: 80px;
+                height: 80px;
+                margin-top: 30px;
+              }
+              .lds-ring div {
+                box-sizing: border-box;
+                display: block;
                 position: absolute;
-                height: 10px;
-                width: 0%;
-                animation: progress-forward 300s infinite cubic-bezier(0,.4,0,1);
-                background: var(--vscode-list-activeSelectionForeground);
-                border-radius: 15px;
-            }
-            
-            @keyframes progress-forward {
-                from { 
-                    width: 0%;
-                  }
-                  to {
-                    width: 99%;
-                  }
-            } ;
+                width: 64px;
+                height: 64px;
+                margin: 8px;
+                border: 8px solid #fff;
+                border-radius: 50%;
+                animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+                border-color: #fff transparent transparent transparent;
+              }
+              .lds-ring div:nth-child(1) {
+                animation-delay: -0.45s;
+              }
+              .lds-ring div:nth-child(2) {
+                animation-delay: -0.3s;
+              }
+              .lds-ring div:nth-child(3) {
+                animation-delay: -0.15s;
+              }
+              @keyframes lds-ring {
+                0% {
+                  transform: rotate(0deg);
+                }
+                100% {
+                  transform: rotate(360deg);
+                }
+              }
+              
             
           </style>
         </head>
         <body>
-            <h1>LOADING</h1>
-            <div class="progress-bar">
-            <div class="progress-fill"></div>
-            </div>
+            <h1>Cluster Overview is Loading...</h1>
+            <h2>This might take a while, especially for large clusters</h2>
+            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
             <img src="" alt="">
         </body>
     </html>
