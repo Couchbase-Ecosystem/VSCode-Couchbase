@@ -62,7 +62,7 @@ export class QueryWorkbench {
                 vscode.commands.executeCommand('workbench.view.extension.couchbase-workbench-panel');
                 vscode.commands.executeCommand("workbench.action.focusPanel");
                 await new Promise((resolve) => setTimeout(resolve, 500));
-                workbenchWebviewProvider.sendQueryResult(JSON.stringify([{ "status": "Executing statement" }]), { queryStatus: QueryStatus.Running }, null);
+                await workbenchWebviewProvider.sendQueryResult(JSON.stringify([{ "status": "Executing statement" }]), { queryStatus: QueryStatus.Running }, null);
                 const start = Date.now();
                 const result = await connection.cluster?.query(query, queryOptions);
                 const end = Date.now();
@@ -76,13 +76,18 @@ export class QueryWorkbench {
                     size: result?.meta.metrics?.resultSize.toString() + " Bytes",
                 };
                 const explainPlan = JSON.stringify(result?.meta.profile.executionTimings);
-                workbenchWebviewProvider.setQueryResult(
+                await workbenchWebviewProvider.setQueryResult(
                     JSON.stringify(result?.rows),
                     queryStatusProps,
                     explainPlan
                 );
                 await saveQuery({ query: query, id: getUUID() });
                 queryHistoryTreeProvider.refresh();
+                let timeWait = result?.meta.metrics?.resultSize || 0;
+                
+                await new Promise((resolve)=>{
+                    setTimeout(resolve,(timeWait/10000));
+                });
             } catch (err) {
                 const errorArray = [];
                 if (err instanceof CouchbaseError) {
@@ -112,7 +117,7 @@ export class QueryWorkbench {
                     numDocs: "-",
                     size: "-",
                 };
-                workbenchWebviewProvider.setQueryResult(
+                await workbenchWebviewProvider.setQueryResult(
                     JSON.stringify(errorArray),
                     queryStatusProps,
                     null
