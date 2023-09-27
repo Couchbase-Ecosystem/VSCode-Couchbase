@@ -533,9 +533,12 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.runQuery, async () => {
-      workbench.runCouchbaseQuery(workbenchWebviewProvider, queryHistoryTreeProvider);
+      vscode.commands.executeCommand("setContext", "vscode-couchbase.runButtonEnabled", undefined);
+      await workbench.runCouchbaseQuery(workbenchWebviewProvider, queryHistoryTreeProvider);
+      vscode.commands.executeCommand("setContext", "vscode-couchbase.runButtonEnabled", true);
     })
   );
+  vscode.commands.executeCommand("setContext", "vscode-couchbase.runButtonEnabled", true); // Required to enable run query button at the start
 
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.checkAndCreatePrimaryIndex, async (elementData: any) => {

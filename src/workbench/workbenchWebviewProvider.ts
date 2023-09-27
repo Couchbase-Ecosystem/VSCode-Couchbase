@@ -68,6 +68,6 @@ export class WorkbenchWebviewProvider implements vscode.WebviewViewProvider {
     async setQueryResult(queryResult: string, queryStatus: IQueryStatusProps, plan: string | null) {
         this._view?.show();
         this._queryResult = queryResult;
-        this.sendQueryResult(queryResult, queryStatus, plan);
+        await this.sendQueryResult(queryResult, queryStatus, plan);
     }
 }
