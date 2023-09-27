@@ -95,4 +95,5 @@ export class Constants {
   public static INDEX_DATA_SIZE_ON_DISK = "Index Data Size on Disk";
   public static OPS = "Ops";
   public static CURRENT_VBUCKET_REPLICA_ITEMS = "Current vBucket Replica Items";
+  public static QUERY_RESULT = "Couchbase Query Result";
 }
