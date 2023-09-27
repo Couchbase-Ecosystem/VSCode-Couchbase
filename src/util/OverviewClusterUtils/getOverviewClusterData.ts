@@ -27,7 +27,7 @@ const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connect
     return allBuckets;
 };
 
-export const getClusterOverviewData = async (refreshRequired: boolean = false): Promise<IClusterOverview> => {
+export const getClusterOverviewData = async (refreshRequired: boolean = false): Promise<IClusterOverview|Error> => {
     let clusterOverviewData: IClusterOverview = {
         generalDetails: null,
         buckets: null,
@@ -99,6 +99,6 @@ export const getClusterOverviewData = async (refreshRequired: boolean = false): 
     } catch (err) {
         logger.error(`Failed to get Cluster Overview Data, error: ${err}`);
         Memory.state.update(Constants.CLUSTER_OVERVIEW_DATA, clusterOverviewData);
-        return clusterOverviewData;
+        return new Error(`Failed to get Cluster Overview Data, error: ${err}`);
     }
 };

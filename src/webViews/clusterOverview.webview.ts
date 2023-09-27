@@ -157,7 +157,7 @@ export function getClusterOverview(overview: IClusterOverview): string {
              .separator {
                flex: 1;
                border: none;
-               border-top: 1px solid black;
+               border-top: 1px solid var(--vscode-settings-sashBorder);
              }
              
              .flex {
