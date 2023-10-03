@@ -18,9 +18,10 @@ import { IConnection } from "../../types/IConnection";
 import { Memory } from "../../util/util";
 import { logger } from "../../logger/logger";
 import CollectionNode from "../../model/CollectionNode";
+import { Constants } from "../../util/constants";
 
 export const removeCollection = async (node: CollectionNode) => {
-    const connection = Memory.state.get<IConnection>("activeConnection");
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
       return;
     }
@@ -33,7 +34,7 @@ export const removeCollection = async (node: CollectionNode) => {
       return;
     }
 
-    const collectionManager = await node.connection.cluster
+    const collectionManager = await connection.cluster
       ?.bucket(node.bucketName)
       .collections();
     await collectionManager?.dropCollection(

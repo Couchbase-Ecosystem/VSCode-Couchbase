@@ -55,7 +55,11 @@ export class ClusterConnectionNode implements INode {
     // only support CB 7.0 for now
     let isScopesandCollections = true;
     try {
-      let buckets = await this.connection.cluster?.buckets().getAllBuckets();
+      const activeConnection = getActiveConnection();
+      if (!activeConnection) {
+        return nodes;
+      }
+      let buckets = await activeConnection.cluster?.buckets().getAllBuckets();
       buckets?.forEach((bucket: BucketSettings) => {
         nodes.push(
           new BucketNode(

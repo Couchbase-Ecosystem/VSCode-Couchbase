@@ -22,15 +22,18 @@ export default class ClusterConnectionTreeProvider
   implements vscode.TreeDataProvider<INode>
 {
   constructor(private context: vscode.ExtensionContext) {}
+
   private _onDidChangeTreeData: vscode.EventEmitter<
     INode | undefined | null | void
   > = new vscode.EventEmitter<INode | undefined | null | void>();
+
   readonly onDidChangeTreeData: vscode.Event<INode | undefined | null | void> =
     this._onDidChangeTreeData.event;
 
   getTreeItem(element: INode): vscode.TreeItem | Thenable<vscode.TreeItem> {
     return element.getTreeItem();
   }
+  
   getChildren(element?: INode): vscode.ProviderResult<INode[]> {
     if (!element) {
       return this.getConnections();

@@ -17,6 +17,13 @@ const pkg = require('../../package.json');
 export class Constants {
   public static extensionID = "vscode-couchbase";
   public static connectionKeys = "cluster.connections";
+  public static QUERY_HISTORY = "cluster.queryHistory";
+  public static FAVORITE_QUERY = "cluster.favoriteQueries";
+  public static ACTIVE_CONNECTION = "activeConnection";
+  public static FAVORITE_QUERIES_WEBVIEW = "favoriteQueriesWebview";
+  public static CLUSTER_OVERVIEW_WEBVIEW = "clusterOverviewWebview";
+  public static CLUSTER_OVERVIEW_DATA = "clusterOverviewData";
+  public static QUERY_CONTEXT_STATUS_BAR = "queryContextStatusBar";
   public static notebookType = "couchbase-query-notebook";
   public static capellaUrlPostfix = "cloud.couchbase.com";
   public static prefixSecureURL = "couchbases://";
@@ -88,4 +95,5 @@ export class Constants {
   public static INDEX_DATA_SIZE_ON_DISK = "Index Data Size on Disk";
   public static OPS = "Ops";
   public static CURRENT_VBUCKET_REPLICA_ITEMS = "Current vBucket Replica Items";
+  public static QUERY_RESULT = "Couchbase Query Result";
 }

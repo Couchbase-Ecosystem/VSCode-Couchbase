@@ -1,0 +1,44 @@
+.query-stats-text {
+    font-size: 12px;
+    align-items: center;
+}
+
+.query-stats {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: baseline;
+    align-content: center;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+/* Define the tooltip text */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: right;
+    border-radius: 4px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    top: 100%; /* Position below the RTT text */
+    left: 100%; /* Position at the bottom left of the .tooltip container */
+    transform: translateY(0%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap; /* Prevent line break */
+}
+
+/* Show the tooltip on hover */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+.fill-on-running-decoration {
+    color: #f59e23;
+}

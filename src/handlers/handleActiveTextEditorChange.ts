@@ -24,38 +24,33 @@ import { DocumentNotFoundError } from "couchbase";
 import { logger } from "../logger/logger";
 
 export const handleActiveEditorChange = async (editor: vscode.TextEditor, uriToCasMap: Map<string, string>, memFs: MemFS) => {
-    if (
-        editor.document.languageId === "json" &&
-        editor.document.uri.scheme === "couchbase"
-    ) {
-        const activeConnection = getActiveConnection();
-        if (!activeConnection) {
+    const activeConnection = getActiveConnection();
+    if (!activeConnection) {
+        return;
+    }
+    const documentInfo: IDocumentData = extractDocumentInfo(
+        editor.document.uri.path
+    );
+    try {
+        const remoteDocument = await getDocument(
+            activeConnection,
+            documentInfo
+        );
+        // The condition below is checking whether the remoteDocument object exists and whether there is
+        // a Cas value associated with the URI. Furthermore, it's verifying whether the Cas value
+        // in the remoteDocument has been modified since the last time it was saved.
+        if (
+            remoteDocument &&
+            uriToCasMap.get(editor.document.uri.toString()) &&
+            remoteDocument.cas.toString() !==
+            uriToCasMap.get(editor.document.uri.toString())
+        ) {
+            await handleActiveEditorConflict(editor.document, remoteDocument, memFs, uriToCasMap);
+        }
+    } catch (err) {
+        if (err instanceof DocumentNotFoundError) {
             return;
         }
-        const documentInfo: IDocumentData = extractDocumentInfo(
-            editor.document.uri.path
-        );
-        try {
-            const remoteDocument = await getDocument(
-                activeConnection,
-                documentInfo
-            );
-            // The condition below is checking whether the remoteDocument object exists and whether there is
-            // a Cas value associated with the URI. Furthermore, it's verifying whether the Cas value
-            // in the remoteDocument has been modified since the last time it was saved.
-            if (
-                remoteDocument &&
-                uriToCasMap.get(editor.document.uri.toString()) &&
-                remoteDocument.cas.toString() !==
-                uriToCasMap.get(editor.document.uri.toString())
-            ) {
-                await handleActiveEditorConflict(editor.document, remoteDocument, memFs, uriToCasMap);
-            }
-        } catch (err) {
-            if (err instanceof DocumentNotFoundError) {
-                return;
-            }
-            logger.error(err);
-        }
+        logger.error(err);
     }
 };

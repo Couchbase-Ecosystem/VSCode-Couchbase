@@ -83,11 +83,18 @@ const reactConfig = {
     alias: {
       'components': path.resolve(__dirname, 'src/reactViews/app/components'),
       'utils': path.resolve(__dirname, 'src/reactViews/app/utils'),
-      'constants':  path.resolve(__dirname, 'src/reactViews/app/constants'),
+      'constants': path.resolve(__dirname, 'src/reactViews/app/constants'),
       'sync': path.resolve(__dirname, 'src/reactViews/app/sync'),
       'hooks': path.resolve(__dirname, 'src/reactViews/app/hooks'),
       'error': path.resolve(__dirname, 'src/reactViews/app/error'),
+      'custom': path.resolve(__dirname, 'src/reactViews/app/custom'),
+      'types': path.resolve(__dirname, 'src/reactViews/app/types'),
+      'assets': path.resolve(__dirname, 'src/reactViews/app/assets'),
     },
+    fallback: {
+      "path": false,
+      "fs": false
+    }
   },
   module: {
     rules: [
@@ -100,9 +107,21 @@ const reactConfig = {
             options: {
               configFile: "src/reactViews/app/tsconfig.json",
             },
+
           },
         ],
       },
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: "file-loader", // You can also use "url-loader" if you prefer
+            options: {
+              name: "[name].[ext]", // Output file name and extension
+            },
+          },
+        ],
+      }, 
       {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],

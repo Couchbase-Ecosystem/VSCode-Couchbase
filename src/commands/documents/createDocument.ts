@@ -20,9 +20,10 @@ import { Memory } from "../../util/util";
 import { logger } from "../../logger/logger";
 import { DocumentNotFoundError } from "couchbase";
 import { MemFS } from "../../util/fileSystemProvider";
+import { Constants } from "../../util/constants";
 
 export const createDocument = async (node: CollectionNode, memFs: MemFS, uriToCasMap: Map<string, string>) => {
-    const connection = Memory.state.get<IConnection>("activeConnection");
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
     }
@@ -45,7 +46,7 @@ export const createDocument = async (node: CollectionNode, memFs: MemFS, uriToCa
     // Try block is trying to retrieve the document with the same key first
     // If returns an error go to catch block create a new empty document
     try {
-        const result = await node.connection.cluster
+        const result = await connection.cluster
             ?.bucket(node.bucketName)
             .scope(node.scopeName)
             .collection(node.collectionName)

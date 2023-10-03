@@ -22,7 +22,11 @@ import { PagerNode } from "./PagerNode";
 import { abbreviateCount } from "../util/common";
 import { PlanningFailureError } from "couchbase";
 import InformationNode from "./InformationNode";
-import { logger } from "../logger/logger";
+import { Memory } from "../util/util";
+import { IFilterDocuments } from "../types/IFilterDocuments";
+import { SchemaDirectory } from "./SchemaDirectory";
+import { getActiveConnection } from "../util/connections";
+import { Commands } from "../commands/extensionCommands/commands";
 
 export default class CollectionNode implements INode {
   constructor(
@@ -32,6 +36,7 @@ export default class CollectionNode implements INode {
     public readonly documentCount: number,
     public readonly bucketName: string,
     public readonly collectionName: string,
+    public readonly filter: boolean,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public limit: number = 10
   ) {
@@ -48,21 +53,21 @@ export default class CollectionNode implements INode {
         this.documentCount
       )})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      contextValue: this.collectionName === '_default' ? "default_collection" : "collection",
+      contextValue: (this.collectionName === '_default' ? "default_collection" : "collection") + (this.filter ? "_filter" : ""),
       iconPath: {
         light: path.join(
           __filename,
           "..",
           "..",
           "images/light",
-          "documents-icon.svg"
+          this.filter ? "filter.svg" : "documents-icon.svg"
         ),
         dark: path.join(
           __filename,
           "..",
           "..",
           "images/dark",
-          "documents-icon.svg"
+          this.filter ? "filter.svg" : "documents-icon.svg"
         ),
       },
     };
@@ -70,35 +75,25 @@ export default class CollectionNode implements INode {
 
   public async getChildren(): Promise<INode[]> {
     let documentList: INode[] = [];
+    documentList.push(new SchemaDirectory(this, this.connection, "Schema", this.bucketName, this.scopeName, this.collectionName));
     // TODO: default limit could be managed as user settings / preference
     let result;
     // A primary index is required for database querying. If one is present, a result will be obtained.
     // If not, the user will be prompted to create a primary index before querying.
+    let docFilter = Memory.state.get<IFilterDocuments>(`filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`);
+    let filter: string = "";
+    if (docFilter && docFilter.filter.length > 0) {
+      filter = docFilter.filter;
+    }
+    const connection = getActiveConnection();
     try {
-      result = await this.connection.cluster?.query(
-        `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
+      result = await connection?.cluster?.query(
+        `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""} LIMIT ${this.limit}`
       );
     } catch (err) {
       if (err instanceof PlanningFailureError) {
-        const answer = await vscode.window.showWarningMessage(
-          "No suitable index was found for listing the Collection's documents. If you are NOT in a production environment we recommend you to create a Primary Index for it. Would you like to create one?",
-          { modal: true },
-          "Yes",
-          "No"
-        );
-        if (answer === "Yes") {
-          await this.connection.cluster?.query(
-            `CREATE PRIMARY INDEX ON \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` USING GSI`
-          );
-          logger.info(`Created Primay Index on ${this.bucketName} ${this.scopeName} ${this.collectionName} USING GSI`);
-          result = await this.connection.cluster?.query(
-            `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` LIMIT ${this.limit}`
-          );
-        }
-        else {
-          const infoNode: InformationNode = new InformationNode("No indexes available", "No indexes available to list the documents in this collection");
-          documentList.push(infoNode);
-        }
+        const infoNode: InformationNode = new InformationNode("No indexes available, click to create one", "No indexes available to list the documents in this collection", Commands.checkAndCreatePrimaryIndex, this);
+        documentList.push(infoNode);
       }
     }
     result?.rows.forEach((documentName: string) => {
@@ -115,7 +110,7 @@ export default class CollectionNode implements INode {
       documentList.push(documentTreeItem);
     });
     // TODO: add local only (un-synchronized) files to documentList
-    if (documentList.length === 0) {
+    if (documentList.length === 1) { // Checking with 1 as Schema Directory is always present
       documentList.push(new InformationNode("No Documents found"));
     } else if (this.documentCount > documentList.length) {
       documentList.push(new PagerNode(this));

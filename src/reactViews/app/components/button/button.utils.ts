@@ -60,6 +60,10 @@ export const getButtonIconClassByVariant = (variant: IconOnlyButtonVariant) => {
       return 'bg-transparent text-on-surface active:bg-surface fill-on-surface active:fill-on-surface-decoration hover:fill-on-surface-decoration';
     case 'primary':
       return 'bg-background text-on-background hover:bg-on-background-decoration active:bg-primary fill-on-background active:fill-on-primary';
+    case 'copy':
+      return 'hover:bg-on-background-decoration active:bg-primary active:fill-on-primary bg-transparent rounded-full';
+    case 'accordion':
+      return 'bg-primary fill-background';
     default:
       throw new Error(`Unexpected variant ${variant}`);
   }

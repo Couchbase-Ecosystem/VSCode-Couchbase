@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "0.6.4",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -60,6 +60,7 @@
     "css-loader": "^6.8.1",
     "electron-rebuild": "^3.2.7",
     "eslint": "^7.32.0",
+    "file-loader": "^6.2.0",
     "glob": "^7.2.0",
     "mocha": "^9.2.2",
     "node-loader": "^2.0.0",
@@ -78,6 +79,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.5.2",
     "@popperjs/core": "^2.11.8",
     "@types/decompress": "^4.2.4",
     "ag-grid-community": "^29.3.5",
@@ -85,10 +87,15 @@
     "axios": "^1.4.0",
     "clsx": "^2.0.0",
     "couchbase": "^4.2.1",
+    "d3-hierarchy": "^1.1.9",
+    "d3-selection": "^1.4.2",
+    "d3-shape": "^1.3.7",
+    "d3-zoom": "^1.8.3",
     "dayjs": "^1.11.9",
     "decompress": "^4.2.1",
     "gitly": "^2.4.2",
     "keytar": "^7.7.0",
+    "monaco-editor": "^0.43.0",
     "node-addon-api": "^6.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -100,30 +107,7 @@
   },
   "activationEvents": [
     "onFileSystem:couchbase",
-    "onCommand:vscode-couchbase.createClusterConnection",
-    "onCommand:vscode-couchbase.openSampleProjects",
-    "onCommand:vscode-couchbase.refreshConnection",
-    "onCommand:vscode-couchbase.deleteClusterConnection",
-    "onCommand:vscode-couchbase.useClusterConnection",
-    "onCommand:vscode-couchbase.disconnectClusterConnection",
-    "onCommand:vscode-couchbase.createDocument",
-    "onCommand:vscode-couchbase.searchDocument",
-    "onCommand:vscode-couchbase.removeDocument",
-    "onCommand:vscode-couchbase.refreshCollection",
-    "onCommand:vscode-couchbase.getBucketInfo",
-    "onCommand:vscode-couchbase.createScope",
-    "onCommand:vscode-couchbase.removeScope",
-    "onCommand:vscode-couchbase.refreshScopes",
-    "onCommand:vscode-couchbase.createCollection",
-    "onCommand:vscode-couchbase.removeCollection",
-    "onCommand:vscode-couchbase.refreshCollections",
-    "onCommand:vscode-couchbase.getDocumentMetaData",
-    "onCommand:vscode-couchbase.openQueryNotebook",
-    "onCommand:vscode-couchbase.openQueryWorkbench",
-    "onCommand:vscode-couchbase.refreshIndexes",
-    "onCommand:vscode-couchbase.showOutputConsole",
     "onNotebook:vscode-couchbase.couchbase-query-notebook",
-    "onCustomEditor:vscode-couchbase.couchbaseDocument",
     "onStartupFinished",
     "onView:couchbase-activity-bar"
   ],
@@ -343,6 +327,9 @@
           ".n1ql",
           ".sqlpp"
         ],
+        "aliases": [
+          "SQL++"
+        ],
         "configuration": "./language/language-configuration.json"
       }
     ],
@@ -371,6 +358,13 @@
           "title": "Couchbase",
           "icon": "images/couchbase.svg"
         }
+      ],
+      "panel": [
+        {
+          "id": "couchbase-workbench-panel",
+          "title": "Couchbase",
+          "icon": "images/couchbase.svg"
+        }
       ]
     },
     "notebooks": [
@@ -379,7 +373,7 @@
         "displayName": "SQL++ Query",
         "selector": [
           {
-            "filenamePattern": "*.{n1qlnb,sqlpp,n1ql}"
+            "filenamePattern": "*.sqlppnb"
           }
         ]
       }
@@ -436,6 +430,11 @@
       {
         "command": "vscode-couchbase.searchDocument",
         "title": "Open Document",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.filterDocuments",
+        "title": "Add Document Filter",
         "category": "Couchbase"
       },
       {
@@ -499,6 +498,14 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.runQuery",
+        "title": "Run Query",
+        "category": "Couchbase",
+        "icon": "$(play)",
+        "tooltip": "Run Query",
+        "enablement": "vscode-couchbase.runButtonEnabled"
+      },
+      {
         "command": "vscode-couchbase.getClusterOverview",
         "title": "Cluster Overview",
         "category": "Couchbase"
@@ -507,9 +514,125 @@
         "command": "vscode-couchbase.tools.dataExport",
         "title": "Data Export",
         "category": "Couchbase"
+      },
+      {
+        "title": "Query Context",
+        "command": "vscode-couchbase.queryContext",
+        "category": "Couchbase",
+        "icon": "$(group-by-ref-type)"
+      },
+      {
+        "title": "Show Favorite Queries",
+        "command": "vscode-couchbase.showFavoriteQueries",
+        "category": "Couchbase",
+        "icon": {
+          "light": "images/light/favorites-list.svg",
+          "dark": "images/dark/favorites-list.svg"
+        }
+      },
+      {
+        "title": "Mark Favorite Query",
+        "command": "vscode-couchbase.markFavoriteQuery",
+        "category": "Couchbase",
+        "icon": "$(star-empty)"
+      },
+      {
+        "title": "Apply Query History",
+        "command": "vscode-couchbase.applyQueryHistory",
+        "category": "Couchbase"
+      },
+      {
+        "title": "Delete Query History Item",
+        "command": "vscode-couchbase.deleteQueryHistoryItem",
+        "category": "Couchbase",
+        "icon": "$(trash)"
+      },
+      {
+        "title": "Copy History Item",
+        "command": "vscode-couchbase.copyQueryHistoryItem",
+        "category": "Couchbase",
+        "icon": "$(clippy)"
+      },
+      {
+        "title": "Refresh Query History",
+        "command": "vscode-couchbase.refreshQueryHistory",
+        "category": "Couchbase",
+        "icon": "$(refresh)"
+      },
+      {
+        "title": "Edit Document Filter",
+        "command": "vscode-couchbase.editDocumentFilter",
+        "category": "Couchbase"
+      },
+      {
+        "title": "Clear Document Filter",
+        "command": "vscode-couchbase.clearDocumentFilter",
+        "category": "Couchbase"
+      },
+      {
+        "title": "Refresh Cluster Overview",
+        "command":"vscode-couchbase.refreshClusterOverview",
+        "icon": "$(refresh)",
+        "category": "Couchbase"
+      },
+      {
+        "title": "Check and Create Primary Index",
+        "command": "vscode-couchbase.checkAndCreatePrimaryIndex",
+        "category": "Couchbase"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vscode-couchbase.runQuery",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ "
       }
     ],
     "menus": {
+      "editor/title": [
+        {
+          "command": "vscode-couchbase.runQuery",
+          "category": "Couchbase",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
+          "group": "navigation@1"
+        },
+        {
+          "title": "Query Context",
+          "command": "vscode-couchbase.queryContext",
+          "category": "Couchbase",
+          "group": "navigation@2",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
+        },
+        {
+          "title": "Show Favorite Queries",
+          "command": "vscode-couchbase.showFavoriteQueries",
+          "category": "Couchbase",
+          "group": "navigation@3",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
+        },
+        {
+          "title": "Mark Favorite Query",
+          "command": "vscode-couchbase.markFavoriteQuery",
+          "category": "Couchbase",
+          "group": "navigation@4",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
+        },
+        {
+          "title": "Refresh Cluster Overview",
+          "command": "vscode-couchbase.refreshClusterOverview",
+          "category": "Couchbase",
+          "group": "navigation",
+          "when": "activeWebviewPanelId == clusterOverview"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "vscode-couchbase.runQuery",
+          "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
+          "group": "navigation@1"
+        }
+      ],
       "commandPalette": [
         {
           "command": "vscode-couchbase.refreshConnection",
@@ -584,6 +707,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.filterDocuments",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.refreshIndexes",
           "when": "false"
         },
@@ -593,9 +720,32 @@
         {
           "command": "vscode-couchbase.getClusterOverview",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.queryContext",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.showFavoriteQueries",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.markFavoriteQuery",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.editDocumentFilter",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.clearDocumentFilter",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.checkAndCreatePrimaryIndex",
+          "when": "false"
         }
       ],
-      "editor/context": [],
       "view/item/context": [
         {
           "command": "vscode-couchbase.deleteClusterConnection",
@@ -630,13 +780,18 @@
         },
         {
           "command": "vscode-couchbase.createDocument",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter || viewItem == collection_filter)",
           "group": "primary"
         },
         {
           "command": "vscode-couchbase.searchDocument",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter || viewItem == collection_filter)",
           "group": "primary"
+        },
+        {
+          "command": "vscode-couchbase.filterDocuments",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
+          "group": "secondary"
         },
         {
           "command": "vscode-couchbase.removeDocument",
@@ -648,8 +803,8 @@
         },
         {
           "command": "vscode-couchbase.refreshCollection",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
-          "group": "secondary"
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter || viewItem == collection_filter)",
+          "group": "tertiary"
         },
         {
           "command": "vscode-couchbase.getBucketInfo",
@@ -676,7 +831,17 @@
         },
         {
           "command": "vscode-couchbase.removeCollection",
-          "when": "view == couchbase && viewItem == collection",
+          "when": "view == couchbase && (viewItem == collection || viewItem == collection_filter)",
+          "group": "tertiary"
+        },
+        {
+          "command": "vscode-couchbase.editDocumentFilter",
+          "when": "view == couchbase && (viewItem == collection_filter || viewItem == default_collection_filter)",
+          "group": "secondary"
+        },
+        {
+          "command": "vscode-couchbase.clearDocumentFilter",
+          "when": "view == couchbase && (viewItem == collection_filter || viewItem == default_collection_filter)",
           "group": "secondary"
         },
         {
@@ -686,6 +851,16 @@
         {
           "command": "vscode-couchbase.refreshIndexes",
           "when": "view == couchbase && viewItem == indexDirectory"
+        },
+        {
+          "command": "vscode-couchbase.deleteQueryHistoryItem",
+          "when": "view == query-history",
+          "group": "inline"
+        },
+        {
+          "command": "vscode-couchbase.copyQueryHistoryItem",
+          "when": "view == query-history",
+          "group": "inline"
         }
       ],
       "view/title": [
@@ -701,6 +876,11 @@
         {
           "command": "vscode-couchbase.openSampleProjects",
           "when": "view == couchbase"
+        },
+        {
+          "command": "vscode-couchbase.refreshQueryHistory",
+          "when": "view == query-history",
+          "group": "navigation"
         }
       ]
     },
@@ -709,6 +889,17 @@
         {
           "id": "couchbase",
           "name": "Couchbase"
+        },
+        {
+          "id": "query-history",
+          "name": "Query history"
+        }
+      ],
+      "couchbase-workbench-panel": [
+        {
+          "id": "vscode-couchbase.couchbase-query-workbench",
+          "name": "Couchbase",
+          "type": "webview"
         }
       ]
     },

@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
-import * as path from 'path';
+import * as path from "path";
 import { BucketNode } from "./model/BucketNode";
 import { ClusterConnectionNode } from "./model/ClusterConnectionNode";
 import CollectionNode from "./model/CollectionNode";
@@ -40,20 +40,40 @@ import { createNotebook } from "./notebook/notebook";
 import IndexNode from "./model/IndexNode";
 import { CollectionDirectory } from "./model/CollectionDirectory";
 import { IndexDirectory } from "./model/IndexDirectory";
-import { openWorkbench } from "./workbench/workbench";
 import { openIndexInfo } from "./commands/indexes/openIndexInformation";
 import { Commands } from "./commands/extensionCommands/commands";
-import { createDocument, removeDocument, searchDocument, getDocumentMetaData, openDocument } from "./commands/documents";
+import {
+  createDocument,
+  removeDocument,
+  searchDocument,
+  getDocumentMetaData,
+  openDocument,
+} from "./commands/documents";
 import { getSampleProjects } from "./commands/sampleProjects/getSampleProjects";
 import { createCollection, removeCollection } from "./commands/collections";
 import { createScope, removeScope } from "./commands/scopes";
 import { getBucketMetaData } from "./commands/buckets/getBucketMetaData";
 import { handleOnSaveTextDocument } from "./handlers/handleSaveDocument";
 import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChange";
+import { QueryWorkbench } from "./workbench/queryWorkbench";
+import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 // import { Worker, isMainThread, parentPort } from 'worker_threads';
-import * as child_process from 'child_process';
+import * as child_process from "child_process";
 import DependenciesDownloader from "./handlers/handleCLIDownloader";
+import { sqlppFormatter } from "./commands/formatting/sqlppFormatter";
+import { fetchQueryContext } from "./pages/queryContext/queryContext";
+import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
+import { markFavoriteQuery } from "./commands/favoriteQueries/markFavoriteQuery";
+import { QueryHistoryTreeProvider } from "./tree/QueryHistoryTreeProvider";
+import { deleteQueryItem } from "./commands/queryHistory/deleteQuery";
+import { copyQuery } from "./commands/queryHistory/copyQuery";
+import { applyQuery } from "./commands/queryHistory/applyQuery";
+import { handleQueryContextStatusbar } from "./handlers/handleQueryContextStatusbar";
+import { filterDocuments } from "./commands/documents/filterDocuments";
+import { clearDocumentFilter } from "./commands/documents/clearDocumentFilter";
+import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewClusterData";
+import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePrimaryIndex";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -63,7 +83,9 @@ export function activate(context: vscode.ExtensionContext) {
     "vscode-couchbase",
     vscode.workspace.getConfiguration("vscode-couchbase")
   );
-  logger.info(`Activating extension ${Constants.extensionID} v${Constants.extensionVersion}`);
+  logger.info(
+    `Activating extension ${Constants.extensionID} v${Constants.extensionVersion}`
+  );
 
   // Creating thread to download CLI tools in a child process
   // const scriptPath = path.join(context.extensionPath, './scripts/dependency_downloader.js');
@@ -78,48 +100,61 @@ export function activate(context: vscode.ExtensionContext) {
   let cliDownloader = new DependenciesDownloader();
   cliDownloader.handleCLIDownloader();
 
-  
   const uriToCasMap = new Map<string, string>();
   let currentPanel: vscode.WebviewPanel | undefined = undefined;
+  const workbench = new QueryWorkbench();
 
   const subscriptions = context.subscriptions;
+  const workbenchWebviewProvider = new WorkbenchWebviewProvider(context);
 
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context
   );
 
   // Set up the global error handler
-  process.on('uncaughtException', (error) => {
+  process.on("uncaughtException", (error) => {
     logger.error(`Unhandled error: ${error.message}`);
   });
-  process.on('unhandledRejection', (reason, promise) => {
+  process.on("unhandledRejection", (reason, promise) => {
     logger.error(reason instanceof Error ? `${reason.message}` : reason);
   });
 
   subscriptions.push(
-    vscode.commands.registerCommand(
-      Commands.showOutputConsole,
-      () => {
-        logger.showOutput();
-      }
+    vscode.commands.registerCommand(Commands.showOutputConsole, () => {
+      logger.showOutput();
+    })
+  );
+
+  subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      Commands.queryWorkbench,
+      workbenchWebviewProvider
     )
   );
 
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-      if (!editor) {
-        return;
+      if (
+        editor &&
+        editor.document.languageId === "json" &&
+        editor.document.uri.scheme === "couchbase"
+      ) {
+        await handleActiveEditorChange(editor, uriToCasMap, memFs);
       }
-      await handleActiveEditorChange(editor, uriToCasMap, memFs);
-      clusterConnectionTreeProvider.refresh();
     })
   );
 
   subscriptions.push(
     vscode.workspace.onDidSaveTextDocument(
       async (document: vscode.TextDocument) => {
-        await handleOnSaveTextDocument(document, uriToCasMap, memFs);
-        clusterConnectionTreeProvider.refresh();
+        if (
+          document &&
+          document.languageId === "json" &&
+          document.uri.scheme === "couchbase"
+        ) {
+          await handleOnSaveTextDocument(document, uriToCasMap, memFs);
+          clusterConnectionTreeProvider.refresh();
+        }
       }
     )
   );
@@ -157,7 +192,9 @@ export function activate(context: vscode.ExtensionContext) {
         }
         await removeConnection(node.connection);
         clusterConnectionTreeProvider.refresh();
-        logger.info(`Connection named ${node.connection.connectionIdentifier} has been deleted.`);
+        logger.info(
+          `Connection named ${node.connection.connectionIdentifier} has been deleted.`
+        );
       }
     )
   );
@@ -177,6 +214,7 @@ export function activate(context: vscode.ExtensionContext) {
       async (node: ClusterConnectionNode) => {
         await useConnection(node.connection);
         clusterConnectionTreeProvider.refresh();
+        getClusterOverviewData();
       }
     )
   );
@@ -191,7 +229,9 @@ export function activate(context: vscode.ExtensionContext) {
         node.connection.cluster = undefined;
         setActiveConnection();
         clusterConnectionTreeProvider.refresh(node);
-        logger.info(`Connection to ${node.connection.connectionIdentifier} has been disconnection`);
+        logger.info(
+          `Connection to ${node.connection.connectionIdentifier} has been disconnection`
+        );
       }
     )
   );
@@ -200,7 +240,12 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.openDocument,
       async (documentNode: DocumentNode) => {
-        await openDocument(documentNode, clusterConnectionTreeProvider, uriToCasMap, memFs);
+        await openDocument(
+          documentNode,
+          clusterConnectionTreeProvider,
+          uriToCasMap,
+          memFs
+        );
       }
     )
   );
@@ -210,7 +255,6 @@ export function activate(context: vscode.ExtensionContext) {
       Commands.openIndexInfo,
       async (indexNode: IndexNode) => {
         openIndexInfo(indexNode, memFs);
-
       }
     )
   );
@@ -249,7 +293,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.refreshCollection,
       async (node: CollectionNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
+        const connection = Memory.state.get<IConnection>(
+          Constants.ACTIVE_CONNECTION
+        );
         if (!connection) {
           return;
         }
@@ -347,9 +393,41 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
+      Commands.filterDocuments,
+      async (node: CollectionNode) => {
+        await filterDocuments(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.editDocumentFilter,
+      async (node: CollectionNode) => {
+        await filterDocuments(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.clearDocumentFilter,
+      async (node: CollectionNode) => {
+        await clearDocumentFilter(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
       Commands.refreshIndexes,
       async (node: IndexDirectory) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
+        const connection = Memory.state.get<IConnection>(
+          Constants.ACTIVE_CONNECTION
+        );
         if (!connection) {
           return;
         }
@@ -359,33 +437,45 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   subscriptions.push(
+    vscode.commands.registerCommand(Commands.openQueryNotebook, async () => {
+      createNotebook();
+    })
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.openQueryWorkbench, async () => {
+      const connection = Memory.state.get<IConnection>(
+        Constants.ACTIVE_CONNECTION
+      );
+      if (!connection) {
+        return;
+      }
+      workbench.openWorkbench(memFs);
+    })
+  );
+
+  vscode.languages.registerDocumentFormattingEditProvider("SQL++", {
+    provideDocumentFormattingEdits(
+      document: vscode.TextDocument
+    ): vscode.TextEdit[] {
+      return sqlppFormatter(document);
+    },
+  });
+
+  subscriptions.push(
     vscode.commands.registerCommand(
-      Commands.openQueryNotebook,
-      async () => {
-        createNotebook();
+      Commands.getClusterOverview,
+      async (node: ClusterConnectionNode) => {
+        fetchClusterOverview(node, false);
       }
     )
   );
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      Commands.openQueryWorkbench,
+      Commands.refreshClusterOverview,
       async (node: ClusterConnectionNode) => {
-        const connection = Memory.state.get<IConnection>("activeConnection");
-
-        if (!connection) {
-          return;
-        }
-        openWorkbench(node, context, currentPanel);
-      }
-    )
-  );
-
-  subscriptions.push(
-    vscode.commands.registerCommand(
-      "vscode-couchbase.getClusterOverview",
-      async (node: ClusterConnectionNode) => {
-        fetchClusterOverview(node, context);
+        fetchClusterOverview(node, true); // Setting refresh to true so that all data is refetched
       }
     )
   );
@@ -393,10 +483,71 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       "vscode-couchbase.tools.dataExport",
-      async (node: ClusterConnectionNode) => {
-        fetchClusterOverview(node, context);
+      async () => {
+        console.log("Data Export");
       }
     )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.queryContext, () => {
+      fetchQueryContext(workbench, context);
+    })
+  );
+
+  // subscription to make sure query context status bar is only visible on sqlpp files
+  subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+      await handleQueryContextStatusbar(editor, workbench);
+    })
+  );
+  // Handle initial view of context status bar
+  let activeEditor = vscode.window.activeTextEditor;
+  handleQueryContextStatusbar(activeEditor, workbench);
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.showFavoriteQueries, () => {
+      fetchFavoriteQueries(context);
+    })
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.markFavoriteQuery, async () => {
+      await markFavoriteQuery(context);
+    })
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.applyQueryHistory, (item) => {
+      applyQuery(item);
+    })
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.deleteQueryHistoryItem,
+      async (item) => {
+        await deleteQueryItem(item, queryHistoryTreeProvider);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.copyQueryHistoryItem, (item) => {
+      copyQuery(item);
+    })
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.refreshQueryHistory, () => {
+      queryHistoryTreeProvider.refresh();
+    })
+  );
+
+  let queryHistoryTreeProvider = new QueryHistoryTreeProvider(context);
+  vscode.window.registerTreeDataProvider(
+    "query-history",
+    queryHistoryTreeProvider
   );
 
   subscriptions.push(
@@ -407,9 +558,44 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.workspace.registerNotebookSerializer(
-      Constants.notebookType, new QueryContentSerializer(), { transientOutputs: true }
+      Constants.notebookType,
+      new QueryContentSerializer(),
+      { transientOutputs: true }
     ),
     new QueryKernel()
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(Commands.runQuery, async () => {
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.runButtonEnabled",
+        undefined
+      );
+      await workbench.runCouchbaseQuery(
+        workbenchWebviewProvider,
+        queryHistoryTreeProvider
+      );
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.runButtonEnabled",
+        true
+      );
+    })
+  );
+  vscode.commands.executeCommand(
+    "setContext",
+    "vscode-couchbase.runButtonEnabled",
+    true
+  ); // Required to enable run query button at the start
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.checkAndCreatePrimaryIndex,
+      async (elementData: any) => {
+        checkAndCreatePrimaryIndex(elementData);
+      }
+    )
   );
 }
 
