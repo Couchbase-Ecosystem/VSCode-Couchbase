@@ -83,7 +83,7 @@ export class IndexDirectory implements INode {
                         this.connection,
                         this.scopeName,
                         this.bucketName,
-                        `${query.name.substring(1)}_${(query.collectionName ?? "")}`,
+                        `${query.name[0] === '#' ? query.name.substring(1) : query.name}${(query.collectionName ? ("_" + query.collectionName) : "")}`,
                         getIndexDefinition(query),
                         vscode.TreeItemCollapsibleState.None
                     );

@@ -57,8 +57,9 @@ export default class UntitledSqlppDocumentService {
         });
 
         const document = await vscode.workspace.openTextDocument(uri);
+        document.save();
         await vscode.window.showTextDocument(document, { preview: false });
-        return vscode.workspace.openTextDocument(uri);
+        return document;
     }
 
     /**
