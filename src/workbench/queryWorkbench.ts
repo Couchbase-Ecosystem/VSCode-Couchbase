@@ -47,7 +47,6 @@ export class QueryWorkbench {
         }
         // Get the active text editor
         const activeTextEditor = vscode.window.activeTextEditor;
-        activeTextEditor?.document.save();
         if (activeTextEditor && activeTextEditor.document.languageId === "SQL++") {
             // Get the text content of the active text editor.
             const query = activeTextEditor.selection.isEmpty ? activeTextEditor.document.getText() : activeTextEditor.document.getText(activeTextEditor.selection);
@@ -86,9 +85,9 @@ export class QueryWorkbench {
                 await saveQuery({ query: query, id: getUUID() });
                 queryHistoryTreeProvider.refresh();
                 let timeWait = result?.meta.metrics?.resultSize || 0;
-                
-                await new Promise((resolve)=>{
-                    setTimeout(resolve,(timeWait/10000));
+
+                await new Promise((resolve) => {
+                    setTimeout(resolve, (timeWait / 10000));
                 });
             } catch (err) {
                 const errorArray = [];
@@ -125,7 +124,7 @@ export class QueryWorkbench {
                     null
                 );
             }
-
+            activeTextEditor?.document.save();
         }
     };
 
