@@ -12,6 +12,7 @@ export const applyQuery = async (query: IQuery) => {
         return;
     }
     const activeTextEditor = vscode.window.activeTextEditor;
+    activeTextEditor?.document.save();
         if (
             activeTextEditor &&
             activeTextEditor.document.languageId === "SQL++"

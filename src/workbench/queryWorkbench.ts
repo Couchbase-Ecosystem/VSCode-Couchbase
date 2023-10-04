@@ -47,6 +47,7 @@ export class QueryWorkbench {
         }
         // Get the active text editor
         const activeTextEditor = vscode.window.activeTextEditor;
+        activeTextEditor?.document.save();
         if (activeTextEditor && activeTextEditor.document.languageId === "SQL++") {
             // Get the text content of the active text editor.
             const query = activeTextEditor.selection.isEmpty ? activeTextEditor.document.getText() : activeTextEditor.document.getText(activeTextEditor.selection);
