@@ -22,6 +22,7 @@ export const applyQuery = async (query: IQuery) => {
                 query.query // Replace the entire content with the query
             );
         });
+        activeTextEditor.document.save();
     } else {
         await vscode.commands.executeCommand(Commands.openQueryWorkbench);
         // Wait for editor to become active, If exceeds 3 seconds, then error is thrown
@@ -30,18 +31,16 @@ export const applyQuery = async (query: IQuery) => {
         let totalTime = 3000; //in ms
         while (true) {
             await new Promise(resolve => setTimeout(resolve, timeInterval));
-
             let newActiveTextEditor = vscode.window.activeTextEditor;
-
             if (newActiveTextEditor && newActiveTextEditor.document.languageId === "SQL++") {
                 let lineCount = newActiveTextEditor.document.lineCount;
                 newActiveTextEditor.edit((editBuilder) => {
                     editBuilder.replace(
                         new vscode.Range(0, 0, lineCount, 0),
                         query.query
-
                     );
                 });
+                newActiveTextEditor.document.save();
                 break;
             }
 
@@ -53,5 +52,4 @@ export const applyQuery = async (query: IQuery) => {
             }
         }
     }
-    activeTextEditor?.document.save();
 };
