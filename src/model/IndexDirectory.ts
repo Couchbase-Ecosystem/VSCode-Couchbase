@@ -14,12 +14,10 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
-import * as path from "path";
 import { IConnection } from "../types/IConnection";
 import { INode } from "../types/INode";
 import IndexNode from "./IndexNode";
-import { Constants } from "../util/constants";
-import { getActiveConnection, getConnectionId } from "../util/connections";
+import { getActiveConnection } from "../util/connections";
 import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
 import { getIndexDefinition } from "../util/indexUtils";
@@ -31,6 +29,7 @@ export class IndexDirectory implements INode {
         public readonly itemName: string,
         public readonly bucketName: string,
         public readonly scopeName: string,
+        public readonly collection: string,
         public readonly indexes: any[],
         public readonly collapsibleState: vscode.TreeItemCollapsibleState
     ) {
@@ -46,22 +45,6 @@ export class IndexDirectory implements INode {
             label: `${this.itemName}`,
             collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
             contextValue: "indexDirectory",
-            iconPath: {
-                light: path.join(
-                    __filename,
-                    "..",
-                    "..",
-                    "images/light",
-                    "scope-item.svg"
-                ),
-                dark: path.join(
-                    __filename,
-                    "..",
-                    "..",
-                    "images/dark",
-                    "scope-item.svg"
-                ),
-            },
         };
     }
     /*
@@ -74,7 +57,7 @@ export class IndexDirectory implements INode {
         try {
             const connection = getActiveConnection();
             //TODO: Change it to not include IndexNode with undefined scope once the issues with undefined scope and collections fixed
-            result = await connection?.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
+            result = await connection?.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collection });
             if (result === undefined) { return []; }
             for (const query of result) {
                 if (query.scopeName === this.scopeName || this.scopeName === "_default") {
@@ -94,9 +77,6 @@ export class IndexDirectory implements INode {
         } catch (err) {
             logger.error("Failed to load Indexes");
             logger.debug(err);
-        }
-        if (indexesList.length === 0) {
-            indexesList.push(new InformationNode("No Indexes found"));
         }
         return indexesList;
     };

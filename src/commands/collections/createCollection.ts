@@ -17,10 +17,10 @@ import * as vscode from "vscode";
 import { IConnection } from "../../types/IConnection";
 import { Memory } from "../../util/util";
 import { logger } from "../../logger/logger";
-import { CollectionDirectory } from "../../model/CollectionDirectory";
 import { Constants } from "../../util/constants";
+import { ScopeNode } from "../../model/ScopeNode";
 
-export const createCollection = async (node: CollectionDirectory) => {
+export const createCollection = async (node: ScopeNode) => {
     const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
