@@ -19,20 +19,20 @@ import { MemFS } from "../../util/fileSystemProvider";
 import IndexNode from "../../model/IndexNode";
 
 export const openIndexInfo = async (indexNode: IndexNode, memFs: MemFS) => {
-    try {
-        const uri = vscode.Uri.parse(
-          `couchbase:/${indexNode.bucketName}/${indexNode.scopeName}/Indexes/${indexNode.indexName}.n1ql`
-        );
-        memFs.writeFile(
-          uri,
-          Buffer.from(indexNode.data),
-          { create: true, overwrite: true }
-        );
-        const document = await vscode.workspace.openTextDocument(uri);
-        await vscode.window.showTextDocument(document, { preview: false });
-        return true;
-      } catch (err: any) {
-        logger.error("Failed to open index information");
-        logger.debug(err);
-      }
+  try {
+    const uri = vscode.Uri.parse(
+      `couchbase:/${indexNode.bucketName}/${indexNode.scopeName}/Indexes/${indexNode.indexName}.sqlpp`
+    );
+    memFs.writeFile(
+      uri,
+      Buffer.from(indexNode.data),
+      { create: true, overwrite: true }
+    );
+    const document = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(document, { preview: false });
+    return true;
+  } catch (err: any) {
+    logger.error("Failed to open index information");
+    logger.debug(err);
+  }
 };

@@ -27,6 +27,7 @@ import { IFilterDocuments } from "../types/IFilterDocuments";
 import { SchemaDirectory } from "./SchemaDirectory";
 import { getActiveConnection } from "../util/connections";
 import { Commands } from "../commands/extensionCommands/commands";
+import { IndexDirectory } from "./IndexDirectory";
 
 export default class CollectionNode implements INode {
   constructor(
@@ -75,6 +76,19 @@ export default class CollectionNode implements INode {
 
   public async getChildren(): Promise<INode[]> {
     let documentList: INode[] = [];
+    // Index directory to contains list of indexes
+    const indexItem = new IndexDirectory(
+      this,
+      this.connection,
+      "Indexes",
+      this.bucketName,
+      this.scopeName,
+      this.collectionName,
+      [],
+      vscode.TreeItemCollapsibleState.None
+    );
+
+    documentList.push(indexItem);
     documentList.push(new SchemaDirectory(this, this.connection, "Schema", this.bucketName, this.scopeName, this.collectionName));
     // TODO: default limit could be managed as user settings / preference
     let result;
