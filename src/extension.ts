@@ -37,7 +37,6 @@ import { QueryKernel } from "./notebook/controller";
 import { Constants } from "./util/constants";
 import { createNotebook } from "./notebook/notebook";
 import IndexNode from "./model/IndexNode";
-import { CollectionDirectory } from "./model/CollectionDirectory";
 import { IndexDirectory } from "./model/IndexDirectory";
 import { openIndexInfo } from "./commands/indexes/openIndexInformation";
 import { Commands } from "./commands/extensionCommands/commands";
@@ -299,7 +298,7 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       Commands.createCollection,
-      async (node: CollectionDirectory) => {
+      async (node: ScopeNode) => {
         await createCollection(node);
         clusterConnectionTreeProvider.refresh();
       }

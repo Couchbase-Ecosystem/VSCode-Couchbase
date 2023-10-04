@@ -820,7 +820,7 @@
         },
         {
           "command": "vscode-couchbase.createCollection",
-          "when": "view == couchbase && viewItem == collectionDirectory"
+          "when": "view == couchbase && viewItem == scope"
         },
         {
           "command": "vscode-couchbase.removeCollection",
@@ -839,7 +839,7 @@
         },
         {
           "command": "vscode-couchbase.refreshCollections",
-          "when": "view == couchbase && viewItem == collectionDirectory"
+          "when": "view == couchbase && viewItem == scope"
         },
         {
           "command": "vscode-couchbase.refreshIndexes",
