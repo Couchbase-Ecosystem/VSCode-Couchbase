@@ -10,6 +10,7 @@
 - Implement Favourite Query in workbench
 - Add document filter
 - Add Cluster Overview Window
+- Move Indexes inside Collection Directory
 
 ## [v0.6.4]
 - Create Query Notebook
