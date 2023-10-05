@@ -50,11 +50,12 @@ export default class CollectionNode implements INode {
 
   public async getTreeItem(): Promise<vscode.TreeItem> {
     return {
-      label: `${this.collectionName} (${abbreviateCount(
-        this.documentCount
-      )})`,
+      label: `${this.collectionName} (${abbreviateCount(this.documentCount)})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-      contextValue: (this.collectionName === '_default' ? "default_collection" : "collection") + (this.filter ? "_filter" : ""),
+      contextValue:
+        (this.collectionName === "_default"
+          ? "default_collection"
+          : "collection") + (this.filter ? "_filter" : ""),
       iconPath: {
         light: path.join(
           __filename,
@@ -89,12 +90,23 @@ export default class CollectionNode implements INode {
     );
 
     documentList.push(indexItem);
-    documentList.push(new SchemaDirectory(this, this.connection, "Schema", this.bucketName, this.scopeName, this.collectionName));
+    documentList.push(
+      new SchemaDirectory(
+        this,
+        this.connection,
+        "Schema",
+        this.bucketName,
+        this.scopeName,
+        this.collectionName
+      )
+    );
     // TODO: default limit could be managed as user settings / preference
     let result;
     // A primary index is required for database querying. If one is present, a result will be obtained.
     // If not, the user will be prompted to create a primary index before querying.
-    let docFilter = Memory.state.get<IFilterDocuments>(`filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`);
+    let docFilter = Memory.state.get<IFilterDocuments>(
+      `filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
+    );
     let filter: string = "";
     if (docFilter && docFilter.filter.length > 0) {
       filter = docFilter.filter;
@@ -102,11 +114,21 @@ export default class CollectionNode implements INode {
     const connection = getActiveConnection();
     try {
       result = await connection?.cluster?.query(
-        `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""} LIMIT ${this.limit}`
+        `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName
+        }\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""
+        } LIMIT ${this.limit}`
       );
     } catch (err) {
       if (err instanceof PlanningFailureError) {
-        const infoNode: InformationNode = new InformationNode("No indexes available, click to create one", "No indexes available to list the documents in this collection", Commands.checkAndCreatePrimaryIndex, this);
+        const infoNode: InformationNode = new InformationNode(
+          "No indexes available, click to create one",
+          "No indexes available to list the documents in this collection",
+          {
+            command: Commands.checkAndCreatePrimaryIndex,
+            title: "Create Primary Index",
+            arguments: [this],
+          }
+        );
         documentList.push(infoNode);
       }
     }
@@ -124,7 +146,9 @@ export default class CollectionNode implements INode {
       documentList.push(documentTreeItem);
     });
     // TODO: add local only (un-synchronized) files to documentList
-    if (documentList.length === 1) { // Checking with 1 as Schema Directory is always present
+
+    // Checking document list length with 2 as Schema and index Directory are always present
+    if (documentList.length === 2) {
       documentList.push(new InformationNode("No Documents found"));
     } else if (this.documentCount > documentList.length) {
       documentList.push(new PagerNode(this));
