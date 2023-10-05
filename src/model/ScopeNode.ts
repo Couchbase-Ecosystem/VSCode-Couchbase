@@ -23,6 +23,7 @@ import { IFilterDocuments } from "../types/IFilterDocuments";
 import CollectionNode from "./CollectionNode";
 import { logger } from "../logger/logger";
 import InformationNode from "./InformationNode";
+import { ParsingFailureError, PlanningFailureError } from "couchbase";
 
 export class ScopeNode implements INode {
   constructor(
@@ -64,18 +65,35 @@ export class ScopeNode implements INode {
     const collectionList: any[] = [];
     for (const collection of this.collections) {
       try {
-        let docFilter = Memory.state.get<IFilterDocuments>(`filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`);
-        const filter: string = (docFilter && docFilter.filter.length > 0) ? docFilter.filter : "";
-        const connection = getActiveConnection();
-        const queryResult = await connection?.cluster?.query(
-          `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName}\`.\`${collection.name}\` ${filter.length > 0 ? "WHERE " + filter : ""};`
+        let docFilter = Memory.state.get<IFilterDocuments>(
+          `filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`
         );
-        const count = queryResult?.rows[0].count;
+        const filter: string =
+          docFilter && docFilter.filter.length > 0 ? docFilter.filter : "";
+        const connection = getActiveConnection();
+        let rowCount = 0;
+        try {
+          const queryResult = await connection?.cluster?.query(
+            `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName
+            }\`.\`${collection.name}\` ${filter.length > 0 ? "WHERE " + filter : ""
+            };`
+          );
+          rowCount = queryResult?.rows[0].count;
+        } catch (err: any) {
+          if (err instanceof PlanningFailureError) {
+            vscode.window.showErrorMessage(
+              "Unable to find primary index for document and filter seems to be applied, showing count as 0"
+            );
+          } else if (err instanceof ParsingFailureError) {
+            logger.error(`In Scope Node: ${this.scopeName}: Parsing Failed: Incorrect filter definition`);
+          }
+        }
+
         const collectionTreeItem = new CollectionNode(
           this,
           this.connection,
           this.scopeName,
-          count,
+          rowCount,
           this.bucketName,
           collection.name,
           filter !== "",
