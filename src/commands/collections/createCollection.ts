@@ -19,6 +19,7 @@ import { Memory } from "../../util/util";
 import { logger } from "../../logger/logger";
 import { Constants } from "../../util/constants";
 import { ScopeNode } from "../../model/ScopeNode";
+import { CollectionExistsError } from "couchbase";
 
 export const createCollection = async (node: ScopeNode) => {
     const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
@@ -44,10 +45,19 @@ export const createCollection = async (node: ScopeNode) => {
     const collectionManager = await connection.cluster
         ?.bucket(node.bucketName)
         .collections();
-    await collectionManager?.createCollection({
-        name: collectionName,
-        scopeName: node.scopeName,
-    });
 
-    logger.info(`${node.bucketName}: ${node.scopeName}: Successfully created the collection: ${collectionName}`);
+    try {
+        await collectionManager?.createCollection({
+            name: collectionName,
+            scopeName: node.scopeName,
+        });
+
+        logger.info(`${node.bucketName}: ${node.scopeName}: Successfully created the collection: ${collectionName}`);
+    } catch (error) {
+        logger.info(error);
+        if (error instanceof CollectionExistsError) {
+            vscode.window.showErrorMessage(`A collection with the name ${collectionName} already exists`);
+            logger.info(`${node.bucketName}: ${node.scopeName}: A collection with the name ${collectionName} already exists`);
+        }
+    }
 };
