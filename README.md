@@ -68,5 +68,12 @@ Click on Scope to list Collections and Indexes. Open context menu on Collection 
 
 <img src="gifs/QueryNotebook.gif" height="80%" width="80%" alt="Interact with Documents" />
 
+### SQL++ Workbench
+1. Fully functional workbench to run SQL++ query and see result in Tabular, JSON and Explain Plan format.
+2. Query History to see last executed query.
+3. Favourite your query and set Query context.
+
+<img src="gifs/workbench.gif" height="80%" width="80%" alt="Interact with Documents" />
+
 ## License
 Apache Software License Version 2.  See individual files for details.
