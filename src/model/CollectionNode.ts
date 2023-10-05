@@ -20,7 +20,7 @@ import { INode } from "../types/INode";
 import DocumentNode from "./DocumentNode";
 import { PagerNode } from "./PagerNode";
 import { abbreviateCount } from "../util/common";
-import { PlanningFailureError } from "couchbase";
+import { ParsingFailureError, PlanningFailureError } from "couchbase";
 import InformationNode from "./InformationNode";
 import { Memory } from "../util/util";
 import { IFilterDocuments } from "../types/IFilterDocuments";
@@ -28,6 +28,7 @@ import { SchemaDirectory } from "./SchemaDirectory";
 import { getActiveConnection } from "../util/connections";
 import { Commands } from "../commands/extensionCommands/commands";
 import { IndexDirectory } from "./IndexDirectory";
+import { logger } from "../logger/logger";
 
 export default class CollectionNode implements INode {
   constructor(
@@ -130,6 +131,8 @@ export default class CollectionNode implements INode {
           }
         );
         documentList.push(infoNode);
+      } else if (err instanceof ParsingFailureError) {
+        logger.error(`In Collection Node: ${this.collectionName}: Parsing Failed: Incorrect filter definition`);
       }
     }
     result?.rows.forEach((documentName: string) => {

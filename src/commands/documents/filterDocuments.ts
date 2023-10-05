@@ -2,8 +2,8 @@ import CollectionNode from "../../model/CollectionNode";
 import * as vscode from "vscode";
 import { Memory } from "../../util/util";
 import { IFilterDocuments } from "../../types/IFilterDocuments";
-import { Commands } from "../extensionCommands/commands";
 import { logger } from "../../logger/logger";
+import { ParsingFailureError } from "couchbase";
 
 export const filterDocuments = async (node: CollectionNode) => {
     // Check if indexes are present for collection
@@ -32,7 +32,7 @@ export const filterDocuments = async (node: CollectionNode) => {
             logger.error("Error checking primary index: " + err);
             return false;
         });
-    if(!primaryIndexExists){
+    if (!primaryIndexExists) {
         return;
     }
 
@@ -65,6 +65,21 @@ export const filterDocuments = async (node: CollectionNode) => {
     if (newDocFilterStmt === undefined) {
         return;
     }
+    try {
+        if (newDocFilterStmt.trim() !== "") {
+            await node.connection.cluster?.query(`SELECT META().id FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${collectionName}\` WHERE ${newDocFilterStmt}`);
+        }
+    } catch (err) {
+        if (err instanceof ParsingFailureError) {
+            vscode.window.showErrorMessage(
+                "Parsing Failed: Incorrect filter definition"
+            );
+        } else {
+            logger.error(err);
+        }
+        return;
+    }
+
     const newDocFilter: IFilterDocuments = {
         filter: newDocFilterStmt.trim(),
     };

@@ -23,7 +23,7 @@ import { IFilterDocuments } from "../types/IFilterDocuments";
 import CollectionNode from "./CollectionNode";
 import { logger } from "../logger/logger";
 import InformationNode from "./InformationNode";
-import { PlanningFailureError } from "couchbase";
+import { ParsingFailureError, PlanningFailureError } from "couchbase";
 
 export class ScopeNode implements INode {
   constructor(
@@ -84,8 +84,8 @@ export class ScopeNode implements INode {
             vscode.window.showErrorMessage(
               "Unable to find primary index for document and filter seems to be applied, showing count as 0"
             );
-          } else {
-            throw new Error(err);
+          } else if (err instanceof ParsingFailureError) {
+            logger.error(`In Scope Node: ${this.scopeName}: Parsing Failed: Incorrect filter definition`);
           }
         }
 
