@@ -8,7 +8,7 @@ This extension is designed to provide a seamless experience for Couchbase Server
 This extension requires OpenSSL to be installed on your system in order to install successfully. 
 
 For Windows:
-- Download the version version 1.1.x of OpenSSL from https://slproweb.com/products/Win32OpenSSL.html and follow the installation instructions.
+- Download the version 1.1.x of OpenSSL from https://slproweb.com/products/Win32OpenSSL.html and follow the installation instructions.
 
 For Debian or Ubuntu-based distros::
 - Run `sudo apt-get install openssl`
