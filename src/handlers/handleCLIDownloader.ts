@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import axios from "axios";
 import decompress from 'decompress';
 import * as vscode from 'vscode';
+import { logger } from "../logger/logger";
 
 class DependenciesDownloader {
     private readonly TOOL_SHELL = 'shell';
@@ -51,7 +52,6 @@ class DependenciesDownloader {
     }
     public getDownloadList(os: string): Map<string, ToolSpec> {
         const map = new Map<string, ToolSpec>();
-
         if (os === OSUtil.MACOS_64) {
             map.set(this.TOOL_SHELL, this.getToolSpec("https://github.com/couchbaselabs/couchbase-shell/releases/download/v0.75.1/cbsh-x86_64-apple-darwin.zip", this.TOOL_SHELL, OSUtil.MACOS_64));
             map.set(this.TOOL_IMPORT_EXPORT, this.getToolSpec("https://packages.couchbase.com/releases/7.2.0/couchbase-server-tools_7.2.0-macos_x86_64.zip", this.TOOL_IMPORT_EXPORT, OSUtil.MACOS_64));
@@ -59,7 +59,7 @@ class DependenciesDownloader {
         } else if (os === OSUtil.MACOS_ARM) {
             map.set(this.TOOL_SHELL, this.getToolSpec("https://github.com/couchbaselabs/couchbase-shell/releases/download/v0.75.1/cbsh-aarch64-apple-darwin.zip", this.TOOL_SHELL, OSUtil.MACOS_ARM));
             map.set(this.TOOL_IMPORT_EXPORT, this.getToolSpec("https://packages.couchbase.com/releases/7.2.0/couchbase-server-tools_7.2.0-macos_arm64.zip", this.TOOL_IMPORT_EXPORT, OSUtil.MACOS_ARM));
-            map.set(this.ALL_TOOLS, this.getToolSpec("https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/7.2.0-macos_arm.zip", this.ALL_TOOLS, OSUtil.MACOS_64));
+            map.set(this.ALL_TOOLS, this.getToolSpec("https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/7.2.0-macos_arm.zip", this.ALL_TOOLS, OSUtil.MACOS_ARM));
         } else if (os === OSUtil.WINDOWS_64) {
             map.set(this.TOOL_SHELL, this.getToolSpec("https://github.com/couchbaselabs/couchbase-shell/releases/download/v0.75.1/cbsh-x86_64-pc-windows-msvc.zip", this.TOOL_SHELL, OSUtil.WINDOWS_64));
             map.set(this.TOOL_IMPORT_EXPORT, this.getToolSpec("https://packages.couchbase.com/releases/7.2.0/couchbase-server-tools_7.2.0-windows_amd64.zip", this.TOOL_IMPORT_EXPORT, OSUtil.WINDOWS_64));
@@ -89,7 +89,6 @@ class DependenciesDownloader {
         createFolder(toolsPath);
         let osArch = OSUtil.getOSArch();
         const downloads: Map<string, ToolSpec> = this.getDownloadList(osArch);
-
         const shell = downloads.get(this.TOOL_SHELL);
         if (shell === undefined){
             return;
@@ -104,15 +103,15 @@ class DependenciesDownloader {
         console.log(shellPath, shellTool, shellStatus)
         if (shellStatus === ToolStatus.NOT_AVAILABLE && !this.isInstalled(toolsPath, toolShellDownloadsMap, CBToolsType.SHELL)) {
             // Avoiding 2 threads to install the same thing at the same time
-            console.log("Downloading CB Shell.");
+            logger.info("Downloading CB Shell.");
             shellTool.status = (ToolStatus.DOWNLOADING);
             this.downloadAndUnzip(shellPath, shell);
         } else {
             console.debug("CBShell is already installed");
             this.setToolActive(ToolStatus.AVAILABLE, shellPath, shell);
         }
-
         const cbImport: ToolSpec | undefined = downloads.get(this.TOOL_IMPORT_EXPORT);
+        console.log("cbImport", cbImport);
         if (cbImport === undefined){
             return;
         }
@@ -125,7 +124,7 @@ class DependenciesDownloader {
             CBTools.getTool(CBToolsType.CB_IMPORT).status === ToolStatus.NOT_AVAILABLE &&
             !this.isInstalled(toolsPath, toolImpExportMap, CBToolsType.CB_EXPORT)
         ) {
-            console.log("Downloading CB Import/Export. The feature will be automatically enabled when the download is complete.");
+            logger.info("Downloading CB Import/Export. The feature will be automatically enabled when the download is complete.");
 
             const cbExportTool = CBTools.getTool(CBToolsType.CB_EXPORT);
             const cbImportTool = CBTools.getTool(CBToolsType.CB_IMPORT);
@@ -135,20 +134,29 @@ class DependenciesDownloader {
 
             this.downloadAndUnzip(cbImportDir, cbImport);
         } else {
-            console.log("CB Import/Export is already installed");
+            logger.info("CB Import/Export is already installed");
+            console.log("import/export check");
             this.setToolActive(ToolStatus.AVAILABLE, cbImportDir, cbImport);
         }
     
     };
 
     private setToolActive(status: ToolStatus, path: string, spec: ToolSpec): void {
-        for (const [key, value] of Object.entries(spec.getToolsMap())) {
-            const toolType = CBToolsType[key as keyof typeof CBToolsType];
+        spec.getToolsMap().forEach((key, val)=>{
+            const toolType = CBToolsType[val as keyof typeof CBToolsType];
             if (toolType !== undefined) {
-                CBTools.getTool(toolType).path = (`${path}/${value}`);
+                CBTools.getTool(toolType).path = (`${path}/${key}`);
                 CBTools.getTool(toolType).status = status;
             }
-        }
+            
+        })
+        // for (const [key, value] of Object.entries(spec.getToolsMap())) {
+        //     const toolType = CBToolsType[key as keyof typeof CBToolsType];
+        //     if (toolType !== undefined) {
+        //         CBTools.getTool(toolType).path = (`${path}/${value}`);
+        //         CBTools.getTool(toolType).status = status;
+        //     }
+        // }
     }
 
     public downloadAndUnzip(targetDir: string, spec: ToolSpec){
@@ -174,7 +182,7 @@ class DependenciesDownloader {
             this.setToolActive(ToolStatus.AVAILABLE, targetDir, spec);
         } catch (e) {
             this.setToolActive(ToolStatus.NOT_AVAILABLE, '', spec);
-            console.error(e);
+            logger.error(e);
         }
     }
     

@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
+import { format } from "date-fns";
 
 export class Global {
   static state: vscode.Memento;
@@ -28,7 +29,7 @@ export class WorkSpace {
   }
 }
 class LocalState {
-  constructor(private state: { [s: string]: any }) {}
+  constructor(private state: { [s: string]: any }) { }
   get<T>(key: string): T | undefined {
     if (this.state[key]) {
       return this.state[key];
@@ -48,6 +49,12 @@ export class Memory {
   static state: LocalState;
 }
 
-export const  getUUID = () => {
+export const getUUID = () => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
+};
+
+export const getCurrentDateTime = (): string => {
+  const now = new Date();
+  const formattedDate = format(now, "yyyy-MM-dd-HH-mm-ss");
+  return formattedDate;
 };

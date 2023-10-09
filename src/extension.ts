@@ -74,6 +74,8 @@ import { filterDocuments } from "./commands/documents/filterDocuments";
 import { clearDocumentFilter } from "./commands/documents/clearDocumentFilter";
 import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewClusterData";
 import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePrimaryIndex";
+import { CBTools, Type } from "./util/DependencyDownloaderUtils/CBTool";
+import { CBExport } from "./tools/CBExport";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -484,7 +486,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "vscode-couchbase.tools.dataExport",
       async () => {
-        console.log("Data Export");
+        if(CBTools.getTool(Type.CB_EXPORT).isAvailable()){
+          console.log("here");
+          CBExport.export(`travel-sample`,['All Scopes'], [], '/Users/lokeshgoel/Documents', 'cbmid', 'cbms', 'cbmc', 'lines', '4', false);
+        }
       }
     )
   );
