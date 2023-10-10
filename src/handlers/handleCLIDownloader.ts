@@ -100,7 +100,6 @@ class DependenciesDownloader {
         if (toolShellDownloadsMap === undefined){
             return;
         }
-        console.log(shellPath, shellTool, shellStatus)
         if (shellStatus === ToolStatus.NOT_AVAILABLE && !this.isInstalled(toolsPath, toolShellDownloadsMap, CBToolsType.SHELL)) {
             // Avoiding 2 threads to install the same thing at the same time
             logger.info("Downloading CB Shell.");
@@ -149,7 +148,7 @@ class DependenciesDownloader {
                 CBTools.getTool(toolType).status = status;
             }
             
-        })
+        });
         // for (const [key, value] of Object.entries(spec.getToolsMap())) {
         //     const toolType = CBToolsType[key as keyof typeof CBToolsType];
         //     if (toolType !== undefined) {
