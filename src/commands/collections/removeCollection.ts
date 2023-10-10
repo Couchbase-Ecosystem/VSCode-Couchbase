@@ -34,6 +34,9 @@ export const removeCollection = async (node: CollectionNode) => {
       return;
     }
 
+    // Remove any document filter if set
+    Memory.state.update(`filterDocuments-${node.connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`, '');
+
     const collectionManager = await connection.cluster
       ?.bucket(node.bucketName)
       .collections();

@@ -49,6 +49,7 @@ export class QueryWorkbench {
         const activeTextEditor = vscode.window.activeTextEditor;
         if (activeTextEditor && activeTextEditor.document.languageId === "SQL++") {
             // Get the text content of the active text editor.
+            activeTextEditor.document.save();
             const query = activeTextEditor.selection.isEmpty ? activeTextEditor.document.getText() : activeTextEditor.document.getText(activeTextEditor.selection);
             const queryContext = this.editorToContext.get(activeTextEditor.document.uri.toString());
             const queryContextString = queryContext && (`${queryContext?.bucketName}.${queryContext?.scopeName}`); // Query context string is of format bucketName.ScopeName
@@ -77,7 +78,7 @@ export class QueryWorkbench {
                     size: resultSize ? (resultSize > 1000 ? (resultSize / 1000).toFixed(2) + " KB" : resultSize + " Bytes") : ""
                 };
                 const explainPlan = JSON.stringify(result?.meta.profile.executionTimings);
-                await workbenchWebviewProvider.setQueryResult(
+                workbenchWebviewProvider.setQueryResult(
                     JSON.stringify(result?.rows),
                     queryStatusProps,
                     explainPlan
@@ -85,9 +86,9 @@ export class QueryWorkbench {
                 await saveQuery({ query: query, id: getUUID() });
                 queryHistoryTreeProvider.refresh();
                 let timeWait = result?.meta.metrics?.resultSize || 0;
-                
-                await new Promise((resolve)=>{
-                    setTimeout(resolve,(timeWait/10000));
+
+                await new Promise((resolve) => {
+                    setTimeout(resolve, (timeWait / 10000));
                 });
             } catch (err) {
                 const errorArray = [];
@@ -118,13 +119,12 @@ export class QueryWorkbench {
                     numDocs: "-",
                     size: "-",
                 };
-                await workbenchWebviewProvider.setQueryResult(
+                workbenchWebviewProvider.setQueryResult(
                     JSON.stringify(errorArray),
                     queryStatusProps,
                     null
                 );
             }
-
         }
     };
 

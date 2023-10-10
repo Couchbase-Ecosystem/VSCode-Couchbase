@@ -47,7 +47,6 @@ export class WorkbenchWebviewProvider implements vscode.WebviewViewProvider {
         this._view.webview.html = getWebviewContent(reactAppUri, this._context);
         const isDarkTheme: boolean = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark;
         this._view?.webview.postMessage({ command: "theme", isDarkTheme });
-        this._view?.onDidDispose(() => Memory.state.update(Constants.QUERY_RESULT, null));
         this._view?.onDidChangeVisibility(() => {
             if (Memory.state.get<IQueryResultProps>(Constants.QUERY_RESULT)) {
                 this.sendQueryResult(JSON.stringify([{ "status": "Loading last executed result" }]), { queryStatus: QueryStatus.Running }, null);

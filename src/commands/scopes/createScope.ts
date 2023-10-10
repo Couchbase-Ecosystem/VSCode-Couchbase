@@ -19,6 +19,7 @@ import { Memory } from "../../util/util";
 import { logger } from "../../logger/logger";
 import { BucketNode } from "../../model/BucketNode";
 import { Constants } from "../../util/constants";
+import { ScopeExistsError } from "couchbase";
 
 export const createScope = async (node: BucketNode) => {
     const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
@@ -40,10 +41,17 @@ export const createScope = async (node: BucketNode) => {
         vscode.window.showErrorMessage(`Scope names cannot start with ${scopeName[0]}`);
         return;
     }
+    try {
+        const collectionManager = await connection.cluster
+            ?.bucket(node.bucketName)
+            .collections();
+        await collectionManager?.createScope(scopeName);
+        logger.info(`${node.bucketName}: Successfully created the scope: ${scopeName}`);
+    } catch (error) {
+        if (error instanceof ScopeExistsError) {
+            vscode.window.showWarningMessage(`A scope with the name ${scopeName} already exists`);
+            logger.info(`${node.bucketName}: A scope with the name ${scopeName} already exists`);
+        }
+    }
 
-    const collectionManager = await connection.cluster
-        ?.bucket(node.bucketName)
-        .collections();
-    await collectionManager?.createScope(scopeName);
-    logger.info(`${node.bucketName}: Successfully created the scope: ${scopeName}`);
 };

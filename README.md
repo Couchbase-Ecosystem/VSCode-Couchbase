@@ -8,7 +8,7 @@ This extension is designed to provide a seamless experience for Couchbase Server
 This extension requires OpenSSL to be installed on your system in order to install successfully. 
 
 For Windows:
-- Download the latest version of OpenSSL from https://slproweb.com/products/Win32OpenSSL.html and follow the installation instructions.
+- Download the version 1.1.x of OpenSSL from https://slproweb.com/products/Win32OpenSSL.html and follow the installation instructions.
 
 For Debian or Ubuntu-based distros::
 - Run `sudo apt-get install openssl`
@@ -67,6 +67,13 @@ Click on Scope to list Collections and Indexes. Open context menu on Collection 
 3. And once you have completed your work, you can save the notebook to your local machine for future reference.
 
 <img src="gifs/QueryNotebook.gif" height="80%" width="80%" alt="Interact with Documents" />
+
+### SQL++ Workbench
+1. Fully functional workbench to run SQL++ query and see result in Tabular, JSON and Explain Plan format.
+2. Query History to see last executed query.
+3. Favourite your query and set Query context.
+
+<img src="gifs/workbench.gif" height="80%" width="80%" alt="Interact with Documents" />
 
 ## License
 Apache Software License Version 2.  See individual files for details.
