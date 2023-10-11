@@ -30,8 +30,8 @@ export class CBExport {
 
         if (!allScopes) {
             for (const col of cols) {
-                if (col.includes(" ")) {
-                    scp.push(col.split(" ")[3]);
+                if (col.includes(" ")) { // All XXX (XXX represents scopeName)
+                    scp.push(col.split(" ")[1]);
                 }
             }
 

@@ -164,17 +164,19 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                     <input type="text" id="selectedFolder" name="selectedFolder" readonly>
                 </div>
                 <br>
+                <div class="validation-error" id="validation-error"></div>
 
                 <input type="submit" value="Submit" onclick="submitForm(event)">
             </form>
         </body>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <script >
+    <script>
         const vscode = acquireVsCodeApi();
         let scopesSpecData = [];
         function onBucketClick(bucketId) {
             document.getElementById('scopes').setAttribute('disabled',"");
+            document.getElementById('collections').setAttribute('disabled',"");
             
             vscode.postMessage({
                 command: 'vscode-couchbase.tools.dataExport.getScopes',
@@ -194,13 +196,13 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
             for(let i=0;i<allScopeCnt;i++){
                 if(allScopes[i].selected === true){
                     if(i===0){
-                        selectedScopes.push("all-scopes");
+                        selectedScopes.push("All Scopes");
                     } else{
                         selectedScopes.push(scopesSpecData[i-1]); // scopeSpecData is i-1 for eliminating all scopes
                     } 
                 }
             }
-            if(selectedScopes.includes("all-scopes")){
+            if(selectedScopes.includes("All Scopes")){
                 // No Collections Required
                 document.getElementById('collections').setAttribute('disabled',"");
 
@@ -210,7 +212,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 selectedScopes.map((scopeDetails)=>{
                     // All Collections of the scope
                     const selectAllOption = document.createElement('option');
-                    selectAllOption.value = 'all-collections-'+scopeDetails.name;
+                    selectAllOption.value = 'All '+scopeDetails.name;
                     selectAllOption.text = 'Select all collections of scope: '+scopeDetails.name;
                     collectionsDropdown.appendChild(selectAllOption);
 
@@ -244,7 +246,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                     // Clear existing options in the scope dropdown
                     scopeDropdown.innerHTML = '';
                     const selectAllOption = document.createElement('option');
-                    selectAllOption.value = 'all-scopes';
+                    selectAllOption.value = 'All Scopes';
                     selectAllOption.text = 'Select All';
                     scopeDropdown.appendChild(selectAllOption);
                     
@@ -259,8 +261,11 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                     break;
                 case 'vscode-couchbase.tools.dataExport.folderInfo':
                     let folder = message.folder;
-                    console.log(folder);
                     document.getElementById("selectedFolder").setAttribute("value", folder);
+                case 'vscode-couchbase.tools.dataExport.formValidationError':
+                    let error = message.error;
+                    document.getElementById("validation-error").innerHTML = message.error;
+
             }
         });
 
