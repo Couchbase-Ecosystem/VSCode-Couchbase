@@ -271,7 +271,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
 
         function submitForm(event) {
             event.preventDefault(); // Prevent the form from submitting in the traditional way
-        
+            document.getElementById("validation-error").innerHTML = "";
             // Gather data from form fields
             const bucket = document.getElementById('bucket').value;
             const scopes = Array.from(document.getElementById('scopes').selectedOptions).map(option => option.value);

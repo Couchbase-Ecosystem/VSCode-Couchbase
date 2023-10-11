@@ -110,7 +110,6 @@ class DependenciesDownloader {
             this.setToolActive(ToolStatus.AVAILABLE, shellPath, shell);
         }
         const cbImport: ToolSpec | undefined = downloads.get(this.TOOL_IMPORT_EXPORT);
-        console.log("cbImport", cbImport);
         if (cbImport === undefined){
             return;
         }
@@ -134,7 +133,6 @@ class DependenciesDownloader {
             this.downloadAndUnzip(cbImportDir, cbImport);
         } else {
             logger.info("CB Import/Export is already installed");
-            console.log("import/export check");
             this.setToolActive(ToolStatus.AVAILABLE, cbImportDir, cbImport);
         }
     
@@ -168,9 +166,7 @@ class DependenciesDownloader {
                 res.data.pipe(writeStream);
                 writeStream.on("finish", () => {
                     writeStream.close();
-                    console.log("Download Completed!");
                     decompress(localFilePath, targetDir).then(()=>{
-                        console.log("Unzipped Successfully");
                         fs.unlinkSync(localFilePath);
                         makeFilesExecutable(targetDir);
                         //this.runFile(targetDir);
@@ -203,13 +199,6 @@ class DependenciesDownloader {
     public runFile(targetDir:string) {
         const scriptPath = path.join(targetDir, 'cbsh');
         vscode.window.createTerminal("CBShell", `${scriptPath}`);
-        // child_process.exec(`${scriptPath}`, (error, stdout,stderr) => {
-        // console.log(`stdout: ${stdout}`);
-        //     console.log(`stderr: ${stderr}`);
-        //     if (error !== null) {
-        //         console.log(`exec error: ${error}`);
-        //     }
-        // });
     }
 }
 

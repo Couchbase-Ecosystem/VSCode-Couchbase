@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as childProcess from 'child_process';
 import OSUtil from './OSUtils';
+import { logger } from '../../logger/logger';
 
 export const createFolder = (folderName: string) => {
       try {
@@ -91,7 +92,7 @@ export function makeFilesExecutable(directory: string): void {
                     fs.chmodSync(filePath, '755');
                 }
             } catch (error) {
-                console.log(`Could not set executable flag on file: ${filePath}`);
+                logger.error(`Could not set executable flag on file: ${filePath}`);
             }
         }
     }

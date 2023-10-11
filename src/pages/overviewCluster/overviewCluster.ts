@@ -61,7 +61,6 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, refresh:
         } catch (e) {
             logger.debug("Cluster overview webview may have been already disposed: " + e);
         }
-
     }
 
     currentPanel.onDidDispose(() => {

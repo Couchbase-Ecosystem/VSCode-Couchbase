@@ -107,10 +107,8 @@ export class CBExport {
                 cmd.push("-v");
             }
 
-            console.log(cmd[0]);
             const terminal = vscode.window.createTerminal("CBExport",);
             let text = cmd.join(" ");
-            console.log(text);
             terminal.sendText(text);
             terminal.show();
 
