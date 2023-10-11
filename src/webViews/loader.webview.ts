@@ -1,4 +1,4 @@
-export const getLoader = (): string => {
+export const getLoader = (header: string): string => {
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -73,7 +73,7 @@ export const getLoader = (): string => {
           </style>
         </head>
         <body>
-            <h1>Cluster Overview is Loading...</h1>
+            <h1>${header} is Loading...</h1>
             <h2>This might take a while, especially for large clusters</h2>
             <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
             <img src="" alt="">

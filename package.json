@@ -381,7 +381,8 @@
     "submenus": [
       {
         "label": "Tools",
-        "id": "vscode-couchbase.toolsMenu"
+        "id": "vscode-couchbase.toolsMenu",
+        "icon": "images/couchbase.svg"
       }
     ],
     "commands": [
@@ -778,11 +779,13 @@
         },
         {
           "command": "vscode-couchbase.openQueryNotebook",
-          "when": "view == couchbase && viewItem == active_connection"
+          "when": "view == couchbase && viewItem == active_connection",
+          "group": "workbench@2"
         },
         {
           "command": "vscode-couchbase.openQueryWorkbench",
-          "when": "view == couchbase && viewItem == active_connection"
+          "when": "view == couchbase && viewItem == active_connection",
+          "group": "workbench@1"
         },
         {
           "submenu": "vscode-couchbase.toolsMenu",
@@ -894,6 +897,12 @@
         {
           "command": "vscode-couchbase.refreshQueryHistory",
           "when": "view == query-history",
+          "group": "navigation"
+        }
+      ],
+      "vscode-couchbase.toolsMenu": [
+        {
+          "command": "vscode-couchbase.tools.dataExport",
           "group": "navigation"
         }
       ]
