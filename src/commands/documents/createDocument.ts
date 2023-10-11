@@ -97,42 +97,50 @@ export const createDocument = async (node: CollectionNode, memFs: MemFS, uriToCa
         vscode.window.showErrorMessage("Document Id is required.");
         return;
     }
-
-    const documentWithSchema = await vscode.window.showQuickPick(
-        ['Yes', 'No'],
-        {
-            placeHolder: 'Do you want to create a Document with Schema Template?',
-        }
-    );
     let documentContent = Buffer.from("{}");
-
-    if (documentWithSchema === 'Yes') {
+    let patternCnt = 0;
+    try {
         let query = "INFER `" + node.bucketName + "`.`" + node.scopeName + "`.`" + node.collectionName + "` WITH {\"sample_size\": 2000}";
         const result = await connection?.cluster?.query(query);
-        let patternCnt: number = result?.rows[0].length || 0;
-
-        const patternOptions = [];
-        for (let i = 0; i < patternCnt; i++) {
-            patternOptions.push(`Pattern#${i + 1}`);
+        patternCnt = result?.rows[0].length || 0;
+        let documentWithSchema = undefined;
+        if (patternCnt > 0) {
+            documentWithSchema = await vscode.window.showQuickPick(
+                ['Yes', 'No'],
+                {
+                    placeHolder: 'Do you want to create a Document with Schema Template?',
+                    ignoreFocusOut: true
+                }
+            );
         }
+        if (documentWithSchema === 'Yes') {
+            let selectedPatternIndex = 0;
+            if (patternCnt > 1) {
+                const patternOptions = [];
+                for (let i = 0; i < patternCnt; i++) {
+                    patternOptions.push(`Pattern#${i + 1}`);
+                }
 
-        const selectedPattern = await vscode.window.showQuickPick(patternOptions, {
-            placeHolder: 'Choose a pattern for the document. You can review patterns in Schema Section',
-            ignoreFocusOut: true
-        });
-        if (selectedPattern) {
-            const selectedPatternIndex = patternOptions.indexOf(selectedPattern!);
+                const selectedPattern = await vscode.window.showQuickPick(patternOptions, {
+                    placeHolder: 'Choose a pattern for the document. You can review patterns in Schema Section',
+                    ignoreFocusOut: true
+                });
+                if (selectedPattern) {
+                    selectedPatternIndex = patternOptions.indexOf(selectedPattern!);
+                }
+            }
 
             let row = result?.rows[0][selectedPatternIndex];
-            if (!row.properties) {
-                console.log({});
-            }
-            else {
+            if (row.properties) {
                 let childrenNode = createJsonTemplate(row.properties, documentId);
                 documentContent = Buffer.from(JSON.stringify(childrenNode, null, 2));
             }
         }
+    } catch (err) {
+        logger.info("Error while loading schema patterns for document creatiion");
+        logger.debug(err);
     }
+
 
     const uri = vscode.Uri.parse(
         `couchbase:/${node.bucketName}/${node.scopeName}/Collections/${node.collectionName}/${documentId}.json`
