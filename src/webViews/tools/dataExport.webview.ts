@@ -9,28 +9,17 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
           <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
 </head>
           <style>
-            .separator-container {
-                display: flex;
-                align-items: center;
-                margin: 20px 0; 
-            }
-            
-            .separator-text {
-                padding-right: 10px;
-            }
-
-            .separator {
-                flex: 1;
-                border: none;
-                border-top: 1px solid var(--vscode-settings-sashBorder);
+            .heading {
+                text-align: center;
             }
 
             form {
                 max-width: 400px;
                 margin: 0 auto;
-                padding: 20px;
-                border: 1px solid #ccc;
-                background-color: #f9f9f9;
+                padding: 30px;
+                border: 1px solid var(--vscode-settings-sashBorder);
+                background-color: var(--vscode-sideBar-background);
+                color: var(--vscode-sideBar-foreground)
                 border-radius: 5px;
             }
             
@@ -40,29 +29,42 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 margin-bottom: 5px;
                 font-weight: bold;
             }
-            
-            /* Style for form input fields and selects */
-            input[type="text"],
-            select,
-            input[type="file"] {
-                width: 100%;
-                padding: 8px;
+
+            input[type="text"]{
+                width: 99%;
+                padding-top: 8px;
+                padding-bottom: 8px;
                 margin-bottom: 15px;
-                border: 1px solid #ccc;
+                border: 1px solid var(--vscode-settings-sashBorder);
                 border-radius: 3px;
                 font-size: 16px;
             }
             
+            /* Style for form input fields and selects */
+            select,
+            input[type="file"] {
+                width: 100%;
+                padding-top: 8px;
+                padding-bottom: 8px;
+                margin-bottom: 15px;
+                border: 1px solid var(--vscode-settings-sashBorder);
+                border-radius: 3px;
+                font-size: 16px;
+                color: #444;
+            }
+
             
             /* Style for the submit button */
             input[type="submit"] {
-                background-color: #007BFF;
-                color: #fff;
+                background-color: var(--vscode-button-background);
+                color: var(--vscode-button-foreground);
                 border: none;
-                padding: 10px 20px;
+                padding: 10px 50px;
                 border-radius: 5px;
                 cursor: pointer;
                 font-size: 18px;
+                display: flex;
+                margin: auto;
             }
             
             .select2-selection--multiple:before {
@@ -78,23 +80,36 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 border-top:0; border-bottom: 5px solid #888; 
             }
 
+            .select2 {
+                width: 100%; /* Set the select element to 100% of its container's width */
+                max-width: 100%; /* Limit the maximum width to the container's width */
+                box-sizing: border-box; /* Include padding and border in the width */
+                margin-bottom: 15px;
+                color: #444;
+            }
+
+            .select2-container--default.select2-container--disabled .select2-selection--multiple {
+                background-color: #ccc;
+            }
+
             /* Style for the submit button on hover */
             input[type="submit"]:hover {
                 background-color: #0056b3;
             }
 
             .folder-container {
-                display: flex;
-                align-items: center;
+                display: flex; 
+                align-items: start;
             }
             
             .folder-destination {
-                padding: 10px;
+                padding: 11px;
                 background-color: #007bff;
                 color: #fff;
                 cursor: pointer;
                 border: 1px solid #007bff;
                 border-radius: 5px;
+                white-space: nowrap;
             }
             
             .folder-destination:hover {
@@ -109,16 +124,22 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 border-radius: 5px;
                 background-color: #f9f9f9;
             }
+
+            .validation-error {
+                color: #ff0000;
+                font-size: 14px;
+                padding: 5px;
+            }
+
+            .select2-results__option {
+                color: #444;
+            }
             
           </style>
         </head>
 
         <body>
             <h1 class="heading">Export Data</h1>
-            <div class="separator-container">
-                <span class="separator-text">Target</span>
-                <div class="separator"></div>
-            </div>
             <form action="#" method="post" id="dataExportForm">
                 <label for="bucket">Bucket:</label>
                 <select name="bucket" id="bucket" onchange="onBucketClick(value)">
@@ -132,11 +153,11 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 <br>
 
                 <label for="scopes">Scopes:</label>
-                <select name="scopes" id="scopes" multiple class="js-select2" disabled onchange="onScopeClick(options)"></select>
+                <select name="scopes" id="scopes" multiple class="js-select2" disabled onchange="onScopeClick(options)" width="100%"></select>
                 <br>
 
                 <label for="collections">Collections:</label>
-                <select name="collections" id="collections" multiple class="js-select2" disabled ></select>
+                <select name="collections" id="collections" multiple class="js-select2" disabled width="100%"></select>
                 <br>
 
                 <label for="documentsKeyField">Document's Key Field:</label>
@@ -160,13 +181,13 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
 
                 <label for="fileDestination">File Destination Folder:</label>
                 <div class="folder-container">
-                    <div class="folder-destination" id="folderDestination" onclick="getFolder()">Choose the folder</div>
+                    <div class="folder-destination" id="folderDestination" onclick="getFolder()">Choose</div>
                     <input type="text" id="selectedFolder" name="selectedFolder" readonly>
                 </div>
                 <br>
                 <div class="validation-error" id="validation-error"></div>
 
-                <input type="submit" value="Submit" onclick="submitForm(event)">
+                <input type="submit" value="Export" onclick="submitForm(event)">
             </form>
         </body>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -191,6 +212,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
         }
 
         function onScopeClick(allScopes) {
+            document.getElementById('collections').setAttribute('disabled',"");
             let selectedScopes = [];
             let allScopeCnt = allScopes.length;
             for(let i=0;i<allScopeCnt;i++){
@@ -262,9 +284,11 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 case 'vscode-couchbase.tools.dataExport.folderInfo':
                     let folder = message.folder;
                     document.getElementById("selectedFolder").setAttribute("value", folder);
+                    break;
                 case 'vscode-couchbase.tools.dataExport.formValidationError':
                     let error = message.error;
                     document.getElementById("validation-error").innerHTML = message.error;
+                    break;
 
             }
         });
@@ -297,9 +321,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 command: 'vscode-couchbase.tools.dataExport.runExport',
                 data: formData
             });
-        }
-
-        
+        } 
 
     </script>
     </html>

@@ -31,7 +31,7 @@ const validateFormData = (formData: any): string => {
       errors.push("Select one or more scopes");
     } else {
       if (
-        !formData.scopes.includes("Select All") &&
+        !formData.scopes.includes("All Scopes") &&
         formData.collections.length === 0
       ) {
         errors.push("Select one or more collections");
