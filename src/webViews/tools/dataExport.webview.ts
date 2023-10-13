@@ -13,6 +13,12 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 text-align: center;
             }
 
+            .advanced-header {
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+
             form {
                 max-width: 500px;
                 margin: 0 auto;
@@ -30,7 +36,15 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 font-weight: bold;
             }
 
-            input[type="text"]{
+            .verboseLogContainer {
+                display: flex;
+                gap: 10px;
+            }
+            input[type="checkbox"] {
+                transform: scale(1.1); 
+            }
+
+            input[type="text"], input[type="number"]{
                 width: 99%;
                 padding-top: 8px;
                 padding-bottom: 8px;
@@ -163,11 +177,6 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 padding: 10px;
             }
             
-            /* Styling for the checkbox label (optional) */
-            label[for="verboseLog"] {
-                margin-left: 20px;
-            }
-            
           </style>
         </head>
 
@@ -219,18 +228,19 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 </div>
                 <br>
 
-                <div class="collapsible">
-                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                        <span>Advanced Settings</span>
-                        <i class="arrow"></i>
+                <div class="advanced-container">
+                    <div class="advanced-header">
+                       Advanced Settings
                     </div>
-                    <div class="collapsible-content">
-                        <label for="threads">Threads (Number):</label>
-                        <input type="number" name="threads" id="threads" value="1">
+                    <div class="advanced-settings">
+                        <label for="threads">Threads</label>
+                        <input type="number" name="threads" id="threads" value="4">
                         <br>
 
-                        <label for="verboseLog">Verbose Log:</label>
-                        <input type="checkbox" name="verboseLog" id="verboseLog">
+                        <div class="verboseLogContainer">
+                            <label for="verboseLog" id="verboseLogLabel">Verbose Log:</label>
+                            <input type="checkbox" name="verboseLog" id="verboseLog">
+                        </div>
                     </div>
                 </div>
 
@@ -359,7 +369,8 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
             const collectionFieldName = document.getElementById('collectionFieldName').value;
             const format = document.getElementById('format').value;
             const fileDestination = document.getElementById('selectedFolder').value;
-        
+            const threads = document.getElementById('threads').value;
+            const verboseLog =  document.getElementById('verboseLog').checked;
             // Consolidate the data into an object
             const formData = {
                 bucket,
@@ -370,6 +381,8 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 collectionFieldName,
                 format,
                 fileDestination,
+                threads,
+                verboseLog
             };
             vscode.postMessage({
                 command: 'vscode-couchbase.tools.dataExport.runExport',

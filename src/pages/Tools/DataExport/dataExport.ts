@@ -55,6 +55,10 @@ const validateFormData = (formData: any): string => {
     errors.push("Please inform the file destination folder");
   }
 
+  if(!formData.threads.trim() || parseInt(formData.threads)<1){
+    errors.push("threads cannot be undefined or less than 1");
+  }
+
   if (errors.length > 0) {
     return errors.join("<br>");
   }
@@ -143,8 +147,8 @@ export const dataExport = async () => {
               formData.scopeFieldName,
               formData.collectionFieldName,
               formData.format,
-              "4",
-              false
+              formData.threads,
+              formData.verboseLog
             );
           } else {
             currentPanel.webview.postMessage({

@@ -249,7 +249,7 @@ class DependenciesDownloader {
             shellTool.status = ToolStatus.DOWNLOADING;
             this.downloadAndUnzip(shellPath, shell);
         } else {
-            console.debug("CBShell is already installed");
+            logger.debug("CBShell is already installed");
             this.setToolActive(ToolStatus.AVAILABLE, shellPath, shell);
         }
         const cbImport: ToolSpec | undefined = downloads.get(
