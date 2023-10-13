@@ -70,7 +70,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
             
             /* Style for the submit button */
             input[type="submit"] {
-                background-color: var(--vscode-button-background);
+                
                 color: var(--vscode-button-foreground);
                 border: none;
                 padding: 10px 50px;
@@ -106,10 +106,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 background-color: #ccc;
             }
 
-            /* Style for the submit button on hover */
-            input[type="submit"]:hover {
-                background-color: #0056b3;
-            }
+            
 
             .folder-container {
                 display: flex; 
@@ -121,8 +118,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 background-color: #007bff;
                 color: #fff;
                 cursor: pointer;
-                border: 1px solid #007bff;
-                border-radius: 5px;
+
                 white-space: nowrap;
             }
             
@@ -176,6 +172,13 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 display: none;
                 padding: 10px;
             }
+
+            .redButton{
+                background: #ea2328;
+            }
+            .redButton:hover {
+                background: #bb1117;
+            }
             
           </style>
         </head>
@@ -223,7 +226,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
 
                 <label for="fileDestination">File Destination Folder:</label>
                 <div class="folder-container">
-                    <div class="folder-destination" id="folderDestination" onclick="getFolder()">Choose</div>
+                    <div class="folder-destination redButton" id="folderDestination" onclick="getFolder()">Choose</div>
                     <input type="text" id="selectedFolder" name="selectedFolder" readonly>
                 </div>
                 <br>
@@ -246,7 +249,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
 
                 <div class="validation-error" id="validation-error"></div>
 
-                <input type="submit" value="Export" onclick="submitForm(event)">
+                <input type="submit" value="Export" onclick="submitForm(event)" class="redButton">
             </form>
         </body>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
