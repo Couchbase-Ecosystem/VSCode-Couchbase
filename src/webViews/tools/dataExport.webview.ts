@@ -243,7 +243,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script>
         const vscode = acquireVsCodeApi();
-        const scopesSpecData = [];
+        let scopesSpecData = [];
         function onBucketClick(bucketId) {
             document.getElementById('scopes').setAttribute('disabled',"");
             document.getElementById('collections').setAttribute('disabled',"");
@@ -262,7 +262,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
 
         function onScopeClick(allScopes) {
             document.getElementById('collections').setAttribute('disabled',"");
-            const selectedScopes = [];
+            let selectedScopes = [];
             const allScopeCnt = allScopes.length;
             for(let i=0;i<allScopeCnt;i++){
                 if(allScopes[i].selected === true){

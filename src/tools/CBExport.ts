@@ -36,7 +36,7 @@ export class CBExport {
             }
 
             for (const col of cols) {
-                if (!col.includes(" ") && !CBExport.hasAnyScope(col, scp)) { // TODO: Improve hasAnyScope
+                if (!col.includes(" ") && !CBExport.hasAnyScope(col, scp)) {
                     collections.push(col);
                 }
             }
@@ -54,16 +54,7 @@ export class CBExport {
         }
 
         const includeData = scp.join(",");
-        const fullPath = currentPath;
-
-        // const task = new ProgressIndicator.Task.Backgroundable(
-        //     null,
-        //     `Exporting '${bucket}'`,
-        //     true
-        // );
-
-        // task.run((indicator: ProgressIndicator) => {
-        //     indicator.setIndeterminate(true);
+        const fullPath = `\"${currentPath}\"`;
 
         const password = await keytar.getPassword(Constants.extensionID, getConnectionId(connection));
         if (!password) {
@@ -71,17 +62,16 @@ export class CBExport {
         }
 
         try {
-            
             const cmd: string[] = [];
             cmd.push(CBTools.getTool(Type.CB_EXPORT).path);
             cmd.push("json");
             cmd.push("--no-ssl-verify");
             cmd.push("-c");
-            cmd.push(connection.url); // Get Cluster URL
+            cmd.push(connection.url);
             cmd.push("-u");
-            cmd.push(connection.username); //Get Username
+            cmd.push(connection.username);
             cmd.push("-p");
-            cmd.push(password); // get Password
+            cmd.push(password);
             cmd.push("-b");
             cmd.push(bucket);
 
@@ -115,7 +105,6 @@ export class CBExport {
             console.error("An error occurred while trying to export the dataset");
             console.error(error);
         }
-        // });
     }
 
     private static hasAnyScope(collection: string, scopes: string[]): boolean {

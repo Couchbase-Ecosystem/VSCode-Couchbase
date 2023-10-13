@@ -45,7 +45,7 @@ export function readLastLine(filePath: string): string {
 };
 
 export function unzipFileSync(zipFilePath: string, destDir: string): void {
-    const osName = OSUtil.getOSArch(); // TODO: Update this 
+    const osName = OSUtil.getOSArch();
 
     const zipFilePathCanonical = path.resolve(zipFilePath);
     const destDirCanonical = path.resolve(destDir);
