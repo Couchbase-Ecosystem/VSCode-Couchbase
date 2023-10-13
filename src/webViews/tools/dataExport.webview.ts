@@ -106,8 +106,6 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 background-color: #ccc;
             }
 
-            
-
             .folder-container {
                 display: flex; 
                 align-items: start;
@@ -165,7 +163,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 height: 0;
                 border-left: 5px solid transparent;
                 border-right: 5px solid transparent;
-                border-top: 5px solid #333; /* Arrow icon */
+                border-top: 5px solid #333;
             }
             
             .collapsible-content {
@@ -178,6 +176,27 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
             }
             .redButton:hover {
                 background: #bb1117;
+            }
+            
+            .advanced-header {
+                cursor: pointer;
+                font-weight: bold;
+                padding: 5px;
+                display: flex;
+                align-items: center;
+            }
+            
+            .advanced-settings {
+                display: none;
+                padding: 10px;
+            }
+            .advanced-settings.active {
+                display: block;
+            }
+            
+            .arrow-icon {
+                transition: transform 0.2s;
+                margin-right:5px;
             }
             
           </style>
@@ -232,14 +251,14 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 <br>
 
                 <div class="advanced-container">
-                    <div class="advanced-header">
-                       Advanced Settings
+                    <div class="advanced-header" id="advanced-header">
+                    <span class="arrow-icon">▶️</span>
+                        Advanced Settings
                     </div>
-                    <div class="advanced-settings">
+                    <div class="advanced-settings" id="advanced-settings">
                         <label for="threads">Threads</label>
                         <input type="number" name="threads" id="threads" value="4">
                         <br>
-
                         <div class="verboseLogContainer">
                             <label for="verboseLog" id="verboseLogLabel">Verbose Log:</label>
                             <input type="checkbox" name="verboseLog" id="verboseLog">
@@ -355,10 +374,13 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
             }
         });
 
-        function toggleCollapsible(header) {
-            const content = header.nextElementSibling;
-            content.style.display = content.style.display === 'block' ? 'none' : 'block';
-        }
+        $(document).ready(function () {
+            $("#advanced-header").click(function () {
+                $("#advanced-settings").toggleClass("active");
+                const arrowIcon = $(".arrow-icon");
+                arrowIcon.text(arrowIcon.text() === "▶️" ? "▼" : "▶️");
+            });
+        });
 
         function submitForm(event) {
             event.preventDefault(); // Prevent the form from submitting in the traditional way
