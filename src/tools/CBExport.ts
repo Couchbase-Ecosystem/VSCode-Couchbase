@@ -1,4 +1,4 @@
-import { CBTools, Type } from "../util/dependencyDownloaderUtils/CBTool";
+import { CBTools, Type } from "../util/DependencyDownloaderUtils/CBTool";
 import { getActiveConnection, getConnectionId } from "../util/connections";
 import { Constants } from "../util/constants";
 import { getCurrentDateTime } from "../util/util";

@@ -2,7 +2,7 @@ import { CBExport } from "../../../tools/CBExport";
 import {
   CBTools,
   Type as CBToolsType,
-} from "../../../util/dependencyDownloaderUtils/CBTool";
+} from "../../../util/DependencyDownloaderUtils/CBTool";
 import * as vscode from "vscode";
 import { getActiveConnection } from "../../../util/connections";
 import { Memory } from "../../../util/util";

@@ -62,7 +62,7 @@ import { applyQuery } from "./commands/queryHistory/applyQuery";
 import { handleQueryContextStatusbar } from "./handlers/handleQueryContextStatusbar";
 import { filterDocuments } from "./commands/documents/filterDocuments";
 import { clearDocumentFilter } from "./commands/documents/clearDocumentFilter";
-import { getClusterOverviewData } from "./util/overviewClusterUtils/getOverviewClusterData";
+import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewClusterData";
 import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePrimaryIndex";
 import { dataExport } from "./pages/Tools/DataExport/dataExport";
 

@@ -6,7 +6,7 @@ import { Memory } from "../../util/util";
 import { IConnection } from "../../types/IConnection";
 import { logger } from "../../logger/logger";
 import { Constants } from "../../util/constants";
-import { getClusterOverviewData } from "../../util/overviewClusterUtils/getOverviewClusterData";
+import { getClusterOverviewData } from "../../util/OverviewClusterUtils/getOverviewClusterData";
 import { getLoader } from "../../webViews/loader.webview";
 import { getActiveConnection } from "../../util/connections";
 

@@ -2,13 +2,13 @@ import {
     CBTools,
     ToolStatus,
     Type as CBToolsType,
-} from "../util/dependencyDownloaderUtils/CBTool";
-import OSUtil from "../util/dependencyDownloaderUtils/OSUtils";
+} from "../util/DependencyDownloaderUtils/CBTool";
+import OSUtil from "../util/DependencyDownloaderUtils/OSUtils";
 import {
     createFolder,
     makeFilesExecutable,
-} from "../util/dependencyDownloaderUtils/fileUtils";
-import ToolSpec from "../util/dependencyDownloaderUtils/ToolSpec";
+} from "../util/DependencyDownloaderUtils/fileUtils";
+import ToolSpec from "../util/DependencyDownloaderUtils/ToolSpec";
 import * as path from "path";
 import * as fs from "fs";
 import axios from "axios";
