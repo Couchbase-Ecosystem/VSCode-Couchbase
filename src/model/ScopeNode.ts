@@ -65,7 +65,7 @@ export class ScopeNode implements INode {
     const collectionList: any[] = [];
     for (const collection of this.collections) {
       try {
-        let docFilter = Memory.state.get<IFilterDocuments>(
+        const docFilter = Memory.state.get<IFilterDocuments>(
           `filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`
         );
         const filter: string =

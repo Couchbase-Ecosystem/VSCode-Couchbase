@@ -1,4 +1,4 @@
-import { CBTools, Type } from "../util/DependencyDownloaderUtils/CBTool";
+import { CBTools, Type } from "../util/dependencyDownloaderUtils/CBTool";
 import { getActiveConnection, getConnectionId } from "../util/connections";
 import { Constants } from "../util/constants";
 import { getCurrentDateTime } from "../util/util";
@@ -111,20 +111,6 @@ export class CBExport {
             let text = cmd.join(" ");
             terminal.sendText(text);
             terminal.show();
-
-            // const process = child_process.spawnSync(cmd[0], cmd.slice(1), {
-            //     stdio: "inherit",
-            // });
-
-            // if (process.status !== 0) {
-            //     // Handle error
-            //     console.error(
-            //         `The error ${process.status} occurred while trying to export the scope`
-            //     );
-            // } else {
-            //     console.log(`File ${fileName} was exported successfully`);
-            //     console.log(`File ${fullPath} saved successfully.`);
-            // }
         } catch (error) {
             console.error("An error occurred while trying to export the dataset");
             console.error(error);

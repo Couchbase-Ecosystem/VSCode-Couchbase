@@ -26,15 +26,15 @@ export class SchemaDirectory implements INode {
     public async getChildren(): Promise<INode[]> {
         try {
             // get all schemas
-            let query = "INFER `" + this.bucketName + "`.`" + this.scopeName + "`.`" + this.collectionName + "` WITH {\"sample_size\": 2000}";
+            const query = "INFER `" + this.bucketName + "`.`" + this.scopeName + "`.`" + this.collectionName + "` WITH {\"sample_size\": 2000}";
             const connection = getActiveConnection();
             const result = await connection?.cluster?.query(query);
-            let schemaChildren: INode[] = [];
-            let patternCnt: number = result?.rows[0].length || 0;
+            const schemaChildren: INode[] = [];
+            const patternCnt: number = result?.rows[0].length || 0;
             for (let i = 0; i < patternCnt; i++) {
-                let row = result?.rows[0][i];
-                let childrenNode = this.treeTraversal(row.properties);
-                let patternDirectory = new SchemaNode(
+                const row = result?.rows[0][i];
+                const childrenNode = this.treeTraversal(row.properties);
+                const patternDirectory = new SchemaNode(
                     `Pattern #${i + 1}`,
                     childrenNode.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
                     childrenNode
@@ -52,19 +52,19 @@ export class SchemaDirectory implements INode {
         if (!treeNode) {
             return [];
         }
-        let currentNodes: INode[] = [];
+        const currentNodes: INode[] = [];
         Object.entries(treeNode).map(property => {
-            let propertyValue: any = property[1];
-            let type = propertyValue.type;
+            const propertyValue: any = property[1];
+            const type = propertyValue.type;
             if (type === 'object') {
-                let children = this.treeTraversal(propertyValue.properties);
+                const children = this.treeTraversal(propertyValue.properties);
                 currentNodes.push(new SchemaNode(`${property[0]}: ${type}`, vscode.TreeItemCollapsibleState.Collapsed, children));
             } else if (type === 'array') {
                 try {
-                    let items = propertyValue.items;
-                    let itemType = items.type;
+                    const items = propertyValue.items;
+                    const itemType = items.type;
                     if (itemType === 'object') {
-                        let children = this.treeTraversal(items.properties);
+                        const children = this.treeTraversal(items.properties);
                         currentNodes.push(new SchemaNode(`${property[0]}: array of objects`, vscode.TreeItemCollapsibleState.Collapsed, children));
                     } else {
                         currentNodes.push(new SchemaNode(`${property[0]}: array of ${itemType}s`, vscode.TreeItemCollapsibleState.None));

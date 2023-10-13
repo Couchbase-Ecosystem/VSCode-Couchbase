@@ -6,7 +6,7 @@ import { Memory } from "../../util/util";
 import { IConnection } from "../../types/IConnection";
 import { logger } from "../../logger/logger";
 import { Constants } from "../../util/constants";
-import { getClusterOverviewData } from "../../util/OverviewClusterUtils/getOverviewClusterData";
+import { getClusterOverviewData } from "../../util/overviewClusterUtils/getOverviewClusterData";
 import { getLoader } from "../../webViews/loader.webview";
 import { getActiveConnection } from "../../util/connections";
 
@@ -48,7 +48,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, refresh:
     );
     currentPanel.webview.html = getLoader("Cluster Overview");
     try {
-        let clusterOverviewObject = await getClusterOverviewData(refresh);
+        const clusterOverviewObject = await getClusterOverviewData(refresh);
         if(clusterOverviewObject instanceof Error){
             throw clusterOverviewObject;
         }

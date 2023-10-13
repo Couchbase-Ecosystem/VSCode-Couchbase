@@ -9,11 +9,11 @@ import { Constants } from "../../util/constants";
 import { getActiveConnection } from "../../util/connections";
 
 const fetchBucketNames = (bucketsSettings: BucketSettings[] | undefined, connection: IConnection): Array<Bucket> => {
-    let allBuckets: Array<Bucket> = [];
+    const allBuckets: Array<Bucket> = [];
     if (bucketsSettings !== undefined) {
         for (let bucketSettings of bucketsSettings) {
-            let bucketName: string = bucketSettings.name;
-            let bucket: Bucket | undefined = connection?.cluster?.bucket(bucketName);
+            const bucketName: string = bucketSettings.name;
+            const bucket: Bucket | undefined = connection?.cluster?.bucket(bucketName);
             if (bucket !== undefined) {
                 allBuckets.push(bucket);
             }
@@ -31,7 +31,7 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
     }
     try {
         // Fetch active editor
-        let activeEditor = vscode.window.activeTextEditor;
+        const activeEditor = vscode.window.activeTextEditor;
         if (
             !(activeEditor &&
                 activeEditor.document.languageId === "SQL++")
@@ -41,16 +41,16 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
         }
 
         // Fetch all buckets
-        let bucketsSettings = await connection?.cluster?.buckets().getAllBuckets();
-        let allBuckets = fetchBucketNames(bucketsSettings, connection);
+        const bucketsSettings = await connection?.cluster?.buckets().getAllBuckets();
+        const allBuckets = fetchBucketNames(bucketsSettings, connection);
 
         if (!allBuckets || allBuckets.length === 0) {
             vscode.window.showErrorMessage('No buckets found.');
             return;
         }
 
-        let bucketItems = allBuckets.map((bucket: Bucket) => { return { label: bucket.name, iconPath: new vscode.ThemeIcon("database") }; });
-        let selectedItem = await vscode.window.showQuickPick([
+        const bucketItems = allBuckets.map((bucket: Bucket) => { return { label: bucket.name, iconPath: new vscode.ThemeIcon("database") }; });
+        const selectedItem = await vscode.window.showQuickPick([
             { label: "Clears any active query context", kind: vscode.QuickPickItemKind.Separator },
             { label: "Clear Context", iconPath: new vscode.ThemeIcon("clear-all") },
             { kind: vscode.QuickPickItemKind.Separator, label: "Buckets" },
@@ -64,13 +64,13 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
             return;
         }
 
-        let bucketNameSelected = selectedItem.label;
+        const bucketNameSelected = selectedItem.label;
         if (bucketNameSelected === 'Clear Context') {
             workbench.editorToContext.delete(activeEditor.document.uri.toString());
             showQueryContextStatusbar(activeEditor, workbench);
             return;
         }
-        let scopes = await connection.cluster
+        const scopes = await connection.cluster
             ?.bucket(bucketNameSelected)
             .collections()
             .getAllScopes();
@@ -79,7 +79,7 @@ export async function fetchQueryContext(workbench: QueryWorkbench, context: vsco
             return;
         }
 
-        let scopeNameSelected = await vscode.window.showQuickPick(scopes.map((scope) => { return { label: scope.name, iconPath: new vscode.ThemeIcon("file-submodule") }; }), { placeHolder: 'Query Context: Select a scope' });
+        const scopeNameSelected = await vscode.window.showQuickPick(scopes.map((scope) => { return { label: scope.name, iconPath: new vscode.ThemeIcon("file-submodule") }; }), { placeHolder: 'Query Context: Select a scope' });
         if (!scopeNameSelected) {
             vscode.window.showInformationMessage('No scope selected.');
             return;

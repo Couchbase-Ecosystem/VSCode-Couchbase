@@ -14,7 +14,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
             }
 
             form {
-                max-width: 400px;
+                max-width: 500px;
                 margin: 0 auto;
                 padding: 30px;
                 border: 1px solid var(--vscode-settings-sashBorder);
@@ -134,6 +134,39 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
             .select2-results__option {
                 color: #444;
             }
+
+            .collapsible {
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+            
+            .collapsible-header {
+                background-color: #f0f0f0;
+                padding: 10px;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .arrow {
+                width: 0;
+                height: 0;
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 5px solid #333; /* Arrow icon */
+            }
+            
+            .collapsible-content {
+                display: none;
+                padding: 10px;
+            }
+            
+            /* Styling for the checkbox label (optional) */
+            label[for="verboseLog"] {
+                margin-left: 20px;
+            }
             
           </style>
         </head>
@@ -185,6 +218,22 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                     <input type="text" id="selectedFolder" name="selectedFolder" readonly>
                 </div>
                 <br>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                        <span>Advanced Settings</span>
+                        <i class="arrow"></i>
+                    </div>
+                    <div class="collapsible-content">
+                        <label for="threads">Threads (Number):</label>
+                        <input type="number" name="threads" id="threads" value="1">
+                        <br>
+
+                        <label for="verboseLog">Verbose Log:</label>
+                        <input type="checkbox" name="verboseLog" id="verboseLog">
+                    </div>
+                </div>
+
                 <div class="validation-error" id="validation-error"></div>
 
                 <input type="submit" value="Export" onclick="submitForm(event)">
@@ -194,7 +243,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script>
         const vscode = acquireVsCodeApi();
-        let scopesSpecData = [];
+        const scopesSpecData = [];
         function onBucketClick(bucketId) {
             document.getElementById('scopes').setAttribute('disabled',"");
             document.getElementById('collections').setAttribute('disabled',"");
@@ -213,8 +262,8 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
 
         function onScopeClick(allScopes) {
             document.getElementById('collections').setAttribute('disabled',"");
-            let selectedScopes = [];
-            let allScopeCnt = allScopes.length;
+            const selectedScopes = [];
+            const allScopeCnt = allScopes.length;
             for(let i=0;i<allScopeCnt;i++){
                 if(allScopes[i].selected === true){
                     if(i===0){
@@ -261,7 +310,7 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
         
             switch (message.command) {
                 case 'vscode-couchbase.tools.dataExport.scopesInfo':
-                    let scopesData = message.scopes;
+                    const scopesData = message.scopes;
                     scopesSpecData = scopesData;
                     const scopeDropdown = document.getElementById('scopes');
         
@@ -282,16 +331,21 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                     scopeDropdown.removeAttribute('disabled');
                     break;
                 case 'vscode-couchbase.tools.dataExport.folderInfo':
-                    let folder = message.folder;
+                    const folder = message.folder;
                     document.getElementById("selectedFolder").setAttribute("value", folder);
                     break;
                 case 'vscode-couchbase.tools.dataExport.formValidationError':
-                    let error = message.error;
+                    const error = message.error;
                     document.getElementById("validation-error").innerHTML = message.error;
                     break;
 
             }
         });
+
+        function toggleCollapsible(header) {
+            const content = header.nextElementSibling;
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        }
 
         function submitForm(event) {
             event.preventDefault(); // Prevent the form from submitting in the traditional way

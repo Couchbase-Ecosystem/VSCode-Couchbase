@@ -2,7 +2,7 @@ import { CBExport } from "../../../tools/CBExport";
 import {
   CBTools,
   Type as CBToolsType,
-} from "../../../util/DependencyDownloaderUtils/CBTool";
+} from "../../../util/dependencyDownloaderUtils/CBTool";
 import * as vscode from "vscode";
 import { getActiveConnection } from "../../../util/connections";
 import { Memory } from "../../../util/util";
@@ -14,7 +14,7 @@ import { dataExportWebview } from "../../../webViews/tools/dataExport.webview";
 import { IConnection } from "../../../types/IConnection";
 
 const getScopes = async (bucketId: string, connection: IConnection) => {
-  let scopes = await connection.cluster
+  const scopes = await connection.cluster
     ?.bucket(bucketId)
     .collections()
     .getAllScopes();
@@ -103,18 +103,23 @@ export const dataExport = async () => {
   Memory.state.update(Constants.DATA_EXPORT_WEBVIEW, {
     webviewPanel: currentPanel,
   });
-  currentPanel.iconPath = vscode.Uri.file(
-    path.join(__filename, "..", "..", "images", "cb-logo-icon.svg")
-  );
+  currentPanel.iconPath = {
+    dark: vscode.Uri.file(
+      path.join(__filename, "..", "..", "images","dark","export_dark.svg")
+    ),
+    light: vscode.Uri.file(
+      path.join(__filename, "..", "..", "images","light","export_light.svg")
+    ),
+  };
   currentPanel.webview.html = getLoader("Data Export");
 
   // Get all buckets
-  let buckets = await connection.cluster?.buckets().getAllBuckets();
+  const buckets = await connection.cluster?.buckets().getAllBuckets();
   if (buckets === undefined) {
     vscode.window.showErrorMessage("Buckets not found");
     return;
   }
-  let bucketNameArr: string[] = [];
+  const bucketNameArr: string[] = [];
   for (let bucket of buckets) {
     bucketNameArr.push(bucket.name);
   }
@@ -125,8 +130,8 @@ export const dataExport = async () => {
       switch (message.command) {
         // ADD cases here :)
         case "vscode-couchbase.tools.dataExport.runExport":
-          let formData = message.data;
-          let validationError = validateFormData(formData);
+          const formData = message.data;
+          const validationError = validateFormData(formData);
           if (validationError === "") {
             // There is no error
             CBExport.export(
@@ -149,7 +154,7 @@ export const dataExport = async () => {
           }
           break;
         case "vscode-couchbase.tools.dataExport.getScopes":
-          let scopes = await getScopes(message.bucketId, connection);
+          const scopes = await getScopes(message.bucketId, connection);
           if (scopes === undefined) {
             vscode.window.showErrorMessage("Scopes are undefined");
             break;
