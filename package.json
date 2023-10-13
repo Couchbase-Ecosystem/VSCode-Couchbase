@@ -81,6 +81,7 @@
   "dependencies": {
     "@monaco-editor/react": "^4.5.2",
     "@popperjs/core": "^2.11.8",
+    "@types/decompress": "^4.2.4",
     "ag-grid-community": "^29.3.5",
     "ag-grid-react": "^29.3.5",
     "axios": "^1.4.0",
@@ -91,6 +92,7 @@
     "d3-shape": "^1.3.7",
     "d3-zoom": "^1.8.3",
     "dayjs": "^1.11.9",
+    "decompress": "^4.2.1",
     "gitly": "^2.4.2",
     "keytar": "^7.7.0",
     "monaco-editor": "^0.43.0",
@@ -376,6 +378,13 @@
         ]
       }
     ],
+    "submenus": [
+      {
+        "label": "Tools",
+        "id": "vscode-couchbase.toolsMenu",
+        "icon": "images/couchbase.svg"
+      }
+    ],
     "commands": [
       {
         "command": "vscode-couchbase.createClusterConnection",
@@ -506,6 +515,11 @@
       {
         "command": "vscode-couchbase.getClusterOverview",
         "title": "Cluster Overview",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.tools.dataExport",
+        "title": "Data Export",
         "category": "Couchbase"
       },
       {
@@ -737,6 +751,10 @@
         {
           "command": "vscode-couchbase.checkAndCreatePrimaryIndex",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.tools.dataExport",
+          "when": "false"
         }
       ],
       "view/item/context": [
@@ -761,10 +779,16 @@
         },
         {
           "command": "vscode-couchbase.openQueryNotebook",
-          "when": "view == couchbase && viewItem == active_connection"
+          "when": "view == couchbase && viewItem == active_connection",
+          "group": "workbench@2"
         },
         {
           "command": "vscode-couchbase.openQueryWorkbench",
+          "when": "view == couchbase && viewItem == active_connection",
+          "group": "workbench@1"
+        },
+        {
+          "submenu": "vscode-couchbase.toolsMenu",
           "when": "view == couchbase && viewItem == active_connection"
         },
         {
@@ -873,6 +897,12 @@
         {
           "command": "vscode-couchbase.refreshQueryHistory",
           "when": "view == query-history",
+          "group": "navigation"
+        }
+      ],
+      "vscode-couchbase.toolsMenu": [
+        {
+          "command": "vscode-couchbase.tools.dataExport",
           "group": "navigation"
         }
       ]

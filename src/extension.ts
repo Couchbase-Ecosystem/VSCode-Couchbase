@@ -50,6 +50,7 @@ import { handleActiveEditorChange } from "./handlers/handleActiveTextEditorChang
 import { QueryWorkbench } from "./workbench/queryWorkbench";
 import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
+import DependenciesDownloader from "./handlers/handleCLIDownloader";
 import { sqlppFormatter } from "./commands/formatting/sqlppFormatter";
 import { fetchQueryContext } from "./pages/queryContext/queryContext";
 import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
@@ -63,6 +64,7 @@ import { filterDocuments } from "./commands/documents/filterDocuments";
 import { clearDocumentFilter } from "./commands/documents/clearDocumentFilter";
 import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewClusterData";
 import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePrimaryIndex";
+import { dataExport } from "./pages/Tools/DataExport/dataExport";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -73,8 +75,11 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.getConfiguration("vscode-couchbase")
   );
   logger.info(`Activating extension ${Constants.extensionID} v${Constants.extensionVersion}`);
+
+  const cliDownloader = new DependenciesDownloader();
+  cliDownloader.handleCLIDownloader();
+
   const uriToCasMap = new Map<string, string>();
-  let currentPanel: vscode.WebviewPanel | undefined = undefined;
   const workbench = new QueryWorkbench();
 
   const subscriptions = context.subscriptions;
@@ -107,9 +112,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-      if (editor &&
-        (editor.document.languageId === "json" &&
-          editor.document.uri.scheme === "couchbase")
+      if (
+        editor &&
+        editor.document.languageId === "json" &&
+        editor.document.uri.scheme === "couchbase"
       ) {
         await handleActiveEditorChange(editor, uriToCasMap, memFs);
       }
@@ -217,7 +223,6 @@ export function activate(context: vscode.ExtensionContext) {
       Commands.openIndexInfo,
       async (indexNode: IndexNode) => {
         openIndexInfo(indexNode, memFs);
-
       }
     )
   );
@@ -420,7 +425,7 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.languages.registerDocumentFormattingEditProvider('SQL++', {
     provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
       return sqlppFormatter(document);
-    }
+    },
   });
 
   subscriptions.push(
@@ -443,11 +448,17 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      Commands.queryContext,
-      () => {
-        fetchQueryContext(workbench, context);
+      Commands.dataExport,
+      async () => {
+        await dataExport();
       }
     )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.queryContext, () => {
+      fetchQueryContext(workbench, context);
+    })
   );
 
   // subscription to make sure query context status bar is only visible on sqlpp files
@@ -457,7 +468,7 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
   // Handle initial view of context status bar
-  let activeEditor = vscode.window.activeTextEditor;
+  const activeEditor = vscode.window.activeTextEditor;
   handleQueryContextStatusbar(activeEditor, workbench);
 
   subscriptions.push(
@@ -514,7 +525,7 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  let queryHistoryTreeProvider = new QueryHistoryTreeProvider(context);
+  const queryHistoryTreeProvider = new QueryHistoryTreeProvider(context);
   vscode.window.registerTreeDataProvider('query-history', queryHistoryTreeProvider);
 
   subscriptions.push(
@@ -532,17 +543,35 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.runQuery, async () => {
-      vscode.commands.executeCommand("setContext", "vscode-couchbase.runButtonEnabled", undefined);
-      await workbench.runCouchbaseQuery(workbenchWebviewProvider, queryHistoryTreeProvider);
-      vscode.commands.executeCommand("setContext", "vscode-couchbase.runButtonEnabled", true);
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.runButtonEnabled",
+        undefined
+      );
+      await workbench.runCouchbaseQuery(
+        workbenchWebviewProvider,
+        queryHistoryTreeProvider
+      );
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.runButtonEnabled",
+        true
+      );
     })
   );
-  vscode.commands.executeCommand("setContext", "vscode-couchbase.runButtonEnabled", true); // Required to enable run query button at the start
+  vscode.commands.executeCommand(
+    "setContext",
+    "vscode-couchbase.runButtonEnabled",
+    true
+  ); // Required to enable run query button at the start
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(Commands.checkAndCreatePrimaryIndex, async (elementData: any) => {
-      checkAndCreatePrimaryIndex(elementData);
-    })
+    vscode.commands.registerCommand(
+      Commands.checkAndCreatePrimaryIndex,
+      async (elementData: any) => {
+        checkAndCreatePrimaryIndex(elementData);
+      }
+    )
   );
 }
 

@@ -8,13 +8,14 @@ import { logger } from "../../logger/logger";
 import { Constants } from "../../util/constants";
 import { getClusterOverviewData } from "../../util/OverviewClusterUtils/getOverviewClusterData";
 import { getLoader } from "../../webViews/loader.webview";
+import { getActiveConnection } from "../../util/connections";
 
 export interface IClusterOverviewWebviewState {
     webviewPanel: vscode.WebviewPanel
 }
 
 export async function fetchClusterOverview(node: ClusterConnectionNode, refresh: boolean = false) {
-    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
+    const connection = getActiveConnection();
     if (!connection) {
         return;
     }
@@ -45,9 +46,9 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, refresh:
     currentPanel.iconPath = vscode.Uri.file(
         path.join(__filename, "..", "..", "images", "cb-logo-icon.svg")
     );
-    currentPanel.webview.html = getLoader();
+    currentPanel.webview.html = getLoader("Cluster Overview");
     try {
-        let clusterOverviewObject = await getClusterOverviewData(refresh);
+        const clusterOverviewObject = await getClusterOverviewData(refresh);
         if(clusterOverviewObject instanceof Error){
             throw clusterOverviewObject;
         }
@@ -60,7 +61,6 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, refresh:
         } catch (e) {
             logger.debug("Cluster overview webview may have been already disposed: " + e);
         }
-
     }
 
     currentPanel.onDidDispose(() => {

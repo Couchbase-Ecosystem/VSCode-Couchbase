@@ -96,4 +96,5 @@ export class Constants {
   public static OPS = "Ops";
   public static CURRENT_VBUCKET_REPLICA_ITEMS = "Current vBucket Replica Items";
   public static QUERY_RESULT = "Couchbase Query Result";
+  public static DATA_EXPORT_WEBVIEW = "dataExportWebview";
 }

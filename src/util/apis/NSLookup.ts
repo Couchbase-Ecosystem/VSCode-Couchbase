@@ -4,7 +4,6 @@ import { logger } from '../../logger/logger';
 function resolveSrvAsync(hostname: string): Promise<dns.SrvRecord[]> {
     return new Promise((resolve, reject) => {
         dns.resolveSrv(hostname, (err, addresses) => {
-            
             if (err) {
                 reject(err);
             }

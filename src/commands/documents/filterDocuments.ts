@@ -12,7 +12,7 @@ export const filterDocuments = async (node: CollectionNode) => {
     WHERE bucket_id="${node.bucketName}" AND scope_id="${node.scopeName}" AND keyspace_id="${node.collectionName}" AND is_primary=true
   `;
     // Execute the query
-    let primaryIndexExists = await node.connection.cluster
+    const primaryIndexExists = await node.connection.cluster
         ?.query(query)
         .then((result) => {
             const rows = result.rows;
