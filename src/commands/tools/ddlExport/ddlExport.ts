@@ -1,14 +1,14 @@
 import * as vscode from "vscode";
 import * as path from 'path';
-import { IConnection } from "../../types/IConnection";
-import { getActiveConnection } from "../../util/connections";
-import { logger } from "../../logger/logger";
-import { getLoader } from "../../webViews/loader.webview";
-import { ddlExportWebview } from "../../webViews/tools/ddlExport.webview";
+import { IConnection } from "../../../types/IConnection";
+import { getActiveConnection } from "../../../util/connections";
+import { logger } from "../../../logger/logger";
+import { getLoader } from "../../../webViews/loader.webview";
+import { ddlExportWebview } from "../../../webViews/tools/ddlExport.webview";
 import { QueryIndex, ScopeSpec } from "couchbase";
-import { getCurrentDateTime } from "../../util/util";
+import { getCurrentDateTime } from "../../../util/util";
 import * as fs from "fs";
-import { getIndexDefinition } from "../../util/indexUtils";
+import { getIndexDefinition } from "../../../util/indexUtils";
 
 const validateFormData = (formData: any): string => {
     const errors = [];
