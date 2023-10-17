@@ -578,13 +578,18 @@
       },
       {
         "title": "Refresh Cluster Overview",
-        "command":"vscode-couchbase.refreshClusterOverview",
+        "command": "vscode-couchbase.refreshClusterOverview",
         "icon": "$(refresh)",
         "category": "Couchbase"
       },
       {
         "title": "Check and Create Primary Index",
         "command": "vscode-couchbase.checkAndCreatePrimaryIndex",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.tools.DDLExport",
+        "title": "DDL Export",
         "category": "Couchbase"
       }
     ],
@@ -755,6 +760,10 @@
         {
           "command": "vscode-couchbase.tools.dataExport",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.tools.DDLExport",
+          "when": "false"
         }
       ],
       "view/item/context": [
@@ -786,6 +795,10 @@
           "command": "vscode-couchbase.openQueryWorkbench",
           "when": "view == couchbase && viewItem == active_connection",
           "group": "workbench@1"
+        },
+        {
+          "submenu": "vscode-couchbase.toolsMenu",
+          "when": "view == couchbase && viewItem == active_connection"
         },
         {
           "submenu": "vscode-couchbase.toolsMenu",
@@ -903,6 +916,10 @@
       "vscode-couchbase.toolsMenu": [
         {
           "command": "vscode-couchbase.tools.dataExport",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-couchbase.tools.DDLExport",
           "group": "navigation"
         }
       ]
