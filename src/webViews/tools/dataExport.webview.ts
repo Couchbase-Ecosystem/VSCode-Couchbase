@@ -1,5 +1,5 @@
 export const dataExportWebview = async (buckets: string[]): Promise<string> => {
-  return `
+  return /*html*/`
     <!DOCTYPE html>
     <html lang="en">
        <head>
@@ -7,7 +7,6 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Data Export</title>
           <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
-</head>
           <style>
             .heading {
                 text-align: center;
@@ -106,6 +105,10 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 background-color: #ccc;
             }
 
+            .select2-results__option {
+                color: #444;
+            }
+
             .folder-container {
                 display: flex; 
                 align-items: start;
@@ -137,38 +140,6 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 color: #ff0000;
                 font-size: 14px;
                 padding: 5px;
-            }
-
-            .select2-results__option {
-                color: #444;
-            }
-
-            .collapsible {
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                margin-top: 10px;
-            }
-            
-            .collapsible-header {
-                background-color: #f0f0f0;
-                padding: 10px;
-                cursor: pointer;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            
-            .arrow {
-                width: 0;
-                height: 0;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 5px solid #333;
-            }
-            
-            .collapsible-content {
-                display: none;
-                padding: 10px;
             }
 
             .redButton{

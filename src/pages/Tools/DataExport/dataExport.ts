@@ -13,7 +13,7 @@ import { getLoader } from "../../../webViews/loader.webview";
 import { dataExportWebview } from "../../../webViews/tools/dataExport.webview";
 import { IConnection } from "../../../types/IConnection";
 
-const getScopes = async (bucketId: string, connection: IConnection) => {
+export const getScopes = async (bucketId: string, connection: IConnection) => {
   const scopes = await connection.cluster
     ?.bucket(bucketId)
     .collections()

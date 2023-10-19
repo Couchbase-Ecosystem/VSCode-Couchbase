@@ -55,4 +55,5 @@ export namespace Commands {
     export const refreshClusterOverview: string = "vscode-couchbase.refreshClusterOverview";
     export const checkAndCreatePrimaryIndex: string = "vscode-couchbase.checkAndCreatePrimaryIndex";
     export const dataExport: string = "vscode-couchbase.tools.dataExport";
+    export const dataImport: string = "vscode-couchbase.tools.dataImport";
 }

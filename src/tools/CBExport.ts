@@ -62,6 +62,7 @@ export class CBExport {
         }
 
         try {
+            // Build Command
             const cmd: string[] = [];
             cmd.push(CBTools.getTool(Type.CB_EXPORT).path);
             cmd.push("json");
@@ -97,7 +98,8 @@ export class CBExport {
                 cmd.push("-v");
             }
 
-            const terminal = vscode.window.createTerminal("CBExport",);
+            // Run Command
+            const terminal = vscode.window.createTerminal("CBExport");
             let text = cmd.join(" ");
             terminal.sendText(text);
             terminal.show();

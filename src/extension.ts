@@ -65,6 +65,7 @@ import { clearDocumentFilter } from "./commands/documents/clearDocumentFilter";
 import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewClusterData";
 import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePrimaryIndex";
 import { dataExport } from "./pages/Tools/DataExport/dataExport";
+import { DataImport } from "./commands/tools/dataImport";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -451,6 +452,15 @@ export function activate(context: vscode.ExtensionContext) {
       Commands.dataExport,
       async () => {
         await dataExport();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.dataImport,
+      async () => {
+        await new DataImport('').dataImport();
       }
     )
   );
