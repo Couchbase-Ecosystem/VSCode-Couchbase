@@ -55,7 +55,7 @@ const validateFormData = (formData: any): string => {
     errors.push("Please inform the file destination folder");
   }
 
-  if(!formData.threads.trim() || parseInt(formData.threads)<1){
+  if (!formData.threads.trim() || parseInt(formData.threads) < 1) {
     errors.push("threads cannot be undefined or less than 1");
   }
 
@@ -109,10 +109,10 @@ export const dataExport = async () => {
   });
   currentPanel.iconPath = {
     dark: vscode.Uri.file(
-      path.join(__filename, "..", "..", "images","dark","export_dark.svg")
+      path.join(__filename, "..", "..", "images", "dark", "export_dark.svg")
     ),
     light: vscode.Uri.file(
-      path.join(__filename, "..", "..", "images","light","export_light.svg")
+      path.join(__filename, "..", "..", "images", "light", "export_light.svg")
     ),
   };
   currentPanel.webview.html = getLoader("Data Export");
@@ -123,10 +123,8 @@ export const dataExport = async () => {
     vscode.window.showErrorMessage("Buckets not found");
     return;
   }
-  const bucketNameArr: string[] = [];
-  for (let bucket of buckets) {
-    bucketNameArr.push(bucket.name);
-  }
+
+  const bucketNameArr: string[] = buckets.map(b => b.name);
 
   try {
     currentPanel.webview.html = await dataExportWebview(bucketNameArr);
