@@ -221,7 +221,7 @@ export class DataImport {
     }
 
     try {
-      currentPanel.webview.html = getDatasetAndCollection(bucketNameArr);
+      currentPanel.webview.html = await getDatasetAndCollection(bucketNameArr, undefined);
       currentPanel.webview.onDidReceiveMessage(async (message) => {
         switch (message.command) {
           // ADD cases here :)
@@ -250,7 +250,7 @@ export class DataImport {
             if (validationError === "") {
               // NO Validation Error on Page 1, We can shift to next page
               currentPanel.webview.html = getLoader("Data Import");
-              currentPanel.webview.html = getKeysAndAdvancedSettings();
+              currentPanel.webview.html = getKeysAndAdvancedSettings(formData);
 
             } else {
               currentPanel.webview.postMessage({
@@ -272,7 +272,6 @@ export class DataImport {
             });
             break;
           case "vscode-couchbase.tools.dataImport.getDatasetFile":
-            console.log("inside back");
             const options: vscode.OpenDialogOptions = {
               canSelectMany: false,
               openLabel: "Choose Dataset File",
@@ -288,6 +287,12 @@ export class DataImport {
                 });
               }
             });
+            break;
+          case 'vscode-couchbase.tools.dataImport.getKeysBack':
+            const datasetAndTargetData = message.datasetAndTargetData;
+            const keysAndAdvancedSettingsData = message.keysAndAdvancedSettingsData;
+            currentPanel.webview.html = getLoader("Data Import");
+            currentPanel.webview.html = await getDatasetAndCollection(bucketNameArr, datasetAndTargetData);
             break;
         }
       });

@@ -132,12 +132,12 @@ export const showFavoriteQueries = (): string => {
               }
               
               .favorite-query-paste-button {
-                background-color: var(--vscode-button-background);
-                color: var(--vscode-button-foreground);
+                background: #ea2328;
+                color: #eee;
               }
               
               .favorite-query-paste-button:hover {
-                background-color: var(--vscode-button-hoverBackground);
+                background: #bb1117;
               }
           </style>
 

@@ -1,4 +1,4 @@
-export const getDatasetAndCollection = (buckets: string[]): string => {
+export const getDatasetAndCollection = async (buckets: string[], prefilledData: any): Promise<string> => {
   return /*html*/ `
     <!DOCTYPE html>
     <html lang="en">
@@ -152,7 +152,7 @@ export const getDatasetAndCollection = (buckets: string[]): string => {
                 <br>
                 
                 <label for="scopesAndCollections">Scopes And Collections:</label>
-                <select name="scopesAndCollections" id="scopesAndCollections" onchange="onScopeAndCollectionsClick(value, selectedIndex)" width="100%">
+                <select name="scopesAndCollections" id="scopesAndCollections" onchange="onScopeAndCollectionsClick(value)" width="100%">
                     <option value="defaultCollection" selected>Default scope and collection</option>
                     <option value="SpecifiedCollection">Choose a specified collection </option>
                     <option value="dynamicCollection">Enter dynamic scope and collection</option>
@@ -200,12 +200,45 @@ export const getDatasetAndCollection = (buckets: string[]): string => {
             });
         }
 
-        window.onload = function() {
-            // We want scopeDetails for 1st bucket so calling the function on load of the webview
-            const selectElement = document.getElementById('bucket');
-            if (selectElement && selectElement.options.length > 0) {
-                const firstOptionValue = selectElement.options[0].value;
-                onBucketClick(firstOptionValue);
+        async function setInitialValue(fieldId, value) {
+            const field = document.getElementById(fieldId);
+            
+            if (field && value && value.trim() !== "") {
+                field.value = value;
+                if(fieldId === "scopesAndCollections" || fieldId === "scopesDropdown") {
+                    field.dispatchEvent(new Event('change'));
+                }
+            }
+        }
+
+        window.onload = async function() {
+            // Load all the data present in prefilled
+            let prefilledData = ${JSON.stringify(prefilledData)};
+            if(prefilledData){
+                setInitialValue('selectedFile', prefilledData.dataset);
+                scopesSpecData = prefilledData.scopesSpecData;
+                if(prefilledData.bucket && prefilledData.bucket.trim !== ""){
+                    setInitialValue('bucket', prefilledData.bucket);
+                } else {
+                    const selectElement = document.getElementById('bucket');
+                    if (selectElement && selectElement.options.length > 0) {
+                        const firstOptionValue = selectElement.value;
+                        onBucketClick(firstOptionValue);
+                    }
+                }
+                setInitialValue('scopesAndCollections', prefilledData.scopesAndCollections);
+                createScopesDropdown(scopesSpecData);
+                setInitialValue('scopesDropdown', prefilledData.scopesDropdown);
+                setInitialValue('collectionsDropdown', prefilledData.collectionsDropdown);
+                setInitialValue('scopesDynamicField',prefilledData.scopesDynamicField);
+                setInitialValue('collectionsDynamicField',prefilledData.collectionsDynamicField);
+            } else {
+                // We want scopeDetails for 1st bucket so calling the function on load of the webview
+                const selectElement = document.getElementById('bucket');
+                if (selectElement && selectElement.options.length > 0) {
+                    const firstOptionValue = selectElement.value;
+                    onBucketClick(firstOptionValue);
+                }
             }
         };
 
@@ -215,7 +248,7 @@ export const getDatasetAndCollection = (buckets: string[]): string => {
             });
         }
 
-        function onScopeAndCollectionsClick(value, index) {
+        function onScopeAndCollectionsClick(value) {
             document.getElementById('specifiedCollectionContainer').setAttribute('hidden',"");
             document.getElementById('dynamicCollectionContainer').setAttribute('hidden',"");
 
@@ -230,7 +263,6 @@ export const getDatasetAndCollection = (buckets: string[]): string => {
             document.getElementById('collectionsDropdown').setAttribute('disabled',"");
             const collectionDropdown = document.getElementById('collectionsDropdown');
             collectionDropdown.innerHTML = '';
-
             // Add a default option of select a scope
             const option = document.createElement('option');
             option.value = "";
@@ -250,6 +282,30 @@ export const getDatasetAndCollection = (buckets: string[]): string => {
             document.getElementById('collectionsDropdown').removeAttribute('disabled');
         }
 
+        function createScopesDropdown(scopesData){
+            const scopeDropdown = document.getElementById('scopesDropdown');
+                
+            // Clear existing options in the scope dropdown
+            scopeDropdown.innerHTML = '';
+
+            // Add a default option of select a scope
+            const option = document.createElement('option');
+            option.value = "";
+            option.text = "Select a scope"
+            option.setAttribute("disabled","");
+            option.setAttribute("selected","");
+            scopeDropdown.appendChild(option);
+
+            // Add scope options
+            scopesData.forEach((scope) => {
+                const option = document.createElement('option');
+                option.value = scope.name;
+                option.text = scope.name;
+                scopeDropdown.appendChild(option);
+            });
+            scopeDropdown.removeAttribute('disabled');
+        }
+
         window.addEventListener('message', event => {
             const message = event.data; // The JSON data our extension sent
 
@@ -257,27 +313,7 @@ export const getDatasetAndCollection = (buckets: string[]): string => {
                 case 'vscode-couchbase.tools.dataImport.scopesInfo':
                     const scopesData = message.scopes;
                     scopesSpecData = scopesData;
-                    const scopeDropdown = document.getElementById('scopesDropdown');
-        
-                    // Clear existing options in the scope dropdown
-                    scopeDropdown.innerHTML = '';
-
-                    // Add a default option of select a scope
-                    const option = document.createElement('option');
-                    option.value = "";
-                    option.text = "Select a scope"
-                    option.setAttribute("disabled","");
-                    option.setAttribute("selected","");
-                    scopeDropdown.appendChild(option);
-
-                    // Add scope options
-                    scopesData.forEach((scope) => {
-                        const option = document.createElement('option');
-                        option.value = scope.name;
-                        option.text = scope.name;
-                        scopeDropdown.appendChild(option);
-                    });
-                    scopeDropdown.removeAttribute('disabled');
+                    createScopesDropdown(scopesData);
                     break;
                 case 'vscode-couchbase.tools.dataImport.datasetFile':
                     const dataset = message.dataset;
@@ -316,8 +352,9 @@ export const getDatasetAndCollection = (buckets: string[]): string => {
                 scopesDropdown,
                 collectionsDropdown,
                 scopesDynamicField,
-                collectionsDynamicField
-            };    
+                collectionsDynamicField,
+                scopesSpecData
+            };
             vscode.postMessage({
                 command: 'vscode-couchbase.tools.dataImport.nextGetDatasetAndCollectionPage',
                 data: formData

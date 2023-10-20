@@ -1,4 +1,4 @@
-export const getKeysAndAdvancedSettings = (): string => {
+export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
     return /*html*/`
     <!DOCTYPE html>
     <html lang="en">
@@ -155,6 +155,14 @@ export const getKeysAndAdvancedSettings = (): string => {
                 margin-right:5px;
             }
 
+            .secondaryButton {
+                background: var(--vscode-button-secondaryBackground);
+                color: var(--vscode-button-secondaryForeground);
+            }
+            .secondaryButton:hover {
+                background-color: var(--vscode-button-secondaryHoverBackground);
+            }
+
           </style>
         </head>
         <body>
@@ -225,7 +233,7 @@ export const getKeysAndAdvancedSettings = (): string => {
                 <div class="validation-error" id="validation-error"></div>
                 <div class="buttonsContainer">
                     <input type="submit" value="Next" onclick="onNextClick(event)" class="redButton">
-                    <input type="submit" value="Back" onclick="onBackClick(event)">
+                    <input type="submit" value="Back" onclick="onBackClick(event)" class="secondaryButton">
                 </div>
             </form>
         </body>
@@ -282,6 +290,37 @@ export const getKeysAndAdvancedSettings = (): string => {
                     command: 'vscode-couchbase.tools.dataImport.runImport',
                     data: formData
                 });
+            }
+
+            function onBackClick(event) {
+                event.preventDefault(); // prevent form submission
+                let lastPageData = ${JSON.stringify(lastPageData)};
+                var keyOptions = document.getElementById('keyOptions').value;
+                var keyFieldName = document.getElementById('keyFieldName').value;
+                var customExpression = document.getElementById('customExpression').value;
+                var skipFirstDocuments = document.getElementById('skipFirstDocuments').value;
+                var limitDocsOrRows = document.getElementById('importUptoDocuments').value;
+                var ignoreFields = document.getElementById('ignoreFields').value;
+                var threads = document.getElementById('threads').value;
+                var verboseLog = document.getElementById('verboseLog').checked;
+
+                // Consolidate data
+                var formData = {
+                    keyOptions: keyOptions,
+                    keyFieldName: keyFieldName,
+                    customExpression: customExpression,
+                    skipDocsOrRows: skipFirstDocuments,
+                    limitDocsOrRows: limitDocsOrRows,
+                    ignoreFields: ignoreFields,
+                    threads: threads,
+                    verboseLog: verboseLog
+                };
+
+                 vscode.postMessage({
+                    command: 'vscode-couchbase.tools.dataImport.getKeysBack',
+                    keysAndAdvancedSettingsData: formData,
+                    datasetAndTargetData: lastPageData
+                })
             }
         </script>
     </html>
