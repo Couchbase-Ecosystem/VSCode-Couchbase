@@ -287,6 +287,13 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                 var ignoreFields = document.getElementById('ignoreFields').value;
                 var threads = document.getElementById('threads').value;
                 var verboseLog = document.getElementById('verboseLog').checked;
+                let generateKeyExpression = "#UUID#"; // Default for setting key expression based on UUID
+                if(keyOptions === "fieldValue"){
+                    generateKeyExpression = "%" + keyFieldName + "%";
+                } else if (keyOptions === "customExpression"){
+                    generateKeyExpression = customExpression;
+                }
+                
 
                 // Consolidate data
                 var formData = {
@@ -297,7 +304,8 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                     limitDocsOrRows: limitDocsOrRows,
                     ignoreFields: ignoreFields,
                     threads: threads,
-                    verboseLog: verboseLog
+                    verboseLog: verboseLog,
+                    generateKeyExpression: generateKeyExpression
                 };
 
                 vscode.postMessage({

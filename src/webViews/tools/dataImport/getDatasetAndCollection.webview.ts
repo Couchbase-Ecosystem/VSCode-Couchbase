@@ -334,14 +334,17 @@ export const getDatasetAndCollection = async (buckets: string[], prefilledData: 
             const bucket = document.getElementById('bucket').value;
             const scopesAndCollections = document.getElementById('scopesAndCollections').value;
             let scopesDropdown, collectionsDropdown, scopesDynamicField, collectionsDynamicField;
+            let scopeCollectionExpression = "_default._default"; // Default case of default values
 
             // Check which option is selected in the "Scopes And Collections" dropdown
             if (scopesAndCollections === 'SpecifiedCollection') {
                 scopesDropdown = document.getElementById('scopesDropdown').value;
                 collectionsDropdown = document.getElementById('collectionsDropdown').value;
+                scopeCollectionExpression = collectionsDropdown; //The value of collections dropdown already has scope data
             } else if (scopesAndCollections === 'dynamicCollection') {
                 scopesDynamicField = document.getElementById('scopesDynamicField').value;
                 collectionsDynamicField = document.getElementById('collectionsDynamicField').value;
+                scopeCollectionExpression = scopesDynamicField + '.' + collectionsDynamicField;
             }
 
             // Consolidate data
@@ -353,7 +356,8 @@ export const getDatasetAndCollection = async (buckets: string[], prefilledData: 
                 collectionsDropdown,
                 scopesDynamicField,
                 collectionsDynamicField,
-                scopesSpecData
+                scopesSpecData,
+                scopeCollectionExpression
             };
             vscode.postMessage({
                 command: 'vscode-couchbase.tools.dataImport.nextGetDatasetAndCollectionPage',

@@ -32,6 +32,7 @@ export class DataImport {
   JSON_FILE_FORMAT: string = "json";
   CSV_FILE_FORMAT: string = "csv";
   datasetField: string = "";
+  format: string = "";
   readonly UUID_FLAG = "#UUID#";
   readonly MONO_INCR_FLAG = "#MONO_INCR#";
   readonly WORDS_WITH_PERCENT_SYMBOLS_REGEX = "%(\\w+)%";
@@ -76,7 +77,6 @@ export class DataImport {
   private readAndProcessPartialDataFromDataset = async () => {
     try {
       const datasetPath: string = this.datasetField;
-      console.log("datasetPath",datasetPath);
       if (datasetPath.endsWith(this.JSON_FILE_EXTENSION)) {
         const readStream = fs.createReadStream(datasetPath, {
           encoding: "utf8",
@@ -163,10 +163,9 @@ export class DataImport {
             let matches: string[] = [];
 
             let match;
-            console.log("before while");
+
             while ((match = pattern.exec(expression)) !== null) {
                 // match[1] contains the captured word (the part between % symbols)
-                console.log(match);
                 if(match[1] === ""){
                   break;
                 }
@@ -176,8 +175,6 @@ export class DataImport {
             matches.forEach(match => {
                 fieldNamesList.push(match.replace(/%/g, ''));
             });
-            console.log("matches", matches);
-            console.log("fieldNamesList", fieldNamesList);
             
 
             for (let i = 0; i < Math.min(this.cachedJsonDocs.length, this.PREVIEW_SIZE); i++) {
@@ -227,7 +224,6 @@ export class DataImport {
             }
         }
     }
-    console.log(previewContent);
     return previewContent.join("\n");
 }
 
@@ -258,7 +254,7 @@ export class DataImport {
         resolve(result);
       });
       pipeline.on("error", (err) => {
-        console.error(err);
+        logger.error(err);
         resolve(null);
       });
     });
@@ -286,7 +282,7 @@ export class DataImport {
           }
         })
         .on("error", (err) => {
-          console.error(err);
+          logger.error(err);
           resolve([]);
         });
     });
@@ -322,7 +318,7 @@ export class DataImport {
           }
         }
       } catch (e) {
-        console.error(e);
+        logger.error(e);
         return false;
       }
     }
@@ -337,11 +333,11 @@ export class DataImport {
       const startBuffer = await this.readFirstTwoNonEmptyCharacters(filePath);
       const endBuffer = await this.readLastTwoNonEmptyCharacters(filePath);
 
-      const firstChar = startBuffer[1];
-      const secondChar = startBuffer[0];
+      const firstChar = startBuffer[0];
+      const secondChar = startBuffer[1];
 
-      const secondLastChar = endBuffer[1];
-      const lastChar = endBuffer[0];
+      const secondLastChar = endBuffer[0];
+      const lastChar = endBuffer[1];
 
       if (
         firstChar === "[" &&
@@ -453,14 +449,17 @@ export class DataImport {
     }
 
     if (this.fileFormat === this.JSON_FILE_FORMAT) {
-      let format: string | null = await this.detectDatasetFormat(
+      let currentFormat: string | null = await this.detectDatasetFormat(
         datasetFilePath
       );
-      console.log(format);
-      if (format) {
-        console.log(`Detected format: ${format}`);
+
+      if (currentFormat) {
+        this.format = currentFormat;
+        console.log(currentFormat);
+        logger.info("detected format " + currentFormat);
       } else {
-        console.log("Format not detected.");
+        this.format = "";
+        logger.error("format not detected");
         errors.push("Please enter valid json file format only");
       }
 
@@ -620,14 +619,12 @@ export class DataImport {
             const runFormData = message.data;
             const datasetAndCollectionData = message.datasetAndCollectionData;
             const runValidationError = await this.validateFormData(runFormData);
-            console.log("all data at end");
-            console.log(runFormData);
-            console.log(datasetAndCollectionData);
             if (runValidationError === "" || true) {
               CBImport.import({
                 bucket: datasetAndCollectionData.bucket, // TODO: bucket should be taken from other form
                 dataset: datasetAndCollectionData.dataset,
-                fileFormat: "json",
+                fileFormat: this.fileFormat,
+                format: this.format,
                 scopeCollectionExpression:
                   datasetAndCollectionData.scopeCollectionExpression,
                 generateKeyExpression: runFormData.generateKeyExpression,
@@ -695,7 +692,6 @@ export class DataImport {
             );
             break;
           case "vscode-couchbase.tools.dataImport.fetchKeyPreview":
-            console.log("inside data import");
             const keyType = message.keyType;
             const keyExpr = message.keyExpr;
             const preview = await this.updateKeyPreview(keyType, keyExpr);

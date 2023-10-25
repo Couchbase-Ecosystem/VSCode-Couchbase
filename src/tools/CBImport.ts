@@ -17,6 +17,7 @@ export interface ICBImportData {
     ignoreFields: string | undefined;
     threads: number;
     verbose: boolean;
+    format: string;
 }
 
 export class CBImport {
@@ -84,11 +85,11 @@ export class CBImport {
         cmd.push("--dataset");
         cmd.push(`\"file://${importData.dataset}\"`);
 
-        if(importData.fileFormat === "JSON"){ // If JSON File Format, Lines or Arrays needs to be specified as file type
+        if(importData.fileFormat === "json"){ // If JSON File Format, Lines or Arrays needs to be specified as file type
             cmd.push("--format");
-            cmd.push(importData.fileFormat);
+            cmd.push(importData.format);
         }
-        if(importData.fileFormat === "CSV"){ // Field Seperator is taken as ',' by default and only required in case of CSV File Format
+        if(importData.fileFormat === "csv"){ // Field Seperator is taken as ',' by default and only required in case of CSV File Format
             cmd.push("--field-seperator");
             cmd.push(",");
             cmd.push("--infer-types"); // Adding infer types flag as well for csv
