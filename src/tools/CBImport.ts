@@ -26,6 +26,7 @@ export class CBImport {
         if(!connection){
             return;
         }
+        console.log(importData);
         let cmd: string[] | Error;
         // CMD Builder
         try {
@@ -33,6 +34,7 @@ export class CBImport {
             if (cmd instanceof Error) {
                 throw cmd;
             }
+            console.log(cmd);
         } catch(err) {
             logger.error("Error while building command for CB Import, please check values and try again");
             logger.debug(err);
@@ -46,8 +48,8 @@ export class CBImport {
             let text = cmd.join(" ");
             console.log(text);
 
-            // terminal.sendText(text);
-            // terminal.show();
+            terminal.sendText(text);
+            terminal.show();
             
         } catch(err) {
             logger.error("Error while running command for CB Import");
@@ -80,7 +82,7 @@ export class CBImport {
 
         // Dataset details
         cmd.push("--dataset");
-        cmd.push(`file://${importData.dataset}`);
+        cmd.push(`\"file://${importData.dataset}\"`);
 
         if(importData.fileFormat === "JSON"){ // If JSON File Format, Lines or Arrays needs to be specified as file type
             cmd.push("--format");

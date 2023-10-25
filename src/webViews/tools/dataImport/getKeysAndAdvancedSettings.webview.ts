@@ -197,7 +197,7 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
 
                 <label for="keyPreview">Key Preview:</label>
                 <div class="keyPreviewContainer">
-                    <div class="getKeyPreviewButton redButton" id="getKeyPreviewButton" onclick="getFolder()">Fetch preview</div>
+                    <div class="getKeyPreviewButton redButton" id="getKeyPreviewButton" onclick="fetchKeyPreview()">Fetch preview</div>
                     <textarea id="keyPreviewTextArea" readonly> </textarea>
                 </div>
                 <br>
@@ -261,6 +261,20 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                 });
             });
 
+            function fetchKeyPreview() {
+                
+                var keyOptions = document.getElementById('keyOptions').value;
+                var keyFieldName = document.getElementById('keyFieldName').value;
+                var customExpression = document.getElementById('customExpression').value;
+
+                
+                vscode.postMessage({
+                    command: "vscode-couchbase.tools.dataImport.fetchKeyPreview",
+                    keyType: keyOptions,
+                    keyExpr: keyOptions === "fieldValue" ? keyFieldName : (keyOptions === "customExpression" ? customExpression : undefined)
+                })
+            }
+
             function onNextClick(event) {
                 event.preventDefault(); // prevent form submission
 
@@ -288,7 +302,8 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
 
                 vscode.postMessage({
                     command: 'vscode-couchbase.tools.dataImport.runImport',
-                    data: formData
+                    data: formData,
+                    datasetAndCollectionData: ${JSON.stringify(lastPageData)}
                 });
             }
 
@@ -322,6 +337,16 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                     datasetAndTargetData: lastPageData
                 })
             }
+
+            window.addEventListener('message', event => {
+                const message = event.data; // The JSON data our extension sent
+                switch (message.command) {
+                    case "vscode-couchbase.tools.dataImport.sendKeyPreview":
+                        let preview = message.preview;
+                        document.getElementById("keyPreviewTextArea").innerHTML = preview;
+                        break;
+                }
+            })
         </script>
     </html>
     

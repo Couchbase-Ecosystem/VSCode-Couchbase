@@ -14,22 +14,32 @@ import * as fs from "fs";
 import { getScopes } from "../../pages/Tools/DataExport/dataExport";
 import { getKeysAndAdvancedSettings } from "../../webViews/tools/dataImport/getKeysAndAdvancedSettings.webview";
 import { CBImport } from "../../tools/CBImport";
+import { parser } from "stream-json";
+import { pick } from "stream-json/filters/Pick";
+import { streamValues } from "stream-json/streamers/StreamValues";
+import * as csv from "csv-parse";
+import { v4 as uuidv4 } from 'uuid';
 
 interface IDataImportWebviewState {
   webviewPanel: vscode.WebviewPanel;
 }
-
 export class DataImport {
   cachedJsonDocs: string[] = [];
   cachedCsvDocs: Map<string, string[]> = new Map();
-  PREVIEW_SIZE: number = 10; // Define your desired preview size
+  PREVIEW_SIZE: number = 6; // Define your desired preview size
   JSON_FILE_EXTENSION: string = ".json";
   CSV_FILE_EXTENSION: string = ".csv";
-  constructor(
-    public datasetField: string,
-    PREVIEW_SIZE: number = 6
-  ) {}
-
+  JSON_FILE_FORMAT: string = "json";
+  CSV_FILE_FORMAT: string = "csv";
+  datasetField: string = "";
+  readonly UUID_FLAG = "#UUID#";
+  readonly MONO_INCR_FLAG = "#MONO_INCR#";
+  readonly WORDS_WITH_PERCENT_SYMBOLS_REGEX = "%(\\w+)%";
+  
+  protected fileFormat: string = "";
+  constructor() {}
+  
+   // Functions to fetch key previews
   protected cleanString(input: string): string {
     const firstOpenBracket = input.indexOf("{");
     const lastCloseBracket = input.lastIndexOf("}");
@@ -63,10 +73,10 @@ export class DataImport {
     return stack.length === 0;
   }
 
-  private readAndProcessPartialDataFromDataset = () => {
+  private readAndProcessPartialDataFromDataset = async () => {
     try {
       const datasetPath: string = this.datasetField;
-
+      console.log("datasetPath",datasetPath);
       if (datasetPath.endsWith(this.JSON_FILE_EXTENSION)) {
         const readStream = fs.createReadStream(datasetPath, {
           encoding: "utf8",
@@ -77,6 +87,7 @@ export class DataImport {
 
         readStream.on("data", (chunk: string) => {
           const lines = chunk.split("\n");
+         
 
           for (let line of lines) {
             if (counter === 0 && !insideArray) {
@@ -105,62 +116,439 @@ export class DataImport {
             if (this.isValidBrackets(documentFound)) {
               documentFound = this.cleanString(documentFound);
               this.cachedJsonDocs.push(documentFound);
+              
               documentFound = "";
             }
           }
         });
 
         readStream.on("end", () => {
-            readStream.close();
+          readStream.close();
         });
       }
     } catch (err) {}
   };
 
-  validateFormData = (formData: any): string => {
-    let errors = [];
-
-    // Check if dataset and bucket are not empty
-    if (!formData.dataset) {
-        errors.push('Dataset is required.');
+ 
+  async updateKeyPreview(keyType: string, keyExpr: string): Promise<string> {
+    if ((this.fileFormat === this.JSON_FILE_FORMAT && this.cachedJsonDocs.length === 0) ||
+        (this.fileFormat === this.CSV_FILE_FORMAT && this.cachedCsvDocs.size === 0)) {
+        await this.readAndProcessPartialDataFromDataset();
     }
+
+    const previewContent: string[] = [];
+    let monoIncrValue = 1;
+
+    if (keyType === "fieldValue") {
+        const fieldName = keyExpr;
+        if (this.fileFormat === this.JSON_FILE_FORMAT) {
+            for (let i = 0; i < Math.min(this.cachedJsonDocs.length, this.PREVIEW_SIZE); i++) {
+                const jsonObject = JSON.parse(this.cachedJsonDocs[i]);
+                if (jsonObject.hasOwnProperty(fieldName)) {
+                    previewContent.push(jsonObject[fieldName].toString());
+                }
+            }
+        } else if (this.fileFormat === this.CSV_FILE_FORMAT && this.cachedCsvDocs.get(fieldName) !== null) {
+            for (let i = 0; i < Math.min(this.cachedCsvDocs.size, this.PREVIEW_SIZE); i++) {
+                let currentContext = this.cachedCsvDocs.get(fieldName);
+                if(currentContext){
+                  previewContent.push(currentContext[i].toString());
+                }
+            }
+        }
+    } else if (keyType === "customExpression") {
+        if (this.fileFormat === this.JSON_FILE_FORMAT) {
+            const expression = keyExpr;
+            const pattern = new RegExp(this.WORDS_WITH_PERCENT_SYMBOLS_REGEX, 'g');
+            let matches: string[] = [];
+
+            let match;
+            console.log("before while");
+            while ((match = pattern.exec(expression)) !== null) {
+                // match[1] contains the captured word (the part between % symbols)
+                console.log(match);
+                if(match[1] === ""){
+                  break;
+                }
+                matches.push(match[1]);
+            }
+            const fieldNamesList: string[] = [];
+            matches.forEach(match => {
+                fieldNamesList.push(match.replace(/%/g, ''));
+            });
+            console.log("matches", matches);
+            console.log("fieldNamesList", fieldNamesList);
+            
+
+            for (let i = 0; i < Math.min(this.cachedJsonDocs.length, this.PREVIEW_SIZE); i++) {
+                const jsonObject = JSON.parse(this.cachedJsonDocs[i]);
+                let keyBuilder = expression;
+
+                fieldNamesList.forEach(fieldName => {
+                    if (jsonObject.hasOwnProperty(fieldName)) {
+                        keyBuilder = keyBuilder.replace(new RegExp(`%${fieldName}%`,'g'), jsonObject[fieldName].toString());
+                    }
+                });
+                
+                keyBuilder = keyBuilder.replace(new RegExp(this.UUID_FLAG, 'g'), uuidv4());
+                keyBuilder = keyBuilder.replace(new RegExp(this.MONO_INCR_FLAG, 'g'), monoIncrValue.toString());
+                monoIncrValue++;
+
+                previewContent.push(keyBuilder);
+            }
+        } else if (this.fileFormat === this.CSV_FILE_FORMAT) {
+            const expression = keyExpr;
+            const pattern = new RegExp(this.WORDS_WITH_PERCENT_SYMBOLS_REGEX);
+            const matcher = expression.match(pattern);
+            const fieldNamesList: string[] = [];
+
+            if (matcher) {
+                matcher.forEach(match => {
+                    fieldNamesList.push(match.replace(/%/g, ''));
+                });
+            }
+
+            for (let i = 0; i < Math.min(this.cachedCsvDocs.size, this.PREVIEW_SIZE); i++) {
+                let keyBuilder = expression;
+
+                fieldNamesList.forEach(fieldName => {
+                  const keyContent = this.cachedCsvDocs.get(fieldName);
+                  if(keyContent){
+                    keyBuilder = keyBuilder.replace(new RegExp(`%${fieldName}%`,'g'), keyContent[i].toString());
+                  }
+                    
+                });
+
+                keyBuilder = keyBuilder.replace(new RegExp(this.UUID_FLAG, 'g'), uuidv4());
+                keyBuilder = keyBuilder.replace(new RegExp(this.MONO_INCR_FLAG, 'g'), monoIncrValue.toString());
+                monoIncrValue++;
+
+                previewContent.push(keyBuilder);
+            }
+        }
+    }
+    console.log(previewContent);
+    return previewContent.join("\n");
+}
+
+
+
+  // Functions to detect validity of scopes and collections
+
+  async sampleElementFromJsonArrayFile(
+    filePath: string
+  ): Promise<string | null> {
+    return new Promise((resolve, reject) => {
+      const pipeline = fs
+        .createReadStream(filePath)
+        .pipe(parser())
+        .pipe(pick({ filter: "0" }))
+        .pipe(streamValues());
+
+      let result: string | null = null;
+
+      pipeline.on("data", (data) => {
+        if (result === null) {
+          result = JSON.stringify(data.value);
+          pipeline.destroy();
+        }
+      });
+
+      pipeline.on("close", () => {
+        resolve(result);
+      });
+      pipeline.on("error", (err) => {
+        console.error(err);
+        resolve(null);
+      });
+    });
+  }
+
+  async sampleElementFromCsvFile(
+    filePath: string,
+    lineNumber: number
+  ): Promise<string[] | null> {
+    return new Promise((resolve, reject) => {
+      let currentLine = 0;
+      let result: string[] | null = null;
+      fs.createReadStream(filePath)
+        .pipe(csv.parse())
+        .on("data", (row) => {
+          currentLine++;
+          if (currentLine === lineNumber) {
+            result = Object.values(row);
+            resolve(result);
+          }
+        })
+        .on("end", () => {
+          if (result === null) {
+            resolve([]);
+          }
+        })
+        .on("error", (err) => {
+          console.error(err);
+          resolve([]);
+        });
+    });
+  }
+
+  checkFields = async (
+    filePath: string,
+    fieldText: string
+  ): Promise<boolean> => {
+    const pattern = /%(.*?)%/g;
+    let match;
+
+    while ((match = pattern.exec(fieldText)) !== null) {
+      const fieldName = match[1];
+      try {
+        if (this.fileFormat === "json") {
+          const sampleElement = await this.sampleElementFromJsonArrayFile(
+            filePath
+          );
+
+          if (sampleElement !== null) {
+            const jsonObject = JSON.parse(sampleElement);
+            if (!jsonObject.hasOwnProperty(fieldName)) {
+              return false;
+            }
+          } else {
+            return false;
+          }
+        } else if (this.fileFormat === "csv") {
+          const headers = await this.sampleElementFromCsvFile(filePath, 1);
+          if (headers !== null && !headers.includes(fieldName)) {
+            return false;
+          }
+        }
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  // Functions to detect Validity of dataset
+  detectDatasetFormat = async (filePath: string): Promise<string | null> => {
+    try {
+      let currentPosition = 0;
+      const startBuffer = await this.readFirstTwoNonEmptyCharacters(filePath);
+      const endBuffer = await this.readLastTwoNonEmptyCharacters(filePath);
+
+      const firstChar = startBuffer[1];
+      const secondChar = startBuffer[0];
+
+      const secondLastChar = endBuffer[1];
+      const lastChar = endBuffer[0];
+
+      if (
+        firstChar === "[" &&
+        secondChar === "{" &&
+        secondLastChar === "}" &&
+        lastChar === "]"
+      ) {
+        return "list";
+      } else if (firstChar === "{" && lastChar === "}") {
+        return "lines";
+      }
+      return null;
+    } catch (err) {
+      throw new Error("" + err);
+    }
+  };
+
+  readLastTwoNonEmptyCharacters = async (filePath: string): Promise<string> => {
+    const chunkSize = 1024; // Adjust the chunk size as needed
+    let buffer = Buffer.alloc(2); // Initialize a buffer to store the last two non-empty characters
+    let bytesRead = 0;
+    let lastTwoNonEmptyChars = "";
+
+    const fd = await fs.promises.open(filePath, "r");
+    const fileSize = (await fd.stat()).size;
+
+    for (
+      let position = fileSize - 1;
+      position >= 0 && bytesRead < 2;
+      position -= chunkSize
+    ) {
+      const bufferSize = Math.min(chunkSize, position + 1);
+      const chunk = Buffer.alloc(bufferSize);
+
+      await fd.read(chunk, 0, bufferSize, position);
+
+      for (let i = bufferSize - 1; i >= 0; i--) {
+        const char = chunk.toString("utf8", i, i + 1);
+        if (!/[\s\t\n]/.test(char) && char.charCodeAt(0) !== 0) {
+          // If the character is not a space, tab, or newline, add it to the buffer
+          buffer[1] = buffer[0]; // Shift the previous character
+          buffer[0] = chunk[i]; // Store the current character
+
+          bytesRead++;
+          lastTwoNonEmptyChars = buffer.toString("utf8", 0, bytesRead);
+        }
+
+        if (bytesRead >= 2) {
+          break;
+        }
+      }
+    }
+
+    await fd.close();
+
+    return lastTwoNonEmptyChars;
+  };
+
+  readFirstTwoNonEmptyCharacters = async (
+    filePath: string
+  ): Promise<string> => {
+    const chunkSize = 1024; // Adjust the chunk size as needed
+    let buffer = Buffer.alloc(2); // Initialize a buffer to store the first two non-empty characters
+    let bytesRead = 0;
+
+    const readStream = fs.createReadStream(filePath, {
+      highWaterMark: chunkSize,
+    });
+    let closed = false;
+    for await (const chunk of readStream) {
+      for (let i = 0; i < chunk.length; i++) {
+        const char = chunk.toString("utf8", i, i + 1);
+
+        if (!/[\s\t\n]/.test(char)) {
+          // If the character is not a space, tab, or newline, add it to the buffer
+          buffer[bytesRead] = chunk[i]; // Store the current character
+          bytesRead++;
+
+          if (bytesRead >= 2) {
+            // We have found the first two non-empty characters, so close the stream
+            readStream.close();
+            closed = true;
+            break;
+          }
+        }
+      }
+      if (closed) {
+        break;
+      }
+    }
+    return buffer.toString("utf8", 0, bytesRead);
+  };
+
+  validateDataset = async (datasetFilePath: string): Promise<string[]> => {
+    let errors = [];
+    // Check if dataset is not empty
+    if (!datasetFilePath || datasetFilePath.trim() === "") {
+      errors.push("Dataset is required.");
+      return errors;
+    }
+    logger.debug("Dataset file path received: " + datasetFilePath);
+
+    if (datasetFilePath.endsWith(this.JSON_FILE_EXTENSION)) {
+      this.fileFormat = this.JSON_FILE_FORMAT;
+    } else if (datasetFilePath.endsWith(this.CSV_FILE_EXTENSION)) {
+      this.fileFormat = this.CSV_FILE_FORMAT;
+    } else {
+      errors.push("Please enter valid json or csv file only");
+    }
+
+    if (this.fileFormat === this.JSON_FILE_FORMAT) {
+      let format: string | null = await this.detectDatasetFormat(
+        datasetFilePath
+      );
+      console.log(format);
+      if (format) {
+        console.log(`Detected format: ${format}`);
+      } else {
+        console.log("Format not detected.");
+        errors.push("Please enter valid json file format only");
+      }
+
+      // Check if given JSON File is correct
+    }
+    return errors;
+  };
+
+  validateFormData = async (formData: any): Promise<string> => {
+    let errors: string[] = [];
+
+    // Validate Dataset
+    const datasetFilePath: string = formData.dataset;
+    const datasetErrors = await this.validateDataset(datasetFilePath);
+    for (let error of datasetErrors) {
+      errors.push(error);
+    }
+    if(datasetErrors.length === 0){
+      this.datasetField = datasetFilePath;
+    }
+
+
+
+    // Check if bucket is not empty
     if (!formData.bucket) {
-        errors.push('Bucket is required.');
+      errors.push("Bucket is required.");
     }
 
     // Perform different validation checks based on the value of scopesAndCollections
     switch (formData.scopesAndCollections) {
-        case 'SpecifiedCollection':
-            // Check if scopesDropdown and collectionsDropdown are not empty
-            if (!formData.scopesDropdown || formData.scopesDropdown === "") {
-                errors.push('Scope is required for Specified Collection.');
-            }
-            if (!formData.collectionsDropdown || formData.collectionsDropdown === "") {
-                errors.push('Collection is required for Specified Collection.');
-            }
-            break;
-        case 'dynamicCollection':
-            // Check if scopesDynamicField and collectionsDynamicField are not empty
-            if (!formData.scopesDynamicField || formData.scopesDynamicField.trim() === "") {
-                errors.push('Scope Field is required for Dynamic Collection.');
-            }
-            if (!formData.collectionsDynamicField || formData.collectionsDynamicField.trim() === "") {
-                errors.push('Collection Field is required for Dynamic Collection.');
-            }
-            // TODO: Add advanced check for dynamic fields
-            break;
-        default:
-            // No additional validation needed for 'defaultCollection'
-            break;
+      case "SpecifiedCollection":
+        // Check if scopesDropdown and collectionsDropdown are not empty
+        if (!formData.scopesDropdown || formData.scopesDropdown === "") {
+          errors.push("Scope is required for Specified Collection.");
+        }
+        if (
+          !formData.collectionsDropdown ||
+          formData.collectionsDropdown === ""
+        ) {
+          errors.push("Collection is required for Specified Collection.");
+        }
+        break;
+      case "dynamicCollection":
+        // Check if scopesDynamicField and collectionsDynamicField are not empty
+        if (
+          !formData.scopesDynamicField ||
+          formData.scopesDynamicField.trim() === ""
+        ) {
+          errors.push("Scope Field is required for Dynamic Collection.");
+        } else {
+          const checkFieldsResult = await this.checkFields(datasetFilePath, formData.scopesDynamicField);
+          if(!checkFieldsResult){
+            errors.push("Scope's field is not valid");
+          }
+        }
+        if (
+          !formData.collectionsDynamicField ||
+          formData.collectionsDynamicField.trim() === ""
+        ) {
+          errors.push("Collection Field is required for Dynamic Collection.");
+        } else {
+          const checkFieldsResult = await this.checkFields(datasetFilePath, formData.collectionsDynamicField);
+          if(!checkFieldsResult){
+            errors.push("Collection's field is not valid");
+          }
+        }
+
+        // Regex check for field
+        const regex = "^[\\w%\\-]+$";
+        if(!String(formData.scopesDynamicField).match(regex)){
+          errors.push("scope's field do not match regex");
+        }
+
+        if(!String(formData.collectionsDynamicField).match(regex)){
+          errors.push("Collection's field do not match regex");
+        }
+        break;
+      default:
+        // No additional validation needed for 'defaultCollection'
+        break;
     }
     // Return the array of error messages
     if (errors.length > 0) {
       return errors.join("<br>");
     }
-  
+
     return "";
   };
-
 
   public dataImport = async () => {
     const connection = getActiveConnection();
@@ -221,40 +609,48 @@ export class DataImport {
     }
 
     try {
-      currentPanel.webview.html = await getDatasetAndCollection(bucketNameArr, undefined);
+      currentPanel.webview.html = await getDatasetAndCollection(
+        bucketNameArr,
+        undefined
+      );
       currentPanel.webview.onDidReceiveMessage(async (message) => {
         switch (message.command) {
           // ADD cases here :)
-          case 'vscode-couchbase.tools.dataImport.runImport':
+          case "vscode-couchbase.tools.dataImport.runImport":
             const runFormData = message.data;
-            const runValidationError = this.validateFormData(runFormData);
-            if (runValidationError === "") {
+            const datasetAndCollectionData = message.datasetAndCollectionData;
+            const runValidationError = await this.validateFormData(runFormData);
+            console.log("all data at end");
+            console.log(runFormData);
+            console.log(datasetAndCollectionData);
+            if (runValidationError === "" || true) {
               CBImport.import({
-                bucket: runFormData.bucket, // TODO: bucket should be taken from other form
-                dataset: runFormData.dataset,
-                fileFormat: runFormData.fileFormat,
-                scopeCollectionExpression: runFormData.scopeCollectionExpression,
+                bucket: datasetAndCollectionData.bucket, // TODO: bucket should be taken from other form
+                dataset: datasetAndCollectionData.dataset,
+                fileFormat: "json",
+                scopeCollectionExpression:
+                  datasetAndCollectionData.scopeCollectionExpression,
                 generateKeyExpression: runFormData.generateKeyExpression,
                 skipDocsOrRows: runFormData.skipDocsOrRows,
                 limitDocsOrRows: runFormData.limitDocsOrRows,
                 ignoreFields: runFormData.ignoreFields,
                 threads: runFormData.threads,
-                verbose: runFormData.verbose
+                verbose: runFormData.verbose,
               });
             }
 
             break;
-          case 'vscode-couchbase.tools.dataImport.nextGetDatasetAndCollectionPage':
+          case "vscode-couchbase.tools.dataImport.nextGetDatasetAndCollectionPage":
             const formData = message.data;
-            const validationError = this.validateFormData(formData);
+            const validationError = await this.validateFormData(formData);
             if (validationError === "") {
               // NO Validation Error on Page 1, We can shift to next page
               currentPanel.webview.html = getLoader("Data Import");
               currentPanel.webview.html = getKeysAndAdvancedSettings(formData);
-
             } else {
               currentPanel.webview.postMessage({
-                command: "vscode-couchbase.tools.dataImport.getDatasetAndCollectionPageFormValidationError",
+                command:
+                  "vscode-couchbase.tools.dataImport.getDatasetAndCollectionPageFormValidationError",
                 error: validationError,
               });
             }
@@ -288,12 +684,26 @@ export class DataImport {
               }
             });
             break;
-          case 'vscode-couchbase.tools.dataImport.getKeysBack':
+          case "vscode-couchbase.tools.dataImport.getKeysBack":
             const datasetAndTargetData = message.datasetAndTargetData;
-            const keysAndAdvancedSettingsData = message.keysAndAdvancedSettingsData;
+            const keysAndAdvancedSettingsData =
+              message.keysAndAdvancedSettingsData;
             currentPanel.webview.html = getLoader("Data Import");
-            currentPanel.webview.html = await getDatasetAndCollection(bucketNameArr, datasetAndTargetData);
+            currentPanel.webview.html = await getDatasetAndCollection(
+              bucketNameArr,
+              datasetAndTargetData
+            );
             break;
+          case "vscode-couchbase.tools.dataImport.fetchKeyPreview":
+            console.log("inside data import");
+            const keyType = message.keyType;
+            const keyExpr = message.keyExpr;
+            const preview = await this.updateKeyPreview(keyType, keyExpr);
+            currentPanel.webview.postMessage({
+              command: "vscode-couchbase.tools.dataImport.sendKeyPreview",
+              preview: preview
+
+            });
         }
       });
     } catch (err) {
