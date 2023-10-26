@@ -108,18 +108,18 @@ export class CBImport {
 
         // Advanced Settings
         if(importData.skipDocsOrRows && importData.skipDocsOrRows.trim() !== ""){
-            if(importData.fileFormat === "JSON") {
+            if(importData.fileFormat === "json") {
                 cmd.push("--skip-docs");
-            } else if(importData.fileFormat === "CSV") {
+            } else if(importData.fileFormat === "csv") {
                 cmd.push("--skip-rows");
             }
             cmd.push(importData.skipDocsOrRows);
         }
 
         if(importData.limitDocsOrRows && importData.limitDocsOrRows.trim() !== ""){
-            if(importData.fileFormat === "JSON") {
+            if(importData.fileFormat === "json") {
                 cmd.push("--limit-docs");
-            } else if(importData.fileFormat === "CSV") {
+            } else if(importData.fileFormat === "csv") {
                 cmd.push("--limit-rows");
             }
             cmd.push(importData.limitDocsOrRows);

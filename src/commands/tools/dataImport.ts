@@ -195,15 +195,22 @@ export class DataImport {
             }
         } else if (this.fileFormat === this.CSV_FILE_FORMAT) {
             const expression = keyExpr;
-            const pattern = new RegExp(this.WORDS_WITH_PERCENT_SYMBOLS_REGEX);
-            const matcher = expression.match(pattern);
-            const fieldNamesList: string[] = [];
+            const pattern = new RegExp(this.WORDS_WITH_PERCENT_SYMBOLS_REGEX, 'g');
+            let matches: string[] = [];
 
-            if (matcher) {
-                matcher.forEach(match => {
-                    fieldNamesList.push(match.replace(/%/g, ''));
-                });
+            let match;
+
+            while ((match = pattern.exec(expression)) !== null) {
+                // match[1] contains the captured word (the part between % symbols)
+                if(match[1] === ""){
+                  break;
+                }
+                matches.push(match[1]);
             }
+            const fieldNamesList: string[] = [];
+            matches.forEach(match => {
+                fieldNamesList.push(match.replace(/%/g, ''));
+            });
 
             for (let i = 0; i < Math.min(this.cachedCsvDocs.size, this.PREVIEW_SIZE); i++) {
                 let keyBuilder = expression;
@@ -223,6 +230,11 @@ export class DataImport {
                 previewContent.push(keyBuilder);
             }
         }
+    } else { // Random UUID case
+      for(let i = 0; i < this.PREVIEW_SIZE; i++) {
+        previewContent.push(uuidv4()); // Shows Random UUID, May not represent real values
+      }
+
     }
     return previewContent.join("\n");
 }
@@ -468,7 +480,7 @@ export class DataImport {
     return errors;
   };
 
-  validateFormData = async (formData: any): Promise<string> => {
+  validateDatasetAndCollectionFormData = async (formData: any): Promise<string> => {
     let errors: string[] = [];
 
     // Validate Dataset
@@ -549,6 +561,46 @@ export class DataImport {
     return "";
   };
 
+  async validateKeysAndAdvancedSettingsFormData(formData: any): Promise<string>{
+    let errors: string[] = [];
+
+    // Validate Keys (No hard check here, we allow any data to pass as it will fail eventually)
+    if(formData.keyOptions === "fieldValue") {
+      if(!formData.keyFieldName || formData.keyFieldName.trim() === ""){
+        errors.push("Field name field is empty.");
+      }
+    } else if(formData.keyOptions === "customExpression") {
+      if(!formData.customExpression || formData.customExpression.trim() === ""){
+        errors.push("Custom expression field is empty.");
+      }
+    }
+
+    // Validate Advanced Settings
+    if(formData.skipDocsOrRows && String(formData.skipDocsOrRows)!== "" && parseInt(String(formData.skipDocsOrRows)) < 0) {
+      // If skipFirstDocuments exists but are less than 0
+      errors.push("Skip first field does not contain a valid non-negative integer.");
+    }
+
+    if(formData.limitDocsOrRows && String(formData.limitDocsOrRows)!== "" && parseInt(String(formData.limitDocsOrRows)) < 0) {
+      // If limitDocsOrRows exists but are less than 0
+      errors.push("Import up to field does not contain a valid non-negative integer.");
+    }
+
+    if(formData.ignoreFields && String(formData.ignoreFields).trim()!== "") { // Ignore fields exists, validating it
+      // TODO: Add validations for CSV File format
+    }
+
+    if(!formData.threads || !formData.threads.trim() || parseInt(formData.threads)<1){
+      errors.push("threads cannot be undefined or less than 1");
+    }
+
+    // Return the array of error messages
+    if (errors.length > 0) {
+      return errors.join("<br>");
+    }
+    return "";
+  }
+
   public dataImport = async () => {
     const connection = getActiveConnection();
     if (!connection) {
@@ -618,8 +670,8 @@ export class DataImport {
           case "vscode-couchbase.tools.dataImport.runImport":
             const runFormData = message.data;
             const datasetAndCollectionData = message.datasetAndCollectionData;
-            const runValidationError = await this.validateFormData(runFormData);
-            if (runValidationError === "" || true) {
+            const runValidationError = await this.validateKeysAndAdvancedSettingsFormData(runFormData);
+            if (runValidationError === "" ) {
               CBImport.import({
                 bucket: datasetAndCollectionData.bucket, // TODO: bucket should be taken from other form
                 dataset: datasetAndCollectionData.dataset,
@@ -634,12 +686,18 @@ export class DataImport {
                 threads: runFormData.threads,
                 verbose: runFormData.verbose,
               });
+            } else {
+              currentPanel.webview.postMessage({
+                command:
+                  "vscode-couchbase.tools.dataImport.getKeysAndAdvancedSettingsPageFormValidationError",
+                error: runValidationError,
+              });
             }
 
             break;
           case "vscode-couchbase.tools.dataImport.nextGetDatasetAndCollectionPage":
             const formData = message.data;
-            const validationError = await this.validateFormData(formData);
+            const validationError = await this.validateDatasetAndCollectionFormData(formData);
             if (validationError === "") {
               // NO Validation Error on Page 1, We can shift to next page
               currentPanel.webview.html = getLoader("Data Import");

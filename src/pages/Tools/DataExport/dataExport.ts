@@ -55,7 +55,7 @@ const validateFormData = (formData: any): string => {
     errors.push("Please inform the file destination folder");
   }
 
-  if(!formData.threads.trim() || parseInt(formData.threads)<1){
+  if(!formData.threads || !formData.threads.trim() || parseInt(formData.threads)<1){
     errors.push("threads cannot be undefined or less than 1");
   }
 

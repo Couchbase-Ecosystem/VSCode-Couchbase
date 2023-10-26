@@ -210,11 +210,11 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                     <div class="advanced-settings" id="advanced-settings">
                         
                         <label for="skipFirstDocuments">Skip the first # Documents:</label>
-                        <input type="text" name="skipFirstDocuments" id="skipFirstDocuments" value="">
+                        <input type="number" name="skipFirstDocuments" id="skipFirstDocuments" value="">
                         <br>
 
                         <label for="importUptoDocuments">Import up to # Documents:</label>
-                        <input type="text" name="importUptoDocuments" id="importUptoDocuments" value="">
+                        <input type="number" name="importUptoDocuments" id="importUptoDocuments" value="">
                         <br>
                         
                         <label for="ignoreFields">Ignore the fields:</label>
@@ -353,6 +353,9 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                         let preview = message.preview;
                         document.getElementById("keyPreviewTextArea").innerHTML = preview;
                         break;
+                    case "vscode-couchbase.tools.dataImport.getKeysAndAdvancedSettingsPageFormValidationError":
+                        let error = message.error;
+                        document.getElementById("validation-error").innerHTML = error;
                 }
             })
         </script>

@@ -460,7 +460,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.dataImport,
       async () => {
-        await new DataImport('').dataImport();
+        await new DataImport().dataImport();
       }
     )
   );
