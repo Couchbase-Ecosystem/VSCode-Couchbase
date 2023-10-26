@@ -134,6 +134,14 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                 background: #bb1117;
             }
 
+            .secondaryButton {
+                background: var(--vscode-button-secondaryBackground);
+                color: var(--vscode-button-secondaryForeground);
+            }
+            .secondaryButton:hover {
+                background-color: var(--vscode-button-secondaryHoverBackground);
+            }
+
             .advanced-header {
                 cursor: pointer;
                 font-weight: bold;
@@ -155,13 +163,7 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                 margin-right:5px;
             }
 
-            .secondaryButton {
-                background: var(--vscode-button-secondaryBackground);
-                color: var(--vscode-button-secondaryForeground);
-            }
-            .secondaryButton:hover {
-                background-color: var(--vscode-button-secondaryHoverBackground);
-            }
+            
 
           </style>
         </head>
@@ -294,7 +296,6 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                     generateKeyExpression = customExpression;
                 }
                 
-
                 // Consolidate data
                 var formData = {
                     keyOptions: keyOptions,
@@ -309,7 +310,7 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                 };
 
                 vscode.postMessage({
-                    command: 'vscode-couchbase.tools.dataImport.runImport',
+                    command: 'vscode-couchbase.tools.dataImport.nextGetKeysAndAdvancedSettingsPage',
                     data: formData,
                     datasetAndCollectionData: ${JSON.stringify(lastPageData)}
                 });

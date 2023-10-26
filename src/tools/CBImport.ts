@@ -85,7 +85,7 @@ export class CBImport {
         cmd.push("--dataset");
         cmd.push(`\"file://${importData.dataset}\"`);
 
-        if(importData.fileFormat === "json"){ // If JSON File Format, Lines or Arrays needs to be specified as file type
+        if(importData.fileFormat === "json"){ // If JSON File Format, Lines or Lists needs to be specified as file type
             cmd.push("--format");
             cmd.push(importData.format);
         }
@@ -132,6 +132,10 @@ export class CBImport {
 
         cmd.push("--threads");
         cmd.push(importData.threads.toString());
+        
+        if (importData.verbose) {
+            cmd.push("-v");
+        }
 
         return cmd;
 

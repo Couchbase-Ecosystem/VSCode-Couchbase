@@ -274,7 +274,7 @@ export const getDatasetAndCollection = async (buckets: string[], prefilledData: 
             const scopeDetails = scopesSpecData[index-1]; // Index - 1 as default as indexing of scopes start at 1;
             for(let collection of scopeDetails.collections){
                 const collectionOption = document.createElement('option');
-                collectionOption.value = collection.scopeName + "." + collection.name;
+                collectionOption.value = collection.name;
                 collectionOption.text = collection.name;
                 collectionDropdown.appendChild(collectionOption);
             }
@@ -340,7 +340,7 @@ export const getDatasetAndCollection = async (buckets: string[], prefilledData: 
             if (scopesAndCollections === 'SpecifiedCollection') {
                 scopesDropdown = document.getElementById('scopesDropdown').value;
                 collectionsDropdown = document.getElementById('collectionsDropdown').value;
-                scopeCollectionExpression = collectionsDropdown; //The value of collections dropdown already has scope data
+                scopeCollectionExpression = scopesDropdown+"."+collectionsDropdown; //The value of collections dropdown already has scope data
             } else if (scopesAndCollections === 'dynamicCollection') {
                 scopesDynamicField = document.getElementById('scopesDynamicField').value;
                 collectionsDynamicField = document.getElementById('collectionsDynamicField').value;
