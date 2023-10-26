@@ -50,3 +50,10 @@ export const getNonce = (): string => {
     }
     return text;
 };
+
+export const hasQueryService = (services: string[] | undefined) => {
+    if (!services) {
+        return false;
+    }
+    return services.includes('n1ql');
+};

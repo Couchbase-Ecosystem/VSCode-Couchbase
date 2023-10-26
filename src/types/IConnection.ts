@@ -21,5 +21,6 @@ export interface IConnection {
   readonly password?: string;
   readonly connectionIdentifier: string;
   readonly isSecure: boolean;
+  services?: string[];
   cluster?: Cluster;
 }
