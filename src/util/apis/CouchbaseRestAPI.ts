@@ -111,5 +111,64 @@ export class CouchbaseRestAPI {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
         return content.data;
     }
+
+    public async getKVDocumentCount(bucketName: string, scopeName: string): Promise<Map<string, number>> {
+        const username = this.connection.username;
+        const password = await keytar.getPassword(Constants.extensionID, getConnectionId(this.connection));
+        const KVCollectionCount = new Map<string, number>;
+        if (!password) {
+            return KVCollectionCount;
+        }
+        let url = (await getServerURL(this.connection.url))[0];
+        url = (this.connection.isSecure ? `https://${url}:18091` : `http://${url}:8091`);
+        url += `/pools/default/stats/range/`;
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+        const payload = JSON.stringify([
+            {
+                "step": 3,
+                "timeWindow": 360,
+                "start": -3,
+                "metric": [
+                    {
+                        "label": "name",
+                        "value": "kv_collection_item_count"
+                    },
+                    {
+                        "label": "bucket",
+                        "value": bucketName
+                    },
+                    {
+                        "label": "scope",
+                        "value": scopeName
+                    }
+                ],
+                "nodesAggregation": "sum"
+            }
+        ]);
+        let content = await axios.post(
+            url,
+            payload,
+            {
+                headers: {
+                    Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+                },
+                httpsAgent: new https.Agent({
+                    rejectUnauthorized: false,
+                }),
+            }
+        );
+
+        const result = content.data;
+
+        for (const i of result[0].data) {
+            if (i.metric.name === 'kv_collection_item_count') {
+                const value = Number(i.values[0][1]);
+                KVCollectionCount.set(`kv_collection_item_count-${bucketName}-${scopeName}-${i.metric.collection}`, value);
+            }
+        }
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
+        return KVCollectionCount;
+    }
 }
 
