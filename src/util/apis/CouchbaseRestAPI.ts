@@ -170,5 +170,32 @@ export class CouchbaseRestAPI {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
         return KVCollectionCount;
     }
+
+    public async getKVDocumentMetaData(bucketName: string, scopeName: string, collectionName: string, documentId: string) {
+        const username = this.connection.username;
+        const password = await keytar.getPassword(Constants.extensionID, getConnectionId(this.connection));
+        if (!password) {
+            return undefined;
+        }
+        let url = (await getServerURL(this.connection.url))[0];
+        url = (this.connection.isSecure ? `https://${url}:18091` : `http://${url}:8091`);
+        url += `/pools/default/buckets/${bucketName}/scopes/${scopeName}/collections/${collectionName}/docs/${documentId}`;
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+        let content = await axios.get(url, {
+            method: "GET",
+            headers: {
+                Authorization: `Basic ${btoa(`${username}:${password}`)}`
+            },
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false,
+            })
+        });
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
+        const metaData = {
+            meta: content.data.meta,
+            xattrs: content.data.xattrs
+        };
+        return metaData;
+    }
 }
 
