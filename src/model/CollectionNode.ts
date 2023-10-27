@@ -19,7 +19,7 @@ import { IConnection } from "../types/IConnection";
 import { INode } from "../types/INode";
 import DocumentNode from "./DocumentNode";
 import { PagerNode } from "./PagerNode";
-import { abbreviateCount } from "../util/common";
+import { abbreviateCount, hasQueryService } from "../util/common";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
 import InformationNode from "./InformationNode";
 import { Memory } from "../util/util";
@@ -29,6 +29,7 @@ import { getActiveConnection } from "../util/connections";
 import { Commands } from "../commands/extensionCommands/commands";
 import { IndexDirectory } from "./IndexDirectory";
 import { logger } from "../logger/logger";
+import { CouchbaseRestAPI } from "../util/apis/CouchbaseRestAPI";
 
 export default class CollectionNode implements INode {
   constructor(
@@ -89,18 +90,24 @@ export default class CollectionNode implements INode {
       [],
       vscode.TreeItemCollapsibleState.None
     );
-
-    documentList.push(indexItem);
-    documentList.push(
-      new SchemaDirectory(
-        this,
-        this.connection,
-        "Schema",
-        this.bucketName,
-        this.scopeName,
-        this.collectionName
-      )
-    );
+    const connection = getActiveConnection();
+    if (!connection) {
+      return [];
+    }
+    const isQueryServicesEnable = hasQueryService(connection?.services);
+    if (isQueryServicesEnable) {
+      documentList.push(indexItem);
+      documentList.push(
+        new SchemaDirectory(
+          this,
+          this.connection,
+          "Schema",
+          this.bucketName,
+          this.scopeName,
+          this.collectionName
+        )
+      );
+    }
     // TODO: default limit could be managed as user settings / preference
     let result;
     // A primary index is required for database querying. If one is present, a result will be obtained.
@@ -112,27 +119,35 @@ export default class CollectionNode implements INode {
     if (docFilter && docFilter.filter.length > 0) {
       filter = docFilter.filter;
     }
-    const connection = getActiveConnection();
-    try {
-      result = await connection?.cluster?.query(
-        `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName
-        }\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""
-        } LIMIT ${this.limit}`
-      );
-    } catch (err) {
-      if (err instanceof PlanningFailureError) {
-        const infoNode: InformationNode = new InformationNode(
-          "No indexes available, click to create one",
-          "No indexes available to list the documents in this collection",
-          {
-            command: Commands.checkAndCreatePrimaryIndex,
-            title: "Create Primary Index",
-            arguments: [this],
-          }
+    const couchbbaseRestAPI = new CouchbaseRestAPI(connection);
+    if (!hasQueryService(connection?.services!)) {
+      result = await couchbbaseRestAPI.getDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
+      result.rows = result.rows.map((item: any) => item.id);
+    }
+    else {
+      try {
+        result = await connection?.cluster?.query(
+          `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName
+          }\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""
+          } LIMIT ${this.limit}`
         );
-        documentList.push(infoNode);
-      } else if (err instanceof ParsingFailureError) {
-        logger.error(`In Collection Node: ${this.collectionName}: Parsing Failed: Incorrect filter definition`);
+      } catch (err) {
+        if (err instanceof PlanningFailureError) {
+          const infoNode: InformationNode = new InformationNode(
+            "No indexes available, click to create one",
+            "No indexes available to list the documents in this collection",
+            {
+              command: Commands.checkAndCreatePrimaryIndex,
+              title: "Create Primary Index",
+              arguments: [this],
+            }
+          );
+          documentList.push(infoNode);
+          result = await couchbbaseRestAPI.getDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
+          result.rows = result.rows.map((item: any) => item.id);
+        } else if (err instanceof ParsingFailureError) {
+          logger.error(`In Collection Node: ${this.collectionName}: Parsing Failed: Incorrect filter definition`);
+        }
       }
     }
     result?.rows.forEach((documentName: string) => {
@@ -151,7 +166,7 @@ export default class CollectionNode implements INode {
     // TODO: add local only (un-synchronized) files to documentList
 
     // Checking document list length with 2 as Schema and index Directory are always present
-    if (documentList.length === 2) {
+    if (((!isQueryServicesEnable && documentList.length === 0)) || documentList.length === 2) {
       documentList.push(new InformationNode("No Documents found"));
     } else if (this.documentCount > documentList.length) {
       documentList.push(new PagerNode(this));
