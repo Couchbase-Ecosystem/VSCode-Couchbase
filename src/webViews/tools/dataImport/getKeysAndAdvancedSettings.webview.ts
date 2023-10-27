@@ -1,5 +1,8 @@
-export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
-    return /*html*/`
+export const getKeysAndAdvancedSettings = (
+    datasetAndCollectionData: any,
+    prefilledData: any
+): string => {
+    return /*html*/ `
     <!DOCTYPE html>
     <html lang="en">
        <head>
@@ -200,7 +203,7 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                 <label for="keyPreview">Key Preview:</label>
                 <div class="keyPreviewContainer">
                     <div class="getKeyPreviewButton redButton" id="getKeyPreviewButton" onclick="fetchKeyPreview()">Fetch preview</div>
-                    <textarea id="keyPreviewTextArea" readonly> </textarea>
+                    <textarea id="keyPreviewTextArea" readonly value="No Preview to show!"> </textarea>
                 </div>
                 <br>
 
@@ -263,6 +266,38 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                 });
             });
 
+            async function setInitialValue(fieldId, value) {
+                const field = document.getElementById(fieldId);
+                
+                if (field && value && value.trim() !== "") {
+                    field.value = value;
+                    if(fieldId === "keyOptions") {
+                        field.dispatchEvent(new Event('change'));
+                    }
+                }
+            }
+
+            window.onload = async function() {
+                let prefilledData = ${JSON.stringify(prefilledData)};
+                if(prefilledData){ // If prefilled data is undefined, go with defaults only
+                    setInitialValue('keyOptions', prefilledData.keyOptions);
+                    setInitialValue('keyFieldName', prefilledData.keyFieldName);
+                    setInitialValue('customExpression', prefilledData.customExpression);
+                    setInitialValue('skipFirstDocuments', prefilledData.skipDocsOrRows);
+                    setInitialValue('importUptoDocuments', prefilledData.limitDocsOrRows);
+                    setInitialValue('ignoreFields', prefilledData.ignoreFields);
+                    setInitialValue('threads', prefilledData.threads);
+                    
+                    // Verbose Log 
+                    if(prefilledData.verboseLog){
+                        document.getElementById('verboseLog').checked = true;
+                    }
+                }
+
+                // After setting prefilled data, set it to undefined so that it doesn't interfere
+                ${(prefilledData = undefined)}
+            }
+
             function fetchKeyPreview() {
                 
                 var keyOptions = document.getElementById('keyOptions').value;
@@ -312,13 +347,15 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                 vscode.postMessage({
                     command: 'vscode-couchbase.tools.dataImport.nextGetKeysAndAdvancedSettingsPage',
                     data: formData,
-                    datasetAndCollectionData: ${JSON.stringify(lastPageData)}
+                    datasetAndCollectionData: ${JSON.stringify(
+                        datasetAndCollectionData
+                    )}
                 });
             }
 
             function onBackClick(event) {
                 event.preventDefault(); // prevent form submission
-                let lastPageData = ${JSON.stringify(lastPageData)};
+                let lastPageData = ${JSON.stringify(datasetAndCollectionData)};
                 var keyOptions = document.getElementById('keyOptions').value;
                 var keyFieldName = document.getElementById('keyFieldName').value;
                 var customExpression = document.getElementById('customExpression').value;
@@ -352,6 +389,9 @@ export const getKeysAndAdvancedSettings = (lastPageData: any): string => {
                 switch (message.command) {
                     case "vscode-couchbase.tools.dataImport.sendKeyPreview":
                         let preview = message.preview;
+                        if(preview === ""){
+                            preview = "No Preview to Show!";
+                        }
                         document.getElementById("keyPreviewTextArea").innerHTML = preview;
                         break;
                     case "vscode-couchbase.tools.dataImport.getKeysAndAdvancedSettingsPageFormValidationError":

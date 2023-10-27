@@ -1,5 +1,9 @@
-export const getDatasetAndCollection = async (buckets: string[], prefilledData: any): Promise<string> => {
-  return /*html*/ `
+export const getDatasetAndCollection = async (
+    buckets: string[],
+    prefilledData: any,
+    keysAndAdvancedSettingsData: any
+): Promise<string> => {
+    return /*html*/ `
     <!DOCTYPE html>
     <html lang="en">
        <head>
@@ -142,10 +146,10 @@ export const getDatasetAndCollection = async (buckets: string[], prefilledData: 
                 <label for="bucket">Bucket:</label>
                 <select name="bucket" id="bucket" onchange="onBucketClick(value)">
                     ${buckets.map((bucketName, index) => {
-                      return `
+                        return `
                             <option value="${bucketName}" ${
-                        index === 0 && "selected"
-                      }>${bucketName}</option>
+                            index === 0 && "selected"
+                        }>${bucketName}</option>
                         `;
                     })}
                 </select>
@@ -173,11 +177,11 @@ export const getDatasetAndCollection = async (buckets: string[], prefilledData: 
                 <!-- Dynamic Scopes and Collections -->
                 <div id="dynamicCollectionContainer" hidden>
                     <label for="scopesDynamicField">Scope Field:</label>
-                    <input type="text" name="scopesDynamicField" id="scopesDynamicField" value="%cbms%">
+                    <input type="text" name="scopesDynamicField" id="scopesDynamicField" value="" placeholder="%cbms%">
                     <br>
 
                     <label for="collectionsDynamicField">Collection Field:</label>
-                    <input type="text" name="collectionsDynamicField" id="collectionsDynamicField" value="%cbmc%">
+                    <input type="text" name="collectionsDynamicField" id="collectionsDynamicField" value="" placeholder="%cbmc%">
                     <br>
                 </div>
 
@@ -232,6 +236,9 @@ export const getDatasetAndCollection = async (buckets: string[], prefilledData: 
                 setInitialValue('collectionsDropdown', prefilledData.collectionsDropdown);
                 setInitialValue('scopesDynamicField',prefilledData.scopesDynamicField);
                 setInitialValue('collectionsDynamicField',prefilledData.collectionsDynamicField);
+
+                // After the prefill, we can reset the prefilled data so that it does not interfere anymore
+                ${prefilledData = undefined};
             } else {
                 // We want scopeDetails for 1st bucket so calling the function on load of the webview
                 const selectElement = document.getElementById('bucket');
@@ -317,7 +324,7 @@ export const getDatasetAndCollection = async (buckets: string[], prefilledData: 
                     break;
                 case 'vscode-couchbase.tools.dataImport.datasetFile':
                     const dataset = message.dataset;
-                    document.getElementById("selectedFile").setAttribute("value", dataset);
+                    document.getElementById("selectedFile").value = dataset;
                     break;
                 case "vscode-couchbase.tools.dataImport.getDatasetAndCollectionPageFormValidationError":
                     const error = message.error;
@@ -361,7 +368,10 @@ export const getDatasetAndCollection = async (buckets: string[], prefilledData: 
             };
             vscode.postMessage({
                 command: 'vscode-couchbase.tools.dataImport.nextGetDatasetAndCollectionPage',
-                data: formData
+                data: formData,
+                keysAndAdvancedSettingsData: ${JSON.stringify(
+                    keysAndAdvancedSettingsData
+                )}
             });       
         }
 

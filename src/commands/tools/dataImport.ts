@@ -27,7 +27,7 @@ interface IDataImportWebviewState {
 export class DataImport {
     cachedJsonDocs: string[] = [];
     cachedCsvDocs: Map<string, string[]> = new Map();
-    PREVIEW_SIZE: number = 6; // Define your desired preview size
+    PREVIEW_SIZE: number = 6;
     JSON_FILE_EXTENSION: string = ".json";
     CSV_FILE_EXTENSION: string = ".csv";
     JSON_FILE_FORMAT: string = "json";
@@ -96,7 +96,6 @@ export class DataImport {
                         if (counter === 0 && !insideArray) {
                             if (!line.trim().startsWith("[")) {
                                 logger.debug("Not a JSON array");
-                                // TODO: Give error to user as well
                                 readStream.close();
                                 return;
                             }
@@ -128,8 +127,49 @@ export class DataImport {
                 readStream.on("end", () => {
                     readStream.close();
                 });
+            } else {
+                const headers = await this.sampleElementFromCsvFile(
+                    datasetPath,
+                    1
+                );
+                if (headers === null) {
+                    return;
+                }
+                for (
+                    let lineNumber = 2;
+                    lineNumber < 2 + this.PREVIEW_SIZE;
+                    lineNumber++
+                ) {
+                    const data = await this.sampleElementFromCsvFile(
+                        datasetPath,
+                        lineNumber
+                    );
+                    if (data === null) {
+                        continue;
+                    }
+
+                    for (
+                        let headersIndex = 0;
+                        headersIndex < headers.length;
+                        headersIndex++
+                    ) {
+                        let cachedCsv = this.cachedCsvDocs.get(
+                            headers[headersIndex]
+                        );
+                        if (!cachedCsv) {
+                            cachedCsv = new Array(this.PREVIEW_SIZE);
+                        }
+                        cachedCsv[lineNumber - 2] = data[headersIndex];
+                        this.cachedCsvDocs.set(
+                            headers[headersIndex],
+                            cachedCsv
+                        );
+                    }
+                }
             }
-        } catch (err) {}
+        } catch (err) {
+            logger.error(err);
+        }
     };
 
     async updateKeyPreview(keyType: string, keyExpr: string): Promise<string> {
@@ -140,6 +180,10 @@ export class DataImport {
                 this.cachedCsvDocs.size === 0)
         ) {
             await this.readAndProcessPartialDataFromDataset();
+            // Wait 500ms extra to cache everything
+            await new Promise((resolve) => {
+                setTimeout(resolve, 500);
+            });
         }
 
         const previewContent: string[] = [];
@@ -676,14 +720,6 @@ export class DataImport {
         }
 
         if (
-            formData.ignoreFields &&
-            String(formData.ignoreFields).trim() !== ""
-        ) {
-            // Ignore fields exists, validating it
-            // TODO: Add validations for CSV File format
-        }
-
-        if (
             !formData.threads ||
             !formData.threads.trim() ||
             parseInt(formData.threads) < 1
@@ -774,35 +810,40 @@ export class DataImport {
         try {
             currentPanel.webview.html = await getDatasetAndCollection(
                 bucketNameArr,
+                undefined,
                 undefined
             );
             currentPanel.webview.onDidReceiveMessage(async (message) => {
                 switch (message.command) {
                     // ADD cases here :)
                     case "vscode-couchbase.tools.dataImport.runImport": {
-                        const keysAndAdvancedSettingsData = message.keysAndAdvancedSettingsData;
+                        const keysAndAdvancedSettingsData =
+                            message.keysAndAdvancedSettingsData;
                         const datasetAndCollectionData =
                             message.datasetAndCollectionData;
 
                         CBImport.import({
-                            bucket: datasetAndCollectionData.bucket, // TODO: bucket should be taken from other form
+                            bucket: datasetAndCollectionData.bucket,
                             dataset: datasetAndCollectionData.dataset,
                             fileFormat: this.fileFormat,
                             format: this.format,
                             scopeCollectionExpression:
                                 datasetAndCollectionData.scopeCollectionExpression,
                             generateKeyExpression:
-                            keysAndAdvancedSettingsData.generateKeyExpression,
-                            skipDocsOrRows: keysAndAdvancedSettingsData.skipDocsOrRows,
-                            limitDocsOrRows: keysAndAdvancedSettingsData.limitDocsOrRows,
-                            ignoreFields: keysAndAdvancedSettingsData.ignoreFields,
+                                keysAndAdvancedSettingsData.generateKeyExpression,
+                            skipDocsOrRows:
+                                keysAndAdvancedSettingsData.skipDocsOrRows,
+                            limitDocsOrRows:
+                                keysAndAdvancedSettingsData.limitDocsOrRows,
+                            ignoreFields:
+                                keysAndAdvancedSettingsData.ignoreFields,
                             threads: keysAndAdvancedSettingsData.threads,
                             verbose: keysAndAdvancedSettingsData.verboseLog,
                         });
 
                         break;
                     }
-                    case "vscode-couchbase.tools.dataImport.nextGetKeysAndAdvancedSettingsPage":{
+                    case "vscode-couchbase.tools.dataImport.nextGetKeysAndAdvancedSettingsPage": {
                         const keysAndAdvancedSettingsformData = message.data;
                         const datasetAndCollectionData =
                             message.datasetAndCollectionData;
@@ -814,8 +855,10 @@ export class DataImport {
                             // Go to summary page
                             currentPanel.webview.html =
                                 getLoader("Data Import");
-                            currentPanel.webview.html = await getSummary(datasetAndCollectionData, keysAndAdvancedSettingsformData);
-                            
+                            currentPanel.webview.html = await getSummary(
+                                datasetAndCollectionData,
+                                keysAndAdvancedSettingsformData
+                            );
                         } else {
                             currentPanel.webview.postMessage({
                                 command:
@@ -825,8 +868,10 @@ export class DataImport {
                         }
                         break;
                     }
-                    case "vscode-couchbase.tools.dataImport.nextGetDatasetAndCollectionPage":{
+                    case "vscode-couchbase.tools.dataImport.nextGetDatasetAndCollectionPage": {
                         let formData = message.data;
+                        const keysAndAdvancedSettingsData =
+                            message.keysAndAdvancedSettingsData;
                         const validationError =
                             await this.validateDatasetAndCollectionFormData(
                                 formData
@@ -836,7 +881,10 @@ export class DataImport {
                             currentPanel.webview.html =
                                 getLoader("Data Import");
                             currentPanel.webview.html =
-                                getKeysAndAdvancedSettings(formData);
+                                getKeysAndAdvancedSettings(
+                                    formData,
+                                    keysAndAdvancedSettingsData
+                                );
                         } else {
                             currentPanel.webview.postMessage({
                                 command:
@@ -846,7 +894,7 @@ export class DataImport {
                         }
                         break;
                     }
-                    case "vscode-couchbase.tools.dataImport.getScopes":{
+                    case "vscode-couchbase.tools.dataImport.getScopes": {
                         const scopes = await getScopes(
                             message.bucketId,
                             connection
@@ -865,7 +913,7 @@ export class DataImport {
                         });
                         break;
                     }
-                    case "vscode-couchbase.tools.dataImport.getDatasetFile":{
+                    case "vscode-couchbase.tools.dataImport.getDatasetFile": {
                         const options: vscode.OpenDialogOptions = {
                             canSelectMany: false,
                             openLabel: "Choose Dataset File",
@@ -886,7 +934,7 @@ export class DataImport {
                             });
                         break;
                     }
-                    case "vscode-couchbase.tools.dataImport.getKeysBack":{
+                    case "vscode-couchbase.tools.dataImport.getKeysBack": {
                         const datasetAndTargetData =
                             message.datasetAndTargetData;
                         const keysAndAdvancedSettingsData =
@@ -895,11 +943,12 @@ export class DataImport {
                         currentPanel.webview.html =
                             await getDatasetAndCollection(
                                 bucketNameArr,
-                                datasetAndTargetData
+                                datasetAndTargetData,
+                                keysAndAdvancedSettingsData
                             );
                         break;
                     }
-                    case "vscode-couchbase.tools.dataImport.fetchKeyPreview":{
+                    case "vscode-couchbase.tools.dataImport.fetchKeyPreview": {
                         const keyType = message.keyType;
                         const keyExpr = message.keyExpr;
                         const preview = await this.updateKeyPreview(
@@ -914,10 +963,15 @@ export class DataImport {
                         break;
                     }
                     case "vscode-couchbase.tools.dataImport.onBackSummary": {
-                        const datasetAndCollectionData = message.datasetAndCollectionData;
-                        const keysAndAdvancedSettingsData = message.keysAndAdvancedSettingsData;
+                        const datasetAndCollectionData =
+                            message.datasetAndCollectionData;
+                        const keysAndAdvancedSettingsData =
+                            message.keysAndAdvancedSettingsData;
                         currentPanel.webview.html = getLoader("Data Import");
-                        currentPanel.webview.html = getKeysAndAdvancedSettings(datasetAndCollectionData);
+                        currentPanel.webview.html = getKeysAndAdvancedSettings(
+                            datasetAndCollectionData,
+                            keysAndAdvancedSettingsData
+                        );
                         break;
                     }
                 }

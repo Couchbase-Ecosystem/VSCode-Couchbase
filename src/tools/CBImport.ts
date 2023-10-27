@@ -90,7 +90,7 @@ export class CBImport {
             cmd.push(importData.format);
         }
         if(importData.fileFormat === "csv"){ // Field Seperator is taken as ',' by default and only required in case of CSV File Format
-            cmd.push("--field-seperator");
+            cmd.push("--field-separator");
             cmd.push(",");
             cmd.push("--infer-types"); // Adding infer types flag as well for csv
         }

@@ -2,23 +2,24 @@ export const getSummary = async (
     datasetAndCollectionData: any,
     keysAndAdvancedSettingsData: any
 ) => {
-
     // Scope And Collection Data Processing for summary
     let scopeAndCollectionValue = "";
-    let scopeAndCollectionExpr = datasetAndCollectionData.scopeCollectionExpression;
-    const scopeAndCollectionType = datasetAndCollectionData.scopesAndCollections;
+    let scopeAndCollectionExpr =
+        datasetAndCollectionData.scopeCollectionExpression;
+    const scopeAndCollectionType =
+        datasetAndCollectionData.scopesAndCollections;
     let showExtraScopeAndCollection = false;
     let scopeData = "";
     let collectionData = "";
-    
-    if(scopeAndCollectionType === "defaultCollection") {
+
+    if (scopeAndCollectionType === "defaultCollection") {
         scopeAndCollectionValue = "Default Scope and Collection";
-    } else if(scopeAndCollectionType === "SpecifiedCollection") {
+    } else if (scopeAndCollectionType === "SpecifiedCollection") {
         scopeAndCollectionValue = "Specifed Scope and Collection";
         showExtraScopeAndCollection = true;
         scopeData = datasetAndCollectionData.scopesDropdown;
         collectionData = datasetAndCollectionData.collectionsDropdown;
-    } else if(scopeAndCollectionType === "dynamicCollection") {
+    } else if (scopeAndCollectionType === "dynamicCollection") {
         scopeAndCollectionValue = "Dynamic Scope and Collection";
         showExtraScopeAndCollection = true;
         scopeData = datasetAndCollectionData.scopesDynamicField;
@@ -32,13 +33,13 @@ export const getSummary = async (
     let showExtraKeyField = false;
     const documentKeyType = keysAndAdvancedSettingsData.keyOptions;
 
-    if(documentKeyType === "random") {
+    if (documentKeyType === "random") {
         documentKeyValue = "Generate Random UUID for each Document";
-    } else if(documentKeyType === "fieldValue") {
+    } else if (documentKeyType === "fieldValue") {
         documentKeyValue = "Use the value of field as the key";
         showExtraKeyField = true;
         keyField = keysAndAdvancedSettingsData.keyFieldName;
-    } else if(documentKeyType === "customExpression") {
+    } else if (documentKeyType === "customExpression") {
         documentKeyValue = "Generate key based on custom expression";
     }
 
@@ -129,28 +130,35 @@ export const getSummary = async (
             <body>
                 <h1 class="heading">Import Data</h1>
                 <div class="main-container">
+                    <h2 class="heading">Summary</h2>
                     <div class="container" id="dataset-container">
                         <div id="dataset-label" class="label">Dataset Path: </div>
-                        <div id="dataset-value" class="value">${datasetAndCollectionData.dataset}</div>
+                        <div id="dataset-value" class="value">${
+                            datasetAndCollectionData.dataset
+                        }</div>
                     </div>
 
                     <div class="container" id="bucket-container">
                         <div id="bucket-label" class="label">Bucket Name: </div>
-                        <div id="bucket-value" class="value">${datasetAndCollectionData.bucket}</div>
+                        <div id="bucket-value" class="value">${
+                            datasetAndCollectionData.bucket
+                        }</div>
                     </div>
 
                     <div class="container" id="scopesAndCollections-container">
                         <div id="scopesAndCollections-label" class="label">Scopes and Collections: </div>
                         <div id="scopesAndCollections-value" class="value">${scopeAndCollectionValue}</div>
-                        ${showExtraScopeAndCollection === true ?
-                            `<br>
+                        ${
+                            showExtraScopeAndCollection === true
+                                ? `<br>
                             <div id="scopeData-label" class="secondary-label"> - Scope: </div>
                             <div id="scopeData-value" class="secondary-value">${scopeData}</div>
 
                             <br>
                             <div id="collectionData-label" class="secondary-label"> - Collection: </div>
                             <div id="collectionData-value" class="secondary-value">${collectionData}</div>
-                            ` : ``
+                            `
+                                : ``
                         }
                         <br>
                         <div id="scopeCollectionExpression-label" class="secondary-label"> - Scope and Collection Expression: </div>
@@ -161,11 +169,12 @@ export const getSummary = async (
                         <div id="documentKey-label" class="label">Document Key: </div>
                         <div id="documentKey-value" class="value">${documentKeyValue}</div>
                         ${
-                            showExtraKeyField === true ?
-                            `<br>
+                            showExtraKeyField === true
+                                ? `<br>
                                 <div id="keyField-label" class="secondary-label"> - Key Field: </div>
                                 <div id="keyField-value" class="secondary-value">${keyField}</div>
-                            ` : ``
+                            `
+                                : ``
                         }
                         <br>
                         <div id="keyExpression-label" class="secondary-label"> - Key Expression: </div>
@@ -175,41 +184,54 @@ export const getSummary = async (
                     <div class="container" id="key-container">
                         <div id="AdvancedSettings-label" class="label">Advanced Settings: </div>
                         ${
-                            keysAndAdvancedSettingsData.skipDocsOrRows && keysAndAdvancedSettingsData.skipDocsOrRows.trim() !== "" ? 
-                            `
+                            keysAndAdvancedSettingsData.skipDocsOrRows &&
+                            keysAndAdvancedSettingsData.skipDocsOrRows.trim() !==
+                                ""
+                                ? `
                             <br>
                                 <div id="skipDocsOrRows-label" class="secondary-label"> - Skip First Documents: </div>
                                 <div id="skipDocsOrRows-value" class="secondary-value">${keysAndAdvancedSettingsData.skipDocsOrRows}</div>
-                            ` : ``
+                            `
+                                : ``
                         }
                         ${
-                            keysAndAdvancedSettingsData.limitDocsOrRows && keysAndAdvancedSettingsData.limitDocsOrRows.trim() !== "" ? 
-                            `
+                            keysAndAdvancedSettingsData.limitDocsOrRows &&
+                            keysAndAdvancedSettingsData.limitDocsOrRows.trim() !==
+                                ""
+                                ? `
                             <br>
                             <div id="limitDocsOrRows-label" class="secondary-label"> - Limit Documents/Rows: </div>
                             <div id="limitDocsOrRows-value" class="secondary-value">${keysAndAdvancedSettingsData.limitDocsOrRows}</div>
-                            ` : ``
+                            `
+                                : ``
                         }
                         ${
-                            keysAndAdvancedSettingsData.ignoreFields && keysAndAdvancedSettingsData.ignoreFields.trim() !== "" ? 
-                            `
+                            keysAndAdvancedSettingsData.ignoreFields &&
+                            keysAndAdvancedSettingsData.ignoreFields.trim() !==
+                                ""
+                                ? `
                             <br>
                             <div id="ignoreFields-label" class="secondary-label"> - Ignore Fields: </div>
                             <div id="ignoreFields-value" class="secondary-value">${keysAndAdvancedSettingsData.ignoreFields}</div>
-                            ` : ``
+                            `
+                                : ``
                         }
                         ${
-                            keysAndAdvancedSettingsData.threads && keysAndAdvancedSettingsData.threads.trim() !== "" ? 
-                            `
+                            keysAndAdvancedSettingsData.threads &&
+                            keysAndAdvancedSettingsData.threads.trim() !== ""
+                                ? `
                             <br>
                             <div id="threads-label" class="secondary-label"> - Threads: </div>
                             <div id="threads-value" class="secondary-value">${keysAndAdvancedSettingsData.threads}</div>
-                            ` : ``
+                            `
+                                : ``
                         }
 
                         <br>
                             <div id="verboseLog-label" class="secondary-label"> - Verbose Log: </div>
-                            <div id="verboseLog-value" class="secondary-value">${keysAndAdvancedSettingsData.verboseLog}</div>
+                            <div id="verboseLog-value" class="secondary-value">${
+                                keysAndAdvancedSettingsData.verboseLog
+                            }</div>
                     </div>
 
                     <div class="buttonsContainer">
@@ -225,8 +247,12 @@ export const getSummary = async (
                     event.preventDefault();
                     vscode.postMessage({
                         command: "vscode-couchbase.tools.dataImport.runImport",
-                        datasetAndCollectionData: ${JSON.stringify(datasetAndCollectionData)},
-                        keysAndAdvancedSettingsData: ${JSON.stringify(keysAndAdvancedSettingsData)}
+                        datasetAndCollectionData: ${JSON.stringify(
+                            datasetAndCollectionData
+                        )},
+                        keysAndAdvancedSettingsData: ${JSON.stringify(
+                            keysAndAdvancedSettingsData
+                        )}
                     })
                 }
 
@@ -234,8 +260,12 @@ export const getSummary = async (
                     event.preventDefault();
                     vscode.postMessage({
                         command: "vscode-couchbase.tools.dataImport.onBackSummary",
-                        datasetAndCollectionData: ${JSON.stringify(datasetAndCollectionData)},
-                        keysAndAdvancedSettingsData: ${JSON.stringify(keysAndAdvancedSettingsData)}
+                        datasetAndCollectionData: ${JSON.stringify(
+                            datasetAndCollectionData
+                        )},
+                        keysAndAdvancedSettingsData: ${JSON.stringify(
+                            keysAndAdvancedSettingsData
+                        )}
                     })
                 }
             </script>
