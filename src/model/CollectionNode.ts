@@ -121,7 +121,7 @@ export default class CollectionNode implements INode {
     }
     const couchbbaseRestAPI = new CouchbaseRestAPI(connection);
     if (!hasQueryService(connection?.services!)) {
-      result = await couchbbaseRestAPI.getDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
+      result = await couchbbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
       result.rows = result.rows.map((item: any) => item.id);
     }
     else {
@@ -143,7 +143,7 @@ export default class CollectionNode implements INode {
             }
           );
           documentList.push(infoNode);
-          result = await couchbbaseRestAPI.getDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
+          result = await couchbbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
           result.rows = result.rows.map((item: any) => item.id);
         } else if (err instanceof ParsingFailureError) {
           logger.error(`In Collection Node: ${this.collectionName}: Parsing Failed: Incorrect filter definition`);
