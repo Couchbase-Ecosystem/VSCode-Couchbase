@@ -27,7 +27,7 @@ export class CBImport {
         if(!connection){
             return;
         }
-        console.log(importData);
+
         let cmd: string[] | Error;
         // CMD Builder
         try {
@@ -35,7 +35,6 @@ export class CBImport {
             if (cmd instanceof Error) {
                 throw cmd;
             }
-            console.log(cmd);
         } catch(err) {
             logger.error("Error while building command for CB Import, please check values and try again");
             logger.debug(err);
@@ -47,7 +46,7 @@ export class CBImport {
         try {
             const terminal = vscode.window.createTerminal("CBImport");
             let text = cmd.join(" ");
-            console.log(text);
+            logger.info("CB Import Command to run: "+ text);
 
             terminal.sendText(text);
             terminal.show();

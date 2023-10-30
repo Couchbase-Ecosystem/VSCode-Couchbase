@@ -568,7 +568,6 @@ export class DataImport {
 
             if (currentFormat) {
                 this.format = currentFormat;
-                console.log(currentFormat);
                 logger.info("detected format " + currentFormat);
             } else {
                 this.format = "";
@@ -780,7 +779,7 @@ export class DataImport {
                     "..",
                     "images",
                     "dark",
-                    "export_dark.svg"
+                    "database-import.svg"
                 )
             ),
             light: vscode.Uri.file(
@@ -790,7 +789,7 @@ export class DataImport {
                     "..",
                     "images",
                     "light",
-                    "export_light.svg"
+                    "database-import.svg"
                 )
             ),
         };
