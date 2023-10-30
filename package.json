@@ -598,7 +598,7 @@
         "command": "vscode-couchbase.runQuery",
         "key": "ctrl+shift+e",
         "mac": "cmd+shift+e",
-        "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ "
+        "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/) && !isKVCluster"
       }
     ],
     "menus": {
@@ -606,7 +606,7 @@
         {
           "command": "vscode-couchbase.runQuery",
           "category": "Couchbase",
-          "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster",
           "group": "navigation@1"
         },
         {
@@ -614,21 +614,21 @@
           "command": "vscode-couchbase.queryContext",
           "category": "Couchbase",
           "group": "navigation@2",
-          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
         },
         {
           "title": "Show Favorite Queries",
           "command": "vscode-couchbase.showFavoriteQueries",
           "category": "Couchbase",
           "group": "navigation@3",
-          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
         },
         {
           "title": "Mark Favorite Query",
           "command": "vscode-couchbase.markFavoriteQuery",
           "category": "Couchbase",
           "group": "navigation@4",
-          "when": "editorLangId == sqlpp || resourceFilename =~ /\\.sqlpp$/"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
         },
         {
           "title": "Refresh Cluster Overview",
@@ -641,7 +641,7 @@
       "editor/context": [
         {
           "command": "vscode-couchbase.runQuery",
-          "when": "editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ ",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster",
           "group": "navigation@1"
         }
       ],
@@ -788,17 +788,13 @@
         },
         {
           "command": "vscode-couchbase.openQueryNotebook",
-          "when": "view == couchbase && viewItem == active_connection",
+          "when": "view == couchbase && viewItem == active_connection && !isKVCluster",
           "group": "workbench@2"
         },
         {
           "command": "vscode-couchbase.openQueryWorkbench",
-          "when": "view == couchbase && viewItem == active_connection",
+          "when": "view == couchbase && viewItem == active_connection && !isKVCluster",
           "group": "workbench@1"
-        },
-        {
-          "submenu": "vscode-couchbase.toolsMenu",
-          "when": "view == couchbase && viewItem == active_connection"
         },
         {
           "submenu": "vscode-couchbase.toolsMenu",
@@ -820,7 +816,7 @@
         },
         {
           "command": "vscode-couchbase.filterDocuments",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection)",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection) && !isKVCluster",
           "group": "secondary"
         },
         {
@@ -884,12 +880,12 @@
         },
         {
           "command": "vscode-couchbase.deleteQueryHistoryItem",
-          "when": "view == query-history",
+          "when": "view == query-history && !isKVCluster",
           "group": "inline"
         },
         {
           "command": "vscode-couchbase.copyQueryHistoryItem",
-          "when": "view == query-history",
+          "when": "view == query-history && !isKVCluster",
           "group": "inline"
         }
       ],
