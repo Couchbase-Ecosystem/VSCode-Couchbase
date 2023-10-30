@@ -66,6 +66,7 @@ import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewC
 import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePrimaryIndex";
 import { dataExport } from "./pages/Tools/DataExport/dataExport";
 import { DataImport } from "./commands/tools/dataImport";
+import { ddlExport } from "./commands/tools/ddlExport/ddlExport";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -582,6 +583,12 @@ export function activate(context: vscode.ExtensionContext) {
         checkAndCreatePrimaryIndex(elementData);
       }
     )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(Commands.ddlExport, async () => {
+      ddlExport();
+    })
   );
 }
 

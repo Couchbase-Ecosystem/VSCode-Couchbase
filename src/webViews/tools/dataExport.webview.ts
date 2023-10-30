@@ -18,6 +18,31 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 margin-bottom: 5px;
             }
 
+            input[type="checkbox"] {
+                appearance: none;
+                -webkit-appearance: none;
+                width: 15px;
+                height: 15px;
+                border-radius: 2px;
+                outline: none;
+                border: 1px solid #999;
+                background-color: white;
+            }
+            
+            input[type="checkbox"]:checked {
+                background-color: #ea2328;
+            }
+    
+            input[type="checkbox"]:checked::before {
+                content: '\\2714';
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 12px;
+                color: white;
+                height: 100%;
+            }
+
             form {
                 max-width: 500px;
                 margin: 0 auto;
