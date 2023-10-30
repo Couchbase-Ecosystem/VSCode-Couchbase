@@ -32,10 +32,15 @@ export const getDocumentMetaData = async (node: DocumentNode, context: vscode.Ex
     try {
         let result;
         if (hasQueryService(connection.services)) {
-            result = await connection.cluster?.query(
-                `SELECT META(b).* FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id =  \"${node.documentName}\"`
-            );
-            result = result?.rows;
+            try {
+                result = await connection.cluster?.query(
+                    `SELECT META(b).* FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id =  \"${node.documentName}\"`
+                );
+                result = result?.rows;
+            } catch {
+                const couchbaseRestAPI = new CouchbaseRestAPI(connection);
+                result = await couchbaseRestAPI.getKVDocumentMetaData(node.bucketName, node.scopeName, node.collectionName, node.documentName);
+            }
         } else {
             const couchbaseRestAPI = new CouchbaseRestAPI(connection);
             result = await couchbaseRestAPI.getKVDocumentMetaData(node.bucketName, node.scopeName, node.collectionName, node.documentName);
