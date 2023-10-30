@@ -97,7 +97,6 @@
     "dayjs": "^1.11.9",
     "decompress": "^4.2.1",
     "gitly": "^2.4.2",
-    "jsonstream2": "^3.0.0",
     "keytar": "^7.7.0",
     "monaco-editor": "^0.43.0",
     "node-addon-api": "^6.0.0",
