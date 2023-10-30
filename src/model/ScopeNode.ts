@@ -24,6 +24,8 @@ import CollectionNode from "./CollectionNode";
 import { logger } from "../logger/logger";
 import InformationNode from "./InformationNode";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
+import { hasQueryService } from "../util/common";
+import { CouchbaseRestAPI } from "../util/apis/CouchbaseRestAPI";
 
 export class ScopeNode implements INode {
   constructor(
@@ -62,7 +64,14 @@ export class ScopeNode implements INode {
    * @returns Two Directory one contains Index definitions and other contains Collections
    * */
   public async getChildren(): Promise<INode[]> {
+    const connection = getActiveConnection();
+    if (!connection) {
+      return [];
+    }
     const collectionList: any[] = [];
+    const couchbaseRestAPI = new CouchbaseRestAPI(connection);
+    const KVCollectionCount: Map<string, number> = await couchbaseRestAPI.getKVDocumentCount(this.bucketName, this.scopeName);
+
     for (const collection of this.collections) {
       try {
         const docFilter = Memory.state.get<IFilterDocuments>(
@@ -70,15 +79,19 @@ export class ScopeNode implements INode {
         );
         const filter: string =
           docFilter && docFilter.filter.length > 0 ? docFilter.filter : "";
-        const connection = getActiveConnection();
         let rowCount = 0;
         try {
-          const queryResult = await connection?.cluster?.query(
-            `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName
-            }\`.\`${collection.name}\` ${filter.length > 0 ? "WHERE " + filter : ""
-            };`
-          );
-          rowCount = queryResult?.rows[0].count;
+          if (!hasQueryService(connection?.services) || filter === "") {
+            rowCount = KVCollectionCount.get(`kv_collection_item_count-${this.bucketName}-${this.scopeName}-${collection.name}`) ?? 0;
+          }
+          else {
+            const queryResult = await connection?.cluster?.query(
+              `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName
+              }\`.\`${collection.name}\` ${filter.length > 0 ? "WHERE " + filter : ""
+              };`
+            );
+            rowCount = queryResult?.rows[0].count;
+          }
         } catch (err: any) {
           if (err instanceof PlanningFailureError) {
             vscode.window.showErrorMessage(

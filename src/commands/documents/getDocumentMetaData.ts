@@ -21,6 +21,8 @@ import { logger } from "../../logger/logger";
 import { getDocumentMetaDataView } from "../../webViews/metaData.webview";
 import DocumentNode from "../../model/DocumentNode";
 import { Constants } from "../../util/constants";
+import { hasQueryService } from "../../util/common";
+import { CouchbaseRestAPI } from "../../util/apis/CouchbaseRestAPI";
 
 export const getDocumentMetaData = async (node: DocumentNode, context: vscode.ExtensionContext) => {
     const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
@@ -28,9 +30,21 @@ export const getDocumentMetaData = async (node: DocumentNode, context: vscode.Ex
         return;
     }
     try {
-        const result = await connection.cluster?.query(
-            `SELECT META(b).* FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id =  \"${node.documentName}\"`
-        );
+        let result;
+        if (hasQueryService(connection.services)) {
+            try {
+                result = await connection.cluster?.query(
+                    `SELECT META(b).* FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id =  \"${node.documentName}\"`
+                );
+                result = result?.rows;
+            } catch {
+                const couchbaseRestAPI = new CouchbaseRestAPI(connection);
+                result = await couchbaseRestAPI.getKVDocumentMetaData(node.bucketName, node.scopeName, node.collectionName, node.documentName);
+            }
+        } else {
+            const couchbaseRestAPI = new CouchbaseRestAPI(connection);
+            result = await couchbaseRestAPI.getKVDocumentMetaData(node.bucketName, node.scopeName, node.collectionName, node.documentName);
+        }
         const viewType = `${connection.url}.${node.bucketName}.${node.scopeName}.${node.collectionName}.${node.documentName}`;
         let currentPanel: vscode.WebviewPanel | undefined = vscode.window.createWebviewPanel(
             viewType,
@@ -44,8 +58,7 @@ export const getDocumentMetaData = async (node: DocumentNode, context: vscode.Ex
             light: vscode.Uri.file(path.join(__filename, "..", "..", "images", "light", "document.svg")),
             dark: vscode.Uri.file(path.join(__filename, "..", "..", "images", "dark", "document.svg"))
         };
-        currentPanel.webview.html = getDocumentMetaDataView(result?.rows);
-
+        currentPanel.webview.html = getDocumentMetaDataView(result);
         currentPanel.onDidDispose(
             () => {
                 currentPanel = undefined;

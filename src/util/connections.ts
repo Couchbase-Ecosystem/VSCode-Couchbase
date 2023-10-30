@@ -23,6 +23,9 @@ import { AuthenticationFailureError, Cluster } from "couchbase";
 import { getClusterConnectingFormView } from "../webViews/connectionScreen.webview";
 import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
 import { logger } from "../logger/logger";
+import { getServices } from "./OverviewClusterUtils/ClusterOverviewGeneralTab";
+import { CouchbaseRestAPI } from "./apis/CouchbaseRestAPI";
+import { hasQueryService } from "./common";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username } = connection;
@@ -182,6 +185,12 @@ export async function useConnection(connection: IConnection): Promise<boolean> {
       try {
         connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
         setActiveConnection(connection);
+        // Set Services
+        const couchbaseRestAPI = new CouchbaseRestAPI(connection);
+        const serviceOverview = await couchbaseRestAPI.getOverview();
+        connection.services = getServices(serviceOverview!);
+        // Set the isKVCluster context
+        vscode.commands.executeCommand('setContext', 'isKVCluster', !hasQueryService(connection.services));
         status = true;
         vscode.window.showInformationMessage("Connection established successfully!");
         logger.info(`Connection established successfully with ${connection.connectionIdentifier}`);

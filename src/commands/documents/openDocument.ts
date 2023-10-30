@@ -29,17 +29,27 @@ export const openDocument = async (documentNode: DocumentNode, clusterConnection
       .scope(documentNode.scopeName)
       .collection(documentNode.collectionName)
       .get(documentNode.documentName);
+
+    if (result?.content instanceof Uint8Array || result?.content instanceof Uint16Array || result?.content instanceof Uint32Array) {
+      vscode.window.showInformationMessage("Unable to open document: It is not a valid JSON document", { modal: true });
+      return false;
+    }
     const uri = vscode.Uri.parse(
       `couchbase:/${documentNode.bucketName}/${documentNode.scopeName}/Collections/${documentNode.collectionName}/${documentNode.documentName}.json`
     );
     if (result) {
       uriToCasMap.set(uri.toString(), result.cas.toString());
     }
-    memFs.writeFile(
-      uri,
-      Buffer.from(JSON.stringify(result?.content, null, 2)),
-      { create: true, overwrite: true }
-    );
+    try {
+      memFs.writeFile(
+        uri,
+        Buffer.from(JSON.stringify(result?.content, null, 2)),
+        { create: true, overwrite: true }
+      );
+    } catch (error) {
+      vscode.window.showInformationMessage("Unable to open document: It is not a valid JSON document", { modal: true });
+      return false;
+    }
     const document = await vscode.workspace.openTextDocument(uri);
     await vscode.window.showTextDocument(document, { preview: false });
     return true;
