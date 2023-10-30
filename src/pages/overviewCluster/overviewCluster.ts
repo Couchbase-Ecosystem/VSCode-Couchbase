@@ -3,7 +3,6 @@ import * as path from "path";
 import { getClusterOverview } from "../../webViews/clusterOverview.webview";
 import { ClusterConnectionNode } from "../../model/ClusterConnectionNode";
 import { Memory } from "../../util/util";
-import { IConnection } from "../../types/IConnection";
 import { logger } from "../../logger/logger";
 import { Constants } from "../../util/constants";
 import { getClusterOverviewData } from "../../util/OverviewClusterUtils/getOverviewClusterData";

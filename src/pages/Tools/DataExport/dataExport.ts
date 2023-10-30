@@ -13,7 +13,7 @@ import { getLoader } from "../../../webViews/loader.webview";
 import { dataExportWebview } from "../../../webViews/tools/dataExport.webview";
 import { IConnection } from "../../../types/IConnection";
 
-const getScopes = async (bucketId: string, connection: IConnection) => {
+export const getScopes = async (bucketId: string, connection: IConnection) => {
   const scopes = await connection.cluster
     ?.bucket(bucketId)
     .collections()
@@ -55,7 +55,7 @@ const validateFormData = (formData: any): string => {
     errors.push("Please inform the file destination folder");
   }
 
-  if (!formData.threads.trim() || parseInt(formData.threads) < 1) {
+  if(!formData.threads || !formData.threads.trim() || parseInt(formData.threads)<1){
     errors.push("threads cannot be undefined or less than 1");
   }
 
