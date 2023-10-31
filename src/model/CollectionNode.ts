@@ -166,7 +166,7 @@ export default class CollectionNode implements INode {
     // TODO: add local only (un-synchronized) files to documentList
 
     // Checking document list length with 2 as Schema and index Directory are always present
-    if (((!isQueryServicesEnable && documentList.length === 0)) || documentList.length === 2) {
+    if (((!isQueryServicesEnable && documentList.length === 0)) || (isQueryServicesEnable && documentList.length === 2)) {
       documentList.push(new InformationNode("No Documents found"));
     } else if (this.documentCount > documentList.length) {
       documentList.push(new PagerNode(this));
