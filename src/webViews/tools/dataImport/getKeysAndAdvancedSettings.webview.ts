@@ -197,9 +197,7 @@ export const getKeysAndAdvancedSettings = (
         </head>
         <body>
             <h1 class="heading">Import Data</h1>
-
             <form action="#" method="post" id="dataImportForm">
-            
                 <div class="separator-container">
                     <span class="separator-text">Document Key</span>
                     <div class="separator"></div>

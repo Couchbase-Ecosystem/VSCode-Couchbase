@@ -31,8 +31,6 @@ export const getDatasetAndCollection = async (
                 font-weight: bold;
             }
 
-            
-
             select,
             input[type="file"] {
                 width: 100%;
