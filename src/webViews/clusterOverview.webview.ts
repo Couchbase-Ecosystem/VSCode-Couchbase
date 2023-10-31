@@ -1,6 +1,6 @@
 import { IClusterOverview } from "../types/IClusterOverview";
 export function getClusterOverview(overview: IClusterOverview): string {
-   return `
+   return /*HTML*/`
     <!DOCTYPE html>
     <html lang="en">
        <head>

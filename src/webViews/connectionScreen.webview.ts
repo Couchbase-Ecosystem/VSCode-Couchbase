@@ -15,7 +15,7 @@
  */
 
 export const getClusterConnectingFormView = (message: any) => {
-    return `
+    return /*HTML*/`
         <!DOCTYPE html>
         <html>
         <head>

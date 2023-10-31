@@ -121,17 +121,48 @@ export const getDatasetAndCollection = async (
             .redButton:hover {
                 background: #bb1117;
             }
+
+            .tooltip {
+                position: relative;
+                display: inline-block;
+            }
+
+            .tooltip .tooltiptext {
+                visibility: hidden;
+                width: 400px;
+                background-color: #555;
+                color: #fff;
+                text-align: center;
+                border-radius: 6px;
+                padding: 5px 10px;
+                position: absolute;
+                z-index: 1;
+                bottom: 100%; 
+                left: 50%; 
+                margin-left: -40px; 
+                opacity: 0;
+                transition: opacity 0s;
+            }
+
+            .tooltip:hover .tooltiptext {
+                visibility: visible;
+                opacity: 1;
+            }
           </style>
         </head>
         <body>
             <h1 class="heading">Import Data</h1>
             <form action="#" method="post" id="dataImportForm">
+                <h4 >Before proceeding do checkout <a href="https://docs.couchbase.com/server/current/tools/cbimport.html">Couchbase docs</a> for CB Import</h4>
                 <div class="separator-container">
                     <span class="separator-text">Dataset</span>
                     <div class="separator"></div>
                 </div>
 
-                <label for="dataset-destination">Select the Dataset (CSV or JSON format):</label>
+                <label for="dataset-destination" class="tooltip">Select the Dataset (CSV or JSON format): 
+                    <span class="tooltiptext">Select the file containing the data to import. The file must be in either JSON or CSV format.</span>
+                </label>
+                
                 <div class="dataset-container">
                     <div class="dataset-destination redButton" id="datasetDestination" onclick="getDatasetFile()">Choose</div>
                     <input type="text" id="selectedFile" name="selectedFile" readonly>
@@ -143,7 +174,9 @@ export const getDatasetAndCollection = async (
                     <div class="separator"></div>
                 </div>
 
-                <label for="bucket">Bucket:</label>
+                <label for="bucket" class="tooltip">Bucket:
+                    <span class="tooltiptext">Select the bucket where you want to import the data.</span>
+                </label>
                 <select name="bucket" id="bucket" onchange="onBucketClick(value)">
                     ${buckets.map((bucketName, index) => {
                         return `
@@ -155,7 +188,9 @@ export const getDatasetAndCollection = async (
                 </select>
                 <br>
                 
-                <label for="scopesAndCollections">Scopes And Collections:</label>
+                <label for="scopesAndCollections" class="tooltip">Scopes And Collections:
+                    <span class="tooltiptext">Select the scope and collection where you want to import the data. You can choose to import into the default scope and collection, a specific collection, or dynamically determine the scope and collection based on the data.</span>
+                </label>
                 <select name="scopesAndCollections" id="scopesAndCollections" onchange="onScopeAndCollectionsClick(value)" width="100%">
                     <option value="defaultCollection" selected>Default scope and collection</option>
                     <option value="SpecifiedCollection">Choose a specified collection </option>
@@ -165,22 +200,42 @@ export const getDatasetAndCollection = async (
 
                 <!-- If person wants to choose simple scope and collection dropdown picker -->
                 <div id="specifiedCollectionContainer" hidden>
-                    <label for="scopesDropdown">Scope:</label>
+                    <label for="scopesDropdown" class="tooltip">Scope:
+                        <span class="tooltiptext">Select the scope where you want to import the data.</span>
+                    </label>
                     <select name="scopesDropdown" id="scopesDropdown" onchange="onScopesDropdownClick(value, selectedIndex)" width="100%"></select>
                     <br>
 
-                    <label for="collectionsDropdown">Collection:</label>
+                    <label for="collectionsDropdown" class="tooltip">Collection:
+                        <span class="tooltiptext">Select the collection where you want to import the data.</span>
+                    </label>
                     <select name="collectionsDropdown" id="collectionsDropdown" width="100%"></select>
                     <br>
                 </div>
 
                 <!-- Dynamic Scopes and Collections -->
                 <div id="dynamicCollectionContainer" hidden>
-                    <label for="scopesDynamicField">Scope Field:</label>
+                    <label for="scopesDynamicField" class="tooltip">Scope Field:
+                        <span class="tooltiptext">Specify the field in the data that contains the scope name.<br>
+                            To use information from the JSON document, specify the column name between % characters. 
+                            For example, --scope-collection-exp %scope_field%.%collection_field%. 
+                            Fields that contain a % character may be escaped using %%.<br>
+                            For more information about the accepted format, see the 
+                            <a href="https://docs.couchbase.com/server/current/tools/cbimport-json.html#scopecollection-parser">SCOPE/COLLECTION PARSER</a> section
+                        </span>
+                    </label>
                     <input type="text" name="scopesDynamicField" id="scopesDynamicField" value="" placeholder="%cbms%">
                     <br>
 
-                    <label for="collectionsDynamicField">Collection Field:</label>
+                    <label for="collectionsDynamicField" class="tooltip">Collection Field:
+                    <span class="tooltiptext">Specify the field in the data that contains the collection name.<br>
+                        To use information from the JSON document, specify the column name between % characters. 
+                        For example, --scope-collection-exp %scope_field%.%collection_field%. 
+                        Fields that contain a % character may be escaped using %%.<br>
+                        For more information about the accepted format, see the 
+                        <a href="https://docs.couchbase.com/server/current/tools/cbimport-json.html#scopecollection-parser">SCOPE/COLLECTION PARSER</a> section
+                    </span>
+                    </label>
                     <input type="text" name="collectionsDynamicField" id="collectionsDynamicField" value="" placeholder="%cbmc%">
                     <br>
                 </div>

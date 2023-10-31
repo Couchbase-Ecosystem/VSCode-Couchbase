@@ -1,5 +1,5 @@
 export const ddlExportWebview = async (buckets: string[]): Promise<string> => {
-    return `
+    return /*HTML*/`
       <!DOCTYPE html>
       <html lang="en">
          <head>
@@ -189,6 +189,33 @@ export const ddlExportWebview = async (buckets: string[]): Promise<string> => {
                 color: white;
                 height: 100%;
             }
+
+            .tooltip {
+                position: relative;
+                display: inline-block;
+            }
+
+            .tooltip .tooltiptext {
+                visibility: hidden;
+                width: 400px;
+                background-color: #555;
+                color: #fff;
+                text-align: center;
+                border-radius: 6px;
+                padding: 5px 10px;
+                position: absolute;
+                z-index: 1;
+                bottom: 100%; 
+                left: 50%; 
+                margin-left: -40px; 
+                opacity: 0;
+                transition: opacity 0s;
+            }
+
+            .tooltip:hover .tooltiptext {
+                visibility: visible;
+                opacity: 1;
+            }
               
             </style>
           </head>
@@ -213,7 +240,9 @@ export const ddlExportWebview = async (buckets: string[]): Promise<string> => {
                   <input type="checkbox" name="includeIndexes" id="includeIndexes">
                     </div>
                   <br>
-                  <label for="fileDestination">File Destination Folder:</label>
+                  <label for="fileDestination" class="tooltip">File Destination Folder:
+                    <span class="tooltiptext">Choose the folder where exported DDL file will be stored</span>
+                  </label>
                   <div class="folder-container">
                       <div class="folder-destination redButton" id="folderDestination" onclick="getFolder()">Choose</div>
                       <input type="text" id="selectedFolder" name="selectedFolder" readonly>

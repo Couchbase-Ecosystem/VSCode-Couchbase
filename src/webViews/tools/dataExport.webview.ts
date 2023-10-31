@@ -194,6 +194,33 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 transition: transform 0.2s;
                 margin-right:5px;
             }
+
+            .tooltip {
+                position: relative;
+                display: inline-block;
+            }
+
+            .tooltip .tooltiptext {
+                visibility: hidden;
+                width: 400px;
+                background-color: #555;
+                color: #fff;
+                text-align: center;
+                border-radius: 6px;
+                padding: 5px 10px;
+                position: absolute;
+                z-index: 1;
+                bottom: 100%; 
+                left: 50%; 
+                margin-left: -40px; 
+                opacity: 0;
+                transition: opacity 0s;
+            }
+
+            .tooltip:hover .tooltiptext {
+                visibility: visible;
+                opacity: 1;
+            }
             
           </style>
         </head>
@@ -201,7 +228,10 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
         <body>
             <h1 class="heading">Export Data</h1>
             <form action="#" method="post" id="dataExportForm">
-                <label for="bucket">Bucket:</label>
+            <h4 >Before proceeding do checkout <a href="https://docs.couchbase.com/server/current/tools/cbexport.html">Couchbase docs</a> for CB Export</h4>
+                <label for="bucket" class="tooltip">Bucket:
+                    <span class="tooltiptext">Select the top level bucket on which export should happen. Only 1 bucket can be exported at a time</span>
+                </label>
                 <select name="bucket" id="bucket" onchange="onBucketClick(value)">
                 <option value="" disabled selected>Select a bucket</option>
                     ${buckets.map((bucketName)=>{
@@ -212,34 +242,48 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                 </select>
                 <br>
 
-                <label for="scopes">Scopes:</label>
+                <label for="scopes" class="tooltip">Scopes:
+                    <span class="tooltiptext">Select the scopes that should be exported, you can also select all scopes which will override any other selection.</span>
+                </label>
                 <select name="scopes" id="scopes" multiple class="js-select2" disabled onchange="onScopeClick(options)" width="100%"></select>
                 <br>
 
-                <label for="collections">Collections:</label>
+                <label for="collections" class="tooltip">Collections:
+                    <span class="tooltiptext">The collections that you would like to include. You can select <strong>All</strong> or more than one option.</span>
+                </label>
                 <select name="collections" id="collections" multiple class="js-select2" disabled width="100%"></select>
                 <br>
 
-                <label for="documentsKeyField">Document's Key Field:</label>
+                <label for="documentsKeyField" class="tooltip">Document's Key Field:
+                    <span class="tooltiptext">In Couchbase, the document's key is not part of the body of the document. But when you are exporting the dataset, it is recommended to also include the original keys. This property defines the name of the attribute in the final exported file that will contain the document's key.</span>
+                </label>
                 <input type="text" name="documentsKeyField" id="documentsKeyField" value="cbmid">
                 <br>
 
-                <label for="scopeFieldName">Scope Field Name:</label>
+                <label for="scopeFieldName" class="tooltip">Scope Field Name:
+                    <span class="tooltiptext">This filed will be used to store the name of the scope the document came from. It will be created on each JSON document.</span>
+                </label>
                 <input type="text" name="scopeFieldName" id="scopeFieldName" value="cbms">
                 <br>
 
-                <label for="collectionFieldName">Collection Field Name:</label>
+                <label for="collectionFieldName" class="tooltip">Collection Field Name:
+                    <span class="tooltiptext">This filed will be used to store the name of the collection the document came from. It will be created on each JSON document.</span>
+                </label>
                 <input type="text" name="collectionFieldName" id="collectionFieldName" value="cbmc">
                 <br>
 
-                <label for="format">Format:</label>
+                <label for="format" class="tooltip">Format:
+                    <span class="tooltiptext">The format of the dataset specified (lines or list). See the <a href='https://docs.couchbase.com/server/current/tools/cbexport-json.html#dataset-formats'>DATASET FORMATS</a> section for more details on the formats supported.</span>
+                </label>
                 <select name="format" id="format">
                     <option value="list">JSON Array</option>
                     <option value="lines">JSON Lines</option>
                 </select>
                 <br>
 
-                <label for="fileDestination">File Destination Folder:</label>
+                <label for="fileDestination" class="tooltip">File Destination Folder:
+                    <span class="tooltiptext">Folder where the exported file will be stored</span>
+                </label>
                 <div class="folder-container">
                     <div class="folder-destination redButton" id="folderDestination" onclick="getFolder()">Choose</div>
                     <input type="text" id="selectedFolder" name="selectedFolder" readonly>
@@ -252,11 +296,18 @@ export const dataExportWebview = async (buckets: string[]): Promise<string> => {
                         Advanced Settings
                     </div>
                     <div class="advanced-settings" id="advanced-settings">
-                        <label for="threads">Threads</label>
+                        <label for="threads" class="tooltip">Threads:
+                            <span class="tooltiptext">Specifies the number of concurrent clients to use when exporting data.
+                                Fewer clients means exports will take longer, but there will be less cluster resources used to complete the export.
+                                More clients means faster exports, but at the cost of more cluster resource usage.
+                            </span>
+                        </label>
                         <input type="number" name="threads" id="threads" value="4">
                         <br>
                         <div class="verboseLogContainer">
-                            <label for="verboseLog" id="verboseLogLabel">Verbose Log:</label>
+                            <label for="verboseLog" id="verboseLogLabel" class="tooltip">Verbose Log:
+                                <span class="tooltiptext">Specifies that detailed logging should be sent to stdout</span>
+                            </label>
                             <input type="checkbox" name="verboseLog" id="verboseLog">
                         </div>
                     </div>
