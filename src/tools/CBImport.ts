@@ -76,7 +76,7 @@ export class CBImport {
         cmd.push("-u");
         cmd.push(connection.username);
         cmd.push("-p");
-        cmd.push(password);
+        cmd.push('"' + password + '"'); 
         cmd.push("-b");
         cmd.push(importData.bucket);
 

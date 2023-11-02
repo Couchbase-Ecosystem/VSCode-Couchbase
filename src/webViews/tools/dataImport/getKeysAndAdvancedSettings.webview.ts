@@ -1,6 +1,7 @@
 export const getKeysAndAdvancedSettings = (
     datasetAndCollectionData: any,
-    prefilledData: any
+    prefilledData: any,
+    defaultKeysValue?: string
 ): string => {
     return /*html*/ `
     <!DOCTYPE html>
@@ -217,7 +218,7 @@ export const getKeysAndAdvancedSettings = (
                     <label for="keyFieldName" class="tooltip">Field name: 
                     <span class="tooltiptext">Specify the field in the data that contains the value to use as the document key.</span>
                 </label>
-                    <input type="text" name="keyFieldName" id="keyFieldName" value="cbms">
+                    <input type="text" name="keyFieldName" id="keyFieldName" value="" placeholder="cbmid">
                     <br>
                 </div>
 
@@ -232,7 +233,7 @@ export const getKeysAndAdvancedSettings = (
                         </ul>
                     </span>
                 </label>
-                    <input type="text" name="customExpression" id="customExpression" value="%cbms%">
+                    <input type="text" name="customExpression" id="customExpression" value="" placeholder="%cbmid%">
                     <br>
                 </div>
                 <div id="UUID-warn">Note: If random UUID or #UUID# tag is used, the UUID values in the preview area might not match the actual UUID values generated during import.</div>
@@ -332,6 +333,7 @@ export const getKeysAndAdvancedSettings = (
 
             window.onload = async function() {
                 let prefilledData = ${JSON.stringify(prefilledData)};
+                let defaultKeysValue = "${defaultKeysValue}";
                 if(prefilledData){ // If prefilled data is undefined, go with defaults only
                     setInitialValue('keyOptions', prefilledData.keyOptions);
                     setInitialValue('keyFieldName', prefilledData.keyFieldName);
@@ -345,6 +347,9 @@ export const getKeysAndAdvancedSettings = (
                     if(prefilledData.verboseLog){
                         document.getElementById('verboseLog').checked = true;
                     }
+                } else if(defaultKeysValue && defaultKeysValue.length > 0){ // Only check for default values if there is not any prefilled Data
+                    document.getElementById("keyFieldName").value = defaultKeysValue;
+                    document.getElementById("customExpression").value = "%" + defaultKeysValue + "%";
                 }
 
                 // After setting prefilled data, set it to undefined so that it doesn't interfere
@@ -442,7 +447,7 @@ export const getKeysAndAdvancedSettings = (
                 switch (message.command) {
                     case "vscode-couchbase.tools.dataImport.sendKeyPreview":
                         let preview = message.preview;
-                        if(preview === ""){
+                        if(preview.trim() === ""){
                             preview = "No Preview to Show!";
                         }
                         document.getElementById("keyPreviewTextArea").innerHTML = preview;
