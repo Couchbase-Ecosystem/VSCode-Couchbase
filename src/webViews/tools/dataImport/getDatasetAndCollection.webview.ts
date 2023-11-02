@@ -385,6 +385,12 @@ export const getDatasetAndCollection = async (
                     const error = message.error;
                     document.getElementById("validation-error").innerHTML = message.error;
                     break;
+                case "vscode-couchbase.tools.dataImport.defaultScopeAndCollectionDynamicField":
+                    const defaultScopeValue = message.defaultScopeValue;
+                    const defaultCollectionValue = message.defaultCollectionValue;
+                    document.getElementById("scopesDynamicField").value = defaultScopeValue;
+                    document.getElementById("collectionsDynamicField").value = defaultCollectionValue;
+                    break;
             }
         });
 

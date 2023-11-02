@@ -38,6 +38,11 @@ export class DataImport {
     readonly MONO_INCR_FLAG = "#MONO_INCR#";
     readonly WORDS_WITH_PERCENT_SYMBOLS_REGEX = "%(\\w+)%";
 
+    protected readonly possibleScopeFields: string[] = ["cbms", "scope", "cbs", "type", "category"];
+    protected readonly possibleCollectionFields: string[] = ["cbmc", "collection", "cbc", "subtype", "subcategory"];
+    protected readonly possibleKeyFields: string[] = ["cbmid", "id", "uuid", "name", "cbmk", "key", "cbk"];
+
+
     protected fileFormat: string = "";
     constructor() {}
 
@@ -330,6 +335,44 @@ export class DataImport {
         return previewContent.join("\n");
     }
 
+    // Functions to get default values for dynamic scopesAndCollections
+    protected async getSampleElementContentSplit(datasetFieldText: string): Promise<string[]> {
+        let sampleElementContentSplit: string[] = [];
+    
+        if (this.JSON_FILE_FORMAT === this.fileFormat) {
+            const sampleElement = await this.sampleElementFromJsonArrayFile(datasetFieldText);
+            if (sampleElement) {
+                sampleElementContentSplit = sampleElement.split(',');
+            } else {
+                throw new Error("Failed to retrieve sample JSON element.");
+            }
+        } else if (this.CSV_FILE_FORMAT === this.fileFormat) {
+            const sampleElement = await this.sampleElementFromCsvFile(datasetFieldText, 1);
+            if(sampleElement){
+                sampleElementContentSplit = sampleElement;
+            }
+        } else {
+            throw new Error(`Unsupported file format: ${this.fileFormat}`);
+        }
+    
+        logger.debug("sampleElementContentSplit: " + sampleElementContentSplit.join(', '));
+    
+        return sampleElementContentSplit;
+    }
+
+    protected async matchElements(jsonFieldsArr: string[], possibleFieldsArr: string[]): Promise<string>{
+        for(let x of jsonFieldsArr){
+            for(let y of possibleFieldsArr){
+                if(x.match(y)){
+                    return y;
+                }
+            }
+        }
+        return "";
+    }
+
+
+
     // Functions to detect validity of scopes and collections
 
     async sampleElementFromJsonArrayFile(
@@ -574,8 +617,6 @@ export class DataImport {
                 logger.error("format not detected");
                 errors.push("Please enter valid json file format only");
             }
-
-            // Check if given JSON File is correct
         }
         return errors;
     };
@@ -877,12 +918,16 @@ export class DataImport {
                             );
                         if (validationError === "") {
                             // NO Validation Error on Page 1, We can shift to next page
+                            const elementSplit = await this.getSampleElementContentSplit(formData.dataset);
+                            const defaultKeysValue = await this.matchElements(elementSplit, this.possibleKeyFields);
+                            
                             currentPanel.webview.html =
                                 getLoader("Data Import");
                             currentPanel.webview.html =
                                 getKeysAndAdvancedSettings(
                                     formData,
-                                    keysAndAdvancedSettingsData
+                                    keysAndAdvancedSettingsData,
+                                    defaultKeysValue
                                 );
                         } else {
                             currentPanel.webview.postMessage({
@@ -922,13 +967,33 @@ export class DataImport {
 
                         vscode.window
                             .showOpenDialog(options)
-                            .then((fileUri) => {
+                            .then(async (fileUri) => {
                                 if (fileUri && fileUri[0]) {
+                                    const dataset = fileUri[0].fsPath;
+
+                                    // understand first few documents, get fields and update default values
+                                    // Firstly validate the dataset
+                                    const errors = await this.validateDataset(dataset);
+                                    if(errors.length === 0){
+                                        const elementSplit = await this.getSampleElementContentSplit(dataset);
+                                        const defaultScopeValue = await this.matchElements(elementSplit, this.possibleScopeFields);
+                                        const defaultCollectionValue = await this.matchElements(elementSplit, this.possibleCollectionFields);
+                                        currentPanel.webview.postMessage({
+                                            command: "vscode-couchbase.tools.dataImport.defaultScopeAndCollectionDynamicField",
+                                            defaultScopeValue: `%${defaultScopeValue}%`,
+                                            defaultCollectionValue: `%${defaultCollectionValue}%`
+                                        });
+                                    } else {
+                                        logger.error("error while reading dataset: \n " + errors.join("\n"));
+                                    }
+
                                     currentPanel.webview.postMessage({
                                         command:
                                             "vscode-couchbase.tools.dataImport.datasetFile",
-                                        dataset: fileUri[0].fsPath,
+                                        dataset: dataset,
                                     });
+
+                                    
                                 }
                             });
                         break;
