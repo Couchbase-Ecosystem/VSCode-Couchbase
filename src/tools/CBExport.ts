@@ -46,13 +46,7 @@ export class CBExport {
         scp.push(...collections);
 
         const fileName = `${bucket}_cbexport_${getCurrentDateTime()}.json`;
-        let currentPath: string;
-
-        if (filePath.endsWith(path.sep)) {
-            currentPath = path.join(filePath, fileName);
-        } else {
-            currentPath = path.join(filePath, fileName);
-        }
+        let currentPath: string = path.join(filePath, fileName);
 
         const includeData = scp.join(",");
         const fullPath = `\"${currentPath}\"`;
