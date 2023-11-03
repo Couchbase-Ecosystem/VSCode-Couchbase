@@ -945,6 +945,11 @@
           "name": "Couchbase"
         },
         {
+          "id": "couchbase-iq",
+          "name": "Couchbase IQ",
+          "type": "webview"
+        },
+        {
           "id": "query-history",
           "name": "Query history"
         }

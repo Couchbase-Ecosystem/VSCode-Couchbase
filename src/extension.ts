@@ -1,5 +1,5 @@
 /*
- *     Copyright 2011-2020 Couchbase, Inc.
+ *     Copyright 2011-2023 Couchbase, Inc.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -67,6 +67,7 @@ import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePri
 import { dataExport } from "./pages/Tools/DataExport/dataExport";
 import { DataImport } from "./commands/tools/dataImport";
 import { ddlExport } from "./commands/tools/ddlExport/ddlExport";
+import { CouchbaseIqWebviewProvider } from "./iq/couchbaseIqWebviewProvider";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -85,7 +86,6 @@ export function activate(context: vscode.ExtensionContext) {
   const workbench = new QueryWorkbench();
 
   const subscriptions = context.subscriptions;
-  const workbenchWebviewProvider = new WorkbenchWebviewProvider(context);
 
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context
@@ -108,9 +108,27 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  const workbenchWebviewProvider = new WorkbenchWebviewProvider(context);
   subscriptions.push(
-    vscode.window.registerWebviewViewProvider(Commands.queryWorkbench, workbenchWebviewProvider)
+    vscode.window.registerWebviewViewProvider(
+      Commands.queryWorkbench,
+      workbenchWebviewProvider 
+    )
   );
+  
+  const couchbaseIqWebviewProvider = new CouchbaseIqWebviewProvider(context);
+  subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      Commands.couchbaseIqViewsCommand,
+      couchbaseIqWebviewProvider,
+      {
+        webviewOptions: {
+          retainContextWhenHidden: true,
+        },
+      }
+    )
+  );
+  
 
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
