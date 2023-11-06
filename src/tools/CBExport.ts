@@ -4,6 +4,7 @@ import { Constants } from "../util/constants";
 import { getCurrentDateTime } from "../util/util";
 import * as keytar from "keytar";
 import * as vscode from 'vscode';
+import * as path from 'path';
 
 export class CBExport {
     static async export(
@@ -45,13 +46,7 @@ export class CBExport {
         scp.push(...collections);
 
         const fileName = `${bucket}_cbexport_${getCurrentDateTime()}.json`;
-        let currentPath: string;
-
-        if (filePath.endsWith("/")) { //TODO: Verify for windows
-            currentPath = filePath + fileName;
-        } else {
-            currentPath = `${filePath}/${fileName}`;
-        }
+        let currentPath: string = path.join(filePath, fileName);
 
         const includeData = scp.join(",");
         const fullPath = `\"${currentPath}\"`;
