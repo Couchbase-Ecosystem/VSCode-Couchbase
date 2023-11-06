@@ -16,7 +16,7 @@
 
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { couchbaseIqWebview } from '../webViews/iq/couchbaseIq.webview';
+import { getIQWebviewContent } from '../webViews/iq/couchbaseIq.webview';
 
 export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
@@ -34,6 +34,12 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                 vscode.Uri.file(path.join(this._context.extensionPath, "dist"))
             ]
         };
-        this._view.webview.html = couchbaseIqWebview();
+
+        const reactAppPathOnDisk = vscode.Uri.file(
+            path.join(this._context.extensionPath, "dist", "iq", "reactBuild.js")
+        );
+
+        const reactAppUri = this._view.webview.asWebviewUri(reactAppPathOnDisk);
+        this._view.webview.html = getIQWebviewContent(reactAppUri, this._context);
     }
 }

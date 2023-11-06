@@ -24,7 +24,7 @@ export const getWebviewContent = (
 ): string => {
     // Local path to main script run in the webview
     const reactAppPathOnDisk = vscode.Uri.file(
-        path.join(context.extensionPath, "dist", "reactBuild.js")
+        path.join(context.extensionPath, "dist", "workbench", "reactBuild.js")
     );
     const webviewGenericCspSource = "https://*.vscode-cdn.net";
 

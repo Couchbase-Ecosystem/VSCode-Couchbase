@@ -7,7 +7,7 @@
         "components/*": ["components/*"]
       },
       "target": "es6",
-      "outDir": "dist/workbench",
+      "outDir": "dist/iq",
       "lib": [
         "es6",
         "DOM",
