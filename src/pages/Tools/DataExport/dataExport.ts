@@ -70,7 +70,7 @@ export interface IDataExportWebviewState {
   webviewPanel: vscode.WebviewPanel;
 }
 
-export const dataExport = async () => {
+export const dataExport = async (context: vscode.ExtensionContext) => {
   const connection = getActiveConnection();
   if (!connection) {
     return;
@@ -146,7 +146,8 @@ export const dataExport = async () => {
               formData.collectionFieldName,
               formData.format,
               formData.threads,
-              formData.verboseLog
+              formData.verboseLog,
+              context
             );
           } else {
             currentPanel.webview.postMessage({

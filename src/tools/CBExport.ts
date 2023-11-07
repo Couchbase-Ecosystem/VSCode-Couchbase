@@ -17,7 +17,8 @@ export class CBExport {
         colName: string,
         format: string,
         threads: string,
-        verbose: boolean
+        verbose: boolean, 
+        context: vscode.ExtensionContext
     ): Promise<void> {
 
         const connection = getActiveConnection();
@@ -66,8 +67,8 @@ export class CBExport {
             cmd.push(connection.url);
             cmd.push("-u");
             cmd.push(connection.username);
-            cmd.push("-p");
-            cmd.push('"' + password + '"'); 
+            // cmd.push("-p");
+            // cmd.push('"' + password + '"'); 
             cmd.push("-b");
             cmd.push(bucket);
 
@@ -93,11 +94,19 @@ export class CBExport {
                 cmd.push("-v");
             }
 
+            cmd.push("; \n");
+            cmd.push("export CB_PASSWORD=''"); // To make sure that password is truly unset
+
             // Run Command
-            const terminal = vscode.window.createTerminal("CBExport");
+            const terminal: vscode.Terminal = vscode.window.createTerminal("CBExport");
+            // sending password to vscode environment variables. Note: Password is still accessible via terminal, till its removed
+            context.environmentVariableCollection.replace('CB_PASSWORD', password);
             let text = cmd.join(" ");
             terminal.sendText(text);
             terminal.show();
+            // removing password from vscode environment variables after 5 seconds
+            await new Promise((resolve)=>setTimeout(resolve, 5000));
+            context.environmentVariableCollection.replace('CB_PASSWORD', '');
         } catch (error) {
             console.error("An error occurred while trying to export the dataset");
             console.error(error);
