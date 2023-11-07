@@ -774,7 +774,7 @@ export class DataImport {
         return "";
     }
 
-    public dataImport = async () => {
+    public dataImport = async (context: vscode.ExtensionContext) => {
         const connection = getActiveConnection();
         if (!connection) {
             return;
@@ -879,7 +879,7 @@ export class DataImport {
                                 keysAndAdvancedSettingsData.ignoreFields,
                             threads: keysAndAdvancedSettingsData.threads,
                             verbose: keysAndAdvancedSettingsData.verboseLog,
-                        });
+                        }, context);
 
                         break;
                     }
