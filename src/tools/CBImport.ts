@@ -22,7 +22,7 @@ export interface ICBImportData {
 
 export class CBImport {
 
-    static async import(importData: ICBImportData): Promise<void> {
+    static async import(importData: ICBImportData, context: vscode.ExtensionContext): Promise<void> {
         const connection = getActiveConnection();
         if(!connection){
             return;
@@ -44,12 +44,23 @@ export class CBImport {
 
         // CMD Runner
         try {
+            const password = await keytar.getPassword(Constants.extensionID, getConnectionId(connection));
+            if (!password) {
+                logger.error("password not found");
+                return ;
+            }
             const terminal = vscode.window.createTerminal("CBImport");
+            // sending password to vscode environment variables. Note: Password is still accessible via terminal, till its removed
+            context.environmentVariableCollection.replace('CB_PASSWORD', password);
             let text = cmd.join(" ");
             logger.info("CB Import Command to run: "+ text);
 
             terminal.sendText(text);
             terminal.show();
+
+            // removing password from vscode environment variables after 5 seconds
+            await new Promise((resolve)=>setTimeout(resolve, 5000));
+            context.environmentVariableCollection.replace('CB_PASSWORD', '');
             
         } catch(err) {
             logger.error("Error while running command for CB Import");
@@ -59,11 +70,6 @@ export class CBImport {
     }
 
     static async cmdBuilder(importData: ICBImportData, connection: IConnection): Promise<string[] | Error> {
-
-        const password = await keytar.getPassword(Constants.extensionID, getConnectionId(connection));
-        if (!password) {
-            return new Error("Password not found");
-        }
 
         const cmd: string[] = []; 
         cmd.push(CBTools.getTool(Type.CB_IMPORT).path);
@@ -75,8 +81,6 @@ export class CBImport {
         cmd.push(connection.url);
         cmd.push("-u");
         cmd.push(connection.username);
-        cmd.push("-p");
-        cmd.push('"' + password + '"'); 
         cmd.push("-b");
         cmd.push(importData.bucket);
 
@@ -135,7 +139,8 @@ export class CBImport {
         if (importData.verbose) {
             cmd.push("-v");
         }
-
+        cmd.push("; \n");
+        cmd.push("export CB_PASSWORD=''"); // To make sure that password is truly unset
         return cmd;
 
     }

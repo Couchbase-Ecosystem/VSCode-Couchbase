@@ -94,6 +94,9 @@ export class CBExport {
                 cmd.push("-v");
             }
 
+            cmd.push("; \n");
+            cmd.push("export CB_PASSWORD=''"); // To make sure that password is truly unset
+
             // Run Command
             const terminal: vscode.Terminal = vscode.window.createTerminal("CBExport");
             // sending password to vscode environment variables. Note: Password is still accessible via terminal, till its removed
