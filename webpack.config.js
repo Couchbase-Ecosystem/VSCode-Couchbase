@@ -150,6 +150,8 @@ const iqReactConfig = {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
     extensions: [".ts", ".tsx", ".js"],
     alias: {
+      'components': path.resolve(__dirname, 'src/reactViews/iq/components'),
+      'pages': path.resolve(__dirname, 'src/reactViews/iq/pages'),
     },
     fallback: {
       "path": false,
