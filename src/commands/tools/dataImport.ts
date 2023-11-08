@@ -774,7 +774,7 @@ export class DataImport {
         return "";
     }
 
-    public dataImport = async () => {
+    public dataImport = async (context: vscode.ExtensionContext) => {
         const connection = getActiveConnection();
         if (!connection) {
             return;
@@ -879,7 +879,7 @@ export class DataImport {
                                 keysAndAdvancedSettingsData.ignoreFields,
                             threads: keysAndAdvancedSettingsData.threads,
                             verbose: keysAndAdvancedSettingsData.verboseLog,
-                        });
+                        }, context);
 
                         break;
                     }
@@ -920,7 +920,7 @@ export class DataImport {
                             // NO Validation Error on Page 1, We can shift to next page
                             const elementSplit = await this.getSampleElementContentSplit(formData.dataset);
                             const defaultKeysValue = await this.matchElements(elementSplit, this.possibleKeyFields);
-                            
+
                             currentPanel.webview.html =
                                 getLoader("Data Import");
                             currentPanel.webview.html =
@@ -980,8 +980,8 @@ export class DataImport {
                                         const defaultCollectionValue = await this.matchElements(elementSplit, this.possibleCollectionFields);
                                         currentPanel.webview.postMessage({
                                             command: "vscode-couchbase.tools.dataImport.defaultScopeAndCollectionDynamicField",
-                                            defaultScopeValue: `%${defaultScopeValue}%`,
-                                            defaultCollectionValue: `%${defaultCollectionValue}%`
+                                            defaultScopeValue: defaultScopeValue.trim().length > 0 ?  `%${defaultScopeValue}%` : "",
+                                            defaultCollectionValue: defaultCollectionValue.trim().length>0 ? `%${defaultCollectionValue}%` : ""
                                         });
                                     } else {
                                         logger.error("error while reading dataset: \n " + errors.join("\n"));

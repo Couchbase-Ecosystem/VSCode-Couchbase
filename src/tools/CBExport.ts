@@ -4,6 +4,7 @@ import { Constants } from "../util/constants";
 import { getCurrentDateTime } from "../util/util";
 import * as keytar from "keytar";
 import * as vscode from 'vscode';
+import * as path from 'path';
 
 export class CBExport {
     static async export(
@@ -16,7 +17,8 @@ export class CBExport {
         colName: string,
         format: string,
         threads: string,
-        verbose: boolean
+        verbose: boolean, 
+        context: vscode.ExtensionContext
     ): Promise<void> {
 
         const connection = getActiveConnection();
@@ -45,13 +47,7 @@ export class CBExport {
         scp.push(...collections);
 
         const fileName = `${bucket}_cbexport_${getCurrentDateTime()}.json`;
-        let currentPath: string;
-
-        if (filePath.endsWith("/")) { //TODO: Verify for windows
-            currentPath = filePath + fileName;
-        } else {
-            currentPath = `${filePath}/${fileName}`;
-        }
+        let currentPath: string = path.join(filePath, fileName);
 
         const includeData = scp.join(",");
         const fullPath = `\"${currentPath}\"`;
@@ -71,8 +67,8 @@ export class CBExport {
             cmd.push(connection.url);
             cmd.push("-u");
             cmd.push(connection.username);
-            cmd.push("-p");
-            cmd.push('"' + password + '"'); 
+            // cmd.push("-p");
+            // cmd.push('"' + password + '"'); 
             cmd.push("-b");
             cmd.push(bucket);
 
@@ -98,11 +94,19 @@ export class CBExport {
                 cmd.push("-v");
             }
 
+            cmd.push("; \n");
+            cmd.push("export CB_PASSWORD=''"); // To make sure that password is truly unset
+
             // Run Command
-            const terminal = vscode.window.createTerminal("CBExport");
+            const terminal: vscode.Terminal = vscode.window.createTerminal("CBExport");
+            // sending password to vscode environment variables. Note: Password is still accessible via terminal, till its removed
+            context.environmentVariableCollection.replace('CB_PASSWORD', password);
             let text = cmd.join(" ");
             terminal.sendText(text);
             terminal.show();
+            // removing password from vscode environment variables after 5 seconds
+            await new Promise((resolve)=>setTimeout(resolve, 5000));
+            context.environmentVariableCollection.replace('CB_PASSWORD', '');
         } catch (error) {
             console.error("An error occurred while trying to export the dataset");
             console.error(error);

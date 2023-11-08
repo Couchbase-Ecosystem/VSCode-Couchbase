@@ -867,7 +867,7 @@
         },
         {
           "command": "vscode-couchbase.createCollection",
-          "when": "view == couchbase && viewItem == scope"
+          "when": "view == couchbase && (viewItem == scope || viewItem == default_scope)"
         },
         {
           "command": "vscode-couchbase.removeCollection",
@@ -886,7 +886,7 @@
         },
         {
           "command": "vscode-couchbase.refreshCollections",
-          "when": "view == couchbase && viewItem == scope"
+          "when": "view == couchbase && (viewItem == scope || viewItem == default_scope)"
         },
         {
           "command": "vscode-couchbase.refreshIndexes",
