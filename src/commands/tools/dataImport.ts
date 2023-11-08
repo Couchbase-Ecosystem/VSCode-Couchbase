@@ -1057,6 +1057,9 @@ export class DataImport {
                             .then(async (fileUri) => {
                                 if (fileUri && fileUri[0]) {
                                     const dataset = fileUri[0].fsPath;
+                                    // unset any cached docs
+                                    this.cachedCsvDocs = new Map<string,string[]>();
+                                    this.cachedJsonDocs = [];
 
                                     // understand first few documents, get fields and update default values
                                     // Firstly validate the dataset
