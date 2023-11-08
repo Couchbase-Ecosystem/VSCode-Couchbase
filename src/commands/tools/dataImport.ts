@@ -573,7 +573,9 @@ export class DataImport {
 
             const secondLastChar = endBuffer[0];
             const lastChar = endBuffer[1];
-            logger.info(`chars ${firstChar} ${secondChar} ${secondLastChar} ${lastChar}`);
+            logger.info(
+                `chars ${firstChar} ${secondChar} ${secondLastChar} ${lastChar}`
+            );
             if (
                 firstChar === "[" &&
                 secondChar === "{" &&
@@ -593,18 +595,16 @@ export class DataImport {
     readLastTwoNonEmptyCharacters = async (
         filePath: string
     ): Promise<string> => {
-        
         let buffer = Buffer.alloc(2); // Initialize a buffer to store the last two non-empty characters
         let bytesRead = 0;
         let lastTwoNonEmptyChars = "";
 
         const fd = await fs.promises.open(filePath, "r");
         const fileSize = (await fd.stat()).size;
-        const chunkSize = Math.min(fileSize,1024); // Adjust the chunk size as needed
+        const chunkSize = Math.min(fileSize, 1024); // Adjust the chunk size as needed
 
-        
         let position = fileSize - chunkSize;
-        
+
         const chunk = Buffer.alloc(chunkSize);
 
         await fd.read(chunk, 0, chunkSize, position);
@@ -617,18 +617,13 @@ export class DataImport {
                 buffer[0] = chunk[i]; // Store the current character
 
                 bytesRead++;
-                lastTwoNonEmptyChars = buffer.toString(
-                    "utf8",
-                    0,
-                    bytesRead
-                );
+                lastTwoNonEmptyChars = buffer.toString("utf8", 0, bytesRead);
             }
 
             if (bytesRead >= 2) {
                 break;
             }
         }
-        
 
         await fd.close();
 
@@ -945,24 +940,27 @@ export class DataImport {
                         const datasetAndCollectionData =
                             message.datasetAndCollectionData;
 
-                        CBImport.import({
-                            bucket: datasetAndCollectionData.bucket,
-                            dataset: datasetAndCollectionData.dataset,
-                            fileFormat: this.fileFormat,
-                            format: this.format,
-                            scopeCollectionExpression:
-                                datasetAndCollectionData.scopeCollectionExpression,
-                            generateKeyExpression:
-                                keysAndAdvancedSettingsData.generateKeyExpression,
-                            skipDocsOrRows:
-                                keysAndAdvancedSettingsData.skipDocsOrRows,
-                            limitDocsOrRows:
-                                keysAndAdvancedSettingsData.limitDocsOrRows,
-                            ignoreFields:
-                                keysAndAdvancedSettingsData.ignoreFields,
-                            threads: keysAndAdvancedSettingsData.threads,
-                            verbose: keysAndAdvancedSettingsData.verboseLog,
-                        }, context);
+                        CBImport.import(
+                            {
+                                bucket: datasetAndCollectionData.bucket,
+                                dataset: datasetAndCollectionData.dataset,
+                                fileFormat: this.fileFormat,
+                                format: this.format,
+                                scopeCollectionExpression:
+                                    datasetAndCollectionData.scopeCollectionExpression,
+                                generateKeyExpression:
+                                    keysAndAdvancedSettingsData.generateKeyExpression,
+                                skipDocsOrRows:
+                                    keysAndAdvancedSettingsData.skipDocsOrRows,
+                                limitDocsOrRows:
+                                    keysAndAdvancedSettingsData.limitDocsOrRows,
+                                ignoreFields:
+                                    keysAndAdvancedSettingsData.ignoreFields,
+                                threads: keysAndAdvancedSettingsData.threads,
+                                verbose: keysAndAdvancedSettingsData.verboseLog,
+                            },
+                            context
+                        );
 
                         break;
                     }
