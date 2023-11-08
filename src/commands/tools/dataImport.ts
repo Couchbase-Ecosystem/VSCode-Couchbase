@@ -573,7 +573,7 @@ export class DataImport {
 
             const secondLastChar = endBuffer[0];
             const lastChar = endBuffer[1];
-
+            logger.info(`chars ${firstChar} ${secondChar} ${secondLastChar} ${lastChar}`);
             if (
                 firstChar === "[" &&
                 secondChar === "{" &&
@@ -593,44 +593,42 @@ export class DataImport {
     readLastTwoNonEmptyCharacters = async (
         filePath: string
     ): Promise<string> => {
-        const chunkSize = 1024; // Adjust the chunk size as needed
+        
         let buffer = Buffer.alloc(2); // Initialize a buffer to store the last two non-empty characters
         let bytesRead = 0;
         let lastTwoNonEmptyChars = "";
 
         const fd = await fs.promises.open(filePath, "r");
         const fileSize = (await fd.stat()).size;
+        const chunkSize = Math.min(fileSize,1024); // Adjust the chunk size as needed
 
-        for (
-            let position = fileSize - 1;
-            position >= 0 && bytesRead < 2;
-            position -= chunkSize
-        ) {
-            const bufferSize = Math.min(chunkSize, position + 1);
-            const chunk = Buffer.alloc(bufferSize);
+        
+        let position = fileSize - chunkSize;
+        
+        const chunk = Buffer.alloc(chunkSize);
 
-            await fd.read(chunk, 0, bufferSize, position);
+        await fd.read(chunk, 0, chunkSize, position);
 
-            for (let i = bufferSize - 1; i >= 0; i--) {
-                const char = chunk.toString("utf8", i, i + 1);
-                if (!/[\s\t\n]/.test(char) && char.charCodeAt(0) !== 0) {
-                    // If the character is not a space, tab, or newline, add it to the buffer
-                    buffer[1] = buffer[0]; // Shift the previous character
-                    buffer[0] = chunk[i]; // Store the current character
+        for (let i = chunkSize - 1; i >= 0; i--) {
+            const char = chunk.toString("utf8", i, i + 1);
+            if (!/[\s\t\n]/.test(char) && char.charCodeAt(0) !== 0) {
+                // If the character is not a space, tab, or newline, add it to the buffer
+                buffer[1] = buffer[0]; // Shift the previous character
+                buffer[0] = chunk[i]; // Store the current character
 
-                    bytesRead++;
-                    lastTwoNonEmptyChars = buffer.toString(
-                        "utf8",
-                        0,
-                        bytesRead
-                    );
-                }
+                bytesRead++;
+                lastTwoNonEmptyChars = buffer.toString(
+                    "utf8",
+                    0,
+                    bytesRead
+                );
+            }
 
-                if (bytesRead >= 2) {
-                    break;
-                }
+            if (bytesRead >= 2) {
+                break;
             }
         }
+        
 
         await fd.close();
 
