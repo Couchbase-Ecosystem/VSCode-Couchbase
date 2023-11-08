@@ -6,10 +6,6 @@ export const getIQWebviewContent = (
 	reactAppUri: vscode.Uri,
 	context: vscode.ExtensionContext
 ): string => {
-	// Local path to main script run in the webview
-	const reactAppPathOnDisk = vscode.Uri.file(
-		path.join(context.extensionPath, "dist", "iq", "reactBuild.js")
-	);
 	const webviewGenericCspSource = "https://*.vscode-cdn.net";
 
 	const nonce = getNonce();

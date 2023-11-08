@@ -18,6 +18,6 @@
 	"exclude": [
 		"node_modules",
 		".vscode-test",
-		"**/reactViews/app/*"
+		"**/reactViews/*"
 	]
 }
