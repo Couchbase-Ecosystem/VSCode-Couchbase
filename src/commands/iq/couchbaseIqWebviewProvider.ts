@@ -16,7 +16,8 @@
 
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { getIQWebviewContent } from '../webViews/iq/couchbaseIq.webview';
+import { getIQWebviewContent } from '../../webViews/iq/couchbaseIq.webview';
+import { iqLoginHandler } from './iqLoginhandler';
 
 export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
@@ -41,5 +42,14 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
 
         const reactAppUri = this._view.webview.asWebviewUri(reactAppPathOnDisk);
         this._view.webview.html = getIQWebviewContent(reactAppUri, this._context);
+
+        this._view.webview.onDidReceiveMessage(async (message) => {
+            switch (message.command) {
+                case "vscode-couchbase.iq.login":
+                    console.log("message received",message.value);
+                    iqLoginHandler(message.value);
+                    break;
+            }
+        });
     }
 }

@@ -1,0 +1,88 @@
+.login-page {
+    max-width: 400px;
+    min-width: 250px;
+    margin: 0 auto;
+    padding: 10px;
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+        margin-top: 0px;
+    }
+  
+    form {
+      display: flex;
+      flex-direction: column;
+  
+      label {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+  
+        input[type="text"],
+        input[type="password"] {
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+        }
+      }
+
+      .checkbox-container {
+        label[for="rememberMe"] {
+            display: inline-flex;
+            flex-direction: row;
+            margin-right: 10px;
+            
+          }
+        input[type="checkbox"] {
+            display: inline-flex;
+            position: relative;
+            top: 3px;
+        }
+      }
+  
+      input[type="submit"] {
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+  
+      input[type="submit"]:hover {
+        background-color: #0056b3;
+      }
+    }
+  
+    p {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .capella-login-area {
+        border: 1px solid var(--vscode-settings-sashBorder);
+        padding: 20px;
+    }
+
+    #create-account {
+        margin-top: 10px;
+        display: block;
+        text-align: right;
+        cursor: pointer;
+        &:hover {
+            color: #ea2328;
+        }
+    }
+
+    .redButton{
+        color: white;
+        background: #ea2328 !important;
+    }
+    .redButton:hover {
+        background: #bb1117 !important;
+    }
+  }
+  
