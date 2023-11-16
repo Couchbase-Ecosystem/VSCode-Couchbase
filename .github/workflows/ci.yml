@@ -24,12 +24,12 @@ jobs:
           - os: ubuntu-latest
             platform: linux
             arch: x64
-          - os: ubuntu-latest
-            platform: linux
-            arch: arm64
-          - os: ubuntu-latest
-            platform: linux
-            arch: armhf
+          # - os: ubuntu-latest
+          #   platform: linux
+          #   arch: arm64
+          # - os: ubuntu-latest
+          #   platform: linux
+          #   arch: armhf
           - os: ubuntu-latest
             platform: alpine
             arch: x64
@@ -52,7 +52,7 @@ jobs:
       - name: windows-specific
         shell: pwsh
         if: matrix.platform == 'win32'
-        run: choco install openssl  && choco install cmake && npm config set msvs_version 2022 --global && npm install --global cmake-js node-gyp && refreshenv && echo CMAKE_JS_LIB - $CMAKE_JS_LIB && npm ci && npm rebuild
+        run: choco install openssl.light --version=1.1.1  && choco install cmake && npm config set msvs_version 2022 --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB && npm ci && npm run rebuild
       - name: general
         if: matrix.platform != 'win32'
         run: npm ci && npm run rebuild
