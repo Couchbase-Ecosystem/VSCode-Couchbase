@@ -25,4 +25,13 @@ export class iqRestApiService {
         });
         return content.data.data;
     };
+
+    public static sendIqMessage = async (jwt: string, orgId: string) => {
+        let content = await axios.post("https://api.dev.nonprod-project-avengers.com/v2/organizations/" + orgId + "/integrations/iq/openai/chat/completions", {
+            headers: {
+                Authorization: `Bearer ${jwt}`
+            }
+        });
+        console.log(content);
+    }
 }

@@ -22,5 +22,6 @@ export const iqLoginHandler = async (formData: IFormData) => {
     // Return organization select page data
     const jwtToken = await getSessionsJwt(formData);
     const organizations = await iqRestApiService.loadOrganizations(jwtToken);
+    // iqRestApiService.sendIqMessage(jwtToken, organizations[1].id);
     return organizations;
 };

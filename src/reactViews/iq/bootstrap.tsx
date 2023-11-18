@@ -4,6 +4,7 @@ import "./index.scss";
 import { Login } from "pages/login/Login";
 import LoadingScreen from "pages/loader/Loader";
 import SelectOrganizationPage from "pages/organizationSelect/SelectOrganization";
+import IqChat from "pages/chatscreen/IqChat";
 
 const container: HTMLElement = document.getElementById("vscodeRootIQ");
 const newRoot = createRoot(container);
@@ -15,7 +16,9 @@ export const App: React.FC = () => {
         const message = event.data;
         switch (message.command) {
             case "vscode-couchbase.iq.organizationDetails": {
-                setShowPage(<SelectOrganizationPage />);
+                
+                setShowPage(<SelectOrganizationPage organizationDetails={message.organizations} />);
+                setShowPage(<IqChat/>);
                 setIsLoading(false);
             }
         }
