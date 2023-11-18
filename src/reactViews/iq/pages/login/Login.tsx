@@ -33,6 +33,8 @@ export const Login = () => {
             rememberMe: rememberMe,
         };
 
+        //setIsLoading(true);
+
         tsvscode.postMessage({
             command: "vscode-couchbase.iq.login",
             value: formData,
@@ -46,6 +48,7 @@ export const Login = () => {
     });
 
     return (
+
         <div className="login-page">
             <h1>Welcome to Couchbase iQ</h1>
             <p>

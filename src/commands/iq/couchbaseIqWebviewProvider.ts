@@ -45,10 +45,17 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
 
         this._view.webview.onDidReceiveMessage(async (message) => {
             switch (message.command) {
-                case "vscode-couchbase.iq.login":
-                    console.log("message received",message.value);
-                    iqLoginHandler(message.value);
+                case "vscode-couchbase.iq.login": {
+                    console.log("message received", message.value);
+                    const organizations = await iqLoginHandler(message.value);
+
+                    this._view?.webview.postMessage({
+                        command: "vscode-couchbase.iq.organizationDetails",
+                        organizations: organizations
+                    });
+
                     break;
+                }
             }
         });
     }

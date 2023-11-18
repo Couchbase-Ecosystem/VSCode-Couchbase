@@ -14,10 +14,13 @@ TODO's:
     3. Return with session data. Maybe handle a way to 
 */
 
-const getSessionsKey = (formData: IFormData) => {
-    iqRestApiService.capellaLogin(formData.username, formData.password);
+const getSessionsJwt = async (formData: IFormData) => {
+    return await iqRestApiService.capellaLogin(formData.username, formData.password);
 }
 
-export const iqLoginHandler = (formData: IFormData) => {
-    getSessionsKey(formData);
+export const iqLoginHandler = async (formData: IFormData) => {
+    // Return organization select page data
+    const jwtToken = await getSessionsJwt(formData);
+    const organizations = await iqRestApiService.loadOrganizations(jwtToken);
+    return organizations;
 };
