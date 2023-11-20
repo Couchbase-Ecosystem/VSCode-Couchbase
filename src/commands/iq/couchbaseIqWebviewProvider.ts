@@ -17,7 +17,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { getIQWebviewContent } from '../../webViews/iq/couchbaseIq.webview';
-import { iqLoginHandler } from './iqLoginhandler';
+import { iqLoginHandler } from './iqLoginHandler';
+import { iqChatHandler } from './iqChatHandler';
 
 export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
@@ -46,14 +47,21 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
         this._view.webview.onDidReceiveMessage(async (message) => {
             switch (message.command) {
                 case "vscode-couchbase.iq.login": {
-                    console.log("message received", message.value);
                     const organizations = await iqLoginHandler(message.value);
 
                     this._view?.webview.postMessage({
                         command: "vscode-couchbase.iq.organizationDetails",
                         organizations: organizations
                     });
-
+                    break;
+                }
+                case "vscode-couchbase.iq.sendMessageToIQ": {
+                    const content = await iqChatHandler(message.value);
+                    console.log("this134", content)
+                    this._view?.webview.postMessage({
+                        command: "vscode-couchbase.iq.getMessageFromIQ",
+                        content: content
+                    });
                     break;
                 }
             }

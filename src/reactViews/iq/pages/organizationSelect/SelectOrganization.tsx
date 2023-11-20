@@ -1,15 +1,15 @@
 import Dropdown from "components/inputs/dropdown/Dropdown";
+import IqChat from "pages/chatscreen/IqChat";
 
-const handleOrgClick = (org) => {
-    console.log("clicked ", org);
-};
-
-const SelectOrganizationPage = (organizationDetails) => {
+const SelectOrganizationPage = ({ organizationDetails, setShowPage }) => {
+    const handleOrgClick = (org) => {
+        setShowPage(<IqChat org={org} />);
+    };
     console.log(organizationDetails);
     return (
         <Dropdown
             trigger={<button>Dropdown</button>}
-            menu={organizationDetails.organizationDetails.map((org) => {
+            menu={organizationDetails.map((org) => {
                 return (
                     <button onClick={() => handleOrgClick(org)}>
                         {org.data.name}
