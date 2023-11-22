@@ -1,0 +1,21 @@
+.cs-message__content-wrapper {
+    width: 100%;
+}
+
+.react-markdown {
+    margin: 0;
+}
+
+.react-markdown > * {
+    margin: 0;
+}
+
+.chatscope-message {
+    max-width: 90% !important;
+}
+
+.chatscope-chat-container {
+    flex: 1;
+    min-height: "400px";
+    height: "95vh";
+}

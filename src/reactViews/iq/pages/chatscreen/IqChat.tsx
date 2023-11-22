@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import "./IqChat.scss";
 import {
     MainContainer,
     ChatContainer,
@@ -8,6 +9,19 @@ import {
     MessageInput,
     TypingIndicator,
 } from "@chatscope/chat-ui-kit-react";
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { nightOwl } from "react-syntax-highlighter/dist/cjs/styles/prism";
+
+const SyntaxHighlight = ({ language, value }) => {
+    return (
+        <SyntaxHighlighter
+            style={nightOwl}
+            language={language}
+            children={value}
+        />
+    );
+};
 
 const IqChat = ({ org }) => {
     const [messages, setMessages] = useState<any[]>([
@@ -75,6 +89,7 @@ const IqChat = ({ org }) => {
         <div>
             <MainContainer responsive>
                 <ChatContainer
+                    className="chatscope-chat-container"
                     style={{
                         flex: 1,
                         minHeight: "400px",
@@ -91,9 +106,59 @@ const IqChat = ({ org }) => {
                     >
                         {messages.map((message, index) => (
                             <Message
+                                className="chatscope-message"
                                 key={index}
                                 model={{
-                                    message: message.message,
+                                    payload: (
+                                        <Message.CustomContent>
+                                            <ReactMarkdown
+                                                className="react-markdown"
+                                                components={{
+                                                    code({
+                                                        node,
+                                                        className,
+                                                        children,
+                                                        ...props
+                                                    }) {
+                                                        const match =
+                                                            /language-(\w+)/.exec(
+                                                                className || ""
+                                                            );
+                                                        return match ? (
+                                                            <SyntaxHighlight
+                                                                language={
+                                                                    match[1]
+                                                                }
+                                                                value={String(
+                                                                    children
+                                                                ).replace(
+                                                                    /\n$/,
+                                                                    ""
+                                                                )}
+                                                                {...props}
+                                                            />
+                                                        ) : (
+                                                            <code
+                                                                style={{
+                                                                    color: "red",
+                                                                    backgroundColor:
+                                                                        "black",
+                                                                }}
+                                                                className={
+                                                                    className
+                                                                }
+                                                                {...props}
+                                                            >
+                                                                {children}
+                                                            </code>
+                                                        );
+                                                    },
+                                                }}
+                                            >
+                                                {message.message}
+                                            </ReactMarkdown>
+                                        </Message.CustomContent>
+                                    ),
                                     direction:
                                         message.sender === "user"
                                             ? "outgoing"
@@ -101,7 +166,7 @@ const IqChat = ({ org }) => {
                                     sender: message.sender,
                                     position: "normal",
                                 }}
-                            />
+                            ></Message>
                         ))}
                     </MessageList>
                     <MessageInput

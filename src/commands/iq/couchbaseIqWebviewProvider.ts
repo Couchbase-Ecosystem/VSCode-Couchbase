@@ -57,7 +57,6 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                 }
                 case "vscode-couchbase.iq.sendMessageToIQ": {
                     const content = await iqChatHandler(message.value);
-                    console.log("this134", content)
                     this._view?.webview.postMessage({
                         command: "vscode-couchbase.iq.getMessageFromIQ",
                         content: content
