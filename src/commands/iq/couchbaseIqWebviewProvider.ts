@@ -17,8 +17,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { getIQWebviewContent } from '../../webViews/iq/couchbaseIq.webview';
-import { iqLoginHandler } from './iqLoginHandler';
 import { iqChatHandler } from './iqChatHandler';
+import { iqLoginHandler } from './iqLoginhandler';
 
 export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
