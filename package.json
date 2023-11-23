@@ -968,11 +968,11 @@
       ]
     },
     "configuration": {
-      "type": "object",
       "title": "Couchbase VSCode",
       "properties": {
-        "test": {
-          "test": "test"
+        "iq.organization": {
+          "type": "string",
+          "markdownDescription": "Tne Current organization which is being used for all iq tasks. You can change default organization here by changing this field"
         }
       }
     }
