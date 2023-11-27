@@ -68,6 +68,7 @@ import { dataExport } from "./pages/Tools/DataExport/dataExport";
 import { DataImport } from "./commands/tools/dataImport";
 import { ddlExport } from "./commands/tools/ddlExport/ddlExport";
 import { CouchbaseIqWebviewProvider } from "./commands/iq/couchbaseIqWebviewProvider";
+import { iqLogoutHandler } from "./commands/iq/iqLogoutHandler";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -125,6 +126,15 @@ export function activate(context: vscode.ExtensionContext) {
         webviewOptions: {
           retainContextWhenHidden: true,
         },
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.logoutIq,
+      ()=>{
+        iqLogoutHandler();
       }
     )
   );

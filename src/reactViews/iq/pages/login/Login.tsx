@@ -7,7 +7,7 @@ interface IFormData {
     rememberMe: boolean;
 }
 
-export const Login = () => {
+export const Login = ({ logoutReason = "" }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
@@ -48,7 +48,6 @@ export const Login = () => {
     });
 
     return (
-
         <div className="login-page">
             <h1>Welcome to Couchbase iQ</h1>
             <p>
@@ -58,6 +57,9 @@ export const Login = () => {
                 productive.
             </p>
             <div className="capella-login-area">
+                {logoutReason.length > 0 && (
+                    <div className="logout-reason">{logoutReason}</div>
+                )}
                 <h2>Sign In to Capella</h2>
                 <form onSubmit={handleSubmit}>
                     <label>

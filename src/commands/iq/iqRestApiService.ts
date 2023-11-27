@@ -1,5 +1,6 @@
 import axios from "axios";
 import https from 'https';
+import { logger } from "../../logger/logger";
 
 export class iqRestApiService {
 
@@ -13,7 +14,6 @@ export class iqRestApiService {
                 password: password
             }
         });
-        console.log(content.data.jwt);
         return content.data.jwt;
     };
 
@@ -27,17 +27,36 @@ export class iqRestApiService {
     };
 
     public static sendIqMessage = async (jwt: string, orgId: string, messageBody: any) => {
-        let content = await axios.post("https://api.dev.nonprod-project-avengers.com/v2/organizations/" + orgId + "/integrations/iq/openai/chat/completions",
-            messageBody,
-            {
-                headers: {
-                    Authorization: "Bearer " + jwt,
-                    "Content-Type": "application/json",
-                    Connection: "keep-alive"
-                },
+        let result = {
+            content: "",
+            error: "",
+            status: ""
+        };
 
-            },
-        );
-        return content.data.choices[0].message.content;
+        try {
+            let content = await axios.post("https://api.dev.nonprod-project-avengers.com/v2/organizations/" + orgId + "/integrations/iq/openai/chat/completions",
+                messageBody,
+                {
+                    headers: {
+                        Authorization: "Bearer " + jwt,
+                        "Content-Type": "application/json",
+                        Connection: "keep-alive"
+                    },
+
+                },
+            );
+            result.content = content.data.choices[0].message.content;
+            result.status = content.status.toString();
+        }
+        catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                result.error = "The current session has expired, Please login again";
+                result.status = "401";
+            } else {
+                logger.error("Error while receiving message from IQ: " + error);
+                result.error = "Error while receiving message from IQ: " + error;
+            }
+        }
+        return result;
     };
 }

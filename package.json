@@ -606,6 +606,12 @@
         "command": "vscode-couchbase.tools.DDLExport",
         "title": "DDL Export",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.iq.logout",
+        "title": "Logout Couchbase IQ",
+        "category": "Couchbase",
+        "icon": "$(sign-out)"
       }
     ],
     "keybindings": [
@@ -925,6 +931,11 @@
         {
           "command": "vscode-couchbase.refreshQueryHistory",
           "when": "view == query-history",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-couchbase.iq.logout",
+          "when": "view == couchbase-iq",
           "group": "navigation"
         }
       ],

@@ -18,7 +18,9 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { getIQWebviewContent } from '../../webViews/iq/couchbaseIq.webview';
 import { iqChatHandler } from './iqChatHandler';
-import { iqLoginHandler } from './iqLoginhandler';
+import { iqLoginHandler, iqSavedLoginDataGetter, iqSavedLoginHandler } from './iqLoginhandler';
+import { Memory } from '../../util/util';
+import { Constants } from '../../util/constants';
 
 export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
@@ -44,23 +46,60 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
         const reactAppUri = this._view.webview.asWebviewUri(reactAppPathOnDisk);
         this._view.webview.html = getIQWebviewContent(reactAppUri, this._context);
 
+        // Save view id to memory so it can be accessed from outside
+        Memory.state.update(Constants.IQ_WEBVIEW, this._view);
+
         this._view.webview.onDidReceiveMessage(async (message) => {
             switch (message.command) {
                 case "vscode-couchbase.iq.login": {
                     const organizations = await iqLoginHandler(message.value);
-
-                    this._view?.webview.postMessage({
-                        command: "vscode-couchbase.iq.organizationDetails",
-                        organizations: organizations
-                    });
+                    if (organizations) {
+                        this._view?.webview.postMessage({
+                            command: "vscode-couchbase.iq.organizationDetails",
+                            organizations: organizations
+                        });
+                    } else {
+                        // TODO: Add some login error
+                    }
                     break;
                 }
                 case "vscode-couchbase.iq.sendMessageToIQ": {
-                    const content = await iqChatHandler(message.value);
+                    const result = await iqChatHandler(message.value);
+                    if (result.error !== "") {
+                        if (result.status === "401") {
+                            this._view?.webview.postMessage({
+                                command: "vscode-couchbase.iq.forcedLogout",
+                                error: result.error
+                            });
+                        } else {
+                            // TODO: Handle If some other error is received
+                        }
+                    } else {
+                        this._view?.webview.postMessage({
+                            command: "vscode-couchbase.iq.getMessageFromIQ",
+                            content: result.content
+                        });
+                    }
+                    break;
+                }
+                case "vsode-couchbase.iq.getSavedLogin": {
+                    const savedLoginDetails = await iqSavedLoginDataGetter();
                     this._view?.webview.postMessage({
-                        command: "vscode-couchbase.iq.getMessageFromIQ",
-                        content: content
+                        command: "vscode-couchbase.iq.savedLoginDetails",
+                        savedLoginDetails: savedLoginDetails
                     });
+                    break;
+                }
+                case "vscode-couchbase.iq.singleClickSignIn": {
+                    const organizations = await iqSavedLoginHandler(message.value.username);
+                    if (organizations) {
+                        this._view?.webview.postMessage({
+                            command: "vscode-couchbase.iq.organizationDetails",
+                            organizations: organizations
+                        });
+                    } else {
+                        // TODO: Add some login error
+                    }
                     break;
                 }
             }

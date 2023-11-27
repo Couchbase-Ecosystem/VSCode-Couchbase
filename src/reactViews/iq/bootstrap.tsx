@@ -4,13 +4,14 @@ import "./index.scss";
 import { Login } from "pages/login/Login";
 import LoadingScreen from "pages/loader/Loader";
 import SelectOrganizationPage from "pages/organizationSelect/SelectOrganization";
+import LoginSingleClick from "pages/login/LoginSingleClick";
 
 const container: HTMLElement = document.getElementById("vscodeRootIQ");
 const newRoot = createRoot(container);
 
 export const App: React.FC = () => {
-    const [isLoading, setIsLoading] = React.useState(false);
-    const [showPage, setShowPage] = React.useState(<Login />);
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [showPage, setShowPage] = React.useState(<></>);
 
     window.addEventListener("message", (event) => {
         const message = event.data;
@@ -20,8 +21,35 @@ export const App: React.FC = () => {
                 setIsLoading(false);
                 break;
             }
+            case "vscode-couchbase.iq.forcedLogout": {
+                setShowPage(<Login logoutReason={message.error || ""} />);
+                setIsLoading(false);
+                break;
+            }
+            case "vscode-couchbase.iq.savedLoginDetails": {
+                if (message.savedLoginDetails.doesLoginDetailsExists === true){
+                    setShowPage(<LoginSingleClick setShowPage={setShowPage} userId={message.savedLoginDetails.username}/>);
+                } else {
+                    setShowPage(<Login />);
+                }
+                setIsLoading(false);
+                break;
+            }
+            case "vscode-couchbase.iq.sendLogoutRequest": {
+                setShowPage(<Login logoutReason="You have been successfully logged out"/>);
+                break;
+            }
         }
     });
+
+    React.useEffect(()=>{
+        tsvscode.postMessage(
+            {
+                command: "vsode-couchbase.iq.getSavedLogin",
+                value: ""
+            }
+        );
+    }, []);
 
     return (
         <div>

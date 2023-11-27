@@ -24,6 +24,9 @@ export class Constants {
   public static CLUSTER_OVERVIEW_WEBVIEW = "clusterOverviewWebview";
   public static CLUSTER_OVERVIEW_DATA = "clusterOverviewData";
   public static QUERY_CONTEXT_STATUS_BAR = "queryContextStatusBar";
+  public static IQ_USER_ID = "iqUserId";
+  public static IQ_PASSWORD = "iqPassword";
+  public static IQ_WEBVIEW = "iqWebview";
   public static notebookType = "couchbase-query-notebook";
   public static capellaUrlPostfix = "cloud.couchbase.com";
   public static prefixSecureURL = "couchbases://";
