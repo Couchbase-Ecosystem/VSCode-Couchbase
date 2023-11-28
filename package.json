@@ -978,14 +978,18 @@
         }
       ]
     },
-    "configuration": {
-      "title": "Couchbase VSCode",
-      "properties": {
-        "iq.organization": {
-          "type": "string",
-          "markdownDescription": "Tne Current organization which is being used for all iq tasks. You can change default organization here by changing this field"
+    "configuration": [
+      {
+        "id": "couchbase-iq",
+        "title": "IQ",
+        "properties": {
+          "couchbase.iq.organization": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "The Current organization which is being used for all iq tasks. You can change default organization here by changing this field.  Note: Any change will only appear after you login again"
+          }
         }
       }
-    }
+    ]
   }
 }

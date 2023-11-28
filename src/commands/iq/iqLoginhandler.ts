@@ -1,7 +1,6 @@
 import { Constants } from "../../util/constants";
 import { Global, Memory } from "../../util/util";
 import { iqRestApiService } from "./iqRestApiService";
-import * as vscode from 'vscode';
 import * as keytar from 'keytar';
 
 interface IFormData {

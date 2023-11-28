@@ -5,6 +5,7 @@ import { Login } from "pages/login/Login";
 import LoadingScreen from "pages/loader/Loader";
 import SelectOrganizationPage from "pages/organizationSelect/SelectOrganization";
 import LoginSingleClick from "pages/login/LoginSingleClick";
+import IqChat from "pages/chatscreen/IqChat";
 
 const container: HTMLElement = document.getElementById("vscodeRootIQ");
 const newRoot = createRoot(container);
@@ -17,7 +18,12 @@ export const App: React.FC = () => {
         const message = event.data;
         switch (message.command) {
             case "vscode-couchbase.iq.organizationDetails": {
-                setShowPage(<SelectOrganizationPage organizationDetails={message.organizations} setShowPage={setShowPage}/>);
+                if(message.isSavedOrganization){
+                    // Organization is already saved, bypass the organization select page straight to IQ Chat
+                    setShowPage(<IqChat org={message.savedOrganizationDetail}/>);
+                } else {
+                    setShowPage(<SelectOrganizationPage organizationDetails={message.organizations} setShowPage={setShowPage}/>);
+                }
                 setIsLoading(false);
                 break;
             }

@@ -53,13 +53,46 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
             switch (message.command) {
                 case "vscode-couchbase.iq.login": {
                     const organizations = await iqLoginHandler(message.value);
-                    if (organizations) {
+                    if (!organizations || organizations.length === 0) {
+                        // TODO: send login error and do break
+                        break;
+                    }
+
+                    let config = vscode.workspace.getConfiguration('couchbase');
+                    const savedOrganization = config.get('iq.organization');  // Get saved organization from vscode couchbase settings
+                    if (savedOrganization !== "") {
+                        let savedOrganizationDetail = undefined;
+                        for (let org of organizations) {
+                            if (org.data.id === savedOrganization) {
+                                savedOrganizationDetail = org;
+                                break;
+                            }
+                        }
+
+                        if (savedOrganizationDetail === undefined) {
+                            // Remove organization from saved settings.
+                            config.update("iq.organization", "");
+                            this._view?.webview.postMessage({
+                                command: "vscode-couchbase.iq.organizationDetails",
+                                organizations: organizations,
+                                isSavedOrganization: false,
+                                savedOrganization: undefined
+                            });
+                        } else {
+                            this._view?.webview.postMessage({
+                                command: "vscode-couchbase.iq.organizationDetails",
+                                organizations: organizations,
+                                isSavedOrganization: true,
+                                savedOrganization: savedOrganizationDetail
+                            });
+                        }
+                    } else {
                         this._view?.webview.postMessage({
                             command: "vscode-couchbase.iq.organizationDetails",
-                            organizations: organizations
+                            organizations: organizations,
+                            isSavedOrganization: false,
+                            savedOrganization: undefined
                         });
-                    } else {
-                        // TODO: Add some login error
                     }
                     break;
                 }
@@ -92,14 +125,52 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                 }
                 case "vscode-couchbase.iq.singleClickSignIn": {
                     const organizations = await iqSavedLoginHandler(message.value.username);
-                    if (organizations) {
+                    if (!organizations || organizations.length === 0) {
+                        // TODO: send login error and do break
+                        break;
+                    }
+
+                    let config = vscode.workspace.getConfiguration('couchbase');
+                    const savedOrganization = config.get('iq.organization');  // Get saved organization from vscode couchbase settings
+                    if (savedOrganization !== "") {
+                        let savedOrganizationDetail = undefined;
+                        for (let org of organizations) {
+                            if (org.data.id === savedOrganization) {
+                                savedOrganizationDetail = org;
+                                break;
+                            }
+                        }
+
+                        if (savedOrganizationDetail === undefined) {
+                            // Remove organization from saved settings.
+                            config.update("iq.organization", "");
+                            this._view?.webview.postMessage({
+                                command: "vscode-couchbase.iq.organizationDetails",
+                                organizations: organizations,
+                                isSavedOrganization: false,
+                                savedOrganization: undefined
+                            });
+                        } else {
+                            this._view?.webview.postMessage({
+                                command: "vscode-couchbase.iq.organizationDetails",
+                                organizations: organizations,
+                                isSavedOrganization: true,
+                                savedOrganization: savedOrganizationDetail
+                            });
+                        }
+                    } else {
                         this._view?.webview.postMessage({
                             command: "vscode-couchbase.iq.organizationDetails",
-                            organizations: organizations
+                            organizations: organizations,
+                            isSavedOrganization: false,
+                            savedOrganization: undefined
                         });
-                    } else {
-                        // TODO: Add some login error
                     }
+                    break;
+                }
+                case "vscode-couchbase.iq.rememberOrganization": {
+                    let config = vscode.workspace.getConfiguration('couchbase');
+                    config.update('iq.organization', message.value.organizationDetails.data.id, vscode.ConfigurationTarget.Global);
                     break;
                 }
             }
