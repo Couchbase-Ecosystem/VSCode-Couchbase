@@ -97,7 +97,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     break;
                 }
                 case "vscode-couchbase.iq.sendMessageToIQ": {
-                    const result = await iqChatHandler(message.value);
+                    const result = await iqChatHandler(message.value.iqPayload, message.value.orgId);
                     if (result.error !== "") {
                         if (result.status === "401") {
                             this._view?.webview.postMessage({
@@ -110,7 +110,8 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     } else {
                         this._view?.webview.postMessage({
                             command: "vscode-couchbase.iq.getMessageFromIQ",
-                            content: result.content
+                            content: result.content,
+                            isDarkTheme: vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark
                         });
                     }
                     break;

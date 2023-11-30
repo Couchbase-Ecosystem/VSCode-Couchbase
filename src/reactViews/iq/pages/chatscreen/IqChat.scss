@@ -1,21 +1,42 @@
 .cs-message__content-wrapper {
-    width: 100%;
+  width: 100%;
 }
 
 .react-markdown {
-    margin: 0;
+  margin: 0;
 }
 
 .react-markdown > * {
-    margin: 0;
+  margin: 0;
 }
 
 .chatscope-message {
-    max-width: 90% !important;
+  max-width: 90% !important;
 }
 
 .chatscope-chat-container {
-    flex: 1;
-    min-height: "400px";
-    height: "95vh";
+  flex: 1;
+  min-height: "400px";
+  height: "100vh";
+  background-color: var(--vscode-sideBar-background);
+  color: var(--vscode-sideBar-foreground);
+}
+
+.chatscope-main-container {
+  border: none;
+}
+
+.chatscope-message-list {
+  background-color: var(--vscode-sideBar-background);
+  color: var(--vscode-sideBar-foreground);
+}
+
+.scrollbar-container {
+  padding: 0;
+}
+
+.chatscope-message-input {
+  background-color: var(--vscode-sideBar-background) !important;
+  color: var(--vscode-sideBar-foreground) !important;
+  border-top: solid 1px var(--vscode-settings-sashBorder) !important;
 }

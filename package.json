@@ -112,6 +112,7 @@
     "react-popper-tooltip": "^4.4.2",
     "react-router-dom": "^6.14.2",
     "react-syntax-highlighter": "^15.5.0",
+    "remark-gfm": "^4.0.0",
     "stream-json": "^1.8.0",
     "uuid": "^9.0.1"
   },
@@ -612,6 +613,12 @@
         "title": "Logout Couchbase IQ",
         "category": "Couchbase",
         "icon": "$(sign-out)"
+      },
+      {
+        "command": "vscode-couchbase.iq.showSettings",
+        "title": "Show IQ Settings",
+        "category": "Couchbase",
+        "icon": "$(gear)"
       }
     ],
     "keybindings": [
@@ -937,6 +944,11 @@
           "command": "vscode-couchbase.iq.logout",
           "when": "view == couchbase-iq",
           "group": "navigation"
+        },
+        {
+          "command": "vscode-couchbase.iq.showSettings",
+          "when": "view == couchbase-iq",
+          "group": "navigation"
         }
       ],
       "vscode-couchbase.toolsMenu": [
@@ -986,7 +998,7 @@
           "couchbase.iq.organization": {
             "type": "string",
             "default": "",
-            "markdownDescription": "The Current organization which is being used for all iq tasks. You can change default organization here by changing this field.  Note: Any change will only appear after you login again"
+            "markdownDescription": "The Current organization which is being used for all iq tasks. You can change default organization here by changing this field.  Note: any change will only appear after you login again"
           }
         }
       }

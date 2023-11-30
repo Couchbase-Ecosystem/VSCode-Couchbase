@@ -138,6 +138,15 @@ export function activate(context: vscode.ExtensionContext) {
       }
     )
   );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.showIqSettings,
+      ()=>{
+         vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.iq");
+      }
+    )
+  );
   
 
   subscriptions.push(

@@ -24,7 +24,7 @@ export const getIQWebviewContent = (
 		scheme: "vscode-resource",
 	})}/">
     </head>
-    <body>
+    <body style="padding:0 0;">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="vscodeRootIQ"><h1>Loading...</h1></div>
     <script nonce="${nonce}">

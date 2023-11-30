@@ -20,7 +20,7 @@ export const App: React.FC = () => {
             case "vscode-couchbase.iq.organizationDetails": {
                 if(message.isSavedOrganization){
                     // Organization is already saved, bypass the organization select page straight to IQ Chat
-                    setShowPage(<IqChat org={message.savedOrganizationDetail}/>);
+                    setShowPage(<IqChat org={message.savedOrganization}/>);
                 } else {
                     setShowPage(<SelectOrganizationPage organizationDetails={message.organizations} setShowPage={setShowPage}/>);
                 }
@@ -43,6 +43,7 @@ export const App: React.FC = () => {
             }
             case "vscode-couchbase.iq.sendLogoutRequest": {
                 setShowPage(<Login logoutReason="You have been successfully logged out"/>);
+                setIsLoading(false);
                 break;
             }
         }

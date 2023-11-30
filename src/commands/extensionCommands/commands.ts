@@ -59,4 +59,5 @@ export namespace Commands {
     export const ddlExport: string = "vscode-couchbase.tools.DDLExport";
     export const couchbaseIqViewsCommand: string = "couchbase-iq";
     export const logoutIq: string = "vscode-couchbase.iq.logout";
+    export const showIqSettings: string = "vscode-couchbase.iq.showSettings";
 }
