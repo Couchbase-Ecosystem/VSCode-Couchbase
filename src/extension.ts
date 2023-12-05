@@ -69,6 +69,7 @@ import { DataImport } from "./commands/tools/dataImport";
 import { ddlExport } from "./commands/tools/ddlExport/ddlExport";
 import { CouchbaseIqWebviewProvider } from "./commands/iq/couchbaseIqWebviewProvider";
 import { iqLogoutHandler } from "./commands/iq/iqLogoutHandler";
+import { CacheService } from "./util/cacheService/cacheService";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -91,6 +92,8 @@ export function activate(context: vscode.ExtensionContext) {
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context
   );
+
+  const cacheService = new CacheService();
 
   // Set up the global error handler
   process.on('uncaughtException', (error) => {
@@ -228,6 +231,7 @@ export function activate(context: vscode.ExtensionContext) {
       async (node: ClusterConnectionNode) => {
         await useConnection(node.connection);
         clusterConnectionTreeProvider.refresh();
+        cacheService.fullCache();
         getClusterOverviewData();
       }
     )
