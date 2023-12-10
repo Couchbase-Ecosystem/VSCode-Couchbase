@@ -1,4 +1,3 @@
-import { BucketSettings, CollectionSpec, ScopeSpec } from "couchbase";
 import { IConnection } from "../../types/IConnection";
 import { logger } from "../../logger/logger";
 import { getActiveConnection } from "../connections";
@@ -35,16 +34,16 @@ export interface IBucketCache {
 
 export class CacheService {
     private bucketsData: Map<string, IBucketCache> = new Map();
-    public cacheStatus: boolean = false;
+    private cacheStatus: boolean = false;
 
     CacheService() { }
 
     private schemaTreeTraversal(treeNode: any): ISchemaPatternCache {
         if (!treeNode) {
-            return {schemaNode: new Map<string, schemaPatternType>()};
+            return { schemaNode: new Map<string, schemaPatternType>() };
         }
-        const currentNodes = new Map<string,schemaPatternType>();
-        
+        const currentNodes = new Map<string, schemaPatternType>();
+
         Object.entries(treeNode).map(property => {
             const propertyValue: any = property[1];
             const type = propertyValue.type;
@@ -57,12 +56,9 @@ export class CacheService {
                     const itemType = items.type;
                     if (itemType === 'object') {
                         const children = this.schemaTreeTraversal(items.properties);
-                        
                         currentNodes.set(`${property[0]}`, children);
-                        
                     } else {
                         currentNodes.set(`${property[0]}`, `array of ${itemType}`);
-                        
                     }
                 } catch (error) {
                     logger.error(`Error processing array type for ${property[0]}: ${error}`);
@@ -72,21 +68,20 @@ export class CacheService {
                 try {
                     let currentType: string = type.toString();
                     currentType = currentType.replace(',', " | ");
-                    currentNodes.set(`${property[0]}`,currentType);
-                   
+                    currentNodes.set(`${property[0]}`, currentType);
                 } catch (e) {
                     logger.error("Type can't be stringified: " + e);
                 }
             }
         });
-        return {schemaNode: currentNodes};
+        return { schemaNode: currentNodes };
     }
 
     public cacheSchemaForCollection = async (connection: IConnection, collection: ICollectionCache) => {
         try {
             const query = "INFER `" + collection.bucketName + "`.`" + collection.scopeName + "`.`" + collection.name + "` WITH {\"sample_size\": 2000}";
             const result = await connection?.cluster?.query(query);
-            
+
             const patternCnt: number = result?.rows[0].length || 0;
             const schemaPatternData: ISchemaPatternCache[] = [];
             for (let i = 0; i < patternCnt; i++) {
@@ -94,7 +89,7 @@ export class CacheService {
                 const childrenNode = this.schemaTreeTraversal(row.properties);
                 schemaPatternData.push(childrenNode);
             }
-            collection.schema = {patterns: schemaPatternData};
+            collection.schema = { patterns: schemaPatternData };
         } catch (error) {
             logger.error(`error while caching schema for a collection: ${collection.bucketName}.${collection.scopeName}.${collection.name}, error: ${error}`);
         }
@@ -102,13 +97,14 @@ export class CacheService {
 
     // This function focuses on complete caching of schema of each collection which are saved in bucket cache
     public cacheSchemaForAllBuckets = async (connection: IConnection) => {
-        for(let [_, bucket] of this.bucketsData){
-            for(let [_, scope] of bucket.scopes){
-                for(let [_,collection] of scope.collections){
+        for (let [_, bucket] of this.bucketsData) {
+            for (let [_, scope] of bucket.scopes) {
+                for (let [_, collection] of scope.collections) {
                     await this.cacheSchemaForCollection(connection, collection);
                 };
             };
         };
+        logger.info("caching of schema for all buckets done");
     };
 
     // This function focuses on caching the scopes and collections data for one particular bucket
@@ -118,10 +114,10 @@ export class CacheService {
             ?.bucket(bucketName)
             .collections()
             .getAllScopes();
-        if(scopes){
-            for(let scope of scopes) {
+        if (scopes) {
+            for (let scope of scopes) {
                 const collectionsData: Map<string, ICollectionCache> = new Map();
-                for(let collection of scope.collections)  {
+                for await (let collection of scope.collections) {
                     collectionsData.set(collection.name, {
                         name: collection.name,
                         scopeName: scope.name,
@@ -141,35 +137,57 @@ export class CacheService {
                 connection: connection
             });
         }
-    }
+    };
 
     // This function focuses on caching the scopes and collections data for each bucket
     public cacheAllBuckets = async (connection: IConnection) => {
         this.bucketsData = new Map(); // Remove any existing cache
         try {
             let buckets = await connection.cluster?.buckets().getAllBuckets();
-            if(buckets === undefined){
+            if (buckets === undefined) {
                 logger.debug("Error while fetching buckets and returned undefined");
                 return;
             }
-            for(let bucket of buckets) {
-                this.cacheBucket(connection, bucket.name);
+            for await(let bucket of buckets) {
+                await this.cacheBucket(connection, bucket.name);
             };
-            
+
         } catch (error) {
             logger.error("Error while caching all collections " + error);
         }
     };
 
-    public fullCache = async() => {
+    public fullCache = async () => {
         const connection = getActiveConnection();
-        if(connection){
+        if (connection) {
             this.cacheStatus = false;
             await this.cacheAllBuckets(connection);
-            if(hasQueryService(connection.services)){
+            if (hasQueryService(connection.services)) {
                 await this.cacheSchemaForAllBuckets(connection);
             }
             this.cacheStatus = true;
         }
+    };
+
+    public getCacheStatus() {
+        return this.cacheStatus;
+    }
+
+    public getCollectionsSchemaWithScopeName = async (scopeName: string, collectionName: string): Promise<undefined|ISchemaCache> => {
+        if (this.cacheStatus === false) {
+            return undefined;
+        }
+        for await (let [_, bucketCache] of this.bucketsData) {
+            const scopeData = bucketCache.scopes.get(scopeName);
+            if(scopeData!==undefined){
+                const collectionData = scopeData.collections.get(collectionName);
+                if (collectionData !== undefined) {
+                    // required data is found
+                    return collectionData.schema;
+                }
+            }
+        }
+        return undefined;
+
     };
 }

@@ -120,7 +120,7 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
   
-  const couchbaseIqWebviewProvider = new CouchbaseIqWebviewProvider(context);
+  const couchbaseIqWebviewProvider = new CouchbaseIqWebviewProvider(context, cacheService);
   subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       Commands.couchbaseIqViewsCommand,

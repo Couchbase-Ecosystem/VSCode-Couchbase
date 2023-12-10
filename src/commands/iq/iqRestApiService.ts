@@ -52,7 +52,11 @@ export class iqRestApiService {
             if (error.response && error.response.status === 401) {
                 result.error = "The current session has expired, Please login again";
                 result.status = "401";
-            } else {
+            } else if(error.response){
+                result.error = error.response;
+                result.status = error.response.status.toString();
+            }
+            else {
                 logger.error("Error while receiving message from IQ: " + error);
                 result.error = "Error while receiving message from IQ: " + error;
             }

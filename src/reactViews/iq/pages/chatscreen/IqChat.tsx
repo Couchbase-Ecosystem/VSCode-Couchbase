@@ -87,25 +87,11 @@ const IqChat = ({ org }) => {
     setIsTyping(true);
 
     try {
-      const apiMessages = updatedMessages.map((messageObject) => {
-        return {
-          role: messageObject.sender,
-          content: messageObject.message,
-        };
-      });
-
-      const iqPayload = {
-        model: "gpt-4",
-        messages: [
-          { role: "system", content: "I'm a Student" },
-          ...apiMessages,
-        ],
-      };
       // Send message to CB IQ
       tsvscode.postMessage({
         command: "vscode-couchbase.iq.sendMessageToIQ",
         value: {
-          iqPayload: JSON.stringify(iqPayload),
+          newMessage: newMessage.message,
           orgId: org.data.id,
         },
       });
@@ -184,7 +170,7 @@ const IqChat = ({ org }) => {
                     {message.message}
                     </Message.TextContent>
                   </Message>
-                )
+                );
               }
             })}
           </MessageList>

@@ -21,13 +21,16 @@ import { iqChatHandler } from './iqChatHandler';
 import { iqLoginHandler, iqSavedLoginDataGetter, iqSavedLoginHandler } from './iqLoginhandler';
 import { Memory } from '../../util/util';
 import { Constants } from '../../util/constants';
+import { CacheService } from '../../util/cacheService/cacheService';
 
 export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
     public _context: vscode.ExtensionContext;
+    public cacheService: CacheService;
 
-    constructor(context: vscode.ExtensionContext) {
+    constructor(context: vscode.ExtensionContext, cacheService: CacheService) {
         this._context = context;
+        this.cacheService = cacheService;
     }
 
     resolveWebviewView(webviewView: vscode.WebviewView) {
@@ -97,7 +100,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     break;
                 }
                 case "vscode-couchbase.iq.sendMessageToIQ": {
-                    const result = await iqChatHandler(message.value.iqPayload, message.value.orgId);
+                    const result = await iqChatHandler(message.value.newMessage, message.value.orgId, message.value.chatId, this.cacheService);
                     if (result.error !== "") {
                         if (result.status === "401") {
                             this._view?.webview.postMessage({
