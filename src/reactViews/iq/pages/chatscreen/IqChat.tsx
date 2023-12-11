@@ -1,14 +1,13 @@
 import { useState } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./IqChat.scss";
-import {
-  MainContainer,
-  ChatContainer,
-  MessageList,
-  Message,
-  MessageInput,
-  TypingIndicator,
-} from "@chatscope/chat-ui-kit-react";
+import { MainContainer } from "./../../chatscope/src/components/MainContainer/MainContainer";
+import { ChatContainer } from "../../chatscope/src/components/ChatContainer/ChatContainer";
+import MessageList  from "../../chatscope/src/components/MessageList/MessageList";
+import { Message } from "../../chatscope/src/components/Message/Message";
+import { MessageInput } from "../../chatscope/src/components/MessageInput/MessageInput";
+import { TypingIndicator } from "../../chatscope/src/components/TypingIndicator/TypingIndicator";
+
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
@@ -41,7 +40,7 @@ const IqChat = ({ org }) => {
   const handlePaste = (event) => {
     // Prevent the original paste action
     event.preventDefault();
-    const text = (event.clipboardData).getData('text');
+    const text = event.clipboardData.getData("text");
     const selection = window.getSelection();
 
     if (selection.rangeCount) {
@@ -120,7 +119,8 @@ const IqChat = ({ org }) => {
           >
             {messages.map((message, index) => {
               if (message.sender !== "user") {
-                return ( // If system/assistant is sending message, use markdown formatting
+                return (
+                  // If system/assistant is sending message, use markdown formatting
                   <Message
                     className="chatscope-message"
                     key={index}
@@ -160,15 +160,11 @@ const IqChat = ({ org }) => {
                     }}
                   ></Message>
                 );
-              } else { // If user is sending message, use plain text rendering only
+              } else {
+                // If user is sending message, use plain text rendering only
                 return (
-                  <Message
-                    className="chatscope-message"
-                    key={index}
-                  >
-                    <Message.TextContent>
-                    {message.message}
-                    </Message.TextContent>
+                  <Message className="chatscope-message" key={index}>
+                    <Message.TextContent>{message.message}</Message.TextContent>
                   </Message>
                 );
               }

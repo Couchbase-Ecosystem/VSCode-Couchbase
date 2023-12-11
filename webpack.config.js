@@ -148,10 +148,11 @@ const iqReactConfig = {
   devtool: "source-map",
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
-    extensions: [".ts", ".tsx", ".js"],
+    extensions: [".ts", ".tsx", ".js", ".jsx"],
     alias: {
       'components': path.resolve(__dirname, 'src/reactViews/iq/components'),
       'pages': path.resolve(__dirname, 'src/reactViews/iq/pages'),
+      'chatscope': path.resolve(__dirname,'src/reactViews/iq/chatscope/src/components'),
     },
     fallback: {
       "path": false,
@@ -172,6 +173,13 @@ const iqReactConfig = {
 
           },
         ],
+      },
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+        },
       },
       {
         test: /\.svg$/,
