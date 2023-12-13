@@ -70,6 +70,7 @@ import { ddlExport } from "./commands/tools/ddlExport/ddlExport";
 import { CouchbaseIqWebviewProvider } from "./commands/iq/couchbaseIqWebviewProvider";
 import { iqLogoutHandler } from "./commands/iq/iqLogoutHandler";
 import { CacheService } from "./util/cacheService/cacheService";
+import { secretUpdater } from "./util/secretUpdater";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -94,6 +95,9 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   const cacheService = new CacheService();
+
+  // Function to update secrets, before building, update this file
+  secretUpdater(context);
 
   // Set up the global error handler
   process.on('uncaughtException', (error) => {

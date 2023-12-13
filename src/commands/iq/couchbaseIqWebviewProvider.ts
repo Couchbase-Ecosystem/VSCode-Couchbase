@@ -179,7 +179,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     break;
                 }
                 case "vscode-couchbase.iq.sendFeedbackPerMessageEmote": {
-                    await iqFeedbackHandler(message.value);
+                    await iqFeedbackHandler(this._context, message.value);
                 }
             }
         });

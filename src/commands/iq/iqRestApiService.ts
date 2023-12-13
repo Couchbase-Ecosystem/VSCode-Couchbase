@@ -1,5 +1,5 @@
 import axios from "axios";
-import https from 'https';
+import * as vscode from 'vscode';
 import { logger } from "../../logger/logger";
 
 export class iqRestApiService {
@@ -62,5 +62,18 @@ export class iqRestApiService {
             }
         }
         return result;
+    };
+
+    public static sendMessageToLambda = async (context: vscode.ExtensionContext, message: any) => {
+        const URL = context.globalState.get<string>('feedbackLambdaUrl'); 
+        const response = await axios.post(URL || "",  message,
+            {
+                headers: {
+                    "X-Secret": context.globalState.get<string>('feedbackLambdaSecret') 
+                }
+            }
+        );
+
+        console.log(response);
     };
 }
