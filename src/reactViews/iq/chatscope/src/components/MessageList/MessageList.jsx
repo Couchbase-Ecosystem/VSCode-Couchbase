@@ -247,7 +247,7 @@ class MessageListInner extends React.Component {
     const {
       props: {
         children,
-        typingIndicator,
+        actionbar,
         loading,
         loadingMore,
         loadingMorePosition,
@@ -304,9 +304,9 @@ class MessageListInner extends React.Component {
             ref={this.scrollPointRef}
           ></div>
         </PerfectScrollbar>
-        {typeof typingIndicator !== "undefined" && (
-          <div className={`${cName}__typing-indicator-container`}>
-            {typingIndicator}
+        {typeof actionbar !== "undefined" && (
+          <div className={`${cName}__bottom-typing-indicator-container`}>
+            {actionbar}
           </div>
         )}
       </div>
@@ -349,8 +349,8 @@ MessageList.propTypes = {
     MessageListContent,
   ]),
 
-  /** Typing indicator element. */
-  typingIndicator: PropTypes.node,
+  /** actionbar element. */
+  actionbar: PropTypes.node,
 
   /** Loading flag. */
   loading: PropTypes.bool,
@@ -401,7 +401,7 @@ MessageList.propTypes = {
 };
 
 MessageList.defaultProps = {
-  typingIndicator: undefined,
+  actionbar: undefined,
   loading: false,
   loadingMore: false,
   loadingMorePosition: "top",

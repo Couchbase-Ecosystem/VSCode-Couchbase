@@ -22,6 +22,7 @@ import { iqLoginHandler, iqSavedLoginDataGetter, iqSavedLoginHandler } from './i
 import { Memory } from '../../util/util';
 import { Constants } from '../../util/constants';
 import { CacheService } from '../../util/cacheService/cacheService';
+import { iqFeedbackHandler } from './iqFeedbackHandler';
 
 export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
@@ -176,6 +177,9 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     let config = vscode.workspace.getConfiguration('couchbase');
                     config.update('iq.organization', message.value.organizationDetails.data.id, vscode.ConfigurationTarget.Global);
                     break;
+                }
+                case "vscode-couchbase.iq.sendFeedbackPerMessageEmote": {
+                    await iqFeedbackHandler(message.value);
                 }
             }
         });

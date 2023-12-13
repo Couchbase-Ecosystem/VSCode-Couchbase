@@ -6,7 +6,7 @@ export type MessageListContentProps = EmptyProps;
 declare const MessageListContent: (props:ChatComponentPropsChildren<MessageListContentProps, "div">) => ReactElement;
 
 export interface MessageListOwnProps {
-  typingIndicator?: ReactNode;
+  actionbar?: ReactNode;
   loading?:boolean;
   loadingMore?:boolean;
   loadingMorePosition?:"top" | "bottom";

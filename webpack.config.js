@@ -152,7 +152,7 @@ const iqReactConfig = {
     alias: {
       'components': path.resolve(__dirname, 'src/reactViews/iq/components'),
       'pages': path.resolve(__dirname, 'src/reactViews/iq/pages'),
-      'chatscope': path.resolve(__dirname,'src/reactViews/iq/chatscope/src/components'),
+      'chatscope': path.resolve(__dirname,'src/reactViews/iq/chatscope'),
     },
     fallback: {
       "path": false,

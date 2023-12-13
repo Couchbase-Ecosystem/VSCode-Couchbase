@@ -15,6 +15,7 @@ import {
   nightOwl,
 } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import remarkGfm from "remark-gfm";
+import { ActionBar, IActionBarButton } from "chatscope/src/components/ActionBar/ActionBar";
 
 const IqChat = ({ org }) => {
   const [messages, setMessages] = useState<any[]>([
@@ -25,6 +26,78 @@ const IqChat = ({ org }) => {
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const [codeTheme, setCodeTheme] = useState(oneLight);
+
+  const [actions, setActions] = useState<IActionBarButton[]>([
+    {
+      onclick : () => {},
+      name: "Cluster Overview"
+
+    },
+    {
+      onclick : () => {},
+      name: "Open Workbench"
+    },
+    {
+      onclick : () => {},
+      name: "Data Export"
+    },
+    {
+      onclick : () => {},
+      name: "Data Import"
+    }
+  ]);
+
+  const handleMessageLike = (index) => {
+
+    const originalReply = messages[index].message;
+    const originalQuestion = index-1 > 0 ? messages[index-1].message : "";
+    const newMessage = {
+      message: "Glad you liked the result. Would you like to give more feedback",
+      sender: "feedback",
+    };
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
+    setActions([{
+      onclick: ()=>{},
+      name: "Send Feedback"
+    }]);
+
+    // send info to lambda
+    tsvscode.postMessage({
+      command: "vscode-couchbase.iq.sendFeedbackPerMessageEmote",
+      value: {
+        type: "like",
+        question: originalQuestion,
+        reply: originalReply
+      }
+    })
+  };
+
+  const handleMessageDislike = (index) => {
+    const originalReply = messages[index].message;
+    const originalQuestion = index-1 > 0 ? messages[index-1].message : "";
+    const newMessage = {
+      message: "Oh! We are very sorry. Can you please give us additional info via feedback",
+      sender: "feedback",
+    };
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
+    // set actions to feedback
+    setActions([{
+      onclick: ()=>{},
+      name: "Send Feedback"
+    }]);
+
+    tsvscode.postMessage({
+      command: "vscode-couchbase.iq.sendFeedbackPerMessageEmote",
+      value: {
+        type: "dislike",
+        question: originalQuestion,
+        reply: originalReply
+      }
+    })
+    // send info to lambda
+  };
 
   const SyntaxHighlight = ({ language, value }) => {
     return (
@@ -111,18 +184,19 @@ const IqChat = ({ org }) => {
           }}
         >
           <MessageList
-            className="chatscope-message-list"
+            className={`chatscope-message-list ${isTyping || actions.length > 0 ? "hasActionbar" : ""}`}
             scrollBehavior="smooth"
-            typingIndicator={
-              isTyping ? <TypingIndicator content="IQ is typing" /> : null
+            actionbar={
+              isTyping ? <TypingIndicator content="IQ is typing" /> : (actions.length > 0 ? <ActionBar buttons={actions}/>: undefined)
             }
           >
             {messages.map((message, index) => {
               if (message.sender !== "user") {
+                const hasFooter = message.sender !== "user" && message.sender !== "feedback" && index!==0;
                 return (
                   // If system/assistant is sending message, use markdown formatting
                   <Message
-                    className="chatscope-message"
+                    className={`chatscope-message ${hasFooter ? "hasFooter" : ""}`}
                     key={index}
                     model={{
                       payload: (
@@ -158,7 +232,21 @@ const IqChat = ({ org }) => {
                       sender: message.sender,
                       position: "normal",
                     }}
-                  ></Message>
+                    
+                  >
+                    { hasFooter ? 
+                    <Message.Footer className="messageFooter">
+                      <div className="likeButton" onClick={()=>handleMessageLike(index)}>
+                      👍
+                      </div>
+                      <div className="dislikeButton" onClick={()=> handleMessageDislike(index)}>
+                      👎
+                      </div>
+                      
+
+                    </Message.Footer> :""
+              }
+                  </Message>
                 );
               } else {
                 // If user is sending message, use plain text rendering only

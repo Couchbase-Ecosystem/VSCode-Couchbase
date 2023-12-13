@@ -12,6 +12,7 @@
 
 .chatscope-message {
   max-width: 90% !important;
+  margin-bottom: 10px;
 }
 
 .chatscope-chat-container {
@@ -29,6 +30,10 @@
 .chatscope-message-list {
   background-color: var(--vscode-sideBar-background);
   color: var(--vscode-sideBar-foreground);
+
+  &.hasActionbar .scrollbar-container {
+    height: calc(100% - 50px);
+  }
 }
 
 .scrollbar-container {
@@ -39,4 +44,29 @@
   background-color: var(--vscode-sideBar-background) !important;
   color: var(--vscode-sideBar-foreground) !important;
   border-top: solid 1px var(--vscode-settings-sashBorder) !important;
+}
+
+.messageFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 5px 10px;
+  background-color: rgba(198,227,250,0.8);
+  border-bottom-right-radius: 0.7em;
+  margin: 0;
+}
+
+.chatscope-message.hasFooter .cs-message__content {
+  border-bottom-right-radius: 0em;
+}
+
+
+.likeButton, .dislikeButton {
+  cursor: pointer;
+  margin: 0 5px;
+  font-size: 1.5rem; 
+}
+
+.likeButton:hover, .dislikeButton:hover {
+  opacity: 0.7;
 }
