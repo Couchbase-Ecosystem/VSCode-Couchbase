@@ -53,6 +53,20 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
         // Save view id to memory so it can be accessed from outside
         Memory.state.update(Constants.IQ_WEBVIEW, this._view);
 
+        vscode.window.onDidChangeActiveColorTheme((newTheme) => {
+            if (newTheme.kind === vscode.ColorThemeKind.Dark) {
+                this._view?.webview.postMessage({
+                    command: "vscode-couchbase.iq.changeColorTheme",
+                    theme: "Dark"
+                });
+            } else {
+                this._view?.webview.postMessage({
+                    command: "vscode-couchbase.iq.changeColorTheme",
+                    theme: "Light"
+                });
+            }
+        });
+
         this._view.webview.onDidReceiveMessage(async (message) => {
             switch (message.command) {
                 case "vscode-couchbase.iq.login": {

@@ -101,7 +101,6 @@ const IqChat = ({ org }) => {
 
   const SyntaxHighlight = ({ language, value }) => {
     return (
-      // TODO: change on dark and light theme
       <SyntaxHighlighter
         style={codeTheme}
         language={language}
@@ -129,12 +128,12 @@ const IqChat = ({ org }) => {
     const message = event.data;
     switch (message.command) {
       case "vscode-couchbase.iq.getMessageFromIQ": {
-        const isDarkTheme = message.isDarkTheme;
-        if (isDarkTheme) {
+        if(message.isDarkTheme){
           setCodeTheme(nightOwl);
         } else {
           setCodeTheme(oneLight);
         }
+
         const newMessage = {
           message: message.content,
           sender: "assistant",
@@ -143,6 +142,14 @@ const IqChat = ({ org }) => {
         setMessages(updatedMessages);
 
         setIsTyping(false);
+        break;
+      }
+      case "vscode-couchbase.iq.changeColorTheme": {
+        if(message.theme === "Dark"){
+          setCodeTheme(nightOwl);
+        } else {
+          setCodeTheme(oneLight);
+        }
         break;
       }
     }
