@@ -1,6 +1,8 @@
 import axios from "axios";
 import * as vscode from 'vscode';
 import { logger } from "../../logger/logger";
+import { feedbackLambdaMessageType } from "./chat/types";
+
 
 export class iqRestApiService {
 
@@ -64,7 +66,7 @@ export class iqRestApiService {
         return result;
     };
 
-    public static sendMessageToLambda = async (context: vscode.ExtensionContext, message: any) => {
+    public static sendMessageToLambda = async (context: vscode.ExtensionContext, message: feedbackLambdaMessageType) => {
         const URL = context.globalState.get<string>('feedbackLambdaUrl'); 
         const response = await axios.post(URL || "",  message,
             {

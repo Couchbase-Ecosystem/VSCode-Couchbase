@@ -235,7 +235,7 @@ export function activate(context: vscode.ExtensionContext) {
       async (node: ClusterConnectionNode) => {
         await useConnection(node.connection);
         clusterConnectionTreeProvider.refresh();
-        cacheService.fullCache();
+        cacheService.fullCache(false);
         getClusterOverviewData();
       }
     )

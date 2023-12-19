@@ -17,21 +17,25 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { getIQWebviewContent } from '../../webViews/iq/couchbaseIq.webview';
-import { iqChatHandler } from './iqChatHandler';
+import { IStoredMessages, iqChatHandler } from './chat/iqChatHandler';
 import { iqLoginHandler, iqSavedLoginDataGetter, iqSavedLoginHandler } from './iqLoginhandler';
 import { Memory } from '../../util/util';
 import { Constants } from '../../util/constants';
 import { CacheService } from '../../util/cacheService/cacheService';
 import { iqFeedbackHandler } from './iqFeedbackHandler';
 
+
+
 export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
     public _context: vscode.ExtensionContext;
     public cacheService: CacheService;
+    public allMessages: IStoredMessages[];
 
     constructor(context: vscode.ExtensionContext, cacheService: CacheService) {
         this._context = context;
         this.cacheService = cacheService;
+        this.allMessages = [];
     }
 
     resolveWebviewView(webviewView: vscode.WebviewView) {
@@ -115,7 +119,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     break;
                 }
                 case "vscode-couchbase.iq.sendMessageToIQ": {
-                    const result = await iqChatHandler(message.value.newMessage, message.value.orgId, message.value.chatId, this.cacheService);
+                    const result = await iqChatHandler(message.value, this.cacheService, this.allMessages);
                     if (result.error !== "") {
                         if (result.status === "401") {
                             this._view?.webview.postMessage({
@@ -124,6 +128,10 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                             });
                         } else {
                             // TODO: Handle If some other error is received
+                            this._view?.webview.postMessage({
+                                command: "vscode-couchbase.iq.forcedLogout",
+                                error: result.error
+                            });
                         }
                     } else {
                         this._view?.webview.postMessage({
@@ -193,7 +201,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     break;
                 }
                 case "vscode-couchbase.iq.sendFeedbackPerMessageEmote": {
-                    await iqFeedbackHandler(this._context, message.value);
+                    await iqFeedbackHandler(this._context, message.value, this.allMessages);
                 }
             }
         });

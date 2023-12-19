@@ -2,6 +2,8 @@ import { IConnection } from "../../types/IConnection";
 import { logger } from "../../logger/logger";
 import { getActiveConnection } from "../connections";
 import { hasQueryService } from "../common";
+import { Global } from "../util";
+import { QueryIndex } from "couchbase";
 
 type schemaPatternType = ISchemaPatternCache | string;
 
@@ -18,6 +20,7 @@ export interface ICollectionCache {
     scopeName: string;
     bucketName: string;
     schema?: ISchemaCache;
+    indexes?: string[];
 }
 
 export interface IScopeCache {
@@ -95,12 +98,23 @@ export class CacheService {
         }
     };
 
+    public async cacheIndexesForCollection(connection: IConnection, collection: ICollectionCache): Promise<QueryIndex[]> {
+        const indexesResult = await connection?.cluster?.queryIndexes().getAllIndexes(collection.bucketName, { scopeName: collection.scopeName, collectionName: collection.name });
+        collection.indexes = indexesResult?.map((index)=>{
+            return JSON.stringify(index);
+        });
+        return indexesResult || [];
+    }
+
     // This function focuses on complete caching of schema of each collection which are saved in bucket cache
-    public cacheSchemaForAllBuckets = async (connection: IConnection) => {
+    public cacheIndexesAndSchemaForAllBuckets = async (connection: IConnection) => {
         for (let [_, bucket] of this.bucketsData) {
             for (let [_, scope] of bucket.scopes) {
                 for (let [_, collection] of scope.collections) {
-                    await this.cacheSchemaForCollection(connection, collection);
+                    const indexes = await this.cacheIndexesForCollection(connection, collection);
+                    if(indexes.length > 0){ // Only cache schema 
+                        await this.cacheSchemaForCollection(connection, collection);
+                    }
                 };
             };
         };
@@ -148,7 +162,7 @@ export class CacheService {
                 logger.debug("Error while fetching buckets and returned undefined");
                 return;
             }
-            for await(let bucket of buckets) {
+            for await (let bucket of buckets) {
                 await this.cacheBucket(connection, bucket.name);
             };
 
@@ -157,15 +171,22 @@ export class CacheService {
         }
     };
 
-    public fullCache = async () => {
+    public fullCache = async (forcedCacheUpdate: boolean) => {
         const connection = getActiveConnection();
         if (connection) {
+            if (!forcedCacheUpdate) {
+                const isCacheSuccessful = await this.loadCache(connection);
+                if(isCacheSuccessful){
+                    return;
+                }
+            }
             this.cacheStatus = false;
             await this.cacheAllBuckets(connection);
             if (hasQueryService(connection.services)) {
-                await this.cacheSchemaForAllBuckets(connection);
+                await this.cacheIndexesAndSchemaForAllBuckets(connection);
             }
             this.cacheStatus = true;
+            this.storeCache(connection);
         }
     };
 
@@ -173,13 +194,13 @@ export class CacheService {
         return this.cacheStatus;
     }
 
-    public getCollectionsSchemaWithScopeName = async (scopeName: string, collectionName: string): Promise<undefined|ISchemaCache> => {
+    public getCollectionsSchemaWithScopeName = async (scopeName: string, collectionName: string): Promise<undefined | ISchemaCache> => {
         if (this.cacheStatus === false) {
             return undefined;
         }
         for await (let [_, bucketCache] of this.bucketsData) {
             const scopeData = bucketCache.scopes.get(scopeName);
-            if(scopeData!==undefined){
+            if (scopeData !== undefined) {
                 const collectionData = scopeData.collections.get(collectionName);
                 if (collectionData !== undefined) {
                     // required data is found
@@ -190,4 +211,106 @@ export class CacheService {
         return undefined;
 
     };
+
+    private serializeSchema(schema: ISchemaCache): string {
+        // Convert nested Maps to plain objects for JSON
+        const patternsJson = JSON.stringify(schema.patterns.map((pattern) => {
+            if (typeof pattern === "string") {
+                return pattern;
+            }
+            return { schemaNode: Object.entries(pattern.schemaNode) };
+        }));
+
+        return JSON.stringify({ patterns: patternsJson });
+    }
+
+    public async storeCache(connection: IConnection): Promise<void> {
+        const serializedData: any = {};
+        // Serialize each bucket in the map
+        for (const [bucketName, bucket] of this.bucketsData) {
+            serializedData[bucketName] = {
+                name: bucket.name,
+                scopes: {},
+                connection: bucket.connection, // Assume serializable
+            };
+            // Serialize each scope in the bucket's map
+            for (const [scopeName, scope] of bucket.scopes) {
+                serializedData[bucketName].scopes[scopeName] = {
+                    name: scope.name,
+                    collections: {},
+                    bucketName: bucketName
+                };
+                // Serialize each collection in the scope's map
+                for (const [collectionName, collection] of scope.collections) {
+                    serializedData[bucketName].scopes[scopeName].collections[collectionName] = {
+                        name: collection.name,
+                        schema: collection.schema ? this.serializeSchema(collection.schema) : undefined,
+                        scopeName: scopeName,
+                        bucketName: bucketName,
+                        indexes: collection.indexes
+                    };
+                }
+            }
+        }
+
+        const finalJson = JSON.stringify(serializedData);
+        Global.state.update(`vscode-couchbase.iq.bucketsCache.${connection.connectionIdentifier}`, finalJson);
+        // return vscode.globalState.update(BUCKETS_STATE_KEY, finalJson);
+    }
+
+    private async loadCache(connection: IConnection): Promise<boolean> {
+        const storedDataJson = Global.state.get<string>(`vscode-couchbase.iq.bucketsCache.${connection.connectionIdentifier}`);
+        if (!storedDataJson) {
+            return false; // No existing cache
+        }
+
+        const storedData = JSON.parse(storedDataJson);
+        this.bucketsData.clear();
+        for (const bucketName in storedData) {
+            const bucket: IBucketCache = {
+                name: storedData[bucketName].name,
+                connection: storedData[bucketName].connection, // Assume deserializable
+                scopes: new Map(),
+            };
+            this.bucketsData.set(bucketName, bucket);
+
+            for (const scopeName in storedData[bucketName].scopes) {
+                const scope:IScopeCache = {
+                    name: storedData[bucketName].scopes[scopeName].name,
+                    bucketName: bucketName,
+                    collections: new Map(),
+                };
+                bucket.scopes.set(scopeName, scope);
+
+                for (const collectionName in storedData[bucketName].scopes[scopeName].collections) {
+                    const collection: ICollectionCache = {
+                        name: storedData[bucketName].scopes[scopeName].collections[collectionName].name,
+                        schema: storedData[bucketName].scopes[scopeName].collections[collectionName].schema
+                            ? this.deserializeSchema(storedData[bucketName].scopes[scopeName].collections[collectionName].schema)
+                            : undefined,
+                        indexes: storedData[bucketName].scopes[scopeName].collections[collectionName].indexes,
+                        scopeName: scopeName,
+                        bucketName: bucketName
+                    };
+                    scope.collections.set(collectionName, collection);
+                }
+            }
+        }
+        return true;
+    }
+
+    private deserializeSchema(storedSchemaJson: string): ISchemaCache | undefined {
+        if (!storedSchemaJson) { 
+            return undefined;
+        }
+
+        const storedSchema = JSON.parse(storedSchemaJson);
+        const patterns = JSON.parse(storedSchema.patterns);
+        return {
+            patterns: patterns.map((pattern: ISchemaPatternCache) => {
+              return { schemaNode: new Map(Object.entries(pattern.schemaNode)) }; // Convert empty array to Map
+            }),
+          };
+
+    }
 }
