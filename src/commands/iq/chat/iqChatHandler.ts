@@ -1,9 +1,12 @@
+import {  WebviewView } from "vscode";
 import { logger } from "../../../logger/logger";
 import { CacheService } from "../../../util/cacheService/cacheService";
 import {  Memory } from "../../../util/util";
 import { iqRestApiService } from "../iqRestApiService";
+import { actionIntenthandler } from "./intents/actionIntent";
 import { collectionSchemaHandler } from "./intents/collectionSchemaIntent";
 import { IAdditionalContext, IStoredMessages, iqChatType } from "./types";
+import { availableActions } from "./utils";
 
 
 const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId: string, previousMessages: IStoredMessages) => {
@@ -15,7 +18,7 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
     1 -  Identify if the user is talking about potential document ids
     2 -  Identify the name of potential couchbase collections, the list of available collections are . Note that the user might not say “collection” explicitly in the phrase.
     3 - Identify if the user is mentioning to files in his project (Classes, methods, functions) 
-    4 - If the user intents to execute an action, check if it matches one of the following actionOptions: [ “OpenDocument”, “CreateCollection”, “CreateScope”, “ExportCollection” ]. These are the only actions available, no other action should be output
+    4 - If the user intents to execute an action, check if it matches one of the following actionOptions: ${availableActions}. These are the only actions available, no other action should be output
     5 - Return the response in the following JSON Format: 
     {  
       “Ids”: <Array Of Strings with the identified document ids>,  
@@ -118,7 +121,7 @@ const getFinalResponse = async (message: string, additionalContext: IAdditionalC
     return { finalQuestion: finalContent,  finalResult: finalResult};
 };
 
-export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, allMessages: IStoredMessages[]) => {
+export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, allMessages: IStoredMessages[], webview: WebviewView) => {
     const newMessage: string = iqPayload.newMessage, orgId: string = iqPayload.orgId, chatId: string = iqPayload.chatId, qaId: string = iqPayload.qaId;
     const userChats = iqPayload.userChats || [];
 
@@ -212,7 +215,9 @@ export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, 
         schemas: [],
     };
 
+    await actionIntenthandler(jsonObjects[0], webview); // This function also sends back the actions for process to webview
     await collectionSchemaHandler(jsonObjects[0], additionalContext, cacheService);
+    
     const { finalQuestion, finalResult } = await getFinalResponse(newMessage, additionalContext, jwtToken, orgId, previousMessages);
 
     previousMessages.fullContextPerQaId.set(qaId,

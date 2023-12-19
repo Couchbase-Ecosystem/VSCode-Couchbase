@@ -20,7 +20,7 @@ import {
   ActionBar,
   IActionBarButton,
 } from "chatscope/src/components/ActionBar/ActionBar";
-import { ChatAction } from "utils/ChatAction";
+import { ChatAction, availableActions } from "utils/ChatAction";
 import { SendFeedback } from "components/chatActions/SendFeedback";
 
 export type userMessage = {
@@ -62,34 +62,7 @@ const IqChat = ({ org }) => {
     console.log(messages);
   }, [messages]);
 
-  const [actions, setActions] = useState<IActionBarButton[]>([
-    {
-      onclick: ()=>{
-        setShowFeedbackModal(true);
-        setFeedbackModalData({
-          msgIndex: 0,
-          qaId: "firstMessage"
-        });
-      },
-      name: "Send Feedback",
-    },
-    {
-      onclick: () => {},
-      name: "Cluster Overview",
-    },
-    {
-      onclick: () => {},
-      name: "Open Workbench",
-    },
-    {
-      onclick: () => {},
-      name: "Data Export",
-    },
-    {
-      onclick: () => {},
-      name: "Data Import",
-    },
-  ]);
+  const [actions, setActions] = useState<IActionBarButton[]>([]);
 
   const handleMessageLike = (index: number, qaId: string) => {
     const originalReply = messages.userChats[index].message;
@@ -110,17 +83,9 @@ const IqChat = ({ org }) => {
       chatId: messages.chatId,
       userChats: updatedMessages
     });
+    
     setActions([
-      {
-        onclick:()=>{
-          setShowFeedbackModal(true);
-          setFeedbackModalData({
-            msgIndex: index,
-            qaId: qaId
-          });
-        },
-        name: "Send Feedback",
-      },
+      ChatAction("Send Feedback", setShowFeedbackModal, setFeedbackModalData, index, qaId)
     ]);
 
     // send info to lambda
@@ -158,18 +123,10 @@ const IqChat = ({ org }) => {
       chatId: messages.chatId,
       userChats: updatedMessages
     });
+
     // set actions to feedback
     setActions([
-      {
-        onclick: () => {
-          setShowFeedbackModal(true);
-          setFeedbackModalData({
-            msgIndex: index,
-            qaId: qaId
-          });
-        },
-        name: "Send Feedback",
-      },
+      ChatAction("Send Feedback", setShowFeedbackModal, setFeedbackModalData, index, qaId)
     ]);
 
     tsvscode.postMessage({
@@ -266,6 +223,20 @@ const IqChat = ({ org }) => {
         } else {
           setCodeTheme(oneLight);
         }
+        break;
+      }
+      case "vscode-webview.iq.updateActions": {
+        const actionsForBar = [];
+        for(const action of message.actions) {
+          if(availableActions.includes(action)){
+            if(action === "Send Feedback") {
+              actionsForBar.push(ChatAction(action, setShowFeedbackModal, setFeedbackModalData, 0, "firstMessage")); // TODO: Right now Gives feedback to just the first message
+            } else {
+              actionsForBar.push(ChatAction(action));
+            }
+          }
+        }
+        setActions(actionsForBar);
         break;
       }
     }

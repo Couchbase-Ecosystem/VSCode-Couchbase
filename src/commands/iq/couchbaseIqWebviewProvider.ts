@@ -119,7 +119,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     break;
                 }
                 case "vscode-couchbase.iq.sendMessageToIQ": {
-                    const result = await iqChatHandler(message.value, this.cacheService, this.allMessages);
+                    const result = await iqChatHandler(message.value, this.cacheService, this.allMessages, webviewView);
                     if (result.error !== "") {
                         if (result.status === "401") {
                             this._view?.webview.postMessage({
@@ -202,6 +202,9 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                 }
                 case "vscode-couchbase.iq.sendFeedbackPerMessageEmote": {
                     await iqFeedbackHandler(this._context, message.value, this.allMessages);
+                }
+                case "vscode-couchbase.iq.executeActionCommand": {
+                    vscode.commands.executeCommand(message.value);
                 }
             }
         });

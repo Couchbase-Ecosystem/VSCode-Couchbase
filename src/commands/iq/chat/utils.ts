@@ -1,0 +1,1 @@
+export const availableActions = ["Data Import", "Send Feedback", "Data Export", "DDL Export", "Open Query Editor", "Open SQL++ Notebook"];
