@@ -28,7 +28,7 @@ export const collectionSchemaHandler = async (jsonObject: any, response: IAdditi
 
     const collections: string[] = jsonObject?.collections || [];
 
-    if (collections.length === 0) { // NO Collections found, returning
+    if (collections.length === 0) { // No Collections found, returning
         return;
     }
 
@@ -49,6 +49,15 @@ export const collectionSchemaHandler = async (jsonObject: any, response: IAdditi
             }
         } else {
             col = collection;
+            const schema = await cacheService.getCollectionSchemaWithCollectionName(col);
+            if (schema !== undefined) {
+                // found correct pair, we can return the schema
+                const stringifiedSchema = {
+                    schema: schemaStringify(schema),
+                    collection: col
+                };
+                schemas.push(stringifiedSchema);
+            }
         }
     }
     response.schemas = schemas;

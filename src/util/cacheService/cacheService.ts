@@ -212,6 +212,25 @@ export class CacheService {
 
     };
 
+    public getCollectionSchemaWithCollectionName = async(collectionName: string):Promise<undefined | ISchemaCache> => {
+        if (this.cacheStatus === false) {
+            return undefined;
+        }
+        for await (let [_, bucketCache] of this.bucketsData) {
+            for await (let [_, scopeCache] of bucketCache.scopes){
+                const collections = scopeCache.collections;
+                if (collections !== undefined) {
+                    const collectionData = collections.get(collectionName);
+                    if (collectionData !== undefined) {
+                        // required data is found
+                        return collectionData.schema;
+                    }
+                }
+            }
+        }
+        return undefined;
+    };
+
     private serializeSchema(schema: ISchemaCache): string {
         // Convert nested Maps to plain objects for JSON
         const patternsJson = JSON.stringify(schema.patterns.map((pattern) => {
