@@ -58,9 +58,13 @@ const IqChat = ({ org }) => {
   });
 
 
+  // fetch settings
   useEffect(()=>{
-    console.log(messages);
-  }, [messages]);
+    tsvscode.postMessage({
+      command: "vscode-couchbase.iq.fetchChatSettings",
+      value: undefined
+    });
+  }, []);
 
   const [actions, setActions] = useState<IActionBarButton[]>([]);
 
@@ -239,6 +243,9 @@ const IqChat = ({ org }) => {
         setActions(actionsForBar);
         break;
       }
+      case "vscode-couchbase.iq.sendChatSettings": {
+        break;
+      }
     }
   });
 
@@ -287,12 +294,12 @@ const IqChat = ({ org }) => {
         >
           <MessageList
             className={`chatscope-message-list ${
-              isTyping || actions.length > 0 ? "hasActionbar" : ""
+              (isTyping || actions.length > 0) ? "hasActionbar" : ""
             }`}
             scrollBehavior="smooth"
             actionbar={
               isTyping ? (
-                <TypingIndicator content="IQ is typing" />
+                <TypingIndicator content="IQ is typing" className="typingIndicator" />
               ) : actions.length > 0 ? (
                 <ActionBar buttons={actions} />
               ) : undefined

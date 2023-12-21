@@ -1006,6 +1006,11 @@
             "type": "string",
             "default": "",
             "markdownDescription": "The Current organization which is being used for all iq tasks. You can change default organization here by changing this field.  Note: any change will only appear after you login again"
+          },
+          "couchbase.iq.enableCodeSelectionResult": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Do you wish that selected code on active editor be sent to IQ to understand context better"
           }
         }
       }

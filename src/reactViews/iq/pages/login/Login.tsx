@@ -41,6 +41,15 @@ export const Login = ({ logoutReason = "" }) => {
         });
     };
 
+    const handleNewAccountClick = () => {
+        const link = "https://cloud.couchbase.com/sign-up";
+        tsvscode.postMessage({
+            command: "vscode-couchbase.iq.openLinkInBrowser",
+            value: link
+        });
+          
+    };
+
     window.addEventListener("message", (event) => {
         const message = event.data;
         switch (message.command) {
@@ -94,7 +103,7 @@ export const Login = ({ logoutReason = "" }) => {
                         className="redButton"
                     />
                 </form>
-                <span id="create-account">Don't have an account yet?</span>
+                <span id="create-account" onClick={handleNewAccountClick}>Don't have an account yet?</span>
             </div>
         </div>
     );

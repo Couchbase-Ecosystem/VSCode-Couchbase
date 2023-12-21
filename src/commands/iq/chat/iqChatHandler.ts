@@ -36,8 +36,10 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
     `;
     let codeSelectedAvailable: boolean = false;
     // TODO: update based on code selected
+    let config = vscode.workspace.getConfiguration('couchbase');
+
     const editor = vscode.window.activeTextEditor;
-    if (editor) {
+    if (editor && config.get("iq.enableCodeSelectionResult")) {
         const selection = editor.selection;
         if (selection && !selection.isEmpty) {
             const selectedText = editor.document.getText(selection);

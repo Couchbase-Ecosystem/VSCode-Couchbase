@@ -198,13 +198,30 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                 case "vscode-couchbase.iq.rememberOrganization": {
                     let config = vscode.workspace.getConfiguration('couchbase');
                     config.update('iq.organization', message.value.organizationDetails.data.id, vscode.ConfigurationTarget.Global);
+                    
                     break;
                 }
                 case "vscode-couchbase.iq.sendFeedbackPerMessageEmote": {
                     await iqFeedbackHandler(this._context, message.value, this.allMessages);
+                    break;
                 }
                 case "vscode-couchbase.iq.executeActionCommand": {
                     vscode.commands.executeCommand(message.value);
+                    break;
+                }
+                case "vscode-couchbase.iq.fetchChatSettings": { // Add settings to be sent to IQ Chat here
+                    let config = vscode.workspace.getConfiguration('couchbase');
+
+                    this._view?.webview.postMessage({
+                        command: "vscode-couchbase.iq.sendChatSettings",
+                        value: {
+                        }
+                    });
+                    break;
+                }
+                case "vscode-couchbase.iq.openLinkInBrowser": {
+                    vscode.env.openExternal(vscode.Uri.parse(message.value));
+                    break;
                 }
             }
         });
