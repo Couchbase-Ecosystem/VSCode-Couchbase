@@ -27,7 +27,7 @@ export type userMessage = {
   message: string;
   sender: string;
   qaId: string;
-  feedbackSent?: boolean;
+  feedbackSent: boolean;
   msgDate?: string;
 };
 
@@ -44,7 +44,8 @@ const IqChat = ({ org }) => {
           message: "Hello, I'm Couchbase IQ! Ask me anything!",
           sender: "assistant",
           msgDate: (Date.now()/1000).toFixed(0),
-          qaId: "firstMessage"
+          qaId: "firstMessage",
+          feedbackSent: false,
         },
       ], 
       chatId: uuid()
@@ -76,7 +77,8 @@ const IqChat = ({ org }) => {
         "Glad you liked the result. Would you like to give more feedback",
       sender: "feedback",
       msgDate: (Date.now()/1000).toFixed(0),
-      qaId: qaId
+      qaId: qaId,
+      feedbackSent: false
     };
 
     const messagesCopy = [...messages.userChats];
@@ -91,7 +93,6 @@ const IqChat = ({ org }) => {
     setActions([
       ChatAction("Send Feedback", setShowFeedbackModal, setFeedbackModalData, index, qaId)
     ]);
-
     // send info to lambda
     tsvscode.postMessage({
       command: "vscode-couchbase.iq.sendFeedbackPerMessageEmote",
@@ -103,7 +104,8 @@ const IqChat = ({ org }) => {
         additionalFeedback: "",
         qaId: qaId,
         chatId: messages.chatId,
-        orgId: org.data.id
+        orgId: org.data.id,
+        userChats: updatedMessages,
       },
     });
   };
@@ -116,7 +118,8 @@ const IqChat = ({ org }) => {
         "Oh! We are very sorry. Can you please give us additional info via feedback",
       sender: "feedback",
       msgDate: (Date.now()/1000).toFixed(0),
-      qaId: qaId
+      qaId: qaId,
+      feedbackSent: false
     };
 
     const messagesCopy = [...messages.userChats];
@@ -142,7 +145,8 @@ const IqChat = ({ org }) => {
         msgDate: newMessage.msgDate,
         additionalFeedback: "",
         qaId: qaId,
-        chatId: messages.chatId
+        chatId: messages.chatId,
+        userChats: updatedMessages,
       },
     });
     // send info to lambda
@@ -254,7 +258,8 @@ const IqChat = ({ org }) => {
       message,
       sender: "user",
       msgDate: (Date.now()/1000).toFixed(0),
-      qaId: uuid()
+      qaId: uuid(),
+      feedbackSent: false
     };
 
     const updatedMessages = [...messages.userChats, newMessage];
@@ -263,7 +268,6 @@ const IqChat = ({ org }) => {
       userChats: updatedMessages
     });
     setIsTyping(true);
-
     try {
       // Send message to CB IQ
       tsvscode.postMessage({
@@ -273,7 +277,7 @@ const IqChat = ({ org }) => {
           orgId: org.data.id,
           userChats: updatedMessages,
           chatId: messages.chatId,
-          qaId: newMessage.qaId
+          qaId: newMessage.qaId,
         },
       });
     } catch (error) {
