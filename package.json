@@ -85,9 +85,10 @@
   "dependencies": {
     "@chatscope/chat-ui-kit-styles": "^1.4.0",
     "@fortawesome/fontawesome-free": "^5.12.1",
-    "@fortawesome/fontawesome-svg-core": "^1.2.26",
-    "@fortawesome/free-solid-svg-icons": "^5.12.0",
-    "@fortawesome/react-fontawesome": "^0.1.8",
+    "@fortawesome/fontawesome-svg-core": "^6.5.1",
+    "@fortawesome/free-regular-svg-icons": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@monaco-editor/react": "^4.5.2",
     "@popperjs/core": "^2.11.8",
     "@types/decompress": "^4.2.4",

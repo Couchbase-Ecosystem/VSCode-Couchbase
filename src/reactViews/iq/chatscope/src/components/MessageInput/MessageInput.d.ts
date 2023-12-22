@@ -1,5 +1,6 @@
 import type {MouseEvent, ReactElement} from "react";
 import type {ChatComponentPropsRef} from "../../types";
+import { IconDefinition } from "@fortawesome/free-regular-svg-icons";
 
 export interface MessageInputProps {
   value?: string;
@@ -16,6 +17,7 @@ export interface MessageInputProps {
   attachButton?: boolean;
   attachDisabled?: boolean;
   onAttachClick?: (evt: MouseEvent<HTMLButtonElement>) => void;
+  attachIcon?: IconDefinition;
 }
 
 export declare const MessageInput: (props: ChatComponentPropsRef<MessageInputProps, "div">) => ReactElement;

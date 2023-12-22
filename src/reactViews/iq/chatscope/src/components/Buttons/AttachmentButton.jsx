@@ -6,14 +6,15 @@ import Button from "./Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperclip } from "@fortawesome/free-solid-svg-icons/faPaperclip";
 
-export const AttachmentButton = ({ className, children, ...rest }) => {
+export const AttachmentButton = ({ className, children, icon={faPaperclip}, ...rest }) => {
   const cName = `${prefix}-button--attachment`;
 
   return (
     <Button
       {...rest}
       className={classNames(cName, className)}
-      icon={<FontAwesomeIcon icon={faPaperclip} />}
+      icon={<FontAwesomeIcon icon={icon} />}
+      
     >
       {children}
     </Button>

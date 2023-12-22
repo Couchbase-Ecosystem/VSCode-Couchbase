@@ -121,7 +121,6 @@ const getFinalResponse = async (message: string, additionalContext: IAdditionalC
 export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, allMessages: IStoredMessages[], webview: WebviewView) => {
     const newMessage: string = iqPayload.newMessage, orgId: string = iqPayload.orgId, chatId: string = iqPayload.chatId, qaId: string = iqPayload.qaId;
     const userChats = iqPayload.userChats || [];
-
     const jwtToken = Memory.state.get<string>("vscode-couchbase.iq.jwtToken");
     if (jwtToken === undefined) {
         return {

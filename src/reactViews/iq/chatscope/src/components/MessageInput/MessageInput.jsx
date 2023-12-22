@@ -82,6 +82,7 @@ function MessageInputInner(
     sendButton,
     attachButton,
     onAttachClick,
+    attachIcon,
     ...rest
   },
   ref
@@ -160,7 +161,7 @@ function MessageInputInner(
   };
 
   const handleChange = (innerHTML, textContent, innerText) => {
-    setStateValue(innerHTML);
+    setStateValue(innerText);
     if (typeof sendDisabled === "undefined") {
       setStateSendDisabled(textContent.length === 0);
     }
@@ -173,6 +174,7 @@ function MessageInputInner(
 
     onChange(innerHTML, textContent, innerText, content[2]);
   };
+
 
   const cName = `${prefix}-message-input`,
     ph = typeof placeholder === "string" ? placeholder : "";
@@ -191,6 +193,7 @@ function MessageInputInner(
           <AttachmentButton
             onClick={onAttachClick}
             disabled={disabled === true || attachDisabled === true}
+            icon={attachIcon}
           />
         </div>
       )}
@@ -208,6 +211,7 @@ function MessageInputInner(
             placeholder={ph}
             onKeyPress={handleKeyPress}
             onChange={handleChange}
+            
             activateAfterChange={activateAfterChange}
             value={stateValue}
           />

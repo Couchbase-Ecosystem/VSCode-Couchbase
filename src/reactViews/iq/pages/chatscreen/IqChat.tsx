@@ -7,7 +7,7 @@ import MessageList from "../../chatscope/src/components/MessageList/MessageList"
 import { Message } from "../../chatscope/src/components/Message/Message";
 import { MessageInput } from "../../chatscope/src/components/MessageInput/MessageInput";
 import { TypingIndicator } from "../../chatscope/src/components/TypingIndicator/TypingIndicator";
-import {v4 as uuid} from 'uuid';
+import { v4 as uuid } from "uuid";
 
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -22,6 +22,9 @@ import {
 } from "chatscope/src/components/ActionBar/ActionBar";
 import { ChatAction, availableActions } from "utils/ChatAction";
 import { SendFeedback } from "components/chatActions/SendFeedback";
+import { faThumbsUp, faThumbsDown } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
 
 export type userMessage = {
   message: string;
@@ -32,53 +35,52 @@ export type userMessage = {
 };
 
 export type iqMessages = {
-  userChats: userMessage[],
-  chatId: string
+  userChats: userMessage[];
+  chatId: string;
 };
 
 const IqChat = ({ org }) => {
-  const [messages, setMessages] = useState<iqMessages>
-    ({
-        userChats: [
-        {
-          message: "Hello, I'm Couchbase IQ! Ask me anything!",
-          sender: "assistant",
-          msgDate: (Date.now()/1000).toFixed(0),
-          qaId: "firstMessage",
-          feedbackSent: false,
-        },
-      ], 
-      chatId: uuid()
-    });
+  const [messages, setMessages] = useState<iqMessages>({
+    userChats: [
+      {
+        message: "Hello, I'm Couchbase IQ! Ask me anything!",
+        sender: "assistant",
+        msgDate: (Date.now() / 1000).toFixed(0),
+        qaId: "firstMessage",
+        feedbackSent: false,
+      },
+    ],
+    chatId: uuid(),
+  });
   const [isTyping, setIsTyping] = useState(false);
   const [codeTheme, setCodeTheme] = useState(oneLight);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackModalData, setFeedbackModalData] = useState({
     msgIndex: -1,
-    qaId: ""
+    qaId: "",
   });
-
+  const [actions, setActions] = useState<IActionBarButton[]>([]);
 
   // fetch settings
-  useEffect(()=>{
+  useEffect(() => {
     tsvscode.postMessage({
       command: "vscode-couchbase.iq.fetchChatSettings",
-      value: undefined
+      value: undefined,
     });
   }, []);
 
-  const [actions, setActions] = useState<IActionBarButton[]>([]);
 
   const handleMessageLike = (index: number, qaId: string) => {
     const originalReply = messages.userChats[index].message;
-    const originalQuestion = index - 1 > 0 ? messages.userChats[index - 1].message : "";
-    const newMessage:userMessage = {
+    const originalQuestion =
+      index - 1 > 0 ? messages.userChats[index - 1].message : "";
+    const newMessage: userMessage = {
       message:
         "Glad you liked the result. Would you like to give more feedback",
       sender: "feedback",
-      msgDate: (Date.now()/1000).toFixed(0),
+      msgDate: (Date.now() / 1000).toFixed(0),
       qaId: qaId,
-      feedbackSent: false
+      feedbackSent: false,
     };
 
     const messagesCopy = [...messages.userChats];
@@ -87,11 +89,17 @@ const IqChat = ({ org }) => {
     const updatedMessages = [...messagesCopy, newMessage];
     setMessages({
       chatId: messages.chatId,
-      userChats: updatedMessages
+      userChats: updatedMessages,
     });
-    
+
     setActions([
-      ChatAction("Send Feedback", setShowFeedbackModal, setFeedbackModalData, index, qaId)
+      ChatAction(
+        "Send Feedback",
+        setShowFeedbackModal,
+        setFeedbackModalData,
+        index,
+        qaId
+      ),
     ]);
     // send info to lambda
     tsvscode.postMessage({
@@ -112,14 +120,15 @@ const IqChat = ({ org }) => {
 
   const handleMessageDislike = (index: number, qaId: string) => {
     const originalReply = messages.userChats[index].message;
-    const originalQuestion = index - 1 > 0 ? messages.userChats[index - 1].message : "";
-    const newMessage:userMessage = {
+    const originalQuestion =
+      index - 1 > 0 ? messages.userChats[index - 1].message : "";
+    const newMessage: userMessage = {
       message:
         "Oh! We are very sorry. Can you please give us additional info via feedback",
       sender: "feedback",
-      msgDate: (Date.now()/1000).toFixed(0),
+      msgDate: (Date.now() / 1000).toFixed(0),
       qaId: qaId,
-      feedbackSent: false
+      feedbackSent: false,
     };
 
     const messagesCopy = [...messages.userChats];
@@ -128,12 +137,18 @@ const IqChat = ({ org }) => {
     const updatedMessages = [...messagesCopy, newMessage];
     setMessages({
       chatId: messages.chatId,
-      userChats: updatedMessages
+      userChats: updatedMessages,
     });
 
     // set actions to feedback
     setActions([
-      ChatAction("Send Feedback", setShowFeedbackModal, setFeedbackModalData, index, qaId)
+      ChatAction(
+        "Send Feedback",
+        setShowFeedbackModal,
+        setFeedbackModalData,
+        index,
+        qaId
+      ),
     ]);
 
     tsvscode.postMessage({
@@ -156,8 +171,8 @@ const IqChat = ({ org }) => {
     const index = feedbackModalData.msgIndex;
     const qaId = feedbackModalData.qaId;
     const originalReply = messages.userChats[index].message;
-    const originalQuestion = index - 1 > 0 ? messages.userChats[index - 1].message : "";
-
+    const originalQuestion =
+      index - 1 > 0 ? messages.userChats[index - 1].message : "";
 
     tsvscode.postMessage({
       command: "vscode-couchbase.iq.sendFeedbackPerMessageEmote",
@@ -165,10 +180,10 @@ const IqChat = ({ org }) => {
         type: null,
         question: originalQuestion,
         reply: originalReply,
-        msgDate: ((Date.now())/1000).toFixed(0),
+        msgDate: (Date.now() / 1000).toFixed(0),
         additionalFeedback: feedbackText,
         qaId: qaId,
-        chatId: messages.chatId
+        chatId: messages.chatId,
       },
     });
   };
@@ -186,7 +201,7 @@ const IqChat = ({ org }) => {
   const handlePaste = (event) => {
     // Prevent the original paste action
     event.preventDefault();
-    const text = event.clipboardData.getData("text");
+    const text = event.clipboardData.getData("text/plain");
     const selection = window.getSelection();
 
     if (selection.rangeCount) {
@@ -196,6 +211,24 @@ const IqChat = ({ org }) => {
 
     const inputEvent = new Event("input", { bubbles: true });
     event.target.dispatchEvent(inputEvent);
+  };
+
+  const onNewChatClick = () => {
+    setMessages({
+      userChats: [
+        {
+          message: "Hello, I'm Couchbase IQ! Ask me anything!",
+          sender: "assistant",
+          msgDate: (Date.now() / 1000).toFixed(0),
+          qaId: "firstMessage",
+          feedbackSent: false,
+        },
+      ],
+      chatId: uuid(),
+    });
+    setIsTyping(false);
+    setShowFeedbackModal(false);
+    setActions([]);
   };
 
   window.addEventListener("message", (event) => {
@@ -213,13 +246,13 @@ const IqChat = ({ org }) => {
           sender: "assistant",
           feedbackSent: false,
           msgDate: message.msgDate,
-          qaId: message.qaId // TODO: get qaId 
+          qaId: message.qaId, // TODO: get qaId
         };
         const updatedMessages = [...messages.userChats, newMessage];
 
         setMessages({
           chatId: messages.chatId,
-          userChats: updatedMessages
+          userChats: updatedMessages,
         });
 
         setIsTyping(false);
@@ -235,10 +268,18 @@ const IqChat = ({ org }) => {
       }
       case "vscode-webview.iq.updateActions": {
         const actionsForBar = [];
-        for(const action of message.actions) {
-          if(availableActions.includes(action)){
-            if(action === "Send Feedback") {
-              actionsForBar.push(ChatAction(action, setShowFeedbackModal, setFeedbackModalData, 0, "firstMessage")); // TODO: Right now Gives feedback to just the first message
+        for (const action of message.actions) {
+          if (availableActions.includes(action)) {
+            if (action === "Send Feedback") {
+              actionsForBar.push(
+                ChatAction(
+                  action,
+                  setShowFeedbackModal,
+                  setFeedbackModalData,
+                  0,
+                  "firstMessage"
+                )
+              ); // TODO: Right now Gives feedback to just the first message
             } else {
               actionsForBar.push(ChatAction(action));
             }
@@ -254,18 +295,18 @@ const IqChat = ({ org }) => {
   });
 
   const handleSendRequest = async (message: string) => {
-    const newMessage:userMessage = {
+    const newMessage: userMessage = {
       message,
       sender: "user",
-      msgDate: (Date.now()/1000).toFixed(0),
+      msgDate: (Date.now() / 1000).toFixed(0),
       qaId: uuid(),
-      feedbackSent: false
+      feedbackSent: false,
     };
 
     const updatedMessages = [...messages.userChats, newMessage];
     setMessages({
       chatId: messages.chatId,
-      userChats: updatedMessages
+      userChats: updatedMessages,
     });
     setIsTyping(true);
     try {
@@ -298,12 +339,15 @@ const IqChat = ({ org }) => {
         >
           <MessageList
             className={`chatscope-message-list ${
-              (isTyping || actions.length > 0) ? "hasActionbar" : ""
+              isTyping || actions.length > 0 ? "hasActionbar" : ""
             }`}
             scrollBehavior="smooth"
             actionbar={
               isTyping ? (
-                <TypingIndicator content="IQ is typing" className="typingIndicator" />
+                <TypingIndicator
+                  content="IQ is typing"
+                  className="typingIndicator"
+                />
               ) : actions.length > 0 ? (
                 <ActionBar buttons={actions} />
               ) : undefined
@@ -361,18 +405,22 @@ const IqChat = ({ org }) => {
                       <Message.Footer className="messageFooter">
                         {message.feedbackSent !== true ? (
                           <>
-                            <div
+                            <button
                               className="likeButton"
-                              onClick={() => handleMessageLike(index, message.qaId)}
+                              onClick={() =>
+                                handleMessageLike(index, message.qaId)
+                              }
                             >
-                              👍
-                            </div>
-                            <div
+                              <FontAwesomeIcon icon={faThumbsUp} />
+                            </button>
+                            <button
                               className="dislikeButton"
-                              onClick={() => handleMessageDislike(index, message.qaId)}
+                              onClick={() =>
+                                handleMessageDislike(index, message.qaId)
+                              }
                             >
-                              👎
-                            </div>
+                              <FontAwesomeIcon icon={faThumbsDown} />
+                            </button>
                           </>
                         ) : (
                           <div className="feedbackSentFooter">
@@ -400,16 +448,24 @@ const IqChat = ({ org }) => {
               handlePaste(event);
             }}
             sendButton={true}
-            attachButton={false}
+            attachButton={true}
             placeholder="Type a message..."
             onSend={(msg) => handleSendRequest(msg)}
             className="chatscope-message-input"
+            sendDisabled={!isTyping}
+            attachIcon={faSquarePlus}
+            onAttachClick={onNewChatClick}
           />
-
-          
         </ChatContainer>
-        {<SendFeedback isOpen={showFeedbackModal} onClose={()=>setShowFeedbackModal(false)} onSubmit={(text)=>handleFeedbackSubmit(text)}/>}
+        {
+          <SendFeedback
+            isOpen={showFeedbackModal}
+            onClose={() => setShowFeedbackModal(false)}
+            onSubmit={(text) => handleFeedbackSubmit(text)}
+          />
+        }
       </MainContainer>
+      
     </div>
   );
 };
