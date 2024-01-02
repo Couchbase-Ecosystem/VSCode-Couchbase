@@ -1,4 +1,5 @@
 import { logger } from "../../../logger/logger";
+import { CacheService } from "../../../util/cacheService/cacheService";
 
 export const availableActions = ["Data Import", "Send Feedback", "Data Export", "DDL Export", "Open Query Editor", "Open SQL++ Notebook"];
 
@@ -16,3 +17,11 @@ export const jsonParser = async (text: string) => {
     }
     return jsonObjects;
 };
+
+export const availableCollections = async (cacheService: CacheService):Promise<string> =>  {
+    let allCollectionsArr = await cacheService.getAllCollections();
+    if (allCollectionsArr.length > 50) {
+        allCollectionsArr = allCollectionsArr.slice(0,50);
+    }
+    return  allCollectionsArr.join(", ");
+}

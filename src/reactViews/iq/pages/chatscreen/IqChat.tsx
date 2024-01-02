@@ -22,9 +22,10 @@ import {
 } from "chatscope/src/components/ActionBar/ActionBar";
 import { ChatAction, availableActions } from "utils/ChatAction";
 import { SendFeedback } from "components/chatActions/SendFeedback";
-import { faThumbsUp, faThumbsDown } from "@fortawesome/free-regular-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
+import  ThumbsUp from "../../assets/icons/ThumbsUp";
+import  ThumbsDown  from "../../assets/icons/ThumbsDown";
+
 
 export type userMessage = {
   message: string;
@@ -411,7 +412,7 @@ const IqChat = ({ org }) => {
                                 handleMessageLike(index, message.qaId)
                               }
                             >
-                              <FontAwesomeIcon icon={faThumbsUp} />
+                              <ThumbsUp height="30px" />
                             </button>
                             <button
                               className="dislikeButton"
@@ -419,7 +420,7 @@ const IqChat = ({ org }) => {
                                 handleMessageDislike(index, message.qaId)
                               }
                             >
-                              <FontAwesomeIcon icon={faThumbsDown} />
+                             <ThumbsDown height="30px"/>
                             </button>
                           </>
                         ) : (

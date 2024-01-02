@@ -154,6 +154,8 @@ const iqReactConfig = {
       'pages': path.resolve(__dirname, 'src/reactViews/iq/pages'),
       'chatscope': path.resolve(__dirname,'src/reactViews/iq/chatscope'),
       'utils': path.resolve(__dirname,'src/reactViews/iq/utils'),
+      'types': path.resolve(__dirname, 'src/reactViews/iq/types'),
+      'assets': path.resolve(__dirname, 'src/reactViews/iq/assets')
     },
     fallback: {
       "path": false,
