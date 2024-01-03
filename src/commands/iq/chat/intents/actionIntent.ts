@@ -4,8 +4,9 @@ import { availableActions } from "../utils";
 
 
 export const actionIntenthandler = async (jsonObject: any, webview: WebviewView) => {
-    const actions = jsonObject?.actions;
+    const actions = jsonObject?.actions || [];
     const resultingActions: string[] = [];
+    
     if(actions.length === 0){
         return resultingActions;
     }

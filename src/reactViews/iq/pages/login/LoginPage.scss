@@ -114,7 +114,7 @@
 
     .divider {
       display: inline-block;
-      width: 40%;
+      width: min(40%,calc(50% - 35px));
       height: 1px;
       background-color: var(
         --vscode-settings-sashBorder

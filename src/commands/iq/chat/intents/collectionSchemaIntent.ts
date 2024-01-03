@@ -1,7 +1,8 @@
-import { ISchemaPatternCache, ISchemaCache, CacheService } from "../../../../util/cacheService/cacheService";
+import { logger } from "../../../../logger/logger";
+import {  ISchemaCache, CacheService } from "../../../../util/cacheService/cacheService";
 import { IAdditionalContext } from "../types";
 
-const schemaPatternStringify = (schemaPattern: ISchemaPatternCache, indentLevel: number = 0) => {
+const schemaPatternStringify = (schemaPattern: any, indentLevel: number = 0) => {
     let result = '';
     const indent = '-'.repeat(indentLevel * 2);
     for (let [key, value] of schemaPattern.schemaNode) {
@@ -31,7 +32,7 @@ export const collectionSchemaHandler = async (jsonObject: any, response: IAdditi
     if (collections.length === 0) { // No Collections found, returning
         return;
     }
-
+    logger.info("getting collections data intent for " + collections);
     let schemas = [];
     for (let collection of collections) {
         let scope = "";
@@ -42,7 +43,7 @@ export const collectionSchemaHandler = async (jsonObject: any, response: IAdditi
             if (schema !== undefined) {
                 // found correct pair, we can return the schema
                 const stringifiedSchema = {
-                    schema: schemaStringify(schema),
+                    schema: JSON.stringify(schema),
                     collection: `${scope}.${col}`
                 };
                 schemas.push(stringifiedSchema);
@@ -53,7 +54,7 @@ export const collectionSchemaHandler = async (jsonObject: any, response: IAdditi
             if (schema !== undefined) {
                 // found correct pair, we can return the schema
                 const stringifiedSchema = {
-                    schema: schemaStringify(schema),
+                    schema: JSON.stringify(schema),
                     collection: col
                 };
                 schemas.push(stringifiedSchema);

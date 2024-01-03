@@ -5,14 +5,14 @@ import { hasQueryService } from "../common";
 import { Global } from "../util";
 import { QueryIndex } from "couchbase";
 
-type schemaPatternType = ISchemaPatternCache | string;
+// type schemaPatternType = ISchemaPatternCache | string;
 
-export interface ISchemaPatternCache {
-    schemaNode: Map<string, schemaPatternType>;
-}
-
+// export interface ISchemaPatternCache {
+//     schemaNode: any;
+// }
+export type SchemaCacheType = { [index: string]: any };
 export interface ISchemaCache {
-    patterns: ISchemaPatternCache[];
+    patterns: SchemaCacheType[];
 }
 
 export interface ICollectionCache {
@@ -41,27 +41,27 @@ export class CacheService {
 
     CacheService() { }
 
-    private schemaTreeTraversal(treeNode: any): ISchemaPatternCache {
+    private schemaTreeTraversal(treeNode: any): SchemaCacheType {
         if (!treeNode) {
-            return { schemaNode: new Map<string, schemaPatternType>() };
+            return {};
         }
-        const currentNodes = new Map<string, schemaPatternType>();
+        const currentNodes: SchemaCacheType = {};
 
         Object.entries(treeNode).map(property => {
             const propertyValue: any = property[1];
             const type = propertyValue.type;
             if (type === 'object') {
                 const children = this.schemaTreeTraversal(propertyValue.properties);
-                currentNodes.set(`${property[0]}`, children);
+                currentNodes[property[0]] =  children;
             } else if (type === 'array') {
                 try {
                     const items = propertyValue.items;
                     const itemType = items.type;
                     if (itemType === 'object') {
                         const children = this.schemaTreeTraversal(items.properties);
-                        currentNodes.set(`${property[0]}`, children);
+                        currentNodes[property[0]] = children;
                     } else {
-                        currentNodes.set(`${property[0]}`, `array of ${itemType}`);
+                        currentNodes[property[0]] =  `array of ${itemType}`;
                     }
                 } catch (error) {
                     logger.error(`Error processing array type for ${property[0]}: ${error}`);
@@ -71,13 +71,13 @@ export class CacheService {
                 try {
                     let currentType: string = type.toString();
                     currentType = currentType.replace(',', " | ");
-                    currentNodes.set(`${property[0]}`, currentType);
+                    currentNodes[property[0]] =  currentType;
                 } catch (e) {
                     logger.error("Type can't be stringified: " + e);
                 }
             }
         });
-        return { schemaNode: currentNodes };
+        return currentNodes;
     }
 
     public cacheSchemaForCollection = async (connection: IConnection, collection: ICollectionCache) => {
@@ -86,7 +86,7 @@ export class CacheService {
             const result = await connection?.cluster?.query(query);
 
             const patternCnt: number = result?.rows[0].length || 0;
-            const schemaPatternData: ISchemaPatternCache[] = [];
+            const schemaPatternData: SchemaCacheType[] = [];
             for (let i = 0; i < patternCnt; i++) {
                 const row = result?.rows[0][i];
                 const childrenNode = this.schemaTreeTraversal(row.properties);
@@ -100,7 +100,7 @@ export class CacheService {
 
     public async cacheIndexesForCollection(connection: IConnection, collection: ICollectionCache): Promise<QueryIndex[]> {
         const indexesResult = await connection?.cluster?.queryIndexes().getAllIndexes(collection.bucketName, { scopeName: collection.scopeName, collectionName: collection.name });
-        collection.indexes = indexesResult?.map((index)=>{
+        collection.indexes = indexesResult?.map((index) => {
             return JSON.stringify(index);
         });
         return indexesResult || [];
@@ -112,7 +112,7 @@ export class CacheService {
             for (let [_, scope] of bucket.scopes) {
                 for (let [_, collection] of scope.collections) {
                     const indexes = await this.cacheIndexesForCollection(connection, collection);
-                    if(indexes.length > 0){ // Only cache schema 
+                    if (indexes.length > 0) { // Only cache schema 
                         await this.cacheSchemaForCollection(connection, collection);
                     }
                 };
@@ -176,7 +176,8 @@ export class CacheService {
         if (connection) {
             if (!forcedCacheUpdate) {
                 const isCacheSuccessful = await this.loadCache(connection);
-                if(isCacheSuccessful){
+                if (isCacheSuccessful) {
+                    this.cacheStatus = true;
                     return;
                 }
             }
@@ -212,12 +213,12 @@ export class CacheService {
 
     };
 
-    public getCollectionSchemaWithCollectionName = async(collectionName: string):Promise<undefined | ISchemaCache> => {
+    public getCollectionSchemaWithCollectionName = async (collectionName: string): Promise<undefined | ISchemaCache> => {
         if (this.cacheStatus === false) {
             return undefined;
         }
         for await (let [_, bucketCache] of this.bucketsData) {
-            for await (let [_, scopeCache] of bucketCache.scopes){
+            for await (let [_, scopeCache] of bucketCache.scopes) {
                 const collections = scopeCache.collections;
                 if (collections !== undefined) {
                     const collectionData = collections.get(collectionName);
@@ -237,11 +238,10 @@ export class CacheService {
         }
         const allCollectionList = [];
         for await (let [_, bucketCache] of this.bucketsData) {
-            for await (let [_, scopeCache] of bucketCache.scopes){
-                for await (let [_, collectionCache] of scopeCache.collections){
+            for await (let [_, scopeCache] of bucketCache.scopes) {
+                for await (let [_, collectionCache] of scopeCache.collections) {
                     allCollectionList.push(`${collectionCache.scopeName}.${collectionCache.name}`);
                 }
-                
             }
         }
         return allCollectionList;
@@ -249,14 +249,9 @@ export class CacheService {
 
     private serializeSchema(schema: ISchemaCache): string {
         // Convert nested Maps to plain objects for JSON
-        const patternsJson = JSON.stringify(schema.patterns.map((pattern) => {
-            if (typeof pattern === "string") {
-                return pattern;
-            }
-            return { schemaNode: Object.entries(pattern.schemaNode) };
-        }));
-
-        return JSON.stringify({ patterns: patternsJson });
+        const patternsJson = JSON.stringify(schema.patterns);
+        return patternsJson;
+        //return JSON.stringify({ patterns: patternsJson });
     }
 
     public async storeCache(connection: IConnection): Promise<void> {
@@ -298,7 +293,7 @@ export class CacheService {
         if (!storedDataJson) {
             return false; // No existing cache
         }
-
+        logger.info("Loading existing cache");
         const storedData = JSON.parse(storedDataJson);
         this.bucketsData.clear();
         for (const bucketName in storedData) {
@@ -308,9 +303,10 @@ export class CacheService {
                 scopes: new Map(),
             };
             this.bucketsData.set(bucketName, bucket);
+            logger.info("loading cache from bucket: "+ bucketName);
 
             for (const scopeName in storedData[bucketName].scopes) {
-                const scope:IScopeCache = {
+                const scope: IScopeCache = {
                     name: storedData[bucketName].scopes[scopeName].name,
                     bucketName: bucketName,
                     collections: new Map(),
@@ -318,6 +314,7 @@ export class CacheService {
                 bucket.scopes.set(scopeName, scope);
 
                 for (const collectionName in storedData[bucketName].scopes[scopeName].collections) {
+                    console.log(bucketName,scopeName, collectionName);
                     const collection: ICollectionCache = {
                         name: storedData[bucketName].scopes[scopeName].collections[collectionName].name,
                         schema: storedData[bucketName].scopes[scopeName].collections[collectionName].schema
@@ -335,17 +332,18 @@ export class CacheService {
     }
 
     private deserializeSchema(storedSchemaJson: string): ISchemaCache | undefined {
-        if (!storedSchemaJson) { 
+        
+        
+        if (!storedSchemaJson) {
             return undefined;
         }
 
-        const storedSchema = JSON.parse(storedSchemaJson);
-        const patterns = JSON.parse(storedSchema.patterns);
+        const patterns = JSON.parse(storedSchemaJson);
         return {
-            patterns: patterns.map((pattern: ISchemaPatternCache) => {
-              return { schemaNode: new Map(Object.entries(pattern.schemaNode)) }; // Convert empty array to Map
+            patterns: patterns.map((pattern: any):SchemaCacheType => {
+                return pattern; // Convert empty array to Map
             }),
-          };
+        };
 
     }
 }

@@ -247,7 +247,7 @@ const IqChat = ({ org }) => {
           sender: "assistant",
           feedbackSent: false,
           msgDate: message.msgDate,
-          qaId: message.qaId, // TODO: get qaId
+          qaId: message.qaId,
         };
         const updatedMessages = [...messages.userChats, newMessage];
 

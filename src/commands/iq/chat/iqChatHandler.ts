@@ -37,12 +37,12 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
     
     6 - If you did not extract any entities above, simply respond to the user question. Don't send any JSON in this case
 
-    `; // TODO: Update all available collections
+    `; 
 
     let codeSelected = `The user has the following code selected: 
     `;
     let codeSelectedAvailable: boolean = false;
-    // TODO: update based on code selected
+    
     let config = vscode.workspace.getConfiguration('couchbase');
 
     const editor = vscode.window.activeTextEditor;
@@ -60,7 +60,7 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
         ${userRequest}
     `;
 
-    let finalContent = basicQuestion + userQuestion + (codeSelectedAvailable ? codeSelected : ""); // TODO: update code selected as well in this
+    let finalContent = basicQuestion + userQuestion + (codeSelectedAvailable ? codeSelected : ""); 
 
     previousMessages.allChats = [...previousMessages.allChats, {
         role: "user",
@@ -95,7 +95,7 @@ const getFinalResponse = async (message: string, additionalContext: IAdditionalC
         additionalContextPrompt += "the schema for collection " + schema.collection + " is " + schema.schema + "\n";
     }
 
-    const finalContent = basicPrompt + additionalContextPrompt + `Please focus now on answering the question that is: ${message}`;
+    const finalContent = basicPrompt + additionalContextPrompt + `Please focus now on answering the question and do not return JSON unless specified in the question. \n ${message}`;
 
     previousMessages.allChats = [...previousMessages.allChats, {
         role: "user",
