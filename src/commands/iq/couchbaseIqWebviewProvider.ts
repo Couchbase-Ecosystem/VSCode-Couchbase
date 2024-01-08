@@ -17,12 +17,13 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { getIQWebviewContent } from '../../webViews/iq/couchbaseIq.webview';
-import { IStoredMessages, iqChatHandler } from './chat/iqChatHandler';
-import { iqLoginHandler, iqSavedLoginDataGetter, iqSavedLoginHandler } from './iqLoginhandler';
+import { iqChatHandler } from './chat/iqChatHandler';
+import { iqLoginHandler, iqSavedLoginDataGetter, iqSavedLoginHandler, verifyOrganization } from './iqLoginhandler';
 import { Memory } from '../../util/util';
 import { Constants } from '../../util/constants';
 import { CacheService } from '../../util/cacheService/cacheService';
 import { iqFeedbackHandler } from './iqFeedbackHandler';
+import { IStoredMessages } from './chat/types';
 
 
 
@@ -101,12 +102,21 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                                 savedOrganization: undefined
                             });
                         } else {
-                            this._view?.webview.postMessage({
-                                command: "vscode-couchbase.iq.organizationDetails",
-                                organizations: organizations,
-                                isSavedOrganization: true,
-                                savedOrganization: savedOrganizationDetail
-                            });
+                            const isVerified = await verifyOrganization(savedOrganizationDetail.data.id);
+                            if(isVerified){
+                                this._view?.webview.postMessage({
+                                    command: "vscode-couchbase.iq.organizationDetails",
+                                    organizations: organizations,
+                                    isSavedOrganization: true,
+                                    savedOrganization: savedOrganizationDetail
+                                });
+                            } else {
+                                config.update("iq.organization", "");
+                                this._view?.webview.postMessage({
+                                    command: "vscode-couchbase.iq.forcedLogout",
+                                    error: "Your organization has not enabled iq, please login to capella and enable it"
+                                });
+                            }
                         }
                     } else {
                         this._view?.webview.postMessage({
@@ -178,12 +188,21 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                                 savedOrganization: undefined
                             });
                         } else {
-                            this._view?.webview.postMessage({
-                                command: "vscode-couchbase.iq.organizationDetails",
-                                organizations: organizations,
-                                isSavedOrganization: true,
-                                savedOrganization: savedOrganizationDetail
-                            });
+                            const isOrgVerified = await verifyOrganization(savedOrganizationDetail.data.id);
+                            if(isOrgVerified) {
+                                this._view?.webview.postMessage({
+                                    command: "vscode-couchbase.iq.organizationDetails",
+                                    organizations: organizations,
+                                    isSavedOrganization: true,
+                                    savedOrganization: savedOrganizationDetail
+                                });
+                            } else {
+                                config.update("iq.organization", "");
+                                this._view?.webview.postMessage({
+                                    command: "vscode-couchbase.iq.forcedLogout",
+                                    error: "Your organization has not enabled iq, please login to capella and enable it"
+                                });
+                            }
                         }
                     } else {
                         this._view?.webview.postMessage({
@@ -195,10 +214,17 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     }
                     break;
                 }
-                case "vscode-couchbase.iq.rememberOrganization": {
-                    let config = vscode.workspace.getConfiguration('couchbase');
-                    config.update('iq.organization', message.value.organizationDetails.data.id, vscode.ConfigurationTarget.Global);
-                    
+                case "vscode-couchbase.iq.verifyOrganizationAndSave": {
+                    const isVerified = await verifyOrganization(message.value.organizationDetails.data.id);
+                    if(isVerified && message.value.rememberOrgChecked) {
+                        let config = vscode.workspace.getConfiguration('couchbase');
+                        config.update('iq.organization', message.value.organizationDetails.data.id, vscode.ConfigurationTarget.Global);
+                    } else if(!isVerified) {
+                        this._view?.webview.postMessage({
+                            command: "vscode-couchbase.iq.forcedLogout",
+                            error: "Your organization has not enabled iq, please login to capella and enable it"
+                        });
+                    }
                     break;
                 }
                 case "vscode-couchbase.iq.sendFeedbackPerMessageEmote": {
@@ -207,16 +233,6 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                 }
                 case "vscode-couchbase.iq.executeActionCommand": {
                     vscode.commands.executeCommand(message.value);
-                    break;
-                }
-                case "vscode-couchbase.iq.fetchChatSettings": { // Add settings to be sent to IQ Chat here
-                    let config = vscode.workspace.getConfiguration('couchbase');
-
-                    this._view?.webview.postMessage({
-                        command: "vscode-couchbase.iq.sendChatSettings",
-                        value: {
-                        }
-                    });
                     break;
                 }
                 case "vscode-couchbase.iq.openLinkInBrowser": {

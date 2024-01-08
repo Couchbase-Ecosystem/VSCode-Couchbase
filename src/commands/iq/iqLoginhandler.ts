@@ -65,3 +65,15 @@ export const iqSavedLoginHandler = async (username: string ) => {
         return undefined;
     }
 };
+
+export const verifyOrganization = async (orgId: string): Promise<boolean> => {
+    const jwtToken = Memory.state.get<string>("vscode-couchbase.iq.jwtToken");
+    if(jwtToken === undefined){
+        return false;
+    }
+    const orgDetails = await iqRestApiService.getOrganizationDetails(jwtToken,orgId);
+    if(orgDetails.iq.enabled === true && orgDetails.iq.other.isTermsAcceptedForOrg === true) {
+        return true;
+    }
+    return false;
+};

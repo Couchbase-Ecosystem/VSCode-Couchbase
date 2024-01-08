@@ -1,5 +1,6 @@
 import { logger } from "../../../logger/logger";
 import { CacheService } from "../../../util/cacheService/cacheService";
+import * as vscode from 'vscode';
 
 export const availableActions = ["Data Import", "Send Feedback", "Data Export", "DDL Export", "Open Query Editor", "Open SQL++ Notebook"];
 
@@ -24,4 +25,27 @@ export const availableCollections = async (cacheService: CacheService):Promise<s
         allCollectionsArr = allCollectionsArr.slice(0,50);
     }
     return  allCollectionsArr.join(", ");
-}
+};
+
+export const getSelectedCode = () => {
+    let codeSelected = `The Code by user is: \n: 
+    `;
+    let codeSelectedAvailable: boolean = false;
+    
+    let config = vscode.workspace.getConfiguration('couchbase');
+
+    const editor = vscode.window.activeTextEditor;
+    if (editor && config.get("iq.enableCodeSelectionResult")) {
+        const selection = editor.selection;
+        if (selection && !selection.isEmpty) {
+            const selectedText = editor.document.getText(selection);
+            codeSelected += selectedText + " \n ";
+            codeSelectedAvailable = true;
+        }
+    }
+    if(codeSelectedAvailable){
+        return codeSelected;
+    } else {
+        return "";
+    }
+};

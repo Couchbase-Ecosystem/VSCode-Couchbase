@@ -11,8 +11,8 @@ export type IActionBarButton = {
 export const ActionBar = ({ buttons, className = "", ...rest }) => {
   const cName = `${prefix}-actionbar`;
   return <div {...rest} className={classNames(cName, className)}>
-    {buttons.map((button:IActionBarButton)=>{
-        return <Button border onClick={button.onclick}>{button.name}</Button>;
+    {buttons.map((button:IActionBarButton, index: number)=>{
+        return <Button border onClick={button.onclick} key={index}>{button.name}</Button>;
     })}
   </div>;
 };

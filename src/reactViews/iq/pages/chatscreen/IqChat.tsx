@@ -169,6 +169,9 @@ const IqChat = ({ org }) => {
   };
 
   const handleFeedbackSubmit = (feedbackText) => {
+    if(feedbackText.trim() === ""){
+      return;
+    }
     const index = feedbackModalData.msgIndex;
     const qaId = feedbackModalData.qaId;
     const originalReply = messages.userChats[index].message;
@@ -296,6 +299,9 @@ const IqChat = ({ org }) => {
   });
 
   const handleSendRequest = async (message: string) => {
+    if(isTyping){ // Don't accept new message if currently it's typing
+      return;
+    }
     const newMessage: userMessage = {
       message,
       sender: "user",
@@ -453,7 +459,6 @@ const IqChat = ({ org }) => {
             placeholder="Type a message..."
             onSend={(msg) => handleSendRequest(msg)}
             className="chatscope-message-input"
-            sendDisabled={!isTyping}
             attachIcon={faSquarePlus}
             onAttachClick={onNewChatClick}
           />

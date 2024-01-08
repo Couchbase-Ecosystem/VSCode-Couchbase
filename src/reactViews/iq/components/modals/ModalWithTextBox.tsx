@@ -10,6 +10,9 @@ export function ModalWithTextBox({ isOpen, onSubmit, onClose, label = "Enter tex
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    if(text.trim() === "") {
+      return;
+    }
     onSubmit(text); // Pass the entered text to the parent component
     onClose(); // Close the modal
   };

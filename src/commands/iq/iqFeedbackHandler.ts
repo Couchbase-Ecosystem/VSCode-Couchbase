@@ -1,6 +1,5 @@
 import { logger } from "../../logger/logger";
-import { IStoredMessages } from "./chat/iqChatHandler";
-import { feedbackLambdaMessageType } from "./chat/types";
+import { IStoredMessages, feedbackLambdaMessageType } from "./chat/types";
 import { iqRestApiService } from "./iqRestApiService";
 import * as vscode from 'vscode';
 

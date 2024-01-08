@@ -5,9 +5,9 @@ import { feedbackLambdaMessageType } from "./chat/types";
 
 
 export class iqRestApiService {
-
-    private static readonly SESSIONS_API_URL = "https://api.dev.nonprod-project-avengers.com/sessions";
-    private static readonly FETCH_ORGANIZATIONS_URL = "https://api.dev.nonprod-project-avengers.com/v2/organizations";
+    private static readonly CAPELLA_URL_DOMAIN = "https://api.dev.nonprod-project-avengers.com"; // TODO: change here before prod release
+    private static readonly SESSIONS_API_URL = `${this.CAPELLA_URL_DOMAIN}/sessions`;
+    private static readonly FETCH_ORGANIZATIONS_URL = `${this.CAPELLA_URL_DOMAIN}/v2/organizations`;
 
     public static capellaLogin = async (username: string, password: string) => {
         let content = await axios.post(this.SESSIONS_API_URL, {}, {
@@ -28,6 +28,15 @@ export class iqRestApiService {
         return content.data.data;
     };
 
+    public static getOrganizationDetails = async (jwt: string, orgId: string) => {
+        let content = await axios.get(this.FETCH_ORGANIZATIONS_URL + "/" + orgId, {
+            headers: {
+                Authorization: `Bearer ${jwt}`
+            }
+        });
+        return content.data.data[0];
+    };
+
     public static sendIqMessage = async (jwt: string, orgId: string, messageBody: any) => {
         let result = {
             content: "",
@@ -36,7 +45,7 @@ export class iqRestApiService {
         };
 
         try {
-            let content = await axios.post("https://api.dev.nonprod-project-avengers.com/v2/organizations/" + orgId + "/integrations/iq/openai/chat/completions",
+            let content = await axios.post(`${this.CAPELLA_URL_DOMAIN}/v2/organizations/` + orgId + "/integrations/iq/openai/chat/completions",
                 messageBody,
                 {
                     headers: {
@@ -44,9 +53,14 @@ export class iqRestApiService {
                         "Content-Type": "application/json",
                         Connection: "keep-alive"
                     },
-
                 },
             );
+
+            if(content.data.choices === undefined || content.data.choices.length === 0){
+                result.status = "405";
+                result.error = content.data.error;
+                return result;
+            }
             result.content = content.data.choices[0].message.content;
             result.status = content.status.toString();
         }
@@ -57,10 +71,17 @@ export class iqRestApiService {
             } else if(error.response){
                 result.error = error.response;
                 result.status = error.response.status.toString();
+            } else if(error.status){
+                result.error = error.status;
+                result.status = error.statusText;
             }
             else {
+                try {
                 logger.error("Error while receiving message from IQ: " + error);
                 result.error = "Error while receiving message from IQ: " + error;
+                } catch (e) {
+                    result.error = "Error while processing IQ message";
+                }
             }
         }
         return result;

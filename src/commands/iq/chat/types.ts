@@ -33,8 +33,14 @@ export interface IStoredMessages {
     chatId: string;
 }
 
+export type collectionIntentType = {
+    collection: string,
+    schemas: string,
+    indexes?: string
+}
+
 export interface IAdditionalContext {
-    schemas: any[],
+    collectionIntent: collectionIntentType[],
 }
 
 export type feedbackLambdaMessageType = {

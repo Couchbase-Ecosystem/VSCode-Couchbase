@@ -65,6 +65,12 @@
     border: 1px solid var(--vscode-settings-sashBorder);
     border-radius: 10px;
     padding: 20px;
+
+    .logout-reason {
+      border: 1px solid var(--vscode-settings-sashBorder);
+      color: #ea2328;
+      padding: 10px 5px;
+    }
   }
 
   #create-account {

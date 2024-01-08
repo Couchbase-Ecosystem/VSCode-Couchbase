@@ -17,15 +17,14 @@ const SelectOrganizationPage = ({ organizationDetails, setShowPage }) => {
 
   const handleSubmit = () => {
     if (selectedOrg !== undefined) {
-      if (rememberOrgChecked) {
-        // Here if user has asked to remember the org, then we store it inside settings
-        tsvscode.postMessage({
-          command: "vscode-couchbase.iq.rememberOrganization",
-          value: {
-            organizationDetails: selectedOrg,
-          },
-        });
-      }
+      // Verify if organization is allowed
+      tsvscode.postMessage({
+        command: "vscode-couchbase.iq.verifyOrganizationAndSave",
+        value: {
+          organizationDetails: selectedOrg,
+          rememberOrgChecked: rememberOrgChecked
+        }
+      });
       // At the end, we shift to next page that is main iq chat
       setShowPage(<IqChat org={selectedOrg} />);
     }

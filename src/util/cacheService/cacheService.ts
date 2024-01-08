@@ -195,7 +195,30 @@ export class CacheService {
         return this.cacheStatus;
     }
 
-    public getCollectionsSchemaWithScopeName = async (scopeName: string, collectionName: string): Promise<undefined | ISchemaCache> => {
+    public getCollectionWithBucketAndScopeName = async (bucketName: string, scopeName: string, collectionName: string): Promise<undefined | ICollectionCache> => {
+        if (this.cacheStatus === false) {
+            return undefined;
+        }
+        const bucketCache = this.bucketsData.get(bucketName);
+        if(!bucketCache){
+            return undefined;
+        }
+
+        const scopeData = bucketCache.scopes.get(scopeName);
+        if (scopeData === undefined) {
+            return undefined;
+        }
+        
+        const collectionData = scopeData.collections.get(collectionName);
+        if (collectionData === undefined) {
+            return undefined;
+        }
+        
+        return collectionData;
+
+    };
+
+    public getCollectionWithScopeName = async (scopeName: string, collectionName: string): Promise<undefined | ICollectionCache> => {
         if (this.cacheStatus === false) {
             return undefined;
         }
@@ -205,7 +228,7 @@ export class CacheService {
                 const collectionData = scopeData.collections.get(collectionName);
                 if (collectionData !== undefined) {
                     // required data is found
-                    return collectionData.schema;
+                    return collectionData;
                 }
             }
         }
@@ -213,7 +236,7 @@ export class CacheService {
 
     };
 
-    public getCollectionSchemaWithCollectionName = async (collectionName: string): Promise<undefined | ISchemaCache> => {
+    public getCollectionWithCollectionName = async (collectionName: string): Promise<undefined | ICollectionCache> => {
         if (this.cacheStatus === false) {
             return undefined;
         }
@@ -224,7 +247,7 @@ export class CacheService {
                     const collectionData = collections.get(collectionName);
                     if (collectionData !== undefined) {
                         // required data is found
-                        return collectionData.schema;
+                        return collectionData;
                     }
                 }
             }
