@@ -50,12 +50,6 @@ export const Login = ({ logoutReason = "" }) => {
           
     };
 
-    window.addEventListener("message", (event) => {
-        const message = event.data;
-        switch (message.command) {
-        }
-    });
-
     return (
         <div className="login-page">
             <h1>Welcome to Couchbase iQ</h1>

@@ -7,6 +7,7 @@
   // Trigger button
   .dropdown-trigger {
     background-color: #f8f8f8;
+    color: black;
     padding: 0.5em 1em;
     border: none;
     border-radius: 5px 0 0 5px;
@@ -29,6 +30,7 @@
         content: "\25BC"; // Down arrow
         font-size: 0.8em;
       }
+
     }
 
     // Open state
@@ -36,6 +38,10 @@
       .caret-icon::before {
         transform: rotate(180deg); // Rotate up
       }
+    }
+
+    :hover {
+      background-color: #f8f8f8 !important;
     }
   }
 }

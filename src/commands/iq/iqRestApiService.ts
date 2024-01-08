@@ -19,6 +19,14 @@ export class iqRestApiService {
         return content.data.jwt;
     };
 
+    public static capellaLogout = async (jwt: string) => {
+        await axios.delete(this.SESSIONS_API_URL, {
+            headers: {
+                Authorization: `Bearer ${jwt}`
+            }
+        });
+    };
+
     public static loadOrganizations = async (jwt: string) => {
         let content = await axios.get(this.FETCH_ORGANIZATIONS_URL, {
             headers: {
@@ -96,7 +104,6 @@ export class iqRestApiService {
                 }
             }
         );
-
         console.log(response);
     };
 }

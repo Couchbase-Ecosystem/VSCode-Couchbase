@@ -66,14 +66,29 @@ export const iqSavedLoginHandler = async (username: string ) => {
     }
 };
 
-export const verifyOrganization = async (orgId: string): Promise<boolean> => {
+export const verifyOrganization = async (orgId: string): Promise<any> => {
     const jwtToken = Memory.state.get<string>("vscode-couchbase.iq.jwtToken");
     if(jwtToken === undefined){
-        return false;
+        return {
+            isOrgVerified: false,
+            errorMessage: ""
+        };
     }
     const orgDetails = await iqRestApiService.getOrganizationDetails(jwtToken,orgId);
-    if(orgDetails.iq.enabled === true && orgDetails.iq.other.isTermsAcceptedForOrg === true) {
-        return true;
+    if(orgDetails.iq.enabled === false) {
+        return {
+            isOrgVerified: false,
+            errorMessage: `Couchbase IQ is not enabled for this organization, Please enable it on <a href="cloud.couchbase.com"> cloud.couchbase.com  </a>`
+        };
     }
-    return false;
+    if(orgDetails.iq.other.isTermsAcceptedForOrg === false) {
+        return {
+            isOrgVerified: false,
+            errorMessage: `Terms and conditions to use Couchbase IQ are not accepted for this organization, Please accept it on <a href="cloud.couchbase.com"> cloud.couchbase.com  </a>`
+        };
+    }
+    return {
+        isOrgVerified: true,
+        errorMessage: ""
+    };
 };

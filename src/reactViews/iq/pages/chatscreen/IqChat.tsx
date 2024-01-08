@@ -418,7 +418,7 @@ const IqChat = ({ org }) => {
                                 handleMessageLike(index, message.qaId)
                               }
                             >
-                              <ThumbsUp height="30px" />
+                              <ThumbsUp height="25px" />
                             </button>
                             <button
                               className="dislikeButton"
@@ -426,7 +426,7 @@ const IqChat = ({ org }) => {
                                 handleMessageDislike(index, message.qaId)
                               }
                             >
-                             <ThumbsDown height="30px"/>
+                             <ThumbsDown height="25px"/>
                             </button>
                           </>
                         ) : (
