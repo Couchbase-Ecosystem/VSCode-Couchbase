@@ -24,7 +24,7 @@ export type fullContextType = {
     feedbackMsg?: string;
 };
 
-export type fullContextPerQaIdType = Map<string, fullContextType>;
+export type fullContextPerQaIdType = {[qaId: string]: fullContextType};
 
 export interface IStoredMessages {
     allChats: iqChatType[];
@@ -44,13 +44,12 @@ export interface IAdditionalContext {
 }
 
 export type feedbackLambdaMessageType = {
-    type: string | undefined, // Like/ Dislike/ No option selected
+    type: string | undefined, // Like/ Dislike/ Error/ No option selected
     question: string, // original question asked by user
-    reply: string, // final reply to user
-    intent: object, // JSON Object received from IQ to understand intent
-    finalQuestion: string, // Final Question asked by system based on intent
-    firstQuestion: string, // First Question asked by system to understand intent
-    msgDate: number, // Time and Date upto seconds
+    msgHistory: any, // Previous Messages History
+    msgDate: string, // Time and Date upto seconds
     origin: string, // Specifiying origin of feedback, vscode or jetbrains
     additionalFeedback: string, // When user specifically uses send feedback button to send more info
+    chatId: string,
+    qaId: string
 };

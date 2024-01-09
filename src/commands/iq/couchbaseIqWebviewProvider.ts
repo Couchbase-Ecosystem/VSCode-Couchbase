@@ -130,7 +130,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     break;
                 }
                 case "vscode-couchbase.iq.sendMessageToIQ": {
-                    const result = await iqChatHandler(message.value, this.cacheService, this.allMessages, webviewView);
+                    const result = await iqChatHandler(this._context, message.value, this.cacheService, this.allMessages, webviewView);
                     if (result.error !== "") {
                         let errorMsg = "";
                         try {

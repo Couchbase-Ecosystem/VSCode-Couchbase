@@ -97,13 +97,12 @@ export class iqRestApiService {
 
     public static sendMessageToLambda = async (context: vscode.ExtensionContext, message: feedbackLambdaMessageType) => {
         const URL = context.globalState.get<string>('feedbackLambdaUrl'); 
-        const response = await axios.post(URL || "",  message,
+        await axios.post(URL || "",  message,
             {
                 headers: {
                     "X-Secret": context.globalState.get<string>('feedbackLambdaSecret') 
                 }
             }
         );
-        console.log(response);
     };
 }

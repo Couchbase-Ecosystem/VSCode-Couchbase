@@ -5,7 +5,7 @@ import { Memory } from "../../../util/util";
 import { iqRestApiService } from "../iqRestApiService";
 import { actionIntenthandler } from "./intents/actionIntent";
 import { collectionIntentHandler } from "./intents/collectionSchemaIntent";
-import { IAdditionalContext, IStoredMessages, iqChatType } from "./types";
+import { IAdditionalContext, IStoredMessages, feedbackLambdaMessageType, iqChatType } from "./types";
 import { availableActions, availableCollections, getSelectedCode, jsonParser } from "./utils";
 import * as vscode from 'vscode';
 
@@ -14,7 +14,7 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
 
     // get all collections from cache
     const availableCollectionNames = await availableCollections(cacheService);
-   
+
     const basicQuestion = `
     You are a Couchbase AI assistant running inside a VSCode Extension. You are Witty, friendly and helpful like a teacher or an executive assistant.
     You must follow the below rules:
@@ -34,7 +34,7 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
     }
     If any additional information is needed, respond in the JSON format listed above.
     Do not add any non-json text to your response with JSON.
-    `; 
+    `;
 
     const userQuestion = `
         Here is the question asked by user: 
@@ -43,9 +43,9 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
 
     const codeSelected = getSelectedCode();
 
-    let finalContent = basicQuestion + userQuestion + codeSelected; 
+    let finalContent = basicQuestion + userQuestion + codeSelected;
 
-    let messagesPayload = [...previousMessages.allChats.filter((msg)=>msg.role !== "system"), {
+    let messagesPayload = [...previousMessages.allChats.filter((msg) => msg.role !== "system"), {
         role: "user",
         content: finalContent
     }];
@@ -83,19 +83,19 @@ const getFinalResponse = async (message: string, additionalContext: IAdditionalC
     let additionalContextPrompt = "\n";
     for (let collectionIntentData of additionalContext.collectionIntent) {
         additionalContextPrompt += "the schema for collection " + collectionIntentData.collection + " is " + collectionIntentData.schemas + "\n";
-        if(collectionIntentData.indexes && collectionIntentData.indexes.length > 0) {
+        if (collectionIntentData.indexes && collectionIntentData.indexes.length > 0) {
             additionalContextPrompt += "the indexes for the collection are " + collectionIntentData.indexes + "\n";
         }
     }
 
     const codeSelected = getSelectedCode();
-    const finalContent = basicPrompt + additionalContextPrompt + codeSelected +  `Please focus now on answering the question and do not return JSON unless specified in the question. \n ${message}`;
+    const finalContent = basicPrompt + additionalContextPrompt + codeSelected + `Please focus now on answering the question and do not return JSON unless specified in the question. \n ${message}`;
 
-    let messagesPayload = [...previousMessages.allChats.filter((msg)=>msg.role !== "system"), {
+    let messagesPayload = [...previousMessages.allChats.filter((msg) => msg.role !== "system"), {
         role: "user",
         content: finalContent
     }];
-    
+
     previousMessages.allChats = [...previousMessages.allChats, {
         role: "user",
         content: finalContent
@@ -118,7 +118,7 @@ const getFinalResponse = async (message: string, additionalContext: IAdditionalC
     return { finalQuestion: finalContent, finalResult: finalResult };
 };
 
-export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, allMessages: IStoredMessages[], webview: WebviewView) => {
+export const iqChatHandler = async (context: vscode.ExtensionContext, iqPayload: any, cacheService: CacheService, allMessages: IStoredMessages[], webview: WebviewView) => {
     const newMessage: string = iqPayload.newMessage, orgId: string = iqPayload.orgId, chatId: string = iqPayload.chatId, qaId: string = iqPayload.qaId;
     const userChats = iqPayload.userChats || [];
     const jwtToken = Memory.state.get<string>("vscode-couchbase.iq.jwtToken");
@@ -146,24 +146,27 @@ export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, 
             chatId: chatId,
             allChats: allChats,
             userChats: userChats,
-            fullContextPerQaId: new Map()
+            fullContextPerQaId: {}
         };
     }
 
+    let config = vscode.workspace.getConfiguration('couchbase');
+    const shareMessagesWithCouchbase = config.get<boolean>('iq.sendMessagesToCouchbase') || false;
+
     const { intentAskQuestion, intentOrResponseResult } = await getIntentOrResponse(newMessage, jwtToken, orgId, cacheService, previousMessages);
     if (intentOrResponseResult.error !== "") { // Error while getting first response, returning
-        previousMessages.fullContextPerQaId.set(qaId,
-            {
-                originalQuestion: newMessage,
-                intentAskQuestion: intentAskQuestion,
-                intentReply: intentOrResponseResult.content,
-                error: intentOrResponseResult.error,
-                intent: {},
-                additionalContext: undefined,
-                finalQuestion: "",
-                finalReply: intentOrResponseResult.content,
-            }
-        );
+        previousMessages.fullContextPerQaId[qaId] =
+        {
+            originalQuestion: newMessage,
+            intentAskQuestion: intentAskQuestion,
+            intentReply: intentOrResponseResult.content,
+            error: intentOrResponseResult.error,
+            intent: {},
+            additionalContext: undefined,
+            finalQuestion: "",
+            finalReply: intentOrResponseResult.content,
+        };
+
 
         if (messageIndex !== -1) {
             allMessages[messageIndex] = previousMessages;
@@ -172,6 +175,21 @@ export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, 
         }
         // Global.state.update(`vscode-couchbase.iq.allMessages.${orgId}`, allMessages);
 
+        if (shareMessagesWithCouchbase) {
+            const resultPayload: feedbackLambdaMessageType = {
+                type: "error", // like/dislike/error
+                question: newMessage,
+                msgHistory: previousMessages.allChats,
+                msgDate: (Date.now() / 1000).toFixed(0),
+                origin: "vscode",
+                additionalFeedback: "",
+                chatId: chatId,
+                qaId: qaId
+            };
+
+            iqRestApiService.sendMessageToLambda(context, resultPayload);
+        }
+
         return intentOrResponseResult;
     }
 
@@ -179,17 +197,17 @@ export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, 
 
     if (jsonObjects.length === 0) {
         // NO JSON object received, return the value as answer;
-        previousMessages.fullContextPerQaId.set(qaId,
-            {
-                originalQuestion: newMessage,
-                intentAskQuestion: intentAskQuestion,
-                intentReply: intentOrResponseResult.content,
-                intent: {},
-                additionalContext: undefined,
-                finalQuestion: "",
-                finalReply: intentOrResponseResult.content,
-            }
-        );
+        previousMessages.fullContextPerQaId[qaId] =
+        {
+            originalQuestion: newMessage,
+            intentAskQuestion: intentAskQuestion,
+            intentReply: intentOrResponseResult.content,
+            intent: {},
+            additionalContext: undefined,
+            finalQuestion: "",
+            finalReply: intentOrResponseResult.content,
+        };
+
         previousMessages.userChats = [...previousMessages.userChats, {
             sender: "assistant",
             message: intentOrResponseResult.content,
@@ -203,6 +221,22 @@ export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, 
         } else {
             allMessages.push(previousMessages);
         }
+
+        if (shareMessagesWithCouchbase) {
+            const resultPayload: feedbackLambdaMessageType = {
+                type: "", // like/dislike/error
+                question: newMessage,
+                msgHistory: previousMessages.allChats,
+                msgDate: (Date.now() / 1000).toFixed(0),
+                origin: "vscode",
+                additionalFeedback: "",
+                chatId: chatId,
+                qaId: qaId
+            };
+
+            iqRestApiService.sendMessageToLambda(context, resultPayload);
+        }
+
         // Global.state.update(`vscode-couchbase.iq.allMessages.${orgId}`, allMessages);
 
         return intentOrResponseResult;
@@ -217,18 +251,18 @@ export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, 
     const { finalQuestion, finalResult } = await getFinalResponse(newMessage, additionalContext, jwtToken, orgId, previousMessages);
 
     if (finalResult.error !== "") { // Error while getting response, returning
-        previousMessages.fullContextPerQaId.set(qaId,
-            {
-                originalQuestion: newMessage,
-                intentAskQuestion: intentAskQuestion,
-                intentReply: intentOrResponseResult.content,
-                error: finalResult.error,
-                intent: {},
-                additionalContext: additionalContext,
-                finalQuestion: finalQuestion,
-                finalReply: finalResult.content,
-            }
-        );
+        previousMessages.fullContextPerQaId[qaId] =
+        {
+            originalQuestion: newMessage,
+            intentAskQuestion: intentAskQuestion,
+            intentReply: intentOrResponseResult.content,
+            error: finalResult.error,
+            intent: {},
+            additionalContext: additionalContext,
+            finalQuestion: finalQuestion,
+            finalReply: finalResult.content,
+        }
+
 
         if (messageIndex !== -1) {
             allMessages[messageIndex] = previousMessages;
@@ -236,32 +270,45 @@ export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, 
             allMessages.push(previousMessages);
         }
         // Global.state.update(`vscode-couchbase.iq.allMessages.${orgId}`, allMessages);
+        if (shareMessagesWithCouchbase) {
+            const resultPayload: feedbackLambdaMessageType = {
+                type: "error", // like/dislike/error
+                question: newMessage,
+                msgHistory: previousMessages.allChats,
+                msgDate: (Date.now() / 1000).toFixed(0),
+                origin: "vscode",
+                additionalFeedback: "",
+                chatId: chatId,
+                qaId: qaId
+            };
+
+            iqRestApiService.sendMessageToLambda(context, resultPayload);
+        }
 
         return finalResult;
     }
 
-    previousMessages.fullContextPerQaId.set(qaId,
-        {
-            originalQuestion: newMessage,
-            intentAskQuestion: intentAskQuestion,
-            intentReply: intentOrResponseResult.content,
-            intent: jsonObjects[0],
-            additionalContext: additionalContext,
-            finalQuestion: finalQuestion,
-            finalReply: finalResult.content,
-            error: finalResult.error
-        }
-    );
+    previousMessages.fullContextPerQaId[qaId] =
+    {
+        originalQuestion: newMessage,
+        intentAskQuestion: intentAskQuestion,
+        intentReply: intentOrResponseResult.content,
+        intent: jsonObjects[0],
+        additionalContext: additionalContext,
+        finalQuestion: finalQuestion,
+        finalReply: finalResult.content,
+        error: finalResult.error
+    };
 
+
+    const newMsgDate = (Date.now() / 1000).toFixed(0);
     previousMessages.userChats = [...previousMessages.userChats, {
         sender: "assistant",
         message: finalResult.content,
         feedbackSent: false,
-        msgDate: (Date.now() / 1000).toFixed(0),
+        msgDate: newMsgDate,
         qaId: qaId
     }];
-
-    // previousMessages.fullContextPerQaId = JSON.stringify(previousMessages.fullContextPerQaId.entries()); // Convert to object for easy storage
 
     if (messageIndex !== -1) {
         allMessages[messageIndex] = previousMessages;
@@ -269,6 +316,20 @@ export const iqChatHandler = async (iqPayload: any, cacheService: CacheService, 
         allMessages.push(previousMessages);
     }
 
+    if (shareMessagesWithCouchbase) {
+        const resultPayload: feedbackLambdaMessageType = {
+            type: undefined, // like/dislike
+            question: newMessage,
+            msgHistory: previousMessages.allChats,
+            msgDate: newMsgDate,
+            origin: "vscode",
+            additionalFeedback: "",
+            chatId: chatId,
+            qaId: qaId
+        };
+
+        iqRestApiService.sendMessageToLambda(context, resultPayload); // asynchronously send data to lambda
+    }
     //Global.state.update(`vscode-couchbase.iq.allMessages.${orgId}`, allMessages);
     return finalResult;
 };

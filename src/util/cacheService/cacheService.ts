@@ -337,7 +337,6 @@ export class CacheService {
                 bucket.scopes.set(scopeName, scope);
 
                 for (const collectionName in storedData[bucketName].scopes[scopeName].collections) {
-                    console.log(bucketName,scopeName, collectionName);
                     const collection: ICollectionCache = {
                         name: storedData[bucketName].scopes[scopeName].collections[collectionName].name,
                         schema: storedData[bucketName].scopes[scopeName].collections[collectionName].schema
