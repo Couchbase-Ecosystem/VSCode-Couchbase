@@ -24,7 +24,7 @@ export type fullContextType = {
     feedbackMsg?: string;
 };
 
-export type fullContextPerQaIdType = {[qaId: string]: fullContextType};
+export type fullContextPerQaIdType = { [qaId: string]: fullContextType };
 
 export interface IStoredMessages {
     allChats: iqChatType[];
@@ -37,7 +37,7 @@ export type collectionIntentType = {
     collection: string,
     schemas: string,
     indexes?: string
-}
+};
 
 export interface IAdditionalContext {
     collectionIntent: collectionIntentType[],
@@ -52,4 +52,10 @@ export type feedbackLambdaMessageType = {
     additionalFeedback: string, // When user specifically uses send feedback button to send more info
     chatId: string,
     qaId: string
+};
+
+export type iqChatResult = {
+    content: string,
+    error: string,
+    status: string
 };

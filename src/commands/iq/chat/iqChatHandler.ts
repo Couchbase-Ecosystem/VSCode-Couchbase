@@ -5,7 +5,7 @@ import { Memory } from "../../../util/util";
 import { iqRestApiService } from "../iqRestApiService";
 import { actionIntenthandler } from "./intents/actionIntent";
 import { collectionIntentHandler } from "./intents/collectionSchemaIntent";
-import { IAdditionalContext, IStoredMessages, feedbackLambdaMessageType, iqChatType } from "./types";
+import { IAdditionalContext, IStoredMessages, feedbackLambdaMessageType, iqChatResult, iqChatType } from "./types";
 import { availableActions, availableCollections, getSelectedCode, jsonParser } from "./utils";
 import * as vscode from 'vscode';
 
@@ -118,7 +118,7 @@ const getFinalResponse = async (message: string, additionalContext: IAdditionalC
     return { finalQuestion: finalContent, finalResult: finalResult };
 };
 
-export const iqChatHandler = async (context: vscode.ExtensionContext, iqPayload: any, cacheService: CacheService, allMessages: IStoredMessages[], webview: WebviewView) => {
+export const iqChatHandler = async (context: vscode.ExtensionContext, iqPayload: any, cacheService: CacheService, allMessages: IStoredMessages[], webview: WebviewView): Promise<iqChatResult> => {
     const newMessage: string = iqPayload.newMessage, orgId: string = iqPayload.orgId, chatId: string = iqPayload.chatId, qaId: string = iqPayload.qaId;
     const userChats = iqPayload.userChats || [];
     const jwtToken = Memory.state.get<string>("vscode-couchbase.iq.jwtToken");
@@ -261,7 +261,7 @@ export const iqChatHandler = async (context: vscode.ExtensionContext, iqPayload:
             additionalContext: additionalContext,
             finalQuestion: finalQuestion,
             finalReply: finalResult.content,
-        }
+        };
 
 
         if (messageIndex !== -1) {

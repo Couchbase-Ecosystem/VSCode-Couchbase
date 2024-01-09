@@ -22,10 +22,8 @@ import {
 } from "chatscope/src/components/ActionBar/ActionBar";
 import { ChatAction, availableActions } from "utils/ChatAction";
 import { SendFeedback } from "components/chatActions/SendFeedback";
-import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
 import  ThumbsUp from "../../assets/icons/ThumbsUp";
 import  ThumbsDown  from "../../assets/icons/ThumbsDown";
-
 
 export type userMessage = {
   message: string;
@@ -292,7 +290,8 @@ const IqChat = ({ org }) => {
         setActions(actionsForBar);
         break;
       }
-      case "vscode-couchbase.iq.sendChatSettings": {
+      case "vscode-couchbase.iq.sendNewChatRequest": {
+        onNewChatClick();
         break;
       }
     }
@@ -454,13 +453,11 @@ const IqChat = ({ org }) => {
             onPaste={(event) => {
               handlePaste(event);
             }}
+            attachButton={false}
             sendButton={true}
-            attachButton={true}
             placeholder="Type a message..."
             onSend={(msg) => handleSendRequest(msg)}
             className="chatscope-message-input"
-            attachIcon={faSquarePlus}
-            onAttachClick={onNewChatClick}
           />
         </ChatContainer>
         {

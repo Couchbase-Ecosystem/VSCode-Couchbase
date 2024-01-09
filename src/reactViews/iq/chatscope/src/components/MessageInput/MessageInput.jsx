@@ -82,7 +82,6 @@ function MessageInputInner(
     sendButton,
     attachButton,
     onAttachClick,
-    attachIcon,
     ...rest
   },
   ref
@@ -193,7 +192,6 @@ function MessageInputInner(
           <AttachmentButton
             onClick={onAttachClick}
             disabled={disabled === true || attachDisabled === true}
-            icon={attachIcon}
           />
         </div>
       )}

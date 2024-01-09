@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as vscode from 'vscode';
 import { logger } from "../../logger/logger";
-import { feedbackLambdaMessageType } from "./chat/types";
+import { feedbackLambdaMessageType, iqChatResult } from "./chat/types";
 
 
 export class iqRestApiService {
@@ -45,7 +45,7 @@ export class iqRestApiService {
         return content.data.data[0];
     };
 
-    public static sendIqMessage = async (jwt: string, orgId: string, messageBody: any) => {
+    public static sendIqMessage = async (jwt: string, orgId: string, messageBody: any): Promise<iqChatResult> => {
         let result = {
             content: "",
             error: "",

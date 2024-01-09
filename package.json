@@ -623,6 +623,12 @@
         "icon": "$(sign-out)"
       },
       {
+        "command": "vscode-couchbase.iq.newChat",
+        "title": "Start a new chat",
+        "category": "Couchbase",
+        "icon": "$(plus)"
+      },
+      {
         "command": "vscode-couchbase.iq.showSettings",
         "title": "Show IQ Settings",
         "category": "Couchbase",
@@ -949,14 +955,19 @@
           "group": "navigation"
         },
         {
+          "command": "vscode-couchbase.iq.newChat",
+          "when": "view == couchbase-iq",
+          "group": "navigation@1"
+        },
+        {
           "command": "vscode-couchbase.iq.logout",
           "when": "view == couchbase-iq",
-          "group": "navigation"
+          "group": "navigation@3"
         },
         {
           "command": "vscode-couchbase.iq.showSettings",
           "when": "view == couchbase-iq",
-          "group": "navigation"
+          "group": "navigation@2"
         }
       ],
       "vscode-couchbase.toolsMenu": [

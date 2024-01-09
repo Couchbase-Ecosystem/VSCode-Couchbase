@@ -71,6 +71,7 @@ import { CouchbaseIqWebviewProvider } from "./commands/iq/couchbaseIqWebviewProv
 import { iqLogoutHandler } from "./commands/iq/iqLogoutHandler";
 import { CacheService } from "./util/cacheService/cacheService";
 import { secretUpdater } from "./util/secretUpdater";
+import { newChatHandler } from "./commands/iq/chat/newChatHandler";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -142,6 +143,15 @@ export function activate(context: vscode.ExtensionContext) {
       Commands.logoutIq,
       ()=>{
         iqLogoutHandler();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.newIqChat,
+      ()=>{
+        newChatHandler();
       }
     )
   );
