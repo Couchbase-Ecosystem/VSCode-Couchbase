@@ -618,7 +618,7 @@
       },
       {
         "command": "vscode-couchbase.iq.logout",
-        "title": "Logout Couchbase IQ",
+        "title": "Logout couchbase IQ",
         "category": "Couchbase",
         "icon": "$(sign-out)"
       },
@@ -630,9 +630,15 @@
       },
       {
         "command": "vscode-couchbase.iq.showSettings",
-        "title": "Show IQ Settings",
+        "title": "Show IQ settings",
         "category": "Couchbase",
         "icon": "$(gear)"
+      },
+      {
+        "command": "vscode-couchbase.forceUpdateCache",
+        "title": "Forced update cache",
+        "category": "couchbase",
+        "icon": "$(cloud-download)"
       }
     ],
     "keybindings": [
@@ -993,7 +999,7 @@
         },
         {
           "id": "couchbase-iq",
-          "name": "Couchbase IQ",
+          "name": "Couchbase IQ (Beta)",
           "type": "webview"
         },
         {

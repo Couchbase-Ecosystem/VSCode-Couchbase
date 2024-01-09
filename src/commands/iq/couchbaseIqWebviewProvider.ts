@@ -131,7 +131,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                 }
                 case "vscode-couchbase.iq.sendMessageToIQ": {
                     const result = await iqChatHandler(this._context, message.value, this.cacheService, this.allMessages, webviewView);
-                    if (result.error !== "") {
+                    if (result.error !== undefined) {
                         let errorMsg = "";
                         try {
                             errorMsg = JSON.stringify(result.error);
@@ -143,13 +143,13 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                             
                             this._view?.webview.postMessage({
                                 command: "vscode-couchbase.iq.forcedLogout",
-                                error: result.error
+                                error: errorMsg
                             });
                         } else {
                             // TODO: Handle If some other error is received
                             this._view?.webview.postMessage({
                                 command: "vscode-couchbase.iq.forcedLogout",
-                                error: result.error
+                                error: errorMsg
                             });
                         }
                     } else {

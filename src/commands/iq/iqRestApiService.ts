@@ -46,9 +46,9 @@ export class iqRestApiService {
     };
 
     public static sendIqMessage = async (jwt: string, orgId: string, messageBody: any): Promise<iqChatResult> => {
-        let result = {
+        let result: iqChatResult = {
             content: "",
-            error: "",
+            error: undefined,
             status: ""
         };
 

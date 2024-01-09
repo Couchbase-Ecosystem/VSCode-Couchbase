@@ -645,6 +645,12 @@ export function activate(context: vscode.ExtensionContext) {
       ddlExport();
     })
   );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(Commands.forceUpdateCache, async ()=>{
+      cacheService.fullCache(true);
+    })
+  );
 }
 
 // this method is called when your extension is deactivated

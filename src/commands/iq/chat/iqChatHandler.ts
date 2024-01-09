@@ -59,7 +59,7 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
         messages: messagesPayload
     };
     const intentOrResponseResult = await iqRestApiService.sendIqMessage(jwtToken || "", orgId, payload);
-    if (intentOrResponseResult.error === "") {
+    if (intentOrResponseResult.error === undefined) {
         previousMessages.allChats = [...previousMessages.allChats, {
             role: "assistant",
             content: intentOrResponseResult.content
@@ -154,7 +154,7 @@ export const iqChatHandler = async (context: vscode.ExtensionContext, iqPayload:
     const shareMessagesWithCouchbase = config.get<boolean>('iq.sendMessagesToCouchbase') || false;
 
     const { intentAskQuestion, intentOrResponseResult } = await getIntentOrResponse(newMessage, jwtToken, orgId, cacheService, previousMessages);
-    if (intentOrResponseResult.error !== "") { // Error while getting first response, returning
+    if (intentOrResponseResult.error !== undefined) { // Error while getting first response, returning
         previousMessages.fullContextPerQaId[qaId] =
         {
             originalQuestion: newMessage,
@@ -250,7 +250,7 @@ export const iqChatHandler = async (context: vscode.ExtensionContext, iqPayload:
 
     const { finalQuestion, finalResult } = await getFinalResponse(newMessage, additionalContext, jwtToken, orgId, previousMessages);
 
-    if (finalResult.error !== "") { // Error while getting response, returning
+    if (finalResult.error !== undefined) { // Error while getting response, returning
         previousMessages.fullContextPerQaId[qaId] =
         {
             originalQuestion: newMessage,

@@ -61,4 +61,5 @@ export namespace Commands {
     export const logoutIq: string = "vscode-couchbase.iq.logout";
     export const showIqSettings: string = "vscode-couchbase.iq.showSettings";
     export const newIqChat: string = "vscode-couchbase.iq.newChat";
+    export const forceUpdateCache: string = "vscode-couchbase.forceUpdateCache";
 }

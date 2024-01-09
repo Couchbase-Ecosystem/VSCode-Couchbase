@@ -56,6 +56,6 @@ export type feedbackLambdaMessageType = {
 
 export type iqChatResult = {
     content: string,
-    error: string,
+    error: any,
     status: string
 };

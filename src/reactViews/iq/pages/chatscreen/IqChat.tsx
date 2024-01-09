@@ -191,6 +191,9 @@ const IqChat = ({ org }) => {
   };
 
   const SyntaxHighlight = ({ language, value }) => {
+    if(language === "sql") {
+      language = "n1ql";
+    }
     return (
       <SyntaxHighlighter
         style={codeTheme}
