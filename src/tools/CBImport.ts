@@ -107,7 +107,7 @@ export class CBImport {
         cmd.push(importData.generateKeyExpression);
 
         cmd.push("--generator-delimiter"); // Using default generator delimiter of '#'
-        cmd.push("#");
+        cmd.push(`"#"`);
 
         // Advanced Settings
         if(importData.skipDocsOrRows && importData.skipDocsOrRows.trim() !== ""){

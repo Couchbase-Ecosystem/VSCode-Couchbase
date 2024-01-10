@@ -15,8 +15,8 @@ import { getScopes } from "../../pages/Tools/DataExport/dataExport";
 import { getKeysAndAdvancedSettings } from "../../webViews/tools/dataImport/getKeysAndAdvancedSettings.webview";
 import { CBImport } from "../../tools/CBImport";
 import { parser } from "stream-json";
-import { pick } from "stream-json/filters/Pick";
-import { streamValues } from "stream-json/streamers/StreamValues";
+import { streamArray } from "stream-json/streamers/StreamArray";
+import * as readline from "readline";
 import * as csv from "csv-parse";
 import { v4 as uuidv4 } from "uuid";
 import { getSummary } from "../../webViews/tools/dataImport/getSummary.webview";
@@ -38,10 +38,29 @@ export class DataImport {
     readonly MONO_INCR_FLAG = "#MONO_INCR#";
     readonly WORDS_WITH_PERCENT_SYMBOLS_REGEX = "%(\\w+)%";
 
-    protected readonly possibleScopeFields: string[] = ["cbms", "scope", "cbs", "type", "category"];
-    protected readonly possibleCollectionFields: string[] = ["cbmc", "collection", "cbc", "subtype", "subcategory"];
-    protected readonly possibleKeyFields: string[] = ["cbmid", "id", "uuid", "name", "cbmk", "key", "cbk"];
-
+    protected readonly possibleScopeFields: string[] = [
+        "cbms",
+        "scope",
+        "cbs",
+        "type",
+        "category",
+    ];
+    protected readonly possibleCollectionFields: string[] = [
+        "cbmc",
+        "collection",
+        "cbc",
+        "subtype",
+        "subcategory",
+    ];
+    protected readonly possibleKeyFields: string[] = [
+        "cbmid",
+        "id",
+        "uuid",
+        "name",
+        "cbmk",
+        "key",
+        "cbk",
+    ];
 
     protected fileFormat: string = "";
     constructor() {}
@@ -87,51 +106,35 @@ export class DataImport {
         try {
             const datasetPath: string = this.datasetField;
             if (datasetPath.endsWith(this.JSON_FILE_EXTENSION)) {
-                const readStream = fs.createReadStream(datasetPath, {
-                    encoding: "utf8",
-                });
-                let counter = 0;
-                let documentFound = "";
-                let insideArray = false;
-
-                readStream.on("data", (chunk: string) => {
-                    const lines = chunk.split("\n");
-
-                    for (let line of lines) {
-                        if (counter === 0 && !insideArray) {
-                            if (!line.trim().startsWith("[")) {
-                                logger.debug("Not a JSON array");
-                                readStream.close();
-                                return;
-                            }
-
-                            insideArray = true;
-                            line = line.replace("[", "");
+                if (this.format === "list") {
+                    const jsonList = await this.sampleElementFromJsonArrayFile(
+                        datasetPath
+                    );
+                    if (jsonList) {
+                        for (let element of jsonList) {
+                            this.cachedJsonDocs.push(this.cleanString(element));
                         }
-
-                        if (
-                            counter > 2000 ||
-                            this.cachedJsonDocs.length >= this.PREVIEW_SIZE
-                        ) {
-                            readStream.close();
-                            return;
-                        }
-
-                        counter++;
-                        documentFound += line.trim();
-
-                        if (this.isValidBrackets(documentFound)) {
-                            documentFound = this.cleanString(documentFound);
-                            this.cachedJsonDocs.push(documentFound);
-
-                            documentFound = "";
-                        }
+                    } else {
+                        logger.error(
+                            "Failed to read data from json array dataset"
+                        );
+                        return;
                     }
-                });
-
-                readStream.on("end", () => {
-                    readStream.close();
-                });
+                } else if (this.format === "lines") {
+                    const jsonLines = await this.sampleElementFromJsonLinesFile(
+                        datasetPath
+                    );
+                    if (jsonLines) {
+                        for (let element of jsonLines) {
+                            this.cachedJsonDocs.push(this.cleanString(element));
+                        }
+                    } else {
+                        logger.error(
+                            "Failed to read data from json array dataset"
+                        );
+                        return;
+                    }
+                }
             } else {
                 const headers = await this.sampleElementFromCsvFile(
                     datasetPath,
@@ -336,34 +339,67 @@ export class DataImport {
     }
 
     // Functions to get default values for dynamic scopesAndCollections
-    protected async getSampleElementContentSplit(datasetFieldText: string): Promise<string[]> {
+    protected async getSampleElementContentSplit(
+        datasetFieldText: string
+    ): Promise<string[]> {
         let sampleElementContentSplit: string[] = [];
-    
+
         if (this.JSON_FILE_FORMAT === this.fileFormat) {
-            const sampleElement = await this.sampleElementFromJsonArrayFile(datasetFieldText);
-            if (sampleElement) {
-                sampleElementContentSplit = sampleElement.split(',');
+            let sampleElement: string | null = null;
+            if (this.format === "list") {
+                const receivedElements =
+                    await this.sampleElementFromJsonArrayFile(
+                        datasetFieldText,
+                        1
+                    );
+                if (receivedElements) {
+                    sampleElement = receivedElements[0]; // Just need first element as sample
+                } else {
+                    logger.error("sample element not received");
+                    throw new Error("Failed to retrieve sample JSON element.");
+                }
             } else {
+                const receivedElements =
+                    await this.sampleElementFromJsonLinesFile(datasetFieldText);
+                if (receivedElements) {
+                    sampleElement = receivedElements[0]; // Just need first element as sample
+                } else {
+                    logger.error("sample element not received");
+                    throw new Error("Failed to retrieve sample JSON element.");
+                }
+            }
+            if (sampleElement) {
+                sampleElementContentSplit = sampleElement.split(",");
+            } else {
+                logger.error("sample element not received");
                 throw new Error("Failed to retrieve sample JSON element.");
             }
         } else if (this.CSV_FILE_FORMAT === this.fileFormat) {
-            const sampleElement = await this.sampleElementFromCsvFile(datasetFieldText, 1);
-            if(sampleElement){
+            const sampleElement = await this.sampleElementFromCsvFile(
+                datasetFieldText,
+                1
+            );
+            if (sampleElement) {
                 sampleElementContentSplit = sampleElement;
             }
         } else {
             throw new Error(`Unsupported file format: ${this.fileFormat}`);
         }
-    
-        logger.debug("sampleElementContentSplit: " + sampleElementContentSplit.join(', '));
-    
+
+        logger.debug(
+            "sampleElementContentSplit: " + sampleElementContentSplit.join(", ")
+        );
+
         return sampleElementContentSplit;
     }
 
-    protected async matchElements(jsonFieldsArr: string[], possibleFieldsArr: string[]): Promise<string>{
-        for(let x of jsonFieldsArr){
-            for(let y of possibleFieldsArr){
-                if(x.match(y)){
+    protected async matchElements(
+        jsonFieldsArr: string[],
+        possibleFieldsArr: string[]
+    ): Promise<string> {
+        for (let x of jsonFieldsArr) {
+            for (let y of possibleFieldsArr) {
+                if (x.match(`"${y}"`)) {
                     return y;
                 }
             }
@@ -371,34 +407,70 @@ export class DataImport {
         return "";
     }
 
-
-
     // Functions to detect validity of scopes and collections
+    async sampleElementFromJsonLinesFile(
+        filePath: string,
+        sampleSize: number = this.PREVIEW_SIZE
+    ): Promise<string[] | null> {
+        return new Promise(async (resolve, reject) => {
+            const fileStream = fs.createReadStream(filePath);
+            let result: string[] = [];
+            let elementCounter = 0;
+
+            const rl = readline.createInterface({
+                input: fileStream,
+                crlfDelay: Infinity,
+            });
+
+            for await (const line of rl) {
+                if (elementCounter < sampleSize) {
+                    result.push(line);
+                    elementCounter++;
+                } else {
+                    fileStream.destroy();
+                    break;
+                }
+            }
+
+            fileStream.on("close", () => {
+                resolve(result);
+            });
+
+            fileStream.on("error", (error) => {
+                logger.error(error);
+                resolve(null);
+            });
+        });
+    }
 
     async sampleElementFromJsonArrayFile(
-        filePath: string
-    ): Promise<string | null> {
+        filePath: string,
+        sampleSize: number = this.PREVIEW_SIZE
+    ): Promise<string[] | null> {
         return new Promise((resolve, reject) => {
-            const pipeline = fs
-                .createReadStream(filePath)
+            let result: string[] = [];
+            let elementCounter = 0;
+
+            const jsonStream = fs
+                .createReadStream(filePath, { encoding: "utf8" })
                 .pipe(parser())
-                .pipe(pick({ filter: "0" }))
-                .pipe(streamValues());
+                .pipe(streamArray());
 
-            let result: string | null = null;
-
-            pipeline.on("data", (data) => {
-                if (result === null) {
-                    result = JSON.stringify(data.value);
-                    pipeline.destroy();
+            jsonStream.on("data", ({ key, value }) => {
+                if (elementCounter < sampleSize) {
+                    result.push(JSON.stringify(value));
+                    elementCounter++;
+                } else {
+                    jsonStream.destroy();
                 }
             });
 
-            pipeline.on("close", () => {
+            jsonStream.on("close", () => {
                 resolve(result);
             });
-            pipeline.on("error", (err) => {
-                logger.error(err);
+
+            jsonStream.on("error", (error) => {
+                logger.error(error);
                 resolve(null);
             });
         });
@@ -443,15 +515,28 @@ export class DataImport {
             const fieldName = match[1];
             try {
                 if (this.fileFormat === "json") {
-                    const sampleElement =
-                        await this.sampleElementFromJsonArrayFile(filePath);
+                    let sampleElement: string | null = null;
+                    if (this.format === "list") {
+                        const receivedElements =
+                            await this.sampleElementFromJsonArrayFile(filePath);
+                        if (receivedElements) {
+                            sampleElement = receivedElements[0];
+                        }
+                    } else {
+                        const receivedElements =
+                            await this.sampleElementFromJsonLinesFile(filePath);
+                        if (receivedElements) {
+                            sampleElement = receivedElements[0];
+                        }
+                    }
 
-                    if (sampleElement !== null) {
+                    if (sampleElement) {
                         const jsonObject = JSON.parse(sampleElement);
                         if (!jsonObject.hasOwnProperty(fieldName)) {
                             return false;
                         }
                     } else {
+                        logger.error("failed to read sample element");
                         return false;
                     }
                 } else if (this.fileFormat === "csv") {
@@ -488,7 +573,9 @@ export class DataImport {
 
             const secondLastChar = endBuffer[0];
             const lastChar = endBuffer[1];
-
+            logger.info(
+                `chars ${firstChar} ${secondChar} ${secondLastChar} ${lastChar}`
+            );
             if (
                 firstChar === "[" &&
                 secondChar === "{" &&
@@ -508,42 +595,33 @@ export class DataImport {
     readLastTwoNonEmptyCharacters = async (
         filePath: string
     ): Promise<string> => {
-        const chunkSize = 1024; // Adjust the chunk size as needed
         let buffer = Buffer.alloc(2); // Initialize a buffer to store the last two non-empty characters
         let bytesRead = 0;
         let lastTwoNonEmptyChars = "";
 
         const fd = await fs.promises.open(filePath, "r");
         const fileSize = (await fd.stat()).size;
+        const chunkSize = Math.min(fileSize, 1024); // Adjust the chunk size as needed
 
-        for (
-            let position = fileSize - 1;
-            position >= 0 && bytesRead < 2;
-            position -= chunkSize
-        ) {
-            const bufferSize = Math.min(chunkSize, position + 1);
-            const chunk = Buffer.alloc(bufferSize);
+        let position = fileSize - chunkSize;
 
-            await fd.read(chunk, 0, bufferSize, position);
+        const chunk = Buffer.alloc(chunkSize);
 
-            for (let i = bufferSize - 1; i >= 0; i--) {
-                const char = chunk.toString("utf8", i, i + 1);
-                if (!/[\s\t\n]/.test(char) && char.charCodeAt(0) !== 0) {
-                    // If the character is not a space, tab, or newline, add it to the buffer
-                    buffer[1] = buffer[0]; // Shift the previous character
-                    buffer[0] = chunk[i]; // Store the current character
+        await fd.read(chunk, 0, chunkSize, position);
 
-                    bytesRead++;
-                    lastTwoNonEmptyChars = buffer.toString(
-                        "utf8",
-                        0,
-                        bytesRead
-                    );
-                }
+        for (let i = chunkSize - 1; i >= 0; i--) {
+            const char = chunk.toString("utf8", i, i + 1);
+            if (!/[\s\t\n]/.test(char) && char.charCodeAt(0) !== 0) {
+                // If the character is not a space, tab, or newline, add it to the buffer
+                buffer[1] = buffer[0]; // Shift the previous character
+                buffer[0] = chunk[i]; // Store the current character
 
-                if (bytesRead >= 2) {
-                    break;
-                }
+                bytesRead++;
+                lastTwoNonEmptyChars = buffer.toString("utf8", 0, bytesRead);
+            }
+
+            if (bytesRead >= 2) {
+                break;
             }
         }
 
@@ -862,24 +940,27 @@ export class DataImport {
                         const datasetAndCollectionData =
                             message.datasetAndCollectionData;
 
-                        CBImport.import({
-                            bucket: datasetAndCollectionData.bucket,
-                            dataset: datasetAndCollectionData.dataset,
-                            fileFormat: this.fileFormat,
-                            format: this.format,
-                            scopeCollectionExpression:
-                                datasetAndCollectionData.scopeCollectionExpression,
-                            generateKeyExpression:
-                                keysAndAdvancedSettingsData.generateKeyExpression,
-                            skipDocsOrRows:
-                                keysAndAdvancedSettingsData.skipDocsOrRows,
-                            limitDocsOrRows:
-                                keysAndAdvancedSettingsData.limitDocsOrRows,
-                            ignoreFields:
-                                keysAndAdvancedSettingsData.ignoreFields,
-                            threads: keysAndAdvancedSettingsData.threads,
-                            verbose: keysAndAdvancedSettingsData.verboseLog,
-                        }, context);
+                        CBImport.import(
+                            {
+                                bucket: datasetAndCollectionData.bucket,
+                                dataset: datasetAndCollectionData.dataset,
+                                fileFormat: this.fileFormat,
+                                format: this.format,
+                                scopeCollectionExpression:
+                                    datasetAndCollectionData.scopeCollectionExpression,
+                                generateKeyExpression:
+                                    keysAndAdvancedSettingsData.generateKeyExpression,
+                                skipDocsOrRows:
+                                    keysAndAdvancedSettingsData.skipDocsOrRows,
+                                limitDocsOrRows:
+                                    keysAndAdvancedSettingsData.limitDocsOrRows,
+                                ignoreFields:
+                                    keysAndAdvancedSettingsData.ignoreFields,
+                                threads: keysAndAdvancedSettingsData.threads,
+                                verbose: keysAndAdvancedSettingsData.verboseLog,
+                            },
+                            context
+                        );
 
                         break;
                     }
@@ -918,8 +999,14 @@ export class DataImport {
                             );
                         if (validationError === "") {
                             // NO Validation Error on Page 1, We can shift to next page
-                            const elementSplit = await this.getSampleElementContentSplit(formData.dataset);
-                            const defaultKeysValue = await this.matchElements(elementSplit, this.possibleKeyFields);
+                            const elementSplit =
+                                await this.getSampleElementContentSplit(
+                                    formData.dataset
+                                );
+                            const defaultKeysValue = await this.matchElements(
+                                elementSplit,
+                                this.possibleKeyFields
+                            );
 
                             currentPanel.webview.html =
                                 getLoader("Data Import");
@@ -970,21 +1057,49 @@ export class DataImport {
                             .then(async (fileUri) => {
                                 if (fileUri && fileUri[0]) {
                                     const dataset = fileUri[0].fsPath;
+                                    // unset any cached docs
+                                    this.cachedCsvDocs = new Map<string,string[]>();
+                                    this.cachedJsonDocs = [];
 
                                     // understand first few documents, get fields and update default values
                                     // Firstly validate the dataset
-                                    const errors = await this.validateDataset(dataset);
-                                    if(errors.length === 0){
-                                        const elementSplit = await this.getSampleElementContentSplit(dataset);
-                                        const defaultScopeValue = await this.matchElements(elementSplit, this.possibleScopeFields);
-                                        const defaultCollectionValue = await this.matchElements(elementSplit, this.possibleCollectionFields);
+                                    const errors = await this.validateDataset(
+                                        dataset
+                                    );
+                                    if (errors.length === 0) {
+                                        const elementSplit =
+                                            await this.getSampleElementContentSplit(
+                                                dataset
+                                            );
+                                        const defaultScopeValue =
+                                            await this.matchElements(
+                                                elementSplit,
+                                                this.possibleScopeFields
+                                            );
+                                        const defaultCollectionValue =
+                                            await this.matchElements(
+                                                elementSplit,
+                                                this.possibleCollectionFields
+                                            );
                                         currentPanel.webview.postMessage({
-                                            command: "vscode-couchbase.tools.dataImport.defaultScopeAndCollectionDynamicField",
-                                            defaultScopeValue: defaultScopeValue.trim().length > 0 ?  `%${defaultScopeValue}%` : "",
-                                            defaultCollectionValue: defaultCollectionValue.trim().length>0 ? `%${defaultCollectionValue}%` : ""
+                                            command:
+                                                "vscode-couchbase.tools.dataImport.defaultScopeAndCollectionDynamicField",
+                                            defaultScopeValue:
+                                                defaultScopeValue.trim()
+                                                    .length > 0
+                                                    ? `%${defaultScopeValue}%`
+                                                    : "",
+                                            defaultCollectionValue:
+                                                defaultCollectionValue.trim()
+                                                    .length > 0
+                                                    ? `%${defaultCollectionValue}%`
+                                                    : "",
                                         });
                                     } else {
-                                        logger.error("error while reading dataset: \n " + errors.join("\n"));
+                                        logger.error(
+                                            "error while reading dataset: \n " +
+                                                errors.join("\n")
+                                        );
                                     }
 
                                     currentPanel.webview.postMessage({
@@ -992,8 +1107,6 @@ export class DataImport {
                                             "vscode-couchbase.tools.dataImport.datasetFile",
                                         dataset: dataset,
                                     });
-
-                                    
                                 }
                             });
                         break;
