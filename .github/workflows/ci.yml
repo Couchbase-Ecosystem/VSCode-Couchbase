@@ -30,15 +30,15 @@ jobs:
           # - os: ubuntu-latest
           #   platform: linux
           #   arch: armhf
-          - os: ubuntu-latest
-            platform: alpine
-            arch: x64
-          - os: macos-latest
-            platform: darwin
-            arch: x64
-          - os: macos-latest
-            platform: darwin
-            arch: arm64
+          # - os: ubuntu-latest
+          #   platform: alpine
+          #   arch: x64
+          # - os: macos-latest
+          #   platform: darwin
+          #   arch: x64
+          # - os: macos-latest
+          #   platform: darwin
+          #   arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
       - shell: pwsh
@@ -49,6 +49,7 @@ jobs:
           node-version: 16
           architecture: ${{ matrix.arch }}
           cache: 'npm'
+      - uses: ilammy/setup-nasm@v1
       - name: windows-specific
         shell: pwsh
         if: matrix.platform == 'win32'
