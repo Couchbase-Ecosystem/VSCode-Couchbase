@@ -24,7 +24,7 @@
   "scripts": {
     "vscode:prepublish": "npm run package",
     "package": "webpack --devtool hidden-source-map && npm run compile",
-    "rebuild": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8 && node scripts/copy_binding.js",
+    "rebuild": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -v 25.9.7 && node scripts/copy_binding.js",
     "rebuild:xcompile": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -t ${TARGET} -v 19.1.8  -CDCMAKE_CXX_COMPILER=/usr/bin/g++ -CDCMAKE_C_COMPILER=/usr/bin/gcc && node scripts/copy_binding.js",
     "rebuild:cmake": "cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8",
     "build:v3": "cd ../couchbase-cloud/cmd/cp-ui-v3; npm run build",
@@ -98,7 +98,7 @@
     "axios": "^1.4.0",
     "classnames": "^2.2.6",
     "clsx": "^2.0.0",
-    "couchbase": "^4.2.1",
+    "couchbase": "^4.2.8",
     "csv-parse": "^5.5.2",
     "d3-hierarchy": "^1.1.9",
     "d3-selection": "^1.4.2",
