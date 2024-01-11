@@ -49,6 +49,7 @@ jobs:
           node-version: 16
           architecture: ${{ matrix.arch }}
           cache: 'npm'
+      - uses: ilammy/setup-nasm@v1
       - name: windows-specific
         shell: pwsh
         if: matrix.platform == 'win32'
