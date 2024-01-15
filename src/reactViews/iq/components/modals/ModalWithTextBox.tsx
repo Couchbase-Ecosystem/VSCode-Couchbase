@@ -14,7 +14,12 @@ export function ModalWithTextBox({ isOpen, onSubmit, onClose, label = "Enter tex
       return;
     }
     onSubmit(text); // Pass the entered text to the parent component
-    onClose(); // Close the modal
+    handleClose();
+  };
+
+  const handleClose = () => {
+    setText("");
+    onClose();
   };
 
   return (
@@ -29,7 +34,7 @@ export function ModalWithTextBox({ isOpen, onSubmit, onClose, label = "Enter tex
           />
           <div className="button-container">
             <button type="submit">Submit</button>
-            <button type="button" onClick={onClose}>Cancel</button>
+            <button type="button" onClick={handleClose}>Cancel</button>
           </div>
         </form>
       </div>

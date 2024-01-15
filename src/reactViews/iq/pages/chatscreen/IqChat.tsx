@@ -42,7 +42,7 @@ const IqChat = ({ org }) => {
   const [messages, setMessages] = useState<iqMessages>({
     userChats: [
       {
-        message: "Hello, I'm Couchbase IQ! Ask me anything!",
+        message: "Hello, I'm Couchbase iQ! Ask me anything!",
         sender: "assistant",
         msgDate: (Date.now() / 1000).toFixed(0),
         qaId: "firstMessage",
@@ -222,7 +222,7 @@ const IqChat = ({ org }) => {
     setMessages({
       userChats: [
         {
-          message: "Hello, I'm Couchbase IQ! Ask me anything!",
+          message: "Hello, I'm Couchbase iQ! Ask me anything!",
           sender: "assistant",
           msgDate: (Date.now() / 1000).toFixed(0),
           qaId: "firstMessage",
@@ -319,7 +319,7 @@ const IqChat = ({ org }) => {
     });
     setIsTyping(true);
     try {
-      // Send message to CB IQ
+      // Send message to CB iQ
       tsvscode.postMessage({
         command: "vscode-couchbase.iq.sendMessageToIQ",
         value: {
@@ -354,7 +354,7 @@ const IqChat = ({ org }) => {
             actionbar={
               isTyping ? (
                 <TypingIndicator
-                  content="IQ is typing"
+                  content="iQ is typing"
                   className="typingIndicator"
                 />
               ) : actions.length > 0 ? (

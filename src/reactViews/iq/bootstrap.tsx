@@ -23,7 +23,7 @@ export const App: React.FC = () => {
     switch (message.command) {
       case "vscode-couchbase.iq.organizationDetails": {
         if (message.isSavedOrganization) {
-          // Organization is already saved, bypass the organization select page straight to IQ Chat
+          // Organization is already saved, bypass the organization select page straight to iQ Chat
           setShowPage(<IqChat org={message.savedOrganization} />);
         } else {
           setShowPage(

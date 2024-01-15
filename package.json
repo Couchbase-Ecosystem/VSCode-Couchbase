@@ -618,7 +618,7 @@
       },
       {
         "command": "vscode-couchbase.iq.logout",
-        "title": "Logout couchbase IQ",
+        "title": "Logout couchbase iQ",
         "category": "Couchbase",
         "icon": "$(sign-out)"
       },
@@ -630,7 +630,7 @@
       },
       {
         "command": "vscode-couchbase.iq.showSettings",
-        "title": "Show IQ settings",
+        "title": "Show iQ settings",
         "category": "Couchbase",
         "icon": "$(gear)"
       },
@@ -999,7 +999,7 @@
         },
         {
           "id": "couchbase-iq",
-          "name": "Couchbase IQ (Beta)",
+          "name": "Couchbase iQ (Beta)",
           "type": "webview"
         },
         {
@@ -1018,22 +1018,22 @@
     "configuration": [
       {
         "id": "couchbase-iq",
-        "title": "IQ",
+        "title": "iQ",
         "properties": {
-          "couchbase.iq.organization": {
+          "couchbase.iQ.savedOrganization": {
             "type": "string",
             "default": "",
-            "markdownDescription": "The Current organization which is being used for all iq tasks. You can change default organization here by changing this field.  Note: any change will only appear after you login again"
+            "markdownDescription": "This field represents the 'Saved Organization' currently in use for all iQ tasks. It was stored when you selected 'Remember Me'. If you didn't choose to save it, this field may be empty. You can modify the 'Saved Organization' here. Please note, any changes will take effect only after your next login."
           },
-          "couchbase.iq.enableCodeSelectionResult": {
+          "couchbase.iQ.enableCodeSelectionResult": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Do you wish that selected code on active editor be sent to IQ to understand context better?"
+            "markdownDescription": "Do you wish that selected code on active editor be sent to iQ to understand context better?"
           },
-          "couchbase.iq.sendMessagesToCouchbase": {
+          "couchbase.iQ.sendMessagesToCouchbase": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Do you want to share messages asked to IQ and their results be sent to couchbase to make IQ better?"
+            "markdownDescription": "Do you want to share messages asked to iQ and their results be sent to couchbase to make iQ better?"
           }
         }
       }

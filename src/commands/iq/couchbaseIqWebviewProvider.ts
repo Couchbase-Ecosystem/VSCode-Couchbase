@@ -83,7 +83,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     }
 
                     let config = vscode.workspace.getConfiguration('couchbase');
-                    const savedOrganization = config.get('iq.organization');  // Get saved organization from vscode couchbase settings
+                    const savedOrganization = config.get('iq.savedOrganization');  // Get saved organization from vscode couchbase settings
                     if (savedOrganization !== "") {
                         let savedOrganizationDetail = undefined;
                         for (let org of organizations) {
@@ -95,7 +95,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
 
                         if (savedOrganizationDetail === undefined) {
                             // Remove organization from saved settings.
-                            config.update("iq.organization", "");
+                            config.update("iq.savedOrganization", "");
                             this._view?.webview.postMessage({
                                 command: "vscode-couchbase.iq.organizationDetails", 
                                 organizations: organizations,
@@ -112,7 +112,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                                     savedOrganization: savedOrganizationDetail
                                 });
                             } else {
-                                config.update("iq.organization", "");
+                                config.update("iq.savedOrganization", "");
                                 this._view?.webview.postMessage({
                                     command: "vscode-couchbase.iq.forcedLogout",
                                     error: errorMessage
@@ -177,7 +177,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     }
 
                     let config = vscode.workspace.getConfiguration('couchbase');
-                    const savedOrganization = config.get('iq.organization');  // Get saved organization from vscode couchbase settings
+                    const savedOrganization = config.get('iq.savedOrganization');  // Get saved organization from vscode couchbase settings
                     if (savedOrganization !== "") {
                         let savedOrganizationDetail = undefined;
                         for (let org of organizations) {
@@ -189,7 +189,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
 
                         if (savedOrganizationDetail === undefined) {
                             // Remove organization from saved settings.
-                            config.update("iq.organization", "");
+                            config.update("iq.savedOrganization", "");
                             this._view?.webview.postMessage({
                                 command: "vscode-couchbase.iq.organizationDetails",
                                 organizations: organizations,
@@ -206,7 +206,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                                     savedOrganization: savedOrganizationDetail
                                 });
                             } else {
-                                config.update("iq.organization", "");
+                                config.update("iq.savedOrganization", "");
                                 this._view?.webview.postMessage({
                                     command: "vscode-couchbase.iq.forcedLogout",
                                     error: errorMessage
@@ -227,7 +227,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     const {isOrgVerified, errorMessage} = await verifyOrganization(message.value.organizationDetails.data.id);
                     if(isOrgVerified && message.value.rememberOrgChecked) {
                         let config = vscode.workspace.getConfiguration('couchbase');
-                        config.update('iq.organization', message.value.organizationDetails.data.id, vscode.ConfigurationTarget.Global);
+                        config.update('iq.savedOrganization', message.value.organizationDetails.data.id, vscode.ConfigurationTarget.Global);
                     } else if(!isOrgVerified) {
                         this._view?.webview.postMessage({
                             command: "vscode-couchbase.iq.forcedLogout",

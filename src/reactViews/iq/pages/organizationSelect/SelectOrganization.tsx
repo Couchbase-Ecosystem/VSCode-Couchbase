@@ -47,7 +47,7 @@ const SelectOrganizationPage = ({ organizationDetails, setShowPage }) => {
       <p>
         {" "}
         Notes:
-        <li>Please only select an organization where IQ is enabled.</li>
+        <li>Please only select an organization where iQ is enabled.</li>
         <li>
           If you remember the organization, it will set it as default for future
           logins. you can change default in settings.

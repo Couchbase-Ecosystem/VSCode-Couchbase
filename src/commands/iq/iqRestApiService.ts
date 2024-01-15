@@ -85,10 +85,10 @@ export class iqRestApiService {
             }
             else {
                 try {
-                logger.error("Error while receiving message from IQ: " + error);
-                result.error = "Error while receiving message from IQ: " + error;
+                logger.error("Error while receiving message from iQ: " + error);
+                result.error = "Error while receiving message from iQ: " + error;
                 } catch (e) {
-                    result.error = "Error while processing IQ message";
+                    result.error = "Error while processing iQ message";
                 }
             }
         }
