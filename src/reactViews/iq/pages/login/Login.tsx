@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./LoginPage.scss";
 
 interface IFormData {
@@ -49,6 +49,22 @@ export const Login = ({ logoutReason = "" }) => {
         });
           
     };
+
+    useEffect(() => {
+        tsvscode.postMessage({
+          command: "vscode-couchbase.iq.showLogoutButton",
+          value: {
+            enabled: false
+          }
+        });
+    
+        tsvscode.postMessage({
+          command: "vscode-couchbase.iq.showNewChatButton",
+          value: {
+            enabled: false
+          }
+        });
+      }, []);
 
     return (
         <div className="login-page">

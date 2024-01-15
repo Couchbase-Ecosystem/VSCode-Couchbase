@@ -1,6 +1,6 @@
 import Dropdown from "components/inputs/dropdown/Dropdown";
 import IqChat from "pages/chatscreen/IqChat";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./SelectOrganization.scss";
 
 const SelectOrganizationPage = ({ organizationDetails, setShowPage }) => {
@@ -29,6 +29,23 @@ const SelectOrganizationPage = ({ organizationDetails, setShowPage }) => {
       setShowPage(<IqChat org={selectedOrg} />);
     }
   };
+
+  useEffect(() => {
+    tsvscode.postMessage({
+      command: "vscode-couchbase.iq.showLogoutButton",
+      value: {
+        enabled: true
+      }
+    });
+
+    tsvscode.postMessage({
+      command: "vscode-couchbase.iq.showNewChatButton",
+      value: {
+        enabled: false
+      }
+    });
+  }, []);
+  
   return (
     <div className="selectOrganizationContainer">
       <h1>Select an organization</h1>

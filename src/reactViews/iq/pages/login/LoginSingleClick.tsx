@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Login } from "./Login";
 import "./LoginPage.scss";
 
@@ -10,6 +11,22 @@ const LoginSingleClick = ({ userId, setShowPage, logoutReason = "" }) => {
       },
     });
   };
+
+  useEffect(() => {
+    tsvscode.postMessage({
+      command: "vscode-couchbase.iq.showLogoutButton",
+      value: {
+        enabled: false
+      }
+    });
+
+    tsvscode.postMessage({
+      command: "vscode-couchbase.iq.showNewChatButton",
+      value: {
+        enabled: false
+      }
+    });
+  }, []);
 
   return (
     <div className="login-page">

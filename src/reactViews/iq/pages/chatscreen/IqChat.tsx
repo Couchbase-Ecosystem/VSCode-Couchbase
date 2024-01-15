@@ -60,11 +60,19 @@ const IqChat = ({ org }) => {
   });
   const [actions, setActions] = useState<IActionBarButton[]>([]);
 
-  // fetch settings
   useEffect(() => {
     tsvscode.postMessage({
-      command: "vscode-couchbase.iq.fetchChatSettings",
-      value: undefined,
+      command: "vscode-couchbase.iq.showLogoutButton",
+      value: {
+        enabled: true
+      }
+    });
+
+    tsvscode.postMessage({
+      command: "vscode-couchbase.iq.showNewChatButton",
+      value: {
+        enabled: true
+      }
     });
   }, []);
 

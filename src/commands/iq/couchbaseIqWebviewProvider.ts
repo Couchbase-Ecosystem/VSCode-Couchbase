@@ -252,6 +252,22 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     removeJWT();
                     break;
                 }
+                case "vscode-couchbase.iq.showLogoutButton": {
+                    const enabled: boolean = message.value.enabled;
+                    vscode.commands.executeCommand(
+                        "setContext",
+                        "isIqLogoutButtonBVisible",
+                        enabled
+                    );
+                }
+                case "vscode-couchbase.iq.showNewChatButton": {
+                    const enabled: boolean = message.value.enabled;
+                    vscode.commands.executeCommand(
+                        "setContext",
+                        "isIqNewChatButtonBVisible",
+                        enabled
+                    );
+                }
             }
         });
     }

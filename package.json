@@ -962,12 +962,12 @@
         },
         {
           "command": "vscode-couchbase.iq.newChat",
-          "when": "view == couchbase-iq",
+          "when": "view == couchbase-iq && isIqNewChatButtonBVisible",
           "group": "navigation@1"
         },
         {
           "command": "vscode-couchbase.iq.logout",
-          "when": "view == couchbase-iq",
+          "when": "view == couchbase-iq && isIqLogoutButtonBVisible",
           "group": "navigation@3"
         },
         {
