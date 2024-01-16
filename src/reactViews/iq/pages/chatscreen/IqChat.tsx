@@ -42,7 +42,7 @@ const IqChat = ({ org }) => {
   const [messages, setMessages] = useState<iqMessages>({
     userChats: [
       {
-        message: "Hello, I'm Couchbase iQ! Ask me anything!",
+        message: "Greetings, I am Couchbase iQ! Feel free to inquire about anything related to Couchbase.",
         sender: "assistant",
         msgDate: (Date.now() / 1000).toFixed(0),
         qaId: "firstMessage",
@@ -230,7 +230,7 @@ const IqChat = ({ org }) => {
     setMessages({
       userChats: [
         {
-          message: "Hello, I'm Couchbase iQ! Ask me anything!",
+          message: "Greetings, I am Couchbase iQ! Feel free to inquire about anything related to Couchbase.",
           sender: "assistant",
           msgDate: (Date.now() / 1000).toFixed(0),
           qaId: "firstMessage",
