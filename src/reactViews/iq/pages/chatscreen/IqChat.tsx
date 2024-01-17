@@ -350,8 +350,7 @@ const IqChat = ({ org }) => {
           className="chatscope-chat-container"
           style={{
             flex: 1,
-            minHeight: "400px",
-            height: "95vh",
+            height: "100vh",
           }}
         >
           <MessageList
