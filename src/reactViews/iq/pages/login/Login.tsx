@@ -45,34 +45,33 @@ export const Login = ({ logoutReason = "" }) => {
         const link = "https://cloud.couchbase.com/sign-up";
         tsvscode.postMessage({
             command: "vscode-couchbase.iq.openLinkInBrowser",
-            value: link
+            value: link,
         });
-          
     };
 
     useEffect(() => {
         tsvscode.postMessage({
-          command: "vscode-couchbase.iq.showLogoutButton",
-          value: {
-            enabled: false
-          }
+            command: "vscode-couchbase.iq.showLogoutButton",
+            value: {
+                enabled: false,
+            },
         });
-    
+
         tsvscode.postMessage({
-          command: "vscode-couchbase.iq.showNewChatButton",
-          value: {
-            enabled: false
-          }
+            command: "vscode-couchbase.iq.showNewChatButton",
+            value: {
+                enabled: false,
+            },
         });
-      }, []);
+    }, []);
 
     return (
         <div className="login-page">
             <h1>Welcome to Couchbase iQ</h1>
             <p>
-                Need a productivity boost? Try chatting with Capella iQ, our AI
-                cloud service. Capella iQ is a generative AI-powered coding
-                assistant that helps developers instantly become more
+                Need a productivity boost? Try chatting with Capella iQ, our LLM
+                powered AI Chat Service. Capella iQ is a generative AI-powered
+                coding assistant that helps developers instantly become more
                 productive.
             </p>
             <div className="capella-login-area">
@@ -113,7 +112,9 @@ export const Login = ({ logoutReason = "" }) => {
                         className="redButton"
                     />
                 </form>
-                <span id="create-account" onClick={handleNewAccountClick}>Don't have an account yet?</span>
+                <span id="create-account" onClick={handleNewAccountClick}>
+                    Don't have an account yet?
+                </span>
             </div>
         </div>
     );
