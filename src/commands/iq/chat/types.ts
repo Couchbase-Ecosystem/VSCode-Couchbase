@@ -1,6 +1,7 @@
 export type iqChatType = {
     content: string;
     role: string;
+    isIntent?: boolean;
 };
 
 export type userChatType = {

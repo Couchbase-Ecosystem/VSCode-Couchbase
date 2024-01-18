@@ -35,7 +35,7 @@ export const getSelectedCode = () => {
     let config = vscode.workspace.getConfiguration('couchbase');
 
     const editor = vscode.window.activeTextEditor;
-    if (editor && config.get("iq.enableCodeSelectionResult")) {
+    if (editor && config.get("iQ.enableCodeSelectionResult")) {
         const selection = editor.selection;
         if (selection && !selection.isEmpty) {
             const selectedText = editor.document.getText(selection);
