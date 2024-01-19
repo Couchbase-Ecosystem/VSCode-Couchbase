@@ -138,7 +138,15 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                         } catch  {
                             errorMsg = "Internal Error: Please try again later or check settings on couchbase cloud";
                         }
-                        if (result.status === "401") {
+                        if(result.status.length > 3){ // No 4xx or 5xx error
+                            console.log("chat completed");
+
+                            this._view?.webview.postMessage({
+                                command: "vscode-couchbase.iq.chatCompleted",
+                                error: errorMsg
+                            });
+                        }
+                        else if (result.status === "401") {
                             console.log("Got forced logout");
                             
                             this._view?.webview.postMessage({

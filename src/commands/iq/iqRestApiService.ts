@@ -64,8 +64,8 @@ export class iqRestApiService {
                 },
             );
 
-            if(content.data.choices === undefined || content.data.choices.length === 0){
-                result.status = "405";
+            if (content.data.choices === undefined || content.data.choices.length === 0) {
+                result.status = "NoLogout";
                 result.error = content.data.error;
                 return result;
             }
@@ -73,34 +73,44 @@ export class iqRestApiService {
             result.status = content.status.toString();
         }
         catch (error: any) {
-            if (error.response && error.response.status === 401) {
-                result.error = "The current session has expired, Please login again";
-                result.status = "401";
-            } else if(error.response){
-                result.error = error.response;
-                result.status = error.response.status.toString();
-            } else if(error.status){
-                result.error = error.status;
-                result.status = error.statusText;
-            }
-            else {
-                try {
-                logger.error("Error while receiving message from iQ: " + error);
-                result.error = "Error while receiving message from iQ: " + error;
-                } catch (e) {
-                    result.error = "Error while processing iQ message";
+            try {
+                if (error.response && error.response.status === 401) {
+                    result.error = "The current session has expired, Please login again";
+                    result.status = "401";
                 }
+                else if (error.response.data !== undefined && error.response.data.errorType !== undefined) {
+                    result.error = error.response.data.message;
+                    result.status = error.response.data.errorType;
+                }
+                else if (error.status) {
+                    result.error = error.statusText;
+                    result.status = error.status;
+                }
+                 else if (error.response) {
+                    result.error = error.response;
+                    result.status = error.response.status.toString();
+                }
+                else {
+
+                    logger.error("Error while receiving message from iQ: " + error);
+                    result.status = "400";
+                    result.error = "Error while receiving message from iQ: " + error;
+
+                }
+            } catch (e) {
+                result.status = "400";
+                result.error = "Error while processing iQ message";
             }
         }
         return result;
     };
 
     public static sendMessageToLambda = async (context: vscode.ExtensionContext, message: feedbackLambdaMessageType) => {
-        const URL = context.globalState.get<string>('feedbackLambdaUrl'); 
-        await axios.post(URL || "",  message,
+        const URL = context.globalState.get<string>('feedbackLambdaUrl');
+        await axios.post(URL || "", message,
             {
                 headers: {
-                    "X-Secret": context.globalState.get<string>('feedbackLambdaSecret') 
+                    "X-Secret": context.globalState.get<string>('feedbackLambdaSecret')
                 }
             }
         );

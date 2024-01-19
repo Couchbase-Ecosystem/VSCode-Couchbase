@@ -12,7 +12,7 @@ export const ChatContainer = ({ children, className, ...rest }) => {
   const cName = `${prefix}-chat-container`;
 
   const [
-    header,
+    footer,
     messageList,
     messageInput,
     inputToolbox,
@@ -25,10 +25,10 @@ export const ChatContainer = ({ children, className, ...rest }) => {
 
   return (
     <div {...rest} className={classNames(cName, className)}>
-      {header}
       {messageList}
       {messageInput}
       {inputToolbox}
+      {footer}
     </div>
   );
 };

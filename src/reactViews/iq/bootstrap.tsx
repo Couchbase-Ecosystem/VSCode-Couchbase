@@ -16,7 +16,8 @@ export const App: React.FC = () => {
   const [showPage, setShowPage] = React.useState(<></>);
   const showPageRef = React.useRef(<></>);
   showPageRef.current = showPage;
-  const [modal, setModal] = React.useState(undefined);
+  const [showErrorModal, setShowErrorModal] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState("");
 
   const messageHandler = (event) => {
     const message = event.data;
@@ -41,20 +42,8 @@ export const App: React.FC = () => {
           command: "vscode-couchbase.iq.removeSavedJWT",
           value: "",
         });
-        setModal(
-          <Modal
-            content={message.error || ""}
-            onClose={() => {
-              setModal(undefined);
-              setShowPage(<Login />);
-              setIsLoading(false);
-              tsvscode.postMessage({
-                command: "vscode-couchbase.iq.getSavedLogin",
-                value: "",
-              });
-            }}
-          />
-        );
+        setShowErrorModal(true);
+        setErrorMessage(message.error || "");
         break;
       }
       case "vscode-couchbase.iq.savedLoginDetails": {
@@ -111,7 +100,19 @@ export const App: React.FC = () => {
   return (
     <div>
       {isLoading && <LoadingScreen />}
-      {modal}
+      <Modal
+        isOpen={showErrorModal}
+        content={errorMessage || ""}
+        onClose={() => {
+          setShowErrorModal(false);
+          setShowPage(<Login />);
+          setIsLoading(false);
+          tsvscode.postMessage({
+            command: "vscode-couchbase.iq.getSavedLogin",
+            value: "",
+          });
+        }}
+      />
       {showPage}
     </div>
   );

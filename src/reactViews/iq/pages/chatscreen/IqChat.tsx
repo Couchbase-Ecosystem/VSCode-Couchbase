@@ -22,8 +22,11 @@ import {
 } from "chatscope/src/components/ActionBar/ActionBar";
 import { ChatAction, availableActions } from "utils/ChatAction";
 import { SendFeedback } from "components/chatActions/SendFeedback";
-import  ThumbsUp from "../../assets/icons/ThumbsUp";
-import  ThumbsDown  from "../../assets/icons/ThumbsDown";
+import ThumbsUp from "../../assets/icons/ThumbsUp";
+import ThumbsDown from "../../assets/icons/ThumbsDown";
+import { ModalWithCancelButton } from "components/modals/ModalWithCancelButton";
+import { ConversationHeader } from "../../chatscope/src/components/ConversationHeader/ConversationHeader";
+import { parseErrorMessages } from "utils/ErrorMessages";
 
 export type userMessage = {
   message: string;
@@ -42,7 +45,8 @@ const IqChat = ({ org }) => {
   const [messages, setMessages] = useState<iqMessages>({
     userChats: [
       {
-        message: "Greetings, I am Couchbase iQ! Feel free to inquire about anything related to Couchbase.",
+        message:
+          "Greetings, I am Couchbase iQ! Feel free to inquire about anything related to Couchbase.",
         sender: "assistant",
         msgDate: (Date.now() / 1000).toFixed(0),
         qaId: "firstMessage",
@@ -54,6 +58,9 @@ const IqChat = ({ org }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [codeTheme, setCodeTheme] = useState(oneLight);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showNewChatModal, setShowNewChatModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isChatCompleted, setIsChatCompleted] = useState(false);
   const [feedbackModalData, setFeedbackModalData] = useState({
     msgIndex: -1,
     qaId: "",
@@ -64,18 +71,17 @@ const IqChat = ({ org }) => {
     tsvscode.postMessage({
       command: "vscode-couchbase.iq.showLogoutButton",
       value: {
-        enabled: true
-      }
+        enabled: true,
+      },
     });
 
     tsvscode.postMessage({
       command: "vscode-couchbase.iq.showNewChatButton",
       value: {
-        enabled: true
-      }
+        enabled: true,
+      },
     });
   }, []);
-
 
   const handleMessageLike = (index: number, qaId: string) => {
     const originalReply = messages.userChats[index].message;
@@ -175,7 +181,7 @@ const IqChat = ({ org }) => {
   };
 
   const handleFeedbackSubmit = (feedbackText) => {
-    if(feedbackText.trim() === ""){
+    if (feedbackText.trim() === "") {
       return;
     }
     const index = feedbackModalData.msgIndex;
@@ -199,7 +205,7 @@ const IqChat = ({ org }) => {
   };
 
   const SyntaxHighlight = ({ language, value }) => {
-    if(language === "sql") {
+    if (language === "sql") {
       language = "n1ql";
     }
     return (
@@ -226,11 +232,12 @@ const IqChat = ({ org }) => {
     event.target.dispatchEvent(inputEvent);
   };
 
-  const onNewChatClick = () => {
+  const openNewChat = () => {
     setMessages({
       userChats: [
         {
-          message: "Greetings, I am Couchbase iQ! Feel free to inquire about anything related to Couchbase.",
+          message:
+            "Greetings, I am Couchbase iQ! Feel free to inquire about anything related to Couchbase.",
           sender: "assistant",
           msgDate: (Date.now() / 1000).toFixed(0),
           qaId: "firstMessage",
@@ -240,8 +247,15 @@ const IqChat = ({ org }) => {
       chatId: uuid(),
     });
     setIsTyping(false);
+    setIsChatCompleted(false);
     setShowFeedbackModal(false);
+    setShowNewChatModal(false);
     setActions([]);
+  };
+
+  const onNewChatClick = () => {
+    setShowFeedbackModal(false);
+    setShowNewChatModal(true);
   };
 
   window.addEventListener("message", (event) => {
@@ -305,11 +319,23 @@ const IqChat = ({ org }) => {
         onNewChatClick();
         break;
       }
+      case "vscode-couchbase.iq.chatCompleted": {
+        // The chat has ran into some errors and can no longer be continued.
+        setIsTyping(false);
+        setShowFeedbackModal(false);
+        setShowNewChatModal(false);
+        setActions([]);
+        setIsChatCompleted(true);
+        const formattedError = parseErrorMessages(JSON.parse(message.error));
+        setErrorMessage(formattedError);
+        break;
+      }
     }
   });
 
   const handleSendRequest = async (message: string) => {
-    if(isTyping){ // Don't accept new message if currently it's typing
+    if (isTyping) {
+      // Don't accept new message if currently it's typing
       return;
     }
     const newMessage: userMessage = {
@@ -346,13 +372,7 @@ const IqChat = ({ org }) => {
   return (
     <div>
       <MainContainer className="chatscope-main-container" responsive>
-        <ChatContainer
-          className="chatscope-chat-container"
-          style={{
-            flex: 1,
-            height: "100vh",
-          }}
-        >
+        <ChatContainer className="chatscope-chat-container">
           <MessageList
             className={`chatscope-message-list ${
               isTyping || actions.length > 0 ? "hasActionbar" : ""
@@ -435,7 +455,7 @@ const IqChat = ({ org }) => {
                                 handleMessageDislike(index, message.qaId)
                               }
                             >
-                             <ThumbsDown height="25px"/>
+                              <ThumbsDown height="25px" />
                             </button>
                           </>
                         ) : (
@@ -459,26 +479,56 @@ const IqChat = ({ org }) => {
               }
             })}
           </MessageList>
-          <MessageInput
-            onPaste={(event) => {
-              handlePaste(event);
-            }}
-            attachButton={false}
-            sendButton={true}
-            placeholder="Type a message..."
-            onSend={(msg) => handleSendRequest(msg)}
-            className="chatscope-message-input"
-          />
+          {!isChatCompleted ? (
+            <MessageInput
+              onPaste={(event) => {
+                handlePaste(event);
+              }}
+              attachButton={false}
+              sendButton={true}
+              placeholder="Type a message..."
+              onSend={(msg) => handleSendRequest(msg)}
+              className="chatscope-message-input"
+            />
+          ) : (
+            <ConversationHeader>
+              <ConversationHeader.Content>
+                <div className="chat-over-container">
+                  <div className="chat-over-error-message">
+                    {errorMessage}
+                  </div>
+                  <div className="chat-over-message">
+                  This chat session is no longer active. To continue the conversation, please initiate a new chat.
+                  </div>
+                  <button
+                    className="chat-over-newchat-button"
+                    onClick={() => onNewChatClick()}
+                  >
+                    Start a new Chat
+                  </button>
+                </div>
+              </ConversationHeader.Content>
+            </ConversationHeader>
+          )}
         </ChatContainer>
-        {
-          <SendFeedback
-            isOpen={showFeedbackModal}
-            onClose={() => setShowFeedbackModal(false)}
-            onSubmit={(text) => handleFeedbackSubmit(text)}
-          />
-        }
+
+        {/* Modals Area, Please put all the modals here and control them using states */}
+        <SendFeedback
+          isOpen={showFeedbackModal}
+          onClose={() => setShowFeedbackModal(false)}
+          onSubmit={(text) => handleFeedbackSubmit(text)}
+        />
+
+        <ModalWithCancelButton
+          isOpen={showNewChatModal}
+          onClose={() => setShowNewChatModal(false)}
+          onSubmit={() => openNewChat()}
+          content={
+            "Starting new chat will result in loss of data of previous conversation, is it okay to proceed?"
+          }
+        />
+
       </MainContainer>
-      
     </div>
   );
 };
