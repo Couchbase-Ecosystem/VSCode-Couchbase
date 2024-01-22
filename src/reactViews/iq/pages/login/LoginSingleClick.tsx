@@ -2,8 +2,9 @@ import { useEffect } from "react";
 import { Login } from "./Login";
 import "./LoginPage.scss";
 
-const LoginSingleClick = ({ userId, setShowPage, logoutReason = "" }) => {
+const LoginSingleClick = ({ userId, setIsLoading, setShowPage, logoutReason = "" }) => {
     const singleClickSignIn = () => {
+        setIsLoading(true);
         tsvscode.postMessage({
             command: "vscode-couchbase.iq.singleClickSignIn",
             value: {
@@ -13,6 +14,7 @@ const LoginSingleClick = ({ userId, setShowPage, logoutReason = "" }) => {
     };
 
     useEffect(() => {
+        setIsLoading(false);
         tsvscode.postMessage({
             command: "vscode-couchbase.iq.showLogoutButton",
             value: {
@@ -60,7 +62,7 @@ const LoginSingleClick = ({ userId, setShowPage, logoutReason = "" }) => {
                 <button
                     className=""
                     onClick={() => {
-                        setShowPage(<Login />);
+                        setShowPage(<Login setIsLoading={setIsLoading}/>);
                     }}
                 >
                     Login with different credentials

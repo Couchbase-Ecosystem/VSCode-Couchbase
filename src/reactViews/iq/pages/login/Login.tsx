@@ -7,7 +7,7 @@ interface IFormData {
     rememberMe: boolean;
 }
 
-export const Login = ({ logoutReason = "" }) => {
+export const Login = ({ setIsLoading, logoutReason = "" }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
@@ -33,7 +33,7 @@ export const Login = ({ logoutReason = "" }) => {
             rememberMe: rememberMe,
         };
 
-        //setIsLoading(true);
+        setIsLoading(true);
 
         tsvscode.postMessage({
             command: "vscode-couchbase.iq.login",
@@ -50,6 +50,7 @@ export const Login = ({ logoutReason = "" }) => {
     };
 
     useEffect(() => {
+        setIsLoading(false);
         tsvscode.postMessage({
             command: "vscode-couchbase.iq.showLogoutButton",
             value: {

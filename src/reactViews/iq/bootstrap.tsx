@@ -25,12 +25,13 @@ export const App: React.FC = () => {
       case "vscode-couchbase.iq.organizationDetails": {
         if (message.isSavedOrganization) {
           // Organization is already saved, bypass the organization select page straight to iQ Chat
-          setShowPage(<IqChat org={message.savedOrganization} />);
+          setShowPage(<IqChat org={message.savedOrganization} setIsLoading={setIsLoading} />);
         } else {
           setShowPage(
             <SelectOrganizationPage
               organizationDetails={message.organizations}
               setShowPage={setShowPage}
+              setIsLoading={setIsLoading}
             />
           );
         }
@@ -50,12 +51,13 @@ export const App: React.FC = () => {
         if (message.savedLoginDetails.doesLoginDetailsExists === true) {
           setShowPage(
             <LoginSingleClick
+              setIsLoading={setIsLoading}
               setShowPage={setShowPage}
               userId={message.savedLoginDetails.username}
             />
           );
         } else {
-          setShowPage(<Login />);
+          setShowPage(<Login setIsLoading={setIsLoading}/>);
         }
         setIsLoading(false);
         break;
@@ -73,7 +75,7 @@ export const App: React.FC = () => {
           console.log("already logged out");
         } else {
           setShowPage(
-            <Login logoutReason="You have been successfully logged out" />
+            <Login setIsLoading={setIsLoading} logoutReason="You have been successfully logged out" />
           );
           setIsLoading(false);
         }
@@ -105,7 +107,7 @@ export const App: React.FC = () => {
         content={errorMessage || ""}
         onClose={() => {
           setShowErrorModal(false);
-          setShowPage(<Login />);
+          setShowPage(<Login  setIsLoading={setIsLoading}/>);
           setIsLoading(false);
           tsvscode.postMessage({
             command: "vscode-couchbase.iq.getSavedLogin",

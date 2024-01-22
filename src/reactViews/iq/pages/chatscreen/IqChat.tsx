@@ -41,7 +41,7 @@ export type iqMessages = {
   chatId: string;
 };
 
-const IqChat = ({ org }) => {
+const IqChat = ({ org, setIsLoading }) => {
   const [messages, setMessages] = useState<iqMessages>({
     userChats: [
       {
@@ -68,6 +68,7 @@ const IqChat = ({ org }) => {
   const [actions, setActions] = useState<IActionBarButton[]>([]);
 
   useEffect(() => {
+    setIsLoading(false);
     tsvscode.postMessage({
       command: "vscode-couchbase.iq.showLogoutButton",
       value: {

@@ -3,7 +3,7 @@ import IqChat from "pages/chatscreen/IqChat";
 import { useEffect, useState } from "react";
 import "./SelectOrganization.scss";
 
-const SelectOrganizationPage = ({ organizationDetails, setShowPage }) => {
+const SelectOrganizationPage = ({ organizationDetails, setShowPage, setIsLoading }) => {
   const [selectedOrg, setSelectedOrg] = useState(undefined);
   const [rememberOrgChecked, setRememberOrgChecked] = useState(false);
   
@@ -17,6 +17,7 @@ const SelectOrganizationPage = ({ organizationDetails, setShowPage }) => {
 
   const handleSubmit = () => {
     if (selectedOrg !== undefined) {
+      setIsLoading(true);
       // Verify if organization is allowed
       tsvscode.postMessage({
         command: "vscode-couchbase.iq.verifyOrganizationAndSave",
@@ -26,11 +27,12 @@ const SelectOrganizationPage = ({ organizationDetails, setShowPage }) => {
         }
       });
       // At the end, we shift to next page that is main iq chat
-      setShowPage(<IqChat org={selectedOrg} />);
+      setShowPage(<IqChat org={selectedOrg} setIsLoading={setIsLoading} />);
     }
   };
 
   useEffect(() => {
+    setIsLoading(false);
     tsvscode.postMessage({
       command: "vscode-couchbase.iq.showLogoutButton",
       value: {
