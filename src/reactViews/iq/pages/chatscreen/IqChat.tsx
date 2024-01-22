@@ -378,7 +378,9 @@ const IqChat = ({ org, setIsLoading }) => {
             className={`chatscope-message-list ${
               isTyping || actions.length > 0 ? "hasActionbar" : ""
             }`}
-            scrollBehavior="smooth"
+            scrollBehavior="auto"
+            autoScrollToBottom={true}
+            autoScrollToBottomOnMount={true}
             actionbar={
               isTyping ? (
                 <TypingIndicator
