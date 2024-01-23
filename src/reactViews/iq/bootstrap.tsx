@@ -17,7 +17,7 @@ export const App: React.FC = () => {
   const showPageRef = React.useRef(<></>);
   showPageRef.current = showPage;
   const [showErrorModal, setShowErrorModal] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState("");
+  const [errorMessage, setErrorMessage] = React.useState(<></>);
 
   React.useEffect(()=>{
     showPageRef.current = showPage;
@@ -108,7 +108,7 @@ export const App: React.FC = () => {
       {isLoading && <LoadingScreen />}
       <Modal
         isOpen={showErrorModal}
-        content={errorMessage || ""}
+        content={errorMessage || <></>}
         onClose={() => {
           setShowErrorModal(false);
           setShowPage(<Login  setIsLoading={setIsLoading}/>);

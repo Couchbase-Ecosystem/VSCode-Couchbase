@@ -216,7 +216,7 @@ const IqChat = ({ org, setIsLoading }) => {
     return (
       <div className="multiline-code-container">
         <div className="multiline-code-header">
-          <div className="code-language-info">{language.toUpperCase()}</div>
+          <div className="code-language-info">{language === "n1ql" ? "SQL++" : language.toUpperCase()}</div>
           <div className="code-actions">
           <Tooltip id="my-tooltip" />
             {language === "n1ql" && (
@@ -454,16 +454,21 @@ const IqChat = ({ org, setIsLoading }) => {
                                 const match = /language-(\w+)/.exec(
                                   className || ""
                                 );
-                                return match ? (
+                                const code = String(children).replace(/\n$/, "");
+                                const isMultiline = code.includes('\n');
+                                const language = match ? match[1] : isMultiline ? "n1ql" : "plaintextCode";
+                                return language === "plaintextCode" ? 
+                                (
+                                  <code className={className + " single-line-code"} {...props}>
+                                    {children}
+                                  </code>
+                                )
+                                : (
                                   <SyntaxHighlight
-                                    language={match[1]}
+                                    language={language}
                                     value={String(children).replace(/\n$/, "")}
                                     {...props}
                                   />
-                                ) : (
-                                  <code className={className} {...props}>
-                                    {children}
-                                  </code>
                                 );
                               },
                             }}

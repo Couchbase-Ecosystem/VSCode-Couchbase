@@ -75,7 +75,7 @@ export const verifyOrganization = async (orgId: string): Promise<any> => {
         };
     }
     const orgDetails = await iqRestApiService.getOrganizationDetails(jwtToken,orgId);
-    if(orgDetails.iq.enabled === false) {
+    if(!orgDetails.iq || orgDetails.iq.enabled === false) {
         return {
             isOrgVerified: false,
             errorMessage: `Couchbase iQ is not enabled for this organization, Please enable it on <a href="cloud.couchbase.com"> cloud.couchbase.com  </a>`
