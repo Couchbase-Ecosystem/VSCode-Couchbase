@@ -50,7 +50,7 @@ const IqChat = ({ org, setIsLoading }) => {
     userChats: [
       {
         message:
-          "Greetings, I am Couchbase iQ! Feel free to inquire about anything related to Couchbase.",
+          "Greetings, I am Capella iQ! Feel free to inquire about anything related to Couchbase.",
         sender: "assistant",
         msgDate: (Date.now() / 1000).toFixed(0),
         qaId: "firstMessage",
@@ -276,7 +276,7 @@ const IqChat = ({ org, setIsLoading }) => {
       userChats: [
         {
           message:
-            "Greetings, I am Couchbase iQ! Feel free to inquire about anything related to Couchbase.",
+            "Greetings, I am Capella iQ! Feel free to inquire about anything related to Couchbase.",
           sender: "assistant",
           msgDate: (Date.now() / 1000).toFixed(0),
           qaId: "firstMessage",

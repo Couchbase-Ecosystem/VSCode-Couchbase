@@ -619,7 +619,7 @@
       },
       {
         "command": "vscode-couchbase.iq.logout",
-        "title": "Logout couchbase iQ",
+        "title": "Logout capella iQ",
         "category": "Couchbase",
         "icon": "$(sign-out)"
       },
@@ -1000,7 +1000,7 @@
         },
         {
           "id": "couchbase-iq",
-          "name": "Couchbase iQ (Beta)",
+          "name": "Capella iQ (Beta)",
           "type": "webview"
         },
         {

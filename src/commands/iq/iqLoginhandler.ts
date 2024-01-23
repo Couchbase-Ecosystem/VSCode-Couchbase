@@ -78,13 +78,13 @@ export const verifyOrganization = async (orgId: string): Promise<any> => {
     if(!orgDetails.iq || orgDetails.iq.enabled === false) {
         return {
             isOrgVerified: false,
-            errorMessage: `Couchbase iQ is not enabled for this organization, Please enable it on <a href="cloud.couchbase.com"> cloud.couchbase.com  </a>`
+            errorMessage: `Capella iQ is not enabled for this organization, Please enable it on cloud.couchbase.com`
         };
     }
     if(orgDetails.iq.other.isTermsAcceptedForOrg === false) {
         return {
             isOrgVerified: false,
-            errorMessage: `Terms and conditions to use Couchbase iQ are not accepted for this organization, Please accept it on <a href="cloud.couchbase.com"> cloud.couchbase.com  </a>`
+            errorMessage: `Terms and conditions to use Capella iQ are not accepted for this organization, Please accept it on cloud.couchbase.com`
         };
     }
     return {

@@ -32,7 +32,7 @@ const LoginSingleClick = ({ userId, setIsLoading, setShowPage, logoutReason = ""
 
     return (
         <div className="login-page">
-            <h1>Welcome to Couchbase iQ</h1>
+            <h1>Welcome to Capella iQ</h1>
             <p>
                 Need a productivity boost? Try chatting with Capella iQ, our LLM
                 powered AI Chat Service. Capella iQ is a generative AI-powered
