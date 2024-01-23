@@ -19,12 +19,13 @@ import * as path from 'path';
 import { getIQWebviewContent } from '../../webViews/iq/couchbaseIq.webview';
 import { iqChatHandler } from './chat/iqChatHandler';
 import { iqLoginHandler, iqSavedLoginDataGetter, iqSavedLoginHandler, verifyOrganization } from './iqLoginhandler';
-import { Memory } from '../../util/util';
+import { Memory, getUUID } from '../../util/util';
 import { Constants } from '../../util/constants';
 import { CacheService } from '../../util/cacheService/cacheService';
 import { iqFeedbackHandler } from './iqFeedbackHandler';
 import { IStoredMessages } from './chat/types';
 import { removeJWT } from './iqLogoutHandler';
+import { applyQuery } from '../queryHistory/applyQuery';
 
 
 
@@ -267,6 +268,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                         "isIqLogoutButtonBVisible",
                         enabled
                     );
+                    break;
                 }
                 case "vscode-couchbase.iq.showNewChatButton": {
                     const enabled: boolean = message.value.enabled;
@@ -275,6 +277,11 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                         "isIqNewChatButtonBVisible",
                         enabled
                     );
+                    break;
+                }
+                case "vscode-couchbase.iq.applyQuery": {
+                    const query = message.value;
+                    applyQuery({query: query, id: getUUID()});
                 }
             }
         });

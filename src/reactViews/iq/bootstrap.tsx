@@ -19,6 +19,10 @@ export const App: React.FC = () => {
   const [showErrorModal, setShowErrorModal] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
 
+  React.useEffect(()=>{
+    showPageRef.current = showPage;
+  }, [showPage]);
+
   const messageHandler = (event) => {
     const message = event.data;
     switch (message.command) {

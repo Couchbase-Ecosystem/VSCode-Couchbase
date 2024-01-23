@@ -27,6 +27,10 @@ import ThumbsDown from "../../assets/icons/ThumbsDown";
 import { ModalWithCancelButton } from "components/modals/ModalWithCancelButton";
 import { ConversationHeader } from "../../chatscope/src/components/ConversationHeader/ConversationHeader";
 import { parseErrorMessages } from "utils/ErrorMessages";
+import { CopyButton } from "assets/icons/CopyButton";
+import { applyCodeQuery, handleCodeCopy } from "utils/utils";
+import { SendToWorkbench } from "assets/icons/SendToWorkbench";
+import { Tooltip } from 'react-tooltip';
 
 export type userMessage = {
   message: string;
@@ -210,11 +214,45 @@ const IqChat = ({ org, setIsLoading }) => {
       language = "n1ql";
     }
     return (
-      <SyntaxHighlighter
-        style={codeTheme}
-        language={language}
-        children={value}
-      />
+      <div className="multiline-code-container">
+        <div className="multiline-code-header">
+          <div className="code-language-info">{language.toUpperCase()}</div>
+          <div className="code-actions">
+          <Tooltip id="my-tooltip" />
+            {language === "n1ql" && (
+              <>
+                <button
+                  data-tooltip-id="my-tooltip"
+                  data-tooltip-content="Send query to workbench"
+                  data-tooltip-place="top"
+                  className="applyQueryButton iconButton"
+                  onClick={() => applyCodeQuery(value)}
+                  onLoad={()=>console.log("updated")}                  
+                >
+                  <SendToWorkbench />
+                  
+                </button>
+              </>
+            )}
+            <button
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content="Copy code to clipboard"
+              data-tooltip-place="top"
+              className="copyButton iconButton"
+              onClick={() => handleCodeCopy(value)}
+            >
+              <CopyButton />
+              
+            </button>
+          </div>
+        </div>
+        <SyntaxHighlighter
+          className="multiline-code"
+          style={codeTheme}
+          language={language}
+          children={value}
+        />
+      </div>
     );
   };
 
@@ -445,20 +483,20 @@ const IqChat = ({ org, setIsLoading }) => {
                         {message.feedbackSent !== true ? (
                           <>
                             <button
-                              className="likeButton"
+                              className="likeButton iconButton"
                               onClick={() =>
                                 handleMessageLike(index, message.qaId)
                               }
                             >
-                              <ThumbsUp height="25px" />
+                              <ThumbsUp />
                             </button>
                             <button
-                              className="dislikeButton"
+                              className="dislikeButton iconButton"
                               onClick={() =>
                                 handleMessageDislike(index, message.qaId)
                               }
                             >
-                              <ThumbsDown height="25px" />
+                              <ThumbsDown />
                             </button>
                           </>
                         ) : (
@@ -497,11 +535,10 @@ const IqChat = ({ org, setIsLoading }) => {
             <ConversationHeader>
               <ConversationHeader.Content>
                 <div className="chat-over-container">
-                  <div className="chat-over-error-message">
-                    {errorMessage}
-                  </div>
+                  <div className="chat-over-error-message">{errorMessage}</div>
                   <div className="chat-over-message">
-                  This chat session is no longer active. To continue the conversation, please initiate a new chat.
+                    This chat session is no longer active. To continue the
+                    conversation, please initiate a new chat.
                   </div>
                   <button
                     className="chat-over-newchat-button"
@@ -530,7 +567,6 @@ const IqChat = ({ org, setIsLoading }) => {
             "Starting new chat will result in loss of data of previous conversation, is it okay to proceed?"
           }
         />
-
       </MainContainer>
     </div>
   );
