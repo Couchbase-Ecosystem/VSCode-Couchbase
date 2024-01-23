@@ -15,7 +15,7 @@ import {
   oneLight,
   nightOwl,
 } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import remarkGfm from "remark-gfm";
+
 import {
   ActionBar,
   IActionBarButton,
@@ -30,7 +30,7 @@ import { parseErrorMessages } from "utils/ErrorMessages";
 import { CopyButton } from "assets/icons/CopyButton";
 import { applyCodeQuery, handleCodeCopy } from "utils/utils";
 import { SendToWorkbench } from "assets/icons/SendToWorkbench";
-import { Tooltip } from 'react-tooltip';
+import { Tooltip } from "react-tooltip";
 
 export type userMessage = {
   message: string;
@@ -216,9 +216,11 @@ const IqChat = ({ org, setIsLoading }) => {
     return (
       <div className="multiline-code-container">
         <div className="multiline-code-header">
-          <div className="code-language-info">{language === "n1ql" ? "SQL++" : language.toUpperCase()}</div>
+          <div className="code-language-info">
+            {language === "n1ql" ? "SQL++" : language.toUpperCase()}
+          </div>
           <div className="code-actions">
-          <Tooltip id="my-tooltip" />
+            <Tooltip id="my-tooltip" />
             {language === "n1ql" && (
               <>
                 <button
@@ -227,10 +229,9 @@ const IqChat = ({ org, setIsLoading }) => {
                   data-tooltip-place="top"
                   className="applyQueryButton iconButton"
                   onClick={() => applyCodeQuery(value)}
-                  onLoad={()=>console.log("updated")}                  
+                  onLoad={() => console.log("updated")}
                 >
                   <SendToWorkbench />
-                  
                 </button>
               </>
             )}
@@ -242,7 +243,6 @@ const IqChat = ({ org, setIsLoading }) => {
               onClick={() => handleCodeCopy(value)}
             >
               <CopyButton />
-              
             </button>
           </div>
         </div>
@@ -447,23 +447,30 @@ const IqChat = ({ org, setIsLoading }) => {
                       payload: (
                         <Message.CustomContent>
                           <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
                             className="react-markdown"
                             components={{
                               code({ node, className, children, ...props }) {
                                 const match = /language-(\w+)/.exec(
                                   className || ""
                                 );
-                                const code = String(children).replace(/\n$/, "");
-                                const isMultiline = code.includes('\n');
-                                const language = match ? match[1] : isMultiline ? "n1ql" : "plaintextCode";
-                                return language === "plaintextCode" ? 
-                                (
-                                  <code className={className + " single-line-code"} {...props}>
+                                const code = String(children).replace(
+                                  /\n$/,
+                                  ""
+                                );
+                                const isMultiline = code.includes("\n");
+                                const language = match
+                                  ? match[1]
+                                  : isMultiline
+                                  ? "n1ql"
+                                  : "plaintextCode";
+                                return language === "plaintextCode" ? (
+                                  <code
+                                    className={className + " single-line-code"}
+                                    {...props}
+                                  >
                                     {children}
                                   </code>
-                                )
-                                : (
+                                ) : (
                                   <SyntaxHighlight
                                     language={language}
                                     value={String(children).replace(/\n$/, "")}

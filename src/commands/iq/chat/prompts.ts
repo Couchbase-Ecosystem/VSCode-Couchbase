@@ -1,6 +1,6 @@
 export const getFinalResponsePrompt = `
-Remember that you can only reply to questions related to couchbase and follow this strictly. If the user question is not related to couchbase, simply return "I'm sorry, I'm afraid I can't answer That"
-If you answer any question unrelated to couchbase, you will be heavily penalized
+Remember that you can only reply to questions related to ouchbase or Couchbase SDK's and follow this strictly. If the user question is not related to couchbase, simply return "I'm sorry, I'm afraid I can't answer That"
+If you answer any question unrelated to Couchbase or Couchbase SDK's, you will be heavily penalized
 Here is some data for context which can help in answering the question:
 `;
 

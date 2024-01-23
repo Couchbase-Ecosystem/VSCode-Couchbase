@@ -121,7 +121,6 @@
     "react-router-dom": "^6.14.2",
     "react-syntax-highlighter": "^15.5.0",
     "react-tooltip": "^5.26.0",
-    "remark-gfm": "^4.0.0",
     "stream-json": "^1.8.0",
     "uuid": "^9.0.1"
   },
