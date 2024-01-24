@@ -1028,12 +1028,12 @@
           "couchbase.iQ.enableCodeSelectionResult": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Do you wish that selected code on active editor be sent to iQ to understand context better?"
+            "markdownDescription": "Do you wish that selected code on active editor be sent to iQ to understand context better? (This may result in increased prompt size)"
           },
           "couchbase.iQ.sendMessagesToCouchbase": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Do you want to share messages asked to iQ and their results be sent to couchbase to make iQ better?"
+            "markdownDescription": "Would you like to anonymously submit the queries made to iQ, along with their results, to Couchbase in order to improve iQ's performance?"
           }
         }
       }

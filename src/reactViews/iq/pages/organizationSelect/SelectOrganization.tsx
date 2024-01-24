@@ -3,10 +3,14 @@ import IqChat from "pages/chatscreen/IqChat";
 import { useEffect, useState } from "react";
 import "./SelectOrganization.scss";
 
-const SelectOrganizationPage = ({ organizationDetails, setShowPage, setIsLoading }) => {
+const SelectOrganizationPage = ({
+  organizationDetails,
+  setShowPage,
+  setIsLoading,
+}) => {
   const [selectedOrg, setSelectedOrg] = useState(undefined);
   const [rememberOrgChecked, setRememberOrgChecked] = useState(false);
-  
+
   const handleOrgClick = (org) => {
     setSelectedOrg(org);
   };
@@ -23,8 +27,8 @@ const SelectOrganizationPage = ({ organizationDetails, setShowPage, setIsLoading
         command: "vscode-couchbase.iq.verifyOrganizationAndSave",
         value: {
           organizationDetails: selectedOrg,
-          rememberOrgChecked: rememberOrgChecked
-        }
+          rememberOrgChecked: rememberOrgChecked,
+        },
       });
       // At the end, we shift to next page that is main iq chat
       setShowPage(<IqChat org={selectedOrg} setIsLoading={setIsLoading} />);
@@ -36,18 +40,18 @@ const SelectOrganizationPage = ({ organizationDetails, setShowPage, setIsLoading
     tsvscode.postMessage({
       command: "vscode-couchbase.iq.showLogoutButton",
       value: {
-        enabled: true
-      }
+        enabled: true,
+      },
     });
 
     tsvscode.postMessage({
       command: "vscode-couchbase.iq.showNewChatButton",
       value: {
-        enabled: false
-      }
+        enabled: false,
+      },
     });
   }, []);
-  
+
   return (
     <div className="selectOrganizationContainer">
       <h1>Select an organization</h1>
@@ -60,7 +64,7 @@ const SelectOrganizationPage = ({ organizationDetails, setShowPage, setIsLoading
         })}
       />
       <div onClick={() => handleRememberOrgCheckbox()}>
-        <input type="checkbox" id="rememberOrg" checked={rememberOrgChecked}/>
+        <input type="checkbox" id="rememberOrg" checked={rememberOrgChecked} />
         <label>Remember the organization</label>
       </div>
       <p>
@@ -70,6 +74,10 @@ const SelectOrganizationPage = ({ organizationDetails, setShowPage, setIsLoading
         <li>
           If you remember the organization, it will set it as default for future
           logins. you can change default in settings.
+        </li>
+        <li>
+          By default, Couchbase will collect your prompts and responses to help
+          make Capella iQ better. You can disable this through the Settings.
         </li>
       </p>
       <button className="redButton" onClick={() => handleSubmit()}>
