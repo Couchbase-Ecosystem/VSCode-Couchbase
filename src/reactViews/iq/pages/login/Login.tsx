@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import "./LoginPage.scss";
+import { HidePasswordIcon } from "assets/icons/HidePassword";
+import { ShowPasswordIcon } from "assets/icons/ShowPassword";
 
 interface IFormData {
     username: string;
@@ -11,6 +13,7 @@ export const Login = ({ setIsLoading, logoutReason = "" }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleUsernameChange = (event) => {
         setUsername(event.target.value);
@@ -90,14 +93,26 @@ export const Login = ({ setIsLoading, logoutReason = "" }) => {
                             required
                         />
                     </label>
-                    <label>
+                    <label className="password-box-label">
                         Password:
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={handlePasswordChange}
-                            required
-                        />
+                        <div className="password-box-container">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={handlePasswordChange}
+                                required
+                            />
+                            <div
+                                className="toggle-password-button"
+                                onClick={() => setShowPassword(!showPassword)}
+                            >
+                                {showPassword ? (
+                                    <HidePasswordIcon />
+                                ) : (
+                                    <ShowPasswordIcon />
+                                )}
+                            </div>
+                        </div>
                     </label>
                     <div className="checkbox-container">
                         <label htmlFor="rememberMe">Remember me:</label>

@@ -72,6 +72,44 @@
       color: #ea2328;
       padding: 10px 5px;
     }
+
+    .password-box-label {
+      display: block;
+      .password-box-container {
+        position: relative;
+        border-radius: 5px;
+
+        input {
+          width: 100%;
+          -webkit-box-sizing: border-box; 
+          -moz-box-sizing: border-box;
+          box-sizing: border-box; 
+        }
+      }
+      .toggle-password-button {
+        background: none;
+        border: none;
+        font-weight: 600;
+        position: absolute;
+        right: 0.75em;
+        top: 0.5em;
+        z-index: 9;
+        width: 25px;
+        height: 25px;
+
+        :hover {
+          background: none !important;
+        }
+
+        svg {
+          height: 25px;
+          width: 25px;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+      }
+    }
   }
 
   #create-account {
@@ -121,7 +159,7 @@
 
     .divider {
       display: inline-block;
-      width: min(40%,calc(50% - 35px));
+      width: min(40%, calc(50% - 35px));
       height: 1px;
       background-color: var(
         --vscode-settings-sashBorder
