@@ -77,9 +77,22 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
         this._view.webview.onDidReceiveMessage(async (message) => {
             switch (message.command) {
                 case "vscode-couchbase.iq.login": {
-                    const organizations = await iqLoginHandler(message.value);
-                    if (!organizations || organizations.length === 0) {
-                        // TODO: send login error and do break
+                    let organizations;
+                    try {
+                    organizations = await iqLoginHandler(message.value);
+                        if (!organizations || organizations.length === 0) {
+                            // TODO: send login error and do break
+                            this._view?.webview.postMessage({
+                                command: "vscode-couchbase.iq.forcedLogout",
+                                error: "There are no organizations available for the account"
+                            });
+                            break;
+                        }
+                    } catch(error:any) {
+                        this._view?.webview.postMessage({
+                            command: "vscode-couchbase.iq.forcedLogout",
+                            error: error.message.toString()
+                        });
                         break;
                     }
 
@@ -179,9 +192,22 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     break;
                 }
                 case "vscode-couchbase.iq.singleClickSignIn": {
-                    const organizations = await iqSavedLoginHandler(message.value.username);
-                    if (!organizations || organizations.length === 0) {
-                        // TODO: send login error and do break
+                    let organizations;
+                    try {
+                        organizations = await iqSavedLoginHandler(message.value.username);
+                        if (!organizations || organizations.length === 0) {
+                            // TODO: send login error and do break
+                            this._view?.webview.postMessage({
+                                command: "vscode-couchbase.iq.forcedLogout",
+                                error: "There are no organizations available for the account"
+                            });
+                            break;
+                        }
+                    } catch (error:any){
+                        this._view?.webview.postMessage({
+                            command: "vscode-couchbase.iq.forcedLogout",
+                            error: error.message.toString()
+                        });
                         break;
                     }
 
@@ -282,6 +308,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                 case "vscode-couchbase.iq.applyQuery": {
                     const query = message.value;
                     applyQuery({query: query, id: getUUID()});
+                    break;
                 }
             }
         });

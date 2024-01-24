@@ -14,14 +14,8 @@ const newRoot = createRoot(container);
 export const App: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [showPage, setShowPage] = React.useState(<></>);
-  const showPageRef = React.useRef(<></>);
-  showPageRef.current = showPage;
   const [showErrorModal, setShowErrorModal] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(<></>);
-
-  React.useEffect(()=>{
-    showPageRef.current = showPage;
-  }, [showPage]);
 
   const messageHandler = (event) => {
     const message = event.data;
@@ -47,6 +41,7 @@ export const App: React.FC = () => {
           command: "vscode-couchbase.iq.removeSavedJWT",
           value: "",
         });
+        setIsLoading(false);
         setShowErrorModal(true);
         setErrorMessage(message.error || "");
         break;
@@ -71,18 +66,11 @@ export const App: React.FC = () => {
           command: "vscode-couchbase.iq.removeSavedJWT",
           value: "",
         });
-        if (
-          showPageRef.current.type.name === undefined ||
-          showPageRef.current.type.name === "LoginSingleClick" ||
-          showPageRef.current.type.name === "Login"
-        ) {
-          console.log("already logged out");
-        } else {
-          setShowPage(
-            <Login setIsLoading={setIsLoading} logoutReason="You have been successfully logged out" />
-          );
-          setIsLoading(false);
-        }
+        
+        setShowPage(
+          <Login setIsLoading={setIsLoading} logoutReason="You have been successfully logged out" />
+        );
+        setIsLoading(false);
         break;
       }
     }

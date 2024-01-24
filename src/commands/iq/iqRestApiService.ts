@@ -10,13 +10,18 @@ export class iqRestApiService {
     private static readonly FETCH_ORGANIZATIONS_URL = `${this.CAPELLA_URL_DOMAIN}/v2/organizations`;
 
     public static capellaLogin = async (username: string, password: string) => {
-        let content = await axios.post(this.SESSIONS_API_URL, {}, {
-            auth: {
-                username: username,
-                password: password
-            }
-        });
-        return content.data.jwt;
+        try {
+            let content = await axios.post(this.SESSIONS_API_URL, {}, {
+                auth: {
+                    username: username,
+                    password: password
+                }
+            });
+            return content.data.jwt;
+        } catch (error) {
+            logger.error("failed to login with capella creds: " + error);
+            throw new Error("Invalid Credentials: please retry with correct capella credentials ");
+        }
     };
 
     public static capellaLogout = async (jwt: string) => {
@@ -86,7 +91,7 @@ export class iqRestApiService {
                     result.error = error.statusText;
                     result.status = error.status;
                 }
-                 else if (error.response) {
+                else if (error.response) {
                     result.error = error.response;
                     result.status = error.response.status.toString();
                 }
