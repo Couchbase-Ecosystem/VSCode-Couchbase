@@ -70,6 +70,7 @@ const IqChat = ({ org, setIsLoading }) => {
     qaId: "",
   });
   const [actions, setActions] = useState<IActionBarButton[]>([]);
+  const [runningConversation, setRunningConversation] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setIsLoading(false);
@@ -297,6 +298,16 @@ const IqChat = ({ org, setIsLoading }) => {
     setShowNewChatModal(true);
   };
 
+  const onChatCompleted = (error) => {
+    setIsTyping(false);
+    setShowFeedbackModal(false);
+    setShowNewChatModal(false);
+    setActions([]);
+    setIsChatCompleted(true);
+    const formattedError = parseErrorMessages(JSON.parse(error));
+    setErrorMessage(formattedError);
+  };
+
   window.addEventListener("message", (event) => {
     const message = event.data;
     switch (message.command) {
@@ -314,6 +325,7 @@ const IqChat = ({ org, setIsLoading }) => {
           msgDate: message.msgDate,
           qaId: message.qaId,
         };
+        setRunningConversation(undefined);
         const updatedMessages = [...messages.userChats, newMessage];
 
         setMessages({
@@ -360,13 +372,7 @@ const IqChat = ({ org, setIsLoading }) => {
       }
       case "vscode-couchbase.iq.chatCompleted": {
         // The chat has ran into some errors and can no longer be continued.
-        setIsTyping(false);
-        setShowFeedbackModal(false);
-        setShowNewChatModal(false);
-        setActions([]);
-        setIsChatCompleted(true);
-        const formattedError = parseErrorMessages(JSON.parse(message.error));
-        setErrorMessage(formattedError);
+        onChatCompleted(message.error);
         break;
       }
     }
@@ -403,6 +409,15 @@ const IqChat = ({ org, setIsLoading }) => {
           qaId: newMessage.qaId,
         },
       });
+
+      setRunningConversation(newMessage.qaId);
+
+      setTimeout(()=>{
+        if(runningConversation === newMessage.qaId){
+          onChatCompleted("The chat has timed out. Please ask again with a new conversation");
+        }
+      }, 60000);
+      
     } catch (error) {
       console.error("Error processing message:", error);
     }
