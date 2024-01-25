@@ -148,7 +148,11 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                     if (result.error !== undefined) {
                         let errorMsg = "";
                         try {
-                            errorMsg = JSON.stringify(result.error);
+                            if(typeof(result.error) !== "string"){
+                                errorMsg = JSON.stringify(result.error);
+                            } else {
+                                errorMsg = result.error;
+                            }
                         } catch  {
                             errorMsg = "Internal Error: Please try again later or check settings on couchbase cloud";
                         }

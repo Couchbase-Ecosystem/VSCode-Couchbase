@@ -80,7 +80,7 @@ export class iqRestApiService {
         catch (error: any) {
             try {
                 if (error.response && error.response.status === 401) {
-                    result.error = "The current session has expired, Please login again";
+                    result.error = "The current session has expired. Please login again.";
                     result.status = "401";
                 }
                 else if (error.response.data !== undefined && error.response.data.errorType !== undefined) {

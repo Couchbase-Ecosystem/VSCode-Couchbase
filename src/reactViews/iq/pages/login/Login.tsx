@@ -115,12 +115,13 @@ export const Login = ({ setIsLoading, logoutReason = "" }) => {
                         </div>
                     </label>
                     <div className="checkbox-container">
-                        <label htmlFor="rememberMe">Remember me:</label>
                         <input
                             type="checkbox"
                             checked={rememberMe}
                             onChange={handleRememberMeChange}
                         />
+                        <label htmlFor="rememberMe">Remember me</label>
+                        
                     </div>
                     <input
                         type="submit"
