@@ -304,8 +304,13 @@ const IqChat = ({ org, setIsLoading }) => {
     setShowNewChatModal(false);
     setActions([]);
     setIsChatCompleted(true);
-    const formattedError = parseErrorMessages(JSON.parse(error));
-    setErrorMessage(formattedError);
+    if(typeof(error) === "string"){
+      setErrorMessage(error);
+    } else {
+      const formattedError = parseErrorMessages(JSON.parse(error));
+      setErrorMessage(formattedError);
+    }
+    
   };
 
   window.addEventListener("message", (event) => {
