@@ -5,13 +5,13 @@ import { Memory } from "../../../util/util";
 import { iqRestApiService } from "../iqRestApiService";
 import { actionIntenthandler } from "./intents/actionIntent";
 import { collectionIntentHandler } from "./intents/collectionSchemaIntent";
-import { IAdditionalContext, IStoredMessages, feedbackLambdaMessageType, iqChatResult, iqChatType } from "./types";
+import { IAdditionalContext, IIqStoredMessages, feedbackLambdaMessageType, iqChatResult, iqChatType } from "./types";
 import { availableActions, availableCollections, getSelectedCode, jsonParser } from "./utils";
 import * as vscode from 'vscode';
 import { getFinalResponsePrompt, systemMessagePrompt } from "./prompts";
 
 
-const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId: string, cacheService: CacheService, previousMessages: IStoredMessages) => {
+const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId: string, cacheService: CacheService, previousMessages: IIqStoredMessages) => {
 
     // get all collections from cache
     const availableCollectionNames = await availableCollections(cacheService);
@@ -41,9 +41,9 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
 
     const codeSelected = getSelectedCode();
 
-    let finalContent = basicQuestion + userQuestion + codeSelected;
+    const finalContent = basicQuestion + userQuestion + codeSelected;
 
-    let messagesPayload = [{ // Add system prompt for IQ
+    const messagesPayload = [{ // Add system prompt for IQ
         role: "system",
         content: systemMessagePrompt
     },
@@ -57,7 +57,7 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
         content: finalContent,
     }];
 
-    let payload = {
+    const payload = {
         model: "gpt-4",
         messages: messagesPayload
     };
@@ -75,12 +75,12 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
 };
 
 
-const getFinalResponse = async (message: string, additionalContext: IAdditionalContext, jwtToken: string, orgId: string, previousMessages: IStoredMessages) => {
+const getFinalResponse = async (message: string, additionalContext: IAdditionalContext, jwtToken: string, orgId: string, previousMessages: IIqStoredMessages) => {
 
     const basicPrompt = getFinalResponsePrompt;
 
     let additionalContextPrompt = "\n";
-    for (let collectionIntentData of additionalContext.collectionIntent) {
+    for (const collectionIntentData of additionalContext.collectionIntent) {
         additionalContextPrompt += "the schema for collection " + collectionIntentData.collection + " is " + collectionIntentData.schemas + "\n";
         if (collectionIntentData.indexes && collectionIntentData.indexes.length > 0) {
             additionalContextPrompt += "the indexes for the collection are " + collectionIntentData.indexes + "\n";
@@ -90,7 +90,8 @@ const getFinalResponse = async (message: string, additionalContext: IAdditionalC
     const codeSelected = getSelectedCode();
     const finalContent = basicPrompt + additionalContextPrompt + codeSelected + `Please focus now on answering the question and do not return JSON unless specified in the question. \n ${message}`;
 
-    let messagesPayload = [{ // Add system prompt for IQ
+    // system prompt for iQ
+    const messagesPayload = [{
         role: "system",
         content: systemMessagePrompt
     },
@@ -122,7 +123,7 @@ const getFinalResponse = async (message: string, additionalContext: IAdditionalC
     return { finalQuestion: finalContent, finalResult: finalResult };
 };
 
-export const iqChatHandler = async (context: vscode.ExtensionContext, iqPayload: any, cacheService: CacheService, allMessages: IStoredMessages[], webview: WebviewView): Promise<iqChatResult> => {
+export const iqChatHandler = async (context: vscode.ExtensionContext, iqPayload: any, cacheService: CacheService, allMessages: IIqStoredMessages[], webview: WebviewView): Promise<iqChatResult> => {
     const newMessage: string = iqPayload.newMessage, orgId: string = iqPayload.orgId, chatId: string = iqPayload.chatId, qaId: string = iqPayload.qaId;
     const userChats = iqPayload.userChats || [];
     const jwtToken = Memory.state.get<string>("vscode-couchbase.iq.jwtToken");
@@ -134,7 +135,7 @@ export const iqChatHandler = async (context: vscode.ExtensionContext, iqPayload:
         };
     }
     //const allMessages = Global.state.get<IStoredMessages[]>(`vscode-couchbase.iq.allMessages.${orgId}`) || [];
-    let previousMessages: IStoredMessages | undefined;
+    let previousMessages: IIqStoredMessages | undefined;
     let messageIndex = -1;
     for (let i = 0; i < allMessages.length; i++) {
         if (allMessages[i].chatId === chatId) {
@@ -154,7 +155,7 @@ export const iqChatHandler = async (context: vscode.ExtensionContext, iqPayload:
         };
     }
 
-    let config = vscode.workspace.getConfiguration('couchbase');
+    const config = vscode.workspace.getConfiguration('couchbase');
     const shareMessagesWithCouchbase = config.get<boolean>('iQ.sendMessagesToCouchbase') || false;
 
     const { intentAskQuestion, intentOrResponseResult } = await getIntentOrResponse(newMessage, jwtToken, orgId, cacheService, previousMessages);

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 import "./index.scss";
-import { Login } from "pages/login/Login";
+import { IqLogin } from "pages/login/Login";
 import LoadingScreen from "pages/loader/Loader";
 import SelectOrganizationPage from "pages/organizationSelect/SelectOrganization";
 import LoginSingleClick from "pages/login/LoginSingleClick";
@@ -56,7 +56,7 @@ export const App: React.FC = () => {
             />
           );
         } else {
-          setShowPage(<Login setIsLoading={setIsLoading}/>);
+          setShowPage(<IqLogin setIsLoading={setIsLoading}/>);
         }
         setIsLoading(false);
         break;
@@ -68,7 +68,7 @@ export const App: React.FC = () => {
         });
         
         setShowPage(
-          <Login setIsLoading={setIsLoading} logoutReason="You have been successfully logged out" />
+          <IqLogin setIsLoading={setIsLoading} logoutReason="You have been successfully logged out" />
         );
         setIsLoading(false);
         break;
@@ -99,7 +99,7 @@ export const App: React.FC = () => {
         content={errorMessage || <></>}
         onClose={() => {
           setShowErrorModal(false);
-          setShowPage(<Login  setIsLoading={setIsLoading}/>);
+          setShowPage(<IqLogin  setIsLoading={setIsLoading}/>);
           setIsLoading(false);
           tsvscode.postMessage({
             command: "vscode-couchbase.iq.getSavedLogin",

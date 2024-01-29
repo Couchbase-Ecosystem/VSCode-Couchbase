@@ -816,6 +816,18 @@
         {
           "command": "vscode-couchbase.tools.DDLExport",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.iq.newChat",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.iq.logout",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.iq.showSettings",
+          "when": "false"
         }
       ],
       "view/item/context": [

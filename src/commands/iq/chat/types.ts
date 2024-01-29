@@ -27,7 +27,7 @@ export type fullContextType = {
 
 export type fullContextPerQaIdType = { [qaId: string]: fullContextType };
 
-export interface IStoredMessages {
+export interface IIqStoredMessages {
     allChats: iqChatType[];
     userChats: userChatType[];
     fullContextPerQaId: fullContextPerQaIdType;

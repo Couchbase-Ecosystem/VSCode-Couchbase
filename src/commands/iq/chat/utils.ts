@@ -32,9 +32,9 @@ export const getSelectedCode = () => {
     `;
     let codeSelectedAvailable: boolean = false;
     
-    let config = vscode.workspace.getConfiguration('couchbase');
-
+    const config = vscode.workspace.getConfiguration('couchbase');
     const editor = vscode.window.activeTextEditor;
+    
     if (editor && config.get("iQ.enableCodeSelectionResult")) {
         const selection = editor.selection;
         if (selection && !selection.isEmpty) {

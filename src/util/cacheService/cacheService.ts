@@ -5,11 +5,6 @@ import { hasQueryService } from "../common";
 import { Global } from "../util";
 import { QueryIndex } from "couchbase";
 
-// type schemaPatternType = ISchemaPatternCache | string;
-
-// export interface ISchemaPatternCache {
-//     schemaNode: any;
-// }
 export type SchemaCacheType = { [index: string]: any };
 export interface ISchemaCache {
     patterns: SchemaCacheType[];
@@ -52,7 +47,7 @@ export class CacheService {
             const type = propertyValue.type;
             if (type === 'object') {
                 const children = this.schemaTreeTraversal(propertyValue.properties);
-                currentNodes[property[0]] =  children;
+                currentNodes[property[0]] = children;
             } else if (type === 'array') {
                 try {
                     const items = propertyValue.items;
@@ -61,7 +56,7 @@ export class CacheService {
                         const children = this.schemaTreeTraversal(items.properties);
                         currentNodes[property[0]] = children;
                     } else {
-                        currentNodes[property[0]] =  `array of ${itemType}`;
+                        currentNodes[property[0]] = `array of ${itemType}`;
                     }
                 } catch (error) {
                     logger.error(`Error processing array type for ${property[0]}: ${error}`);
@@ -71,7 +66,7 @@ export class CacheService {
                 try {
                     let currentType: string = type.toString();
                     currentType = currentType.replace(',', " | ");
-                    currentNodes[property[0]] =  currentType;
+                    currentNodes[property[0]] = currentType;
                 } catch (e) {
                     logger.error("Type can't be stringified: " + e);
                 }
@@ -200,7 +195,7 @@ export class CacheService {
             return undefined;
         }
         const bucketCache = this.bucketsData.get(bucketName);
-        if(!bucketCache){
+        if (!bucketCache) {
             return undefined;
         }
 
@@ -208,12 +203,12 @@ export class CacheService {
         if (scopeData === undefined) {
             return undefined;
         }
-        
+
         const collectionData = scopeData.collections.get(collectionName);
         if (collectionData === undefined) {
             return undefined;
         }
-        
+
         return collectionData;
 
     };
@@ -274,7 +269,6 @@ export class CacheService {
         // Convert nested Maps to plain objects for JSON
         const patternsJson = JSON.stringify(schema.patterns);
         return patternsJson;
-        //return JSON.stringify({ patterns: patternsJson });
     }
 
     public async storeCache(connection: IConnection): Promise<void> {
@@ -326,7 +320,7 @@ export class CacheService {
                 scopes: new Map(),
             };
             this.bucketsData.set(bucketName, bucket);
-            logger.info("loading cache from bucket: "+ bucketName);
+            logger.info("loading cache from bucket: " + bucketName);
 
             for (const scopeName in storedData[bucketName].scopes) {
                 const scope: IScopeCache = {
@@ -354,15 +348,13 @@ export class CacheService {
     }
 
     private deserializeSchema(storedSchemaJson: string): ISchemaCache | undefined {
-        
-        
         if (!storedSchemaJson) {
             return undefined;
         }
 
         const patterns = JSON.parse(storedSchemaJson);
         return {
-            patterns: patterns.map((pattern: any):SchemaCacheType => {
+            patterns: patterns.map((pattern: any): SchemaCacheType => {
                 return pattern; // Convert empty array to Map
             }),
         };

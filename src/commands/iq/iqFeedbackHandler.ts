@@ -1,15 +1,15 @@
 import { logger } from "../../logger/logger";
-import { IStoredMessages, feedbackLambdaMessageType } from "./chat/types";
+import { IIqStoredMessages, feedbackLambdaMessageType } from "./chat/types";
 import { iqRestApiService } from "./iqRestApiService";
 import * as vscode from 'vscode';
 
-export const iqFeedbackHandler = async (context:vscode.ExtensionContext,messagePayload: any, allMessages: IStoredMessages[]) => {
+export const iqFeedbackHandler = async (context:vscode.ExtensionContext,messagePayload: any, allMessages: IIqStoredMessages[]) => {
     console.log("request to send feedback", messagePayload);
     const qaId = messagePayload.qaId;
     const chatId = messagePayload.chatId;
 
     // const allMessages = Global.state.get<IStoredMessages[]>(`vscode-couchbase.iq.allMessages.${orgId}`) || [];
-    let previousMessages: IStoredMessages|undefined = undefined;
+    let previousMessages: IIqStoredMessages|undefined = undefined;
     let index = -1;
     for (let i=0;i<allMessages.length;i++) {
         if (allMessages[i].chatId === chatId) {

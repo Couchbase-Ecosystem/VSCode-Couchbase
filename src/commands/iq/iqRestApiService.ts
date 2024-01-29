@@ -11,7 +11,7 @@ export class iqRestApiService {
 
     public static capellaLogin = async (username: string, password: string) => {
         try {
-            let content = await axios.post(this.SESSIONS_API_URL, {}, {
+            const content = await axios.post(this.SESSIONS_API_URL, {}, {
                 auth: {
                     username: username,
                     password: password
@@ -33,7 +33,7 @@ export class iqRestApiService {
     };
 
     public static loadOrganizations = async (jwt: string) => {
-        let content = await axios.get(this.FETCH_ORGANIZATIONS_URL, {
+        const content = await axios.get(this.FETCH_ORGANIZATIONS_URL, {
             headers: {
                 Authorization: `Bearer ${jwt}`
             }
@@ -42,7 +42,7 @@ export class iqRestApiService {
     };
 
     public static getOrganizationDetails = async (jwt: string, orgId: string) => {
-        let content = await axios.get(this.FETCH_ORGANIZATIONS_URL + "/" + orgId, {
+        const content = await axios.get(this.FETCH_ORGANIZATIONS_URL + "/" + orgId, {
             headers: {
                 Authorization: `Bearer ${jwt}`
             }
@@ -58,7 +58,7 @@ export class iqRestApiService {
         };
 
         try {
-            let content = await axios.post(`${this.CAPELLA_URL_DOMAIN}/v2/organizations/` + orgId + "/integrations/iq/openai/chat/completions",
+            const content = await axios.post(`${this.CAPELLA_URL_DOMAIN}/v2/organizations/` + orgId + "/integrations/iq/openai/chat/completions",
                 messageBody,
                 {
                     headers: {

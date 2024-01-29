@@ -9,7 +9,7 @@ interface IFormData {
     rememberMe: boolean;
 }
 
-export const Login = ({ setIsLoading, logoutReason = "" }) => {
+export const IqLogin = ({ setIsLoading, logoutReason = "" }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);

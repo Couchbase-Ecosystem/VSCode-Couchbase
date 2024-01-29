@@ -23,7 +23,7 @@ import { Memory, getUUID } from '../../util/util';
 import { Constants } from '../../util/constants';
 import { CacheService } from '../../util/cacheService/cacheService';
 import { iqFeedbackHandler } from './iqFeedbackHandler';
-import { IStoredMessages } from './chat/types';
+import { IIqStoredMessages } from './chat/types';
 import { removeJWT } from './iqLogoutHandler';
 import { applyQuery } from '../queryHistory/applyQuery';
 
@@ -33,7 +33,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
     public _context: vscode.ExtensionContext;
     public cacheService: CacheService;
-    public allMessages: IStoredMessages[];
+    public allMessages: IIqStoredMessages[];
 
     constructor(context: vscode.ExtensionContext, cacheService: CacheService) {
         this._context = context;
@@ -96,7 +96,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                         break;
                     }
 
-                    let config = vscode.workspace.getConfiguration('couchbase');
+                    const config = vscode.workspace.getConfiguration('couchbase');
                     const savedOrganization = config.get('iQ.savedOrganization');  // Get saved organization from vscode couchbase settings
                     if (savedOrganization !== "") {
                         let savedOrganizationDetail = undefined;
@@ -215,7 +215,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                         break;
                     }
 
-                    let config = vscode.workspace.getConfiguration('couchbase');
+                    const config = vscode.workspace.getConfiguration('couchbase');
                     const savedOrganization = config.get('iQ.savedOrganization');  // Get saved organization from vscode couchbase settings
                     if (savedOrganization !== "") {
                         let savedOrganizationDetail = undefined;
@@ -265,7 +265,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
                 case "vscode-couchbase.iq.verifyOrganizationAndSave": {
                     const {isOrgVerified, errorMessage} = await verifyOrganization(message.value.organizationDetails.data.id);
                     if(isOrgVerified && message.value.rememberOrgChecked) {
-                        let config = vscode.workspace.getConfiguration('couchbase');
+                        const config = vscode.workspace.getConfiguration('couchbase');
                         config.update('iQ.savedOrganization', message.value.organizationDetails.data.id, vscode.ConfigurationTarget.Global);
                     } else if(!isOrgVerified) {
                         this._view?.webview.postMessage({

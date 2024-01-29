@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Login } from "./Login";
+import { IqLogin } from "./Login";
 import "./LoginPage.scss";
 
 const LoginSingleClick = ({ userId, setIsLoading, setShowPage, logoutReason = "" }) => {
@@ -62,7 +62,7 @@ const LoginSingleClick = ({ userId, setIsLoading, setShowPage, logoutReason = ""
                 <button
                     className=""
                     onClick={() => {
-                        setShowPage(<Login setIsLoading={setIsLoading}/>);
+                        setShowPage(<IqLogin setIsLoading={setIsLoading}/>);
                     }}
                 >
                     Login with different credentials

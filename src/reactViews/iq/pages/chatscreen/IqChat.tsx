@@ -8,14 +8,12 @@ import { Message } from "../../chatscope/src/components/Message/Message";
 import { MessageInput } from "../../chatscope/src/components/MessageInput/MessageInput";
 import { TypingIndicator } from "../../chatscope/src/components/TypingIndicator/TypingIndicator";
 import { v4 as uuid } from "uuid";
-
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
   oneLight,
   nightOwl,
 } from "react-syntax-highlighter/dist/cjs/styles/prism";
-
 import {
   ActionBar,
   IActionBarButton,
@@ -170,6 +168,7 @@ const IqChat = ({ org, setIsLoading }) => {
       ),
     ]);
 
+    // send info to lambda
     tsvscode.postMessage({
       command: "vscode-couchbase.iq.sendFeedbackPerMessageEmote",
       value: {
@@ -183,7 +182,6 @@ const IqChat = ({ org, setIsLoading }) => {
         userChats: updatedMessages,
       },
     });
-    // send info to lambda
   };
 
   const handleFeedbackSubmit = (feedbackText) => {
@@ -304,11 +302,11 @@ const IqChat = ({ org, setIsLoading }) => {
     setShowNewChatModal(false);
     setActions([]);
     setIsChatCompleted(true);
-    if(typeof(error) === "string"){
-      setErrorMessage(error);
-    } else {
+    try {
       const formattedError = parseErrorMessages(JSON.parse(error));
       setErrorMessage(formattedError);
+    } catch{ // Adding if error is not JSON type or it failed to parse
+      setErrorMessage(error);
     }
     
   };
