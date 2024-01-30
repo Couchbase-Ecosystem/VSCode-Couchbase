@@ -552,9 +552,9 @@ const IqChat = ({ org, setIsLoading }) => {
           </MessageList>
           {!isChatCompleted ? (
             <MessageInput
-              onPaste={(event) => {
-                handlePaste(event);
-              }}
+              // onPaste={(event) => {
+              //   handlePaste(event);
+              // }}
               attachButton={false}
               sendButton={true}
               placeholder="Type a message..."
