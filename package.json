@@ -106,6 +106,7 @@
     "d3-zoom": "^1.8.3",
     "dayjs": "^1.11.9",
     "decompress": "^4.2.1",
+    "dotenv": "^16.4.1",
     "gitly": "^2.4.2",
     "keytar": "^7.7.0",
     "monaco-editor": "^0.43.0",

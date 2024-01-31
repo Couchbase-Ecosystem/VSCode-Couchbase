@@ -42,6 +42,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - shell: pwsh
+        env:
+          FEEDBACK_LAMBDA_SECRET: ${{ secrets.FEEDBACK_LAMBDA_SECRET }}
+          FEEDBACK_LAMBDA_URL: ${{ secrets.FEEDBACK_LAMBDA_URL }}
         run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
