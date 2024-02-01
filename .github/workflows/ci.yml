@@ -42,10 +42,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - shell: pwsh
-        env:
-          FEEDBACK_LAMBDA_SECRET: ${{ secrets.FEEDBACK_LAMBDA_SECRET }}
-          FEEDBACK_LAMBDA_URL: ${{ secrets.FEEDBACK_LAMBDA_URL }}
         run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
+      - run: echo '${{ secrets.CONFIG_JSON }}' > ${{ github.workspace }}/src/config.json
+      - run: echo | cat ${{ github.workspace }}/src/config.json
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
