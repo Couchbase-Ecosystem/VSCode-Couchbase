@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "1.1.1",
+  "version": "1.2.1",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -24,14 +24,14 @@
   "scripts": {
     "vscode:prepublish": "npm run package",
     "package": "webpack --devtool hidden-source-map && npm run compile",
-    "rebuild": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8 && node scripts/copy_binding.js",
+    "rebuild": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -v 25.9.7 && node scripts/copy_binding.js",
     "rebuild:xcompile": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -t ${TARGET} -v 19.1.8  -CDCMAKE_CXX_COMPILER=/usr/bin/g++ -CDCMAKE_C_COMPILER=/usr/bin/gcc && node scripts/copy_binding.js",
     "rebuild:cmake": "cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8",
     "build:v3": "cd ../couchbase-cloud/cmd/cp-ui-v3; npm run build",
     "postbuild:v3": "cp -r ../couchbase-cloud/cmd/cp-ui-v3/dist/styles.css ./src/reactViews/app/styles.css && cp -r ../couchbase-cloud/cmd/cp-ui-v3/dist/types ./src/reactViews/app/",
     "compile-capella-v3": "npm run build:v3 && npm run postbuild:v3 && node scripts/fix_sharedComponent.js && npm-run-all compile:*",
-    "compile": "npm-run-all compile:*",
-    "watch": "npm-run-all -p watch:*",
+    "compile": "node scripts/copy_secrets.js && npm-run-all compile:*",
+    "watch": "node scripts/copy_secrets.js && npm-run-all -p watch:*",
     "compile:extension": "tsc -p ./",
     "compile:views": "webpack --mode development",
     "watch:extension": "tsc -watch -p ./",
@@ -43,6 +43,8 @@
   },
   "devDependencies": {
     "@babel/parser": "^7.22.7",
+    "@babel/preset-env": "^7.23.5",
+    "@babel/preset-react": "^7.23.3",
     "@babel/traverse": "^7.22.8",
     "@types/glob": "^7.2.0",
     "@types/mocha": "^8.2.3",
@@ -54,7 +56,8 @@
     "@types/vscode": "^1.63.1",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
-    "@vscode/test-electron": "^2.1.5",
+    "@vscode/test-electron": "^2.3.8",
+    "babel-loader": "^9.1.3",
     "class-transformer": "^0.5.1",
     "cmake-js": "^6.3.2",
     "concurrently": "^8.2.0",
@@ -80,6 +83,12 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "@chatscope/chat-ui-kit-styles": "^1.4.0",
+    "@fortawesome/fontawesome-free": "^5.12.1",
+    "@fortawesome/fontawesome-svg-core": "^6.5.1",
+    "@fortawesome/free-regular-svg-icons": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@monaco-editor/react": "^4.5.2",
     "@popperjs/core": "^2.11.8",
     "@types/decompress": "^4.2.4",
@@ -87,8 +96,9 @@
     "ag-grid-community": "^29.3.5",
     "ag-grid-react": "^29.3.5",
     "axios": "^1.4.0",
+    "classnames": "^2.2.6",
     "clsx": "^2.0.0",
-    "couchbase": "^4.2.1",
+    "couchbase": "^4.2.8",
     "csv-parse": "^5.5.2",
     "d3-hierarchy": "^1.1.9",
     "d3-selection": "^1.4.2",
@@ -100,13 +110,17 @@
     "keytar": "^7.7.0",
     "monaco-editor": "^0.43.0",
     "node-addon-api": "^6.0.0",
+    "prop-types": "^15.7.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.45.2",
+    "react-markdown": "^9.0.1",
     "react-merge-refs": "^2.0.2",
     "react-popper": "^2.3.0",
     "react-popper-tooltip": "^4.4.2",
     "react-router-dom": "^6.14.2",
+    "react-syntax-highlighter": "^15.5.0",
+    "react-tooltip": "^5.26.0",
     "stream-json": "^1.8.0",
     "uuid": "^9.0.1"
   },
@@ -601,6 +615,30 @@
         "command": "vscode-couchbase.tools.DDLExport",
         "title": "DDL Export",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.iq.logout",
+        "title": "Logout capella iQ",
+        "category": "Couchbase",
+        "icon": "$(sign-out)"
+      },
+      {
+        "command": "vscode-couchbase.iq.newChat",
+        "title": "Start a new chat",
+        "category": "Couchbase",
+        "icon": "$(plus)"
+      },
+      {
+        "command": "vscode-couchbase.iq.showSettings",
+        "title": "Show iQ settings",
+        "category": "Couchbase",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "vscode-couchbase.forceUpdateCache",
+        "title": "Forced update cache",
+        "category": "couchbase",
+        "icon": "$(cloud-download)"
       }
     ],
     "keybindings": [
@@ -778,6 +816,18 @@
         {
           "command": "vscode-couchbase.tools.DDLExport",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.iq.newChat",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.iq.logout",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.iq.showSettings",
+          "when": "false"
         }
       ],
       "view/item/context": [
@@ -921,6 +971,21 @@
           "command": "vscode-couchbase.refreshQueryHistory",
           "when": "view == query-history",
           "group": "navigation"
+        },
+        {
+          "command": "vscode-couchbase.iq.newChat",
+          "when": "view == couchbase-iq && isIqNewChatButtonBVisible",
+          "group": "navigation@1"
+        },
+        {
+          "command": "vscode-couchbase.iq.logout",
+          "when": "view == couchbase-iq && isIqLogoutButtonBVisible",
+          "group": "navigation@3"
+        },
+        {
+          "command": "vscode-couchbase.iq.showSettings",
+          "when": "view == couchbase-iq",
+          "group": "navigation@2"
         }
       ],
       "vscode-couchbase.toolsMenu": [
@@ -945,6 +1010,11 @@
           "name": "Couchbase"
         },
         {
+          "id": "couchbase-iq",
+          "name": "Capella iQ (Beta)",
+          "type": "webview"
+        },
+        {
           "id": "query-history",
           "name": "Query history"
         }
@@ -957,14 +1027,28 @@
         }
       ]
     },
-    "configuration": {
-      "type": "object",
-      "title": "Couchbase VSCode",
-      "properties": {
-        "test": {
-          "test": "test"
+    "configuration": [
+      {
+        "id": "couchbase-iq",
+        "title": "iQ",
+        "properties": {
+          "couchbase.iQ.savedOrganization": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "This field represents the 'Saved Organization' currently in use for all iQ tasks. It was stored when you selected 'Remember Me'. If you didn't choose to save it, this field may be empty. You can modify the 'Saved Organization' here. Please note, any changes will take effect only after your next login."
+          },
+          "couchbase.iQ.enableCodeSelectionResult": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Do you wish that selected code on active editor be sent to iQ to understand context better? (This may result in increased prompt size)"
+          },
+          "couchbase.iQ.sendMessagesToCouchbase": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Would you like to anonymously submit the queries made to iQ, along with their results, to Couchbase in order to improve iQ's performance?"
+          }
         }
       }
-    }
+    ]
   }
 }

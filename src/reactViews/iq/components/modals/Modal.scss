@@ -1,0 +1,42 @@
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none; /* Change to 'block' when the modal is open */
+    z-index: 1000;
+  }
+  
+  .modal-content-area {
+    width: 70%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    color: black;
+    padding: 20px;
+    border-radius: 5px;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  
+  button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    :hover {
+      background-color: var(--vscode-button-hoverBackground);
+    }
+  }
+  

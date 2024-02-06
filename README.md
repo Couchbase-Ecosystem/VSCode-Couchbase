@@ -5,26 +5,7 @@ Welcome to the official Visual Studio Code extension for Couchbase!
 This extension is designed to provide a seamless experience for Couchbase Server users who want to work within the popular Visual Studio Code editor. 
 
 # Requirements
-This extension requires OpenSSL to be installed on your system in order to install successfully. 
-
-For Windows:
-- Download the version 1.1.x of OpenSSL from https://slproweb.com/products/Win32OpenSSL.html and follow the installation instructions.
-
-For Debian or Ubuntu-based distros::
-- Run `sudo apt-get install openssl`
-
-For Red Hat, CentOS or Fedora-based distros:
--  Run `sudo dnf install openssl` (on newer Fedora versions), OR `sudo yum install openssl` (on older Fedora/Red Hat/CentOS versions)
-
-For Mac:
-- For an Apple device with an M1 chip, you should install OpenSSL version 3 or higher. On the other hand, if your Mac has an Intel (x64) chip, then you should install OpenSSL version 1.1.
-- Run `brew install openssl` using Homebrew if your Mac has M1 chip and use `brew install openssl@1.1` if your Mac has an Intel (x64), or download the latest version of OpenSSL from https://www.openssl.org/source/ and follow the installation instructions.
-
-In case you encounter any issues during the installation process, we have provided detailed [Troubleshooting Guidelines](https://docs.google.com/document/d/132jKt2YFGjhzIM0yMUi3l5VjC3FQ-rL5-xUiTRLYKds/edit?usp=sharing) to help you resolve the issues. 
-
-To install Couchbase Server, please follow the steps mentioned in [this guide](https://docs.couchbase.com/server/current/install/install-intro.html).
-
-> :warning:  **WARNING**:  DO NOT upgrade cmake-js to 7.x or it will break Windows builds. Please use 6.x instead. 
+Most of the requirements are taken care in the build. For Linux users a latest version of glibc may be required depending on the distro.
 
 # Quick Tour
 
@@ -61,6 +42,15 @@ Click on Scope to list Collections and Indexes. Open context menu on Collection 
 
 <img src="gifs/InteractWithDocuments.gif" height="80%" width="80%" alt="Interact with Documents" />
 
+### Capella iQ
+1. Use iQ natively in your extension. Sign in with your capella credentials and choose the iQ enabled org
+2. A Chatbot which knows about couchbase and can help you with your SDK Code, Query, and more couchbase related stuff.
+3. It knows context of your connected database. And give you more specfic results for your questions
+4. Select a code related to couchbase query or SDK to ask more about it.
+5. Use actions to open stuff in VSCode. Send feedback to the team for improvements.
+
+<img src="gifs/iQDemo.gif" height="80%" width="80%" alt="Interact with Documents" />
+
 ### Open SQL++ Notebook
 1. Simply right-click on the Cluster and select the "New SQL++ Notebook" option from the context menu.
 2. Once you have opened the notebook, you will be presented with a powerful text editor that allows you to craft your SQL++ queries with ease.
@@ -74,6 +64,15 @@ Click on Scope to list Collections and Indexes. Open context menu on Collection 
 3. Favourite your query and set Query context.
 
 <img src="gifs/workbench.gif" height="80%" width="80%" alt="Interact with Documents" />
+
+### Data Export, Import and DDL Export Tools
+1. Use Data Export to export particular bucket, scope or collections in your choice of format
+2. Use Data Import to import data in your required bucket.
+3. Use DDL export to export all bucket and indexes details as Query and run those queries to create a replica
+4. Complete bucket cloning is now possible, right from the VSCode. Just do DDL Export and Data Export of the particular bucket. Then run the DDL Export queries for the target bucket and then Data Import to send all data in the newer bucket
+
+<img src="gifs/DataTools.gif" height="80%" width="80%" alt="Interact with Documents" />
+
 
 ## License
 Apache Software License Version 2.  See individual files for details.

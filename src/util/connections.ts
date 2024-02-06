@@ -19,7 +19,7 @@ import * as path from "path";
 import { Constants } from "./constants";
 import { Global, Memory } from "./util";
 import { IConnection } from "../types/IConnection";
-import { AuthenticationFailureError, Cluster } from "couchbase";
+import { AuthenticationFailureError, connect } from "couchbase";
 import { getClusterConnectingFormView } from "../webViews/connectionScreen.webview";
 import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
 import { logger } from "../logger/logger";
@@ -183,7 +183,7 @@ export async function useConnection(connection: IConnection): Promise<boolean> {
     options, async (progress) => {
       progress.report({ message: "Trying to connect..." });
       try {
-        connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
+        connection.cluster = await connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
         setActiveConnection(connection);
         // Set Services
         const couchbaseRestAPI = new CouchbaseRestAPI(connection);

@@ -40,7 +40,7 @@ export class WorkbenchWebviewProvider implements vscode.WebviewViewProvider {
         };
 
         const reactAppPathOnDisk = vscode.Uri.file(
-            path.join(this._context.extensionPath, "dist", "reactBuild.js")
+            path.join(this._context.extensionPath, "dist", "workbench", "reactBuild.js")
         );
 
         const reactAppUri = this._view.webview.asWebviewUri(reactAppPathOnDisk);
