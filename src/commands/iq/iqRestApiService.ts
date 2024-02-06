@@ -5,7 +5,8 @@ import { feedbackLambdaMessageType, iqChatResult } from "./chat/types";
 
 
 export class iqRestApiService {
-    private static readonly CAPELLA_URL_DOMAIN = "https://api.dev.nonprod-project-avengers.com"; // TODO: change here before prod release
+    // Capella Prod domain
+    private static readonly CAPELLA_URL_DOMAIN = "https://api.cloud.couchbase.com";
     private static readonly SESSIONS_API_URL = `${this.CAPELLA_URL_DOMAIN}/sessions`;
     private static readonly FETCH_ORGANIZATIONS_URL = `${this.CAPELLA_URL_DOMAIN}/v2/organizations`;
 

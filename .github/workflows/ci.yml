@@ -49,6 +49,7 @@ jobs:
           node-version: 16
           architecture: ${{ matrix.arch }}
           cache: 'npm'
+      - run: echo '${{ secrets.CONFIG_JSON }}' > ${{ github.workspace }}/src/config.json
       - uses: ilammy/setup-nasm@v1
       - name: windows-specific
         shell: pwsh
