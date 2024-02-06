@@ -7,18 +7,6 @@ This extension is designed to provide a seamless experience for Couchbase Server
 # Requirements
 Most of the requirements are taken care in the build. For Linux users a latest version of glibc may be required depending on the distro.
 
-## Building from scratch
-1. For building from scratch, please have both openssl v3, v1.1.x .
-2. NASM compiler may also be required (especially for windows). 
-3. Nodejs v16 is crucial
-
-### Steps: 
-1. install all dependencies `npm i` 
-2. build the project `npm run rebuild`
-3. Compile the project `npm run compile`
-
-To run the extension, after succeeding in all above steps, please run using `F5` in VSCode or (`fn + F5`)
-
 # Quick Tour
 
 ### Add Cluster Connection
