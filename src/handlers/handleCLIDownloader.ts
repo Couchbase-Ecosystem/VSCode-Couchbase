@@ -142,7 +142,7 @@ class DependenciesDownloader {
                 this.getToolSpec(
                     "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_darwin_arm64.zip",
                     this.TOOL_MDB_MIGRATE,
-                    OSUtil.MACOS_64
+                    OSUtil.MACOS_ARM
                 )
             );
         } else if (os === OSUtil.WINDOWS_64) {
@@ -175,7 +175,7 @@ class DependenciesDownloader {
                 this.getToolSpec(
                     "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_windows_amd64.zip",
                     this.TOOL_MDB_MIGRATE,
-                    OSUtil.MACOS_64
+                    OSUtil.WINDOWS_64
                 )
             );
         } else if (os === OSUtil.WINDOWS_ARM) {
@@ -200,6 +200,14 @@ class DependenciesDownloader {
                 this.getToolSpec(
                     "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/7.2.0-windows_64.zip",
                     this.ALL_TOOLS,
+                    OSUtil.WINDOWS_ARM
+                )
+            );
+            map.set(
+                this.TOOL_MDB_MIGRATE,
+                this.getToolSpec(
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_windows_amd64.zip",
+                    this.TOOL_MDB_MIGRATE,
                     OSUtil.WINDOWS_ARM
                 )
             );
@@ -233,7 +241,7 @@ class DependenciesDownloader {
                 this.getToolSpec(
                     "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_linux_amd64.zip",
                     this.TOOL_MDB_MIGRATE,
-                    OSUtil.MACOS_64
+                    OSUtil.LINUX_64
                 )
             );
         } else if (os === OSUtil.LINUX_ARM) {
@@ -258,7 +266,7 @@ class DependenciesDownloader {
                 this.getToolSpec(
                     "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_linux_arm64.zip",
                     this.TOOL_MDB_MIGRATE,
-                    OSUtil.MACOS_64
+                    OSUtil.LINUX_ARM
                 )
             );
         } else {

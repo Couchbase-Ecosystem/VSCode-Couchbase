@@ -27,6 +27,7 @@ export class MDBToCB {
             return undefined;
         }
         try {
+            // Traverse the collections to build seperate commands
             for (const collection of collections) {
                 // Build Command
                 const cmd: string[] = [];
@@ -51,31 +52,20 @@ export class MDBToCB {
                 cmd.push(cbBucket);
                 cmd.push("--cb-scope");
                 cmd.push(cbScope);
+                // Collection field is optional
                 // cmd.push("--cb-collection");
                 // cmd.push(colCB);
                 cmd.push("--cb-generate-key");
                 cmd.push("%_id%");
 
                 cmd.push("; \n");
-                cmd.push("export CB_PASSWORD=''"); // To make sure that password is truly unset
 
                 // Run Command
                 const terminal: vscode.Terminal =
                     vscode.window.createTerminal("MDBToCb");
-                // sending password to vscode environment variables. Note: Password is still accessible via terminal, till its removed
-                context.environmentVariableCollection.replace(
-                    "CB_PASSWORD",
-                    password
-                );
                 let text = cmd.join(" ");
                 terminal.sendText(text);
                 terminal.show();
-                // removing password from vscode environment variables after 5 seconds
-                await new Promise((resolve) => setTimeout(resolve, 5000));
-                context.environmentVariableCollection.replace(
-                    "CB_PASSWORD",
-                    ""
-                );
             }
         } catch (error) {
             console.error(
