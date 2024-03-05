@@ -1154,15 +1154,15 @@ export class DataImport {
                 }
             });
         } catch (err) {
-            logger.error(`Failed to open data export webview`);
+            logger.error(`Failed to open data import webview`);
             logger.debug(err);
             vscode.window.showErrorMessage(
-                "Failed to open data export webview: " + err
+                "Failed to open data import webview: " + err
             );
         }
 
         currentPanel.onDidDispose(() => {
-            Memory.state.update(Constants.DATA_EXPORT_WEBVIEW, null);
+            Memory.state.update(Constants.DATA_IMPORT_WEBVIEW, null);
         });
     };
 }

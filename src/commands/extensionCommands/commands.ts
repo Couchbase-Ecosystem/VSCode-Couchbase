@@ -55,6 +55,7 @@ export namespace Commands {
     export const refreshClusterOverview: string = "vscode-couchbase.refreshClusterOverview";
     export const checkAndCreatePrimaryIndex: string = "vscode-couchbase.checkAndCreatePrimaryIndex";
     export const dataExport: string = "vscode-couchbase.tools.dataExport";
+    export const mdbExport: string = "vscode-couchbase.tools.mdbExport";
     export const dataImport: string = "vscode-couchbase.tools.dataImport";
     export const ddlExport: string = "vscode-couchbase.tools.DDLExport";
     export const couchbaseIqViewsCommand: string = "couchbase-iq";

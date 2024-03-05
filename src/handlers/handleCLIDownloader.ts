@@ -19,12 +19,15 @@ class DependenciesDownloader {
     private readonly TOOL_SHELL = "shell";
     private readonly TOOL_IMPORT_EXPORT = "import_export";
     private readonly ALL_TOOLS = "all_tools";
+    private readonly TOOL_MDB_MIGRATE = "cb_migrate";
 
     private getToolInstallPath(toolKey: string): string {
         if (toolKey === this.TOOL_SHELL) {
             return "cbshell";
         } else if (toolKey === this.TOOL_IMPORT_EXPORT) {
             return "cbimport_export";
+        } else if (toolKey === this.TOOL_MDB_MIGRATE) {
+            return "cbmigrate";
         } else if (toolKey === this.ALL_TOOLS) {
             return "cbtools";
         } else {
@@ -49,6 +52,10 @@ class DependenciesDownloader {
                 CBToolsType.CB_EXPORT,
                 path.join(pathPrefix, "cbexport" + suffix)
             );
+        } else if (toolKey === this.TOOL_MDB_MIGRATE) {
+            map.set(
+                CBToolsType.CB_MIGRATE,"cbmigrate" + suffix
+            );
         } else if (toolKey === this.ALL_TOOLS) {
             map.set(
                 CBToolsType.CBC_PILLOW_FIGHT,
@@ -62,7 +69,7 @@ class DependenciesDownloader {
             throw new Error("Not implemented yet");
         }
 
-        return map;
+                return map;
     }
 
     private getToolSpec(url: string, toolKey: string, os: string): ToolSpec {
@@ -99,6 +106,14 @@ class DependenciesDownloader {
                     OSUtil.MACOS_64
                 )
             );
+            map.set(
+                this.TOOL_MDB_MIGRATE,
+                this.getToolSpec(
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_darwin_amd64.zip",
+                    this.TOOL_MDB_MIGRATE,
+                    OSUtil.MACOS_64
+                )
+            );
         } else if (os === OSUtil.MACOS_ARM) {
             map.set(
                 this.TOOL_SHELL,
@@ -124,6 +139,14 @@ class DependenciesDownloader {
                     OSUtil.MACOS_ARM
                 )
             );
+            map.set(
+                this.TOOL_MDB_MIGRATE,
+                this.getToolSpec(
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_darwin_arm64.zip",
+                    this.TOOL_MDB_MIGRATE,
+                    OSUtil.MACOS_64
+                )
+            );
         } else if (os === OSUtil.WINDOWS_64) {
             map.set(
                 this.TOOL_SHELL,
@@ -147,6 +170,14 @@ class DependenciesDownloader {
                     "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/7.2.0-windows_64.zip",
                     this.ALL_TOOLS,
                     OSUtil.WINDOWS_64
+                )
+            );
+            map.set(
+                this.TOOL_MDB_MIGRATE,
+                this.getToolSpec(
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_windows_amd64.zip",
+                    this.TOOL_MDB_MIGRATE,
+                    OSUtil.MACOS_64
                 )
             );
         } else if (os === OSUtil.WINDOWS_ARM) {
@@ -199,6 +230,14 @@ class DependenciesDownloader {
                     OSUtil.LINUX_64
                 )
             );
+            map.set(
+                this.TOOL_MDB_MIGRATE,
+                this.getToolSpec(
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_linux_amd64.zip",
+                    this.TOOL_MDB_MIGRATE,
+                    OSUtil.MACOS_64
+                )
+            );
         } else if (os === OSUtil.LINUX_ARM) {
             map.set(
                 this.TOOL_SHELL,
@@ -214,6 +253,14 @@ class DependenciesDownloader {
                     "https://packages.couchbase.com/releases/7.2.0/couchbase-server-tools_7.2.0-linux_aarch64.tar.gz",
                     this.TOOL_IMPORT_EXPORT,
                     OSUtil.LINUX_ARM
+                )
+            );
+            map.set(
+                this.TOOL_MDB_MIGRATE,
+                this.getToolSpec(
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_linux_arm64.zip",
+                    this.TOOL_MDB_MIGRATE,
+                    OSUtil.MACOS_64
                 )
             );
         } else {
@@ -251,6 +298,30 @@ class DependenciesDownloader {
         } else {
             logger.debug("CBShell is already installed");
             this.setToolActive(ToolStatus.AVAILABLE, shellPath, shell);
+        }
+
+        const cbMigrate = downloads.get(this.TOOL_MDB_MIGRATE);
+        if (cbMigrate === undefined) {
+            return;
+        }
+        const cbMigratePath = path.join(toolsPath, cbMigrate.getInstallationPath());
+        const cbMigrateTool = CBTools.getTool(CBToolsType.CB_MIGRATE);
+        const cbMigrateStatus = cbMigrateTool.status;
+        const cbMigrateDownloadsMap = downloads.get(this.TOOL_SHELL);
+        if (cbMigrateDownloadsMap === undefined) {
+            return;
+        }
+        if (
+            cbMigrateStatus === ToolStatus.NOT_AVAILABLE &&
+            !this.isInstalled(toolsPath, cbMigrateDownloadsMap, CBToolsType.CB_MIGRATE)
+        ) {
+            // Avoiding 2 threads to install the same thing at the same time
+            logger.info("Downloading CB Migrate..");
+            cbMigrateTool.status = ToolStatus.DOWNLOADING;
+            this.downloadAndUnzip(cbMigratePath, cbMigrate);
+        } else {
+            logger.debug("CBMigrate is already installed");
+            this.setToolActive(ToolStatus.AVAILABLE, cbMigratePath, cbMigrate);
         }
         const cbImport: ToolSpec | undefined = downloads.get(
             this.TOOL_IMPORT_EXPORT

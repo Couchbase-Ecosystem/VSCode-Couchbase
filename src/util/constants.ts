@@ -100,5 +100,6 @@ export class Constants {
   public static CURRENT_VBUCKET_REPLICA_ITEMS = "Current vBucket Replica Items";
   public static QUERY_RESULT = "Couchbase Query Result";
   public static DATA_EXPORT_WEBVIEW = "dataExportWebview";
+  public static DATA_MIGRATE_MDB_WEBVIEW = "dataMdbMigrateWebview";
   public static DATA_IMPORT_WEBVIEW = "dataImportWebview";
 }
