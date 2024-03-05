@@ -29,11 +29,11 @@ const validateFormData = (formData: any): string => {
     }
 
     if (!formData.database) {
-        errors.push("Please specify the source database to migrate from");
+        errors.push("Please specify the Source Database to migrate from");
     }
 
     if (!formData.collections || formData.collections.length === 0) {
-        errors.push("Please specify the source collections field");
+        errors.push("Please specify the Source Collections field");
     }
 
     if (!formData.bucket) {
@@ -115,7 +115,7 @@ export const mdbExport = async (context: vscode.ExtensionContext) => {
             )
         ),
     };
-    currentPanel.webview.html = getLoader("Data Export");
+    currentPanel.webview.html = getLoader("Data Migrate");
 
     // Get all buckets
     const buckets = await connection.cluster?.buckets().getAllBuckets();
