@@ -53,9 +53,7 @@ class DependenciesDownloader {
                 path.join(pathPrefix, "cbexport" + suffix)
             );
         } else if (toolKey === this.TOOL_MDB_MIGRATE) {
-            map.set(
-                CBToolsType.CB_MIGRATE,"cbmigrate" + suffix
-            );
+            map.set(CBToolsType.CB_MIGRATE, "cbmigrate" + suffix);
         } else if (toolKey === this.ALL_TOOLS) {
             map.set(
                 CBToolsType.CBC_PILLOW_FIGHT,
@@ -69,7 +67,7 @@ class DependenciesDownloader {
             throw new Error("Not implemented yet");
         }
 
-                return map;
+        return map;
     }
 
     private getToolSpec(url: string, toolKey: string, os: string): ToolSpec {
@@ -270,7 +268,11 @@ class DependenciesDownloader {
     }
 
     public handleCLIDownloader = () => {
-        const extensionPath = path.join(__filename, "..", "cb-vscode-extension");
+        const extensionPath = path.join(
+            __filename,
+            "..",
+            "cb-vscode-extension"
+        );
         createFolder(extensionPath);
         const toolsPath = path.join(extensionPath, "tools");
         createFolder(toolsPath);
@@ -289,7 +291,11 @@ class DependenciesDownloader {
         }
         if (
             shellStatus === ToolStatus.NOT_AVAILABLE &&
-            !this.isInstalled(toolsPath, toolShellDownloadsMap, CBToolsType.SHELL)
+            !this.isInstalled(
+                toolsPath,
+                toolShellDownloadsMap,
+                CBToolsType.SHELL
+            )
         ) {
             // Avoiding 2 threads to install the same thing at the same time
             logger.info("Downloading CB Shell.");
@@ -304,7 +310,10 @@ class DependenciesDownloader {
         if (cbMigrate === undefined) {
             return;
         }
-        const cbMigratePath = path.join(toolsPath, cbMigrate.getInstallationPath());
+        const cbMigratePath = path.join(
+            toolsPath,
+            cbMigrate.getInstallationPath()
+        );
         const cbMigrateTool = CBTools.getTool(CBToolsType.CB_MIGRATE);
         const cbMigrateStatus = cbMigrateTool.status;
         const cbMigrateDownloadsMap = downloads.get(this.TOOL_SHELL);
@@ -313,7 +322,11 @@ class DependenciesDownloader {
         }
         if (
             cbMigrateStatus === ToolStatus.NOT_AVAILABLE &&
-            !this.isInstalled(toolsPath, cbMigrateDownloadsMap, CBToolsType.CB_MIGRATE)
+            !this.isInstalled(
+                toolsPath,
+                cbMigrateDownloadsMap,
+                CBToolsType.CB_MIGRATE
+            )
         ) {
             // Avoiding 2 threads to install the same thing at the same time
             logger.info("Downloading CB Migrate..");
@@ -339,8 +352,12 @@ class DependenciesDownloader {
         }
         if (
             CBTools.getTool(CBToolsType.CB_IMPORT).status ===
-            ToolStatus.NOT_AVAILABLE &&
-            !this.isInstalled(toolsPath, toolImpExportMap, CBToolsType.CB_EXPORT)
+                ToolStatus.NOT_AVAILABLE &&
+            !this.isInstalled(
+                toolsPath,
+                toolImpExportMap,
+                CBToolsType.CB_EXPORT
+            )
         ) {
             logger.info(
                 "Downloading CB Import/Export. The feature will be automatically enabled when the download is complete."
