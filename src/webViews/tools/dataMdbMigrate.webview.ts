@@ -266,6 +266,7 @@ export const dataMdbMigrateWebview = async (buckets: string[]): Promise<string> 
         <body>
         <h2 class="heading">Mongodb to Couchbase Data Migration</h2>
         <form action="#" method="post" id="dataMigrateForm">
+        <p>This tool utilizes the CLI in the background to migrate the data, Please refer to <a href="https://github.com/couchbaselabs/cbmigrate" target="_blank">this</a> for more info on how to use the CLI.</p>
            <div class="separator-container">
               <span class="separator-text">Source</span>
               <div class="separator"></div>
