@@ -544,8 +544,8 @@
         "category": "Couchbase"
       },
       {
-        "command": "vscode-couchbase.tools.mdbExport",
-        "title": "MongoDb Migrate",
+        "command": "vscode-couchbase.tools.mdbMigrate",
+        "title": "MongoDB Migrate",
         "category": "Couchbase"
       },
       {
@@ -817,7 +817,7 @@
           "when": "false"
         },
         {
-          "command": "vscode-couchbase.tools.mdbExport",
+          "command": "vscode-couchbase.tools.mdbMigrate",
           "when": "false"
         },
         {
@@ -1005,7 +1005,7 @@
           "group": "navigation"
         },
         {
-          "command": "vscode-couchbase.tools.mdbExport",
+          "command": "vscode-couchbase.tools.mdbMigrate",
           "group": "navigation"
         },
         {

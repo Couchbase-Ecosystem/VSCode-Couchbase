@@ -1,4 +1,4 @@
-export const dataMdbMigrateWebview = async (buckets: string[]): Promise<string> => {
+export const MdbMigrateWebview = async (buckets: string[]): Promise<string> => {
     return /*html*/`
     <!DOCTYPE html>
     <html lang="en">
@@ -60,15 +60,11 @@ export const dataMdbMigrateWebview = async (buckets: string[]): Promise<string> 
                 font-weight: bold;
             }
 
-            .verboseLogContainer {
-                display: flex;
-                gap: 10px;
-            }
             input[type="checkbox"] {
                 transform: scale(1.1); 
             }
 
-            input[type="text"], input[type="number"]{
+            input[type="text"] {
                 width: 99%;
                 padding-top: 8px;
                 padding-bottom: 8px;
@@ -79,9 +75,9 @@ export const dataMdbMigrateWebview = async (buckets: string[]): Promise<string> 
             }
             
             /* Style for form input fields and selects */
-            select,
-            input[type="file"] {
+            select {
                 width: 100%;
+                height: 35px;
                 padding-top: 8px;
                 padding-bottom: 8px;
                 margin-bottom: 15px;
@@ -118,10 +114,20 @@ export const dataMdbMigrateWebview = async (buckets: string[]): Promise<string> 
                 border-top:0; border-bottom: 5px solid #888; 
             }
 
+            .select2-container .select2-selection--single {
+                height: 35px;
+            }
+
+
+            .select2-container .select2-selection--multiple {
+                height: 35px;
+            }
+
+
             .select2 {
-                width: 100%; /* Set the select element to 100% of its container's width */
-                max-width: 100%; /* Limit the maximum width to the container's width */
-                box-sizing: border-box; /* Include padding and border in the width */
+                width: 100%; 
+                max-width: 100%; 
+                box-sizing: border-box; 
                 margin-bottom: 15px;
                 color: #444;
             }
@@ -171,14 +177,6 @@ export const dataMdbMigrateWebview = async (buckets: string[]): Promise<string> 
                border-top: 1px solid var(--vscode-settings-sashBorder);
              }
             
-            #selectedFolder {
-                flex-grow: 1;
-                margin-left: 10px;
-                padding: 10px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                background-color: #f9f9f9;
-            }
 
             .validation-error {
                 color: #ff0000;
@@ -201,18 +199,6 @@ export const dataMdbMigrateWebview = async (buckets: string[]): Promise<string> 
                 align-items: center;
             }
             
-            .advanced-settings {
-                display: none;
-                padding: 10px;
-            }
-            .advanced-settings.active {
-                display: block;
-            }
-            
-            .arrow-icon {
-                transition: transform 0.2s;
-                margin-right:5px;
-            }
 
             .tooltip {
                 position: relative;
@@ -257,76 +243,80 @@ export const dataMdbMigrateWebview = async (buckets: string[]): Promise<string> 
                 height: 16px; 
                 vertical-align: middle;
             }
-
-
             
           </style>
-        </head>
+</head>
 
-        <body>
-        <h2 class="heading">Mongodb to Couchbase Data Migration</h2>
-        <form action="#" method="post" id="dataMigrateForm">
-        <p>This tool utilizes the CLI in the background to migrate the data, Please refer to <a href="https://github.com/couchbaselabs/cbmigrate" target="_blank">this</a> for more info on how to use the CLI.</p>
-           <div class="separator-container">
-              <span class="separator-text">Source</span>
-              <div class="separator"></div>
-           </div>
-           <label for="mongodbconnectionstring" class="tooltip">MongoDB Connection URI:
-           <span class="tooltiptext">Specify the MongoDB Connection URI</span>
-           </label>
-           <div class="connect-container">
-              <input type="text" id="mongoConnectionString" name="mongoConnectionString" >
-              <div class="connect-destination redButton" id="mongoConnectionStrings" onclick="onConnectionStringClick()">Connect</div>
-           </div>
-           <br>
-           <label for="databases" class="tooltip">Database:
-           <span class="tooltiptext">Select the database you want to migrate from.</span>
-           </label>
-           <select name="databases" id="databases" class="js-select2" disabled onchange="onDatabaseClick()" width="100%"></select>
-           <br>
-           <label for="collections" class="tooltip">Collections:
-           <span class="tooltiptext">The collections that you would like to include. You can select <strong>All</strong> or more than one option.</span>
-           </label>
-           <select name="collections" id="collections" multiple class="js-select2" disabled  width="100%"></select>
-           <br>
-           <div class="checkbox-container tooltip">
-              <input type="checkbox" id="indexes" name="indexes" checked>
-              <label for="indexes">Include Indexes</label>
-              <span class="tooltiptext">Check to include indexes in the migration. Indexes are included by default.</span>
-           </div>
-           <div class="separator-container">
-              <span class="separator-text">Target</span>
-              <div class="separator"></div>
-           </div>
-           <label for="bucket" class="tooltip">Bucket:
-           <span class="tooltiptext">Choose the top level bucket on which migration should happen. Only 1 bucket can be migrated at a time</span>
-           </label>
-           <select name="bucket" id="bucket" onchange="onBucketClick(value)">
-              <option value="" disabled selected>Select a bucket</option>
-              ${buckets.map((bucketName) => {
-        return `
-              <option value="${bucketName}" >${bucketName}</option>
-              `;
-    })}
-           </select>
-           <br>
-           <label for="cbScopes" class="tooltip">Scope:
-           <span class="tooltiptext">Choose a target scope for the migration process.</span>
-           </label>
-           <select name="cbScopes" id="cbScopes" class="js-select2" disabled  width="100%"></select>
-           <br>
-           <div class="validation-error" id="validation-error"></div>
-           <input type="submit" value="Migrate" onclick="submitForm(event)" class="redButton">
-        </form>
-     </body>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-    <script>
+<body>
+    <h2 class="heading">Mongodb to Couchbase Data Migration</h2>
+    <form action="#" method="post" id="dataMigrateForm">
+        <p>This tool utilizes the CLI in the background to migrate the data.</p>
+        <p>Please refer to <a href="https://github.com/couchbaselabs/cbmigrate" target="_blank">this </a> for more
+            information on how to use the CLI.</p>
+        <div class="separator-container">
+            <span class="separator-text">Source</span>
+            <div class="separator"></div>
+        </div>
+        <label for="mongodbconnectionstring" class="tooltip">MongoDB Connection URI:
+            <span class="tooltiptext">Specify the MongoDB Connection URI</span>
+        </label>
+        <div class="connect-container">
+            <input type="text" id="mongoConnectionString" name="mongoConnectionString">
+            <div class="connect-destination redButton" id="mongoConnectionStrings" onclick="onConnectionStringClick()">
+                Connect</div>
+        </div>
+        <br>
+        <label for="databases" class="tooltip">Database:
+            <span class="tooltiptext">Select the database you want to migrate from.</span>
+        </label>
+        <select name="databases" id="databases" class="js-select2" disabled onchange="onDatabaseClick()"
+            width="100%"></select>
+        <br>
+        <label for="collections" class="tooltip">Collections:
+            <span class="tooltiptext">The collections that you would like to include. You can select
+                <strong>All</strong> or more than one option.</span>
+        </label>
+        <select name="collections" id="collections" multiple class="js-select2" disabled width="100%"></select>
+        <br>
+        <div class="checkbox-container tooltip">
+            <input type="checkbox" id="indexes" name="indexes" checked>
+            <label for="indexes">Include Indexes</label>
+            <span class="tooltiptext">Check to include indexes in the migration. Indexes are included by default.</span>
+        </div>
+        <div class="separator-container">
+            <span class="separator-text">Target</span>
+            <div class="separator"></div>
+        </div>
+        <label for="bucket" class="tooltip">Bucket:
+            <span class="tooltiptext">Choose the top level bucket on which migration should happen. Only 1 bucket can be
+                migrated at a time</span>
+        </label>
+        <select name="bucket" id="bucket" onchange="onBucketClick(value)">
+            <option value="" disabled selected>Select a bucket</option>
+            ${buckets.map((bucketName) => {
+            return `
+            <option value="${bucketName}">${bucketName}</option>
+            `;
+            })}
+        </select>
+        <br>
+        <label for="cbScopes" class="tooltip">Scope:
+            <span class="tooltiptext">Choose a target scope for the migration process.</span>
+        </label>
+        <select name="cbScopes" id="cbScopes" class="js-select2" disabled width="100%"></select>
+        <br>
+        <div class="validation-error" id="validation-error"></div>
+        <input type="submit" value="Migrate" onclick="submitForm(event)" class="redButton">
+    </form>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
 const vscode = acquireVsCodeApi();
 let scopesSpecData = [];
 function onConnectClick(uri) {
     vscode.postMessage({
-        command: "vscode-couchbase.tools.mdbExport.connectToMdb",
+        command: "vscode-couchbase.tools.mdbMigrate.connectToMdb",
         connectUri: uri,
     });
 }
@@ -336,14 +326,14 @@ function onConnectionStringClick() {
     document.getElementById("databases").setAttribute("disabled", "");
     document.getElementById("collections").setAttribute("disabled", "");
     vscode.postMessage({
-        command: "vscode-couchbase.tools.mdbExport.getDatabases",
+        command: "vscode-couchbase.tools.mdbMigrate.getDatabases",
         connectionString: connectionString,
     });
 }
 
 function getFolder() {
     vscode.postMessage({
-        command: "vscode-couchbase.tools.mdbExport.getFolder",
+        command: "vscode-couchbase.tools.mdbMigrate.getFolder",
     });
 }
 
@@ -351,7 +341,7 @@ function onBucketClick(bucketId) {
     document.getElementById("cbScopes").setAttribute("disabled", "");
 
     vscode.postMessage({
-        command: "vscode-couchbase.tools.mdbExport.getCbScopes",
+        command: "vscode-couchbase.tools.mdbMigrate.getCbScopes",
         bucketId: bucketId,
     });
 }
@@ -367,7 +357,7 @@ function onDatabaseClick() {
 
     // Post a message with the selected database
     vscode.postMessage({
-        command: "vscode-couchbase.tools.mdbExport.getCollections",
+        command: "vscode-couchbase.tools.mdbMigrate.getCollections",
         connectionString: connectionString,
         databases: selectedDatabase,
     });
@@ -430,7 +420,7 @@ window.addEventListener("message", (event) => {
     const message = event.data; // The JSON data our extension sent
 
     switch (message.command) {
-        case "vscode-couchbase.tools.mdbExport.databaseInfo":
+        case "vscode-couchbase.tools.mdbMigrate.databaseInfo":
             const databasesData = message.databases;
             const databasesDropdown = document.getElementById("databases");
 
@@ -454,7 +444,7 @@ window.addEventListener("message", (event) => {
             });
             databasesDropdown.removeAttribute("disabled");
             break;
-        case "vscode-couchbase.tools.mdbExport.scopesInfo":
+        case "vscode-couchbase.tools.mdbMigrate.scopesInfo":
             const cbscopesData = message.scopes;
             cbscopesSpecData = cbscopesData;
             const cbscopeDropdown = document.getElementById("cbScopes");
@@ -481,7 +471,7 @@ window.addEventListener("message", (event) => {
             // Enable the dropdown
             cbscopeDropdown.removeAttribute("disabled");
             break;
-        case "vscode-couchbase.tools.mdbExport.collectionInfo":
+        case "vscode-couchbase.tools.mdbMigrate.collectionInfo":
             const collectionsData = message.collection;
             const collectionDropdown = document.getElementById("collections");
 
@@ -501,7 +491,7 @@ window.addEventListener("message", (event) => {
             });
             collectionDropdown.removeAttribute("disabled");
             break;
-        case "vscode-couchbase.tools.mdbExport.formValidationError":
+        case "vscode-couchbase.tools.mdbMigrate.formValidationError":
             const error = message.error;
             document.getElementById("validation-error").innerHTML =
                 message.error;
@@ -509,13 +499,6 @@ window.addEventListener("message", (event) => {
     }
 });
 
-$(document).ready(function () {
-    $("#advanced-header").click(function () {
-        $("#advanced-settings").toggleClass("active");
-        const arrowIcon = $(".arrow-icon");
-        arrowIcon.text(arrowIcon.text() === "▶️" ? "▼" : "▶️");
-    });
-});
 
 function submitForm(event) {
     event.preventDefault(); // Prevent the form from submitting in the traditional way
@@ -544,7 +527,7 @@ function submitForm(event) {
         cbScope,
     };
     vscode.postMessage({
-        command: "vscode-couchbase.tools.mdbExport.runExport",
+        command: "vscode-couchbase.tools.mdbMigrate.Migrate",
         data: formData,
     });
 } 
@@ -552,3 +535,4 @@ function submitForm(event) {
       </html>
       `;
 };
+

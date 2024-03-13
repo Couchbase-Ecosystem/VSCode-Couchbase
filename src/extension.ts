@@ -65,7 +65,7 @@ import { clearDocumentFilter } from "./commands/documents/clearDocumentFilter";
 import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewClusterData";
 import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePrimaryIndex";
 import { dataExport } from "./pages/Tools/DataExport/dataExport";
-import {mdbExport} from "./pages/Tools/MDBExport/MDBExport";
+import { mdbMigrate } from "./pages/Tools/MdbMigrate/mdbMigrate";
 import { DataImport } from "./commands/tools/dataImport";
 import { ddlExport } from "./commands/tools/ddlExport/ddlExport";
 import { CouchbaseIqWebviewProvider } from "./commands/iq/couchbaseIqWebviewProvider";
@@ -122,10 +122,10 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       Commands.queryWorkbench,
-      workbenchWebviewProvider 
+      workbenchWebviewProvider
     )
   );
-  
+
   const couchbaseIqWebviewProvider = new CouchbaseIqWebviewProvider(context, cacheService);
   subscriptions.push(
     vscode.window.registerWebviewViewProvider(
@@ -142,7 +142,7 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       Commands.logoutIq,
-      ()=>{
+      () => {
         iqLogoutHandler();
       }
     )
@@ -151,7 +151,7 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       Commands.newIqChat,
-      ()=>{
+      () => {
         newChatHandler();
       }
     )
@@ -160,12 +160,12 @@ export function activate(context: vscode.ExtensionContext) {
   subscriptions.push(
     vscode.commands.registerCommand(
       Commands.showIqSettings,
-      ()=>{
-         vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.iq");
+      () => {
+        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.iq");
       }
     )
   );
-  
+
 
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
@@ -515,9 +515,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      Commands.mdbExport,
+      Commands.mdbMigrate,
       async () => {
-        await mdbExport(context);
+        await mdbMigrate(context);
       }
     )
   );
@@ -657,7 +657,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(Commands.forceUpdateCache, async ()=>{
+    vscode.commands.registerCommand(Commands.forceUpdateCache, async () => {
       cacheService.fullCache(true);
     })
   );

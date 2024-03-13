@@ -52,9 +52,6 @@ export class MDBToCB {
                 cmd.push(cbBucket);
                 cmd.push("--cb-scope");
                 cmd.push(cbScope);
-                // Collection field is optional
-                // cmd.push("--cb-collection");
-                // cmd.push(colCB);
                 cmd.push("--cb-generate-key");
                 cmd.push("%_id%");
 
@@ -63,7 +60,7 @@ export class MDBToCB {
                 // Run Command
                 const terminal: vscode.Terminal =
                     vscode.window.createTerminal("MDBToCb");
-                let text = cmd.join(" ");
+                const text = cmd.join(" ");
                 terminal.sendText(text);
                 terminal.show();
             }

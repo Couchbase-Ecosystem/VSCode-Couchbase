@@ -286,102 +286,11 @@ class DependenciesDownloader {
         createFolder(toolsPath);
         const osArch = OSUtil.getOSArch();
         const downloads: Map<string, ToolSpec> = this.getDownloadList(osArch);
-        const shell = downloads.get(this.TOOL_SHELL);
-        if (shell === undefined) {
-            return;
-        }
-        const shellPath = path.join(toolsPath, shell.getInstallationPath());
-        const shellTool = CBTools.getTool(CBToolsType.SHELL);
-        const shellStatus = shellTool.status;
-        const toolShellDownloadsMap = downloads.get(this.TOOL_SHELL);
-        if (toolShellDownloadsMap === undefined) {
-            return;
-        }
-        if (
-            shellStatus === ToolStatus.NOT_AVAILABLE &&
-            !this.isInstalled(
-                toolsPath,
-                toolShellDownloadsMap,
-                CBToolsType.SHELL
-            )
-        ) {
-            // Avoiding 2 threads to install the same thing at the same time
-            logger.info("Downloading CB Shell.");
-            shellTool.status = ToolStatus.DOWNLOADING;
-            this.downloadAndUnzip(shellPath, shell);
-        } else {
-            logger.debug("CBShell is already installed");
-            this.setToolActive(ToolStatus.AVAILABLE, shellPath, shell);
-        }
+        // Installs the tools if not already installed
+        this.manageShellInstallation(downloads, toolsPath);
+        this.manageCbMigrateInstallation(downloads, toolsPath);
+        this.manageDataImportExportInstallation(downloads, toolsPath);
 
-        const cbMigrate = downloads.get(this.TOOL_MDB_MIGRATE);
-        if (cbMigrate === undefined) {
-            return;
-        }
-        const cbMigratePath = path.join(
-            toolsPath,
-            cbMigrate.getInstallationPath()
-        );
-        const cbMigrateTool = CBTools.getTool(CBToolsType.CB_MIGRATE);
-        const cbMigrateStatus = cbMigrateTool.status;
-        const cbMigrateDownloadsMap = downloads.get(this.TOOL_SHELL);
-        if (cbMigrateDownloadsMap === undefined) {
-            return;
-        }
-        if (
-            cbMigrateStatus === ToolStatus.NOT_AVAILABLE &&
-            !this.isInstalled(
-                toolsPath,
-                cbMigrateDownloadsMap,
-                CBToolsType.CB_MIGRATE
-            )
-        ) {
-            // Avoiding 2 threads to install the same thing at the same time
-            logger.info("Downloading CB Migrate..");
-            cbMigrateTool.status = ToolStatus.DOWNLOADING;
-            this.downloadAndUnzip(cbMigratePath, cbMigrate);
-        } else {
-            logger.debug("CBMigrate is already installed");
-            this.setToolActive(ToolStatus.AVAILABLE, cbMigratePath, cbMigrate);
-        }
-        const cbImport: ToolSpec | undefined = downloads.get(
-            this.TOOL_IMPORT_EXPORT
-        );
-        if (cbImport === undefined) {
-            return;
-        }
-        const cbImportDir: string = path.join(
-            toolsPath,
-            cbImport.getInstallationPath()
-        );
-        const toolImpExportMap = downloads.get(this.TOOL_IMPORT_EXPORT);
-        if (toolImpExportMap === undefined) {
-            return;
-        }
-        if (
-            CBTools.getTool(CBToolsType.CB_IMPORT).status ===
-                ToolStatus.NOT_AVAILABLE &&
-            !this.isInstalled(
-                toolsPath,
-                toolImpExportMap,
-                CBToolsType.CB_EXPORT
-            )
-        ) {
-            logger.info(
-                "Downloading CB Import/Export. The feature will be automatically enabled when the download is complete."
-            );
-
-            const cbExportTool = CBTools.getTool(CBToolsType.CB_EXPORT);
-            const cbImportTool = CBTools.getTool(CBToolsType.CB_IMPORT);
-
-            cbExportTool.status = ToolStatus.DOWNLOADING;
-            cbImportTool.status = ToolStatus.DOWNLOADING;
-
-            this.downloadAndUnzip(cbImportDir, cbImport);
-        } else {
-            logger.info("CB Import/Export is already installed");
-            this.setToolActive(ToolStatus.AVAILABLE, cbImportDir, cbImport);
-        }
     };
 
     private setToolActive(
@@ -441,6 +350,112 @@ class DependenciesDownloader {
 
         return fs.existsSync(toolPath);
     }
+
+    public manageShellInstallation(downloads: Map<string, ToolSpec>, toolsPath: string): void {
+        const shell = downloads.get(this.TOOL_SHELL);
+        if (shell === undefined) {
+            return;
+        }
+        const shellPath = path.join(toolsPath, shell.getInstallationPath());
+        const shellTool = CBTools.getTool(CBToolsType.SHELL);
+        const shellStatus = shellTool.status;
+        const toolShellDownloadsMap = downloads.get(this.TOOL_SHELL);
+        if (toolShellDownloadsMap === undefined) {
+            return;
+        }
+        if (
+            shellStatus === ToolStatus.NOT_AVAILABLE &&
+            !this.isInstalled(
+                toolsPath,
+                toolShellDownloadsMap,
+                CBToolsType.SHELL
+            )
+        ) {
+            // Avoiding 2 threads to install the same thing at the same time
+            logger.info("Downloading CB Shell.");
+            shellTool.status = ToolStatus.DOWNLOADING;
+            this.downloadAndUnzip(shellPath, shell);
+        } else {
+            logger.debug("CBShell is already installed");
+            this.setToolActive(ToolStatus.AVAILABLE, shellPath, shell);
+        }
+    }
+
+    public manageCbMigrateInstallation(downloads: Map<string, ToolSpec>, toolsPath: string): void {
+        const cbMigrate = downloads.get(this.TOOL_MDB_MIGRATE);
+        if (cbMigrate === undefined) {
+            return;
+        }
+        const cbMigratePath = path.join(
+            toolsPath,
+            cbMigrate.getInstallationPath()
+        );
+        const cbMigrateTool = CBTools.getTool(CBToolsType.CB_MIGRATE);
+        const cbMigrateStatus = cbMigrateTool.status;
+        const cbMigrateDownloadsMap = downloads.get(this.TOOL_SHELL);
+        if (cbMigrateDownloadsMap === undefined) {
+            return;
+        }
+        if (
+            cbMigrateStatus === ToolStatus.NOT_AVAILABLE &&
+            !this.isInstalled(
+                toolsPath,
+                cbMigrateDownloadsMap,
+                CBToolsType.CB_MIGRATE
+            )
+        ) {
+            // Avoiding 2 threads to install the same thing at the same time
+            logger.info("Downloading CB Migrate.");
+            cbMigrateTool.status = ToolStatus.DOWNLOADING;
+            this.downloadAndUnzip(cbMigratePath, cbMigrate);
+        } else {
+            logger.debug("CBMigrate is already installed");
+            this.setToolActive(ToolStatus.AVAILABLE, cbMigratePath, cbMigrate);
+        }
+    }
+
+    public manageDataImportExportInstallation(downloads: Map<string, ToolSpec>, toolsPath: string): void {
+        const cbImport: ToolSpec | undefined = downloads.get(
+            this.TOOL_IMPORT_EXPORT
+        );
+        if (cbImport === undefined) {
+            return;
+        }
+        const cbImportDir: string = path.join(
+            toolsPath,
+            cbImport.getInstallationPath()
+        );
+        const toolImpExportMap = downloads.get(this.TOOL_IMPORT_EXPORT);
+        if (toolImpExportMap === undefined) {
+            return;
+        }
+        if (
+            CBTools.getTool(CBToolsType.CB_IMPORT).status ===
+            ToolStatus.NOT_AVAILABLE &&
+            !this.isInstalled(
+                toolsPath,
+                toolImpExportMap,
+                CBToolsType.CB_EXPORT
+            )
+        ) {
+            logger.info(
+                "Downloading CB Import/Export. The feature will be automatically enabled when the download is complete."
+            );
+
+            const cbExportTool = CBTools.getTool(CBToolsType.CB_EXPORT);
+            const cbImportTool = CBTools.getTool(CBToolsType.CB_IMPORT);
+
+            cbExportTool.status = ToolStatus.DOWNLOADING;
+            cbImportTool.status = ToolStatus.DOWNLOADING;
+
+            this.downloadAndUnzip(cbImportDir, cbImport);
+        } else {
+            logger.info("CB Import/Export is already installed");
+            this.setToolActive(ToolStatus.AVAILABLE, cbImportDir, cbImport);
+        }
+    }
+
+
 
     // This is a test function, keeping this here to check for any specific downloaded CLI tool
     /* public runFile(targetDir:string) {
