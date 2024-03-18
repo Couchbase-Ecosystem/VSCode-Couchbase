@@ -51,6 +51,9 @@ jobs:
           cache: 'npm'
       - run: echo '${{ secrets.CONFIG_JSON }}' > ${{ github.workspace }}/src/config.json
       - uses: ilammy/setup-nasm@v1
+      - name: darwin-specific
+        if: matrix.platform == 'darwin'
+        run: brew install openssl
       - name: windows-specific
         shell: pwsh
         if: matrix.platform == 'win32'
