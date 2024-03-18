@@ -83,7 +83,7 @@ export const mdbMigrate = async (context: vscode.ExtensionContext) => {
 
   const currentPanel = vscode.window.createWebviewPanel(
     "dataMigrate",
-    "Data Migrate from MDB to Couchbase",
+    "Data Migration from MDB to Couchbase",
     vscode.ViewColumn.One,
     {
       enableScripts: true,

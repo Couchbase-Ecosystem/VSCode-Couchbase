@@ -12,12 +12,6 @@ export const MdbMigrateWebview = async (buckets: string[]): Promise<string> => {
                 text-align: center;
             }
 
-            .advanced-header {
-                font-size: 16px;
-                font-weight: bold;
-                margin-bottom: 5px;
-            }
-
             input[type="checkbox"] {
                 appearance: none;
                 -webkit-appearance: none;
@@ -191,13 +185,6 @@ export const MdbMigrateWebview = async (buckets: string[]): Promise<string> => {
                 background: #bb1117;
             }
             
-            .advanced-header {
-                cursor: pointer;
-                font-weight: bold;
-                padding: 5px;
-                display: flex;
-                align-items: center;
-            }
             
 
             .tooltip {
@@ -236,12 +223,6 @@ export const MdbMigrateWebview = async (buckets: string[]): Promise<string> => {
                 margin-left: 8px;
                 position: relative;
                 bottom: -2px; 
-            }
-
-            input[type="checkbox"] {
-                width: 16px; 
-                height: 16px; 
-                vertical-align: middle;
             }
             
           </style>
