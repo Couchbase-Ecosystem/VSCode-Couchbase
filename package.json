@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -48,6 +48,7 @@
     "@babel/traverse": "^7.22.8",
     "@types/glob": "^7.2.0",
     "@types/mocha": "^8.2.3",
+    "@types/mongodb": "^4.0.7",
     "@types/node": "^12.20.42",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
@@ -109,6 +110,7 @@
     "gitly": "^2.4.2",
     "keytar": "^7.7.0",
     "monaco-editor": "^0.43.0",
+    "mongodb": "^6.4.0",
     "node-addon-api": "^6.0.0",
     "prop-types": "^15.7.2",
     "react": "^18.2.0",
@@ -542,6 +544,11 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.tools.mdbMigrate",
+        "title": "MongoDB Migrate",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.tools.dataImport",
         "title": "Data Import",
         "category": "Couchbase"
@@ -810,6 +817,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.tools.mdbMigrate",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.tools.dataImport",
           "when": "false"
         },
@@ -991,6 +1002,10 @@
       "vscode-couchbase.toolsMenu": [
         {
           "command": "vscode-couchbase.tools.dataExport",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-couchbase.tools.mdbMigrate",
           "group": "navigation"
         },
         {
