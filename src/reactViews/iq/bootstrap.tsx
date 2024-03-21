@@ -7,6 +7,7 @@ import SelectOrganizationPage from "pages/organizationSelect/SelectOrganization"
 import LoginSingleClick from "pages/login/LoginSingleClick";
 import IqChat from "pages/chatscreen/IqChat";
 import { Modal } from "components/modals/Modal";
+import { ModaliQTerm } from "components/modals/ModaliQTerms";
 
 const container: HTMLElement = document.getElementById("vscodeRootIQ");
 const newRoot = createRoot(container);
@@ -14,7 +15,9 @@ const newRoot = createRoot(container);
 export const App: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [showPage, setShowPage] = React.useState(<></>);
-  const [showErrorModal, setShowErrorModal] = React.useState(false);
+  const [showTermsModal, setShowTermsModal] = React.useState(false);
+  const [showModal, setShowModal] = React.useState(false); 
+  const [organizationDetails, setOrganizationDetails] = React.useState(null);
   const [errorMessage, setErrorMessage] = React.useState(<></>);
 
   const messageHandler = (event) => {
@@ -42,7 +45,14 @@ export const App: React.FC = () => {
           value: "",
         });
         setIsLoading(false);
-        setShowErrorModal(true);
+        setShowModal(true);
+        setErrorMessage(message.error || "");
+        break;
+      }
+      case "vscode-couchbase.iq.acceptSupplementalTerms": {
+        setIsLoading(false);
+        setShowTermsModal(true);
+        setOrganizationDetails(message.organization);
         setErrorMessage(message.error || "");
         break;
       }
@@ -76,6 +86,22 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleModalClose = () => {
+    setShowTermsModal(false);
+    tsvscode.postMessage({
+      command: "vscode-couchbase.iq.cancelIqSupplementalTerms",
+      value: "",
+    });
+  };
+
+  const handleAcceptTerms = () => {
+    setShowTermsModal(false);
+    tsvscode.postMessage({
+      command: "vscode-couchbase.iq.acceptIqSupplementalTerms",
+      value: organizationDetails,
+    });
+  };
+
   React.useEffect(() => {
     window.addEventListener("message", messageHandler);
 
@@ -94,19 +120,29 @@ export const App: React.FC = () => {
   return (
     <div>
       {isLoading && <LoadingScreen />}
-      <Modal
-        isOpen={showErrorModal}
-        content={errorMessage || <></>}
-        onClose={() => {
-          setShowErrorModal(false);
-          setShowPage(<IqLogin  setIsLoading={setIsLoading}/>);
-          setIsLoading(false);
-          tsvscode.postMessage({
-            command: "vscode-couchbase.iq.getSavedLogin",
-            value: "",
-          });
-        }}
-      />
+      {showTermsModal && (
+        <ModaliQTerm
+          isOpen={showTermsModal}
+          content={errorMessage || <></>}
+          onClose={handleModalClose}
+          onAccept={handleAcceptTerms}
+        />
+      )}
+      {showModal && (
+        <Modal
+          isOpen={showModal}
+          content={errorMessage || <></>}
+          onClose={() => {
+            setShowModal(false);
+            setShowPage(<IqLogin  setIsLoading={setIsLoading}/>);
+            setIsLoading(false);
+            tsvscode.postMessage({
+              command: "vscode-couchbase.iq.getSavedLogin",
+              value: "",
+            });
+          }}
+        />
+      )}
       {showPage}
     </div>
   );
