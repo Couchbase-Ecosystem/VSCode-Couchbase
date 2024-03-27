@@ -9,6 +9,11 @@ interface IFormData {
     rememberMe: boolean;
 }
 
+type User = {
+    id: string;
+    roles: string[];
+};
+
 export interface ISavedLoginDataGetter {
     doesLoginDetailsExists: boolean;
     username: string;
@@ -114,6 +119,16 @@ export const handleIqSupplementalTerms = async (
     );
 };
 
+export const checkIfUserIsOrgOwner = async (
+    userId: string,
+    user: User
+): Promise<boolean> => {
+    if (user.id === userId) {
+        return user.roles.includes("organizationOwner");
+    }
+    return false;
+};
+
 export const verifyOrganization = async (orgId: string): Promise<any> => {
     const jwtToken = Memory.state.get<string>("vscode-couchbase.iq.jwtToken");
     if (jwtToken === undefined) {
@@ -128,6 +143,13 @@ export const verifyOrganization = async (orgId: string): Promise<any> => {
         orgId
     );
     const userId = Memory.state.get<string>("vscode-couchbase.iq.userId");
+    if (userId === undefined) {
+        return {
+            shouldAcceptIqTerms: false,
+            isOrgVerified: false,
+            errorMessage: "",
+        };
+    }
     if (!orgDetails.iq || orgDetails.iq.enabled === false) {
         return {
             shouldAcceptIqTerms: false,
@@ -139,13 +161,13 @@ export const verifyOrganization = async (orgId: string): Promise<any> => {
         !orgDetails.iq.other ||
         orgDetails.iq.other.isTermsAcceptedForOrg === false
     ) {
+        const userList = await iqRestApiService.fetchUserData(
+            jwtToken,
+            orgId,
+            userId
+        );
         // Allow to Accept Terms ONLY if user is org owner
-        if (
-            (orgDetails.createdByUserID &&
-                orgDetails.createdByUserID === userId) ||
-            (orgDetails.modifiedByUserID &&
-                orgDetails.modifiedByUserID === userId)
-        ) {
+        if (await checkIfUserIsOrgOwner(userId, userList)) {
             return {
                 shouldAcceptIqTerms: true,
                 isOrgVerified: false,

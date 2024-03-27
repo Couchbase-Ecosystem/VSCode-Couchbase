@@ -95,6 +95,23 @@ export class iqRestApiService {
         }
     };
 
+    public static fetchUserData = async (jwt: string, orgId: string, userId:string) => {
+        try {
+            const content = await axios.get(
+                this.FETCH_ORGANIZATIONS_URL + "/" + orgId + "/users" + "/" + userId,
+                {
+                    headers: {
+                        Authorization: `Bearer ${jwt}`,
+                    },
+                }
+            );
+            return content.data.data;
+        } catch (error) {
+            logger.error("failed to Fetch Users Data in the organization " + error);
+            throw new Error("Failed to fetch users data in the organization ");
+        }
+    };
+
     public static sendIqMessage = async (
         jwt: string,
         orgId: string,
