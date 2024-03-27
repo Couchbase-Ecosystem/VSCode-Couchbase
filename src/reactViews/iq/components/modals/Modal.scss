@@ -21,10 +21,30 @@
     border-radius: 5px;
   }
 
+  .modal-header {
+    font-size: 20px; 
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px; 
+  }
+
   .button-container {
     display: flex;
     justify-content: flex-end;
+    margin-top: 16px;
     gap: 10px;
+  }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .terms-checkbox {
+    input[type="checkbox"] {
+      margin-left: 0px;
+    }
   }
   
   button {
