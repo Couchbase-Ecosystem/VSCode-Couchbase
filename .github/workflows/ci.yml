@@ -44,7 +44,7 @@ jobs:
       - shell: pwsh
         run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           architecture: ${{ matrix.arch }}
@@ -54,9 +54,12 @@ jobs:
       - name: windows-specific
         shell: pwsh
         if: matrix.platform == 'win32'
-        run: choco install openssl.light --version=1.1.1  && choco install cmake && npm config set msvs_version 2022 --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB && npm ci && npm run rebuild
+        run: choco install openssl.light --version=1.1.1  && choco install cmake && npm install --global windows-build-tools && npm config set msvs-version 2022 --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB
+      - name: mac-specific
+        shell: zsh
+        if: matrix.platform =='macos'
+        run: brew install openssl@3
       - name: general
-        if: matrix.platform != 'win32'
         run: npm ci && npm run rebuild
       - run: npx vsce package --target ${{ env.target }}
       - uses: actions/upload-artifact@v3
