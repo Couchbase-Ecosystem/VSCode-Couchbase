@@ -121,7 +121,7 @@ const reactConfig = {
             },
           },
         ],
-      }, 
+      },
       {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],
@@ -135,47 +135,102 @@ const reactConfig = {
   plugins: [],
 };
 
-/**@type {import('webpack').Configuration}*/
+// /**@type {import('webpack').Configuration}*/
+// const iqReactConfig = {
+//   target: "web",
+//   entry: {
+//     reactBuild: "./src/reactViews/iq/index",
+//   },
+//   output: {
+//     path: path.resolve(__dirname, "dist/iq"),
+//     filename: "[name].js",
+//   },
+//   devtool: "source-map",
+//   resolve: {
+//     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
+//     extensions: [".ts", ".tsx", ".js", ".jsx"],
+//     alias: {
+//       'components': path.resolve(__dirname, 'src/reactViews/iq/components'),
+//       'pages': path.resolve(__dirname, 'src/reactViews/iq/pages'),
+//       'chatscope': path.resolve(__dirname,'src/reactViews/iq/chatscope'),
+//       'utils': path.resolve(__dirname,'src/reactViews/iq/utils'),
+//       'types': path.resolve(__dirname, 'src/reactViews/iq/types'),
+//       'assets': path.resolve(__dirname, 'src/reactViews/iq/assets')
+//     },
+//     fallback: {
+//       "path": false,
+//       "fs": false
+//     }
+//   },
+//   module: {
+//     rules: [
+//       {
+//         test: /\.tsx?$/,
+//         exclude: /node_modules/,
+//         use: [
+//           {
+//             loader: "ts-loader",
+//             options: {
+//               configFile: "src/reactViews/iq/tsconfig.json",
+//             },
+
+//           },
+//         ],
+//       },
+//       {
+//         test: /\.(js|jsx)$/,
+//         exclude: /node_modules/,
+//         use: {
+//           loader: 'babel-loader',
+//         },
+//       },
+//       {
+//         test: /\.svg$/,
+//         use: [
+//           {
+//             loader: "file-loader", // You can also use "url-loader" if you prefer
+//             options: {
+//               name: "[name].[ext]", // Output file name and extension
+//             },
+//           },
+//         ],
+//       }, 
+//       {
+//         test: /\.css$/,
+//         use: ["style-loader", "css-loader"],
+//       },
+//       {
+//         test: /\.scss$/, // Regular SCSS files (without CSS modules)
+//         use: ['style-loader', 'css-loader', 'sass-loader'],
+//       },
+//     ],
+//   },
+//   plugins: [],
+// };
+
 const iqReactConfig = {
-  target: "web",
+  mode: 'development',
   entry: {
-    reactBuild: "./src/reactViews/iq/index",
+    index: path.resolve(__dirname, 'src/reactViews/iq/index.tsx')
   },
-  output: {
-    path: path.resolve(__dirname, "dist/iq"),
-    filename: "[name].js",
-  },
-  devtool: "source-map",
   resolve: {
-    // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
-    extensions: [".ts", ".tsx", ".js", ".jsx"],
-    alias: {
-      'components': path.resolve(__dirname, 'src/reactViews/iq/components'),
-      'pages': path.resolve(__dirname, 'src/reactViews/iq/pages'),
-      'chatscope': path.resolve(__dirname,'src/reactViews/iq/chatscope'),
-      'utils': path.resolve(__dirname,'src/reactViews/iq/utils'),
-      'types': path.resolve(__dirname, 'src/reactViews/iq/types'),
-      'assets': path.resolve(__dirname, 'src/reactViews/iq/assets')
-    },
-    fallback: {
-      "path": false,
-      "fs": false
-    }
+    extensions: ['.ts', '.tsx', '.js', ".jsx"]
+  },
+  devtool: 'inline-source-map',
+  output: {
+    filename: '[name].js',
+    path: path.resolve(__dirname, 'dist/iq')
   },
   module: {
     rules: [
+      { test: /\.tsx?$/, loader: 'ts-loader', exclude: /node_modules/ },
       {
-        test: /\.tsx?$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: "ts-loader",
-            options: {
-              configFile: "src/reactViews/iq/tsconfig.json",
-            },
-
-          },
-        ],
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"]
+      },
+      {
+        test: /\.scss$/, // Regular SCSS files (without CSS modules)
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
       {
         test: /\.(js|jsx)$/,
@@ -194,18 +249,9 @@ const iqReactConfig = {
             },
           },
         ],
-      }, 
-      {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
       },
-      {
-        test: /\.scss$/, // Regular SCSS files (without CSS modules)
-        use: ['style-loader', 'css-loader', 'sass-loader'],
-      },
-    ],
-  },
-  plugins: [],
+    ]
+  }
 };
 
 module.exports = [extensionConfig, reactConfig, iqReactConfig];

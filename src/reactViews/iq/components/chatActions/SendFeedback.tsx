@@ -1,4 +1,4 @@
-import { ModalWithTextBox } from "components/modals/ModalWithTextBox";
+import { ModalWithTextBox } from "./../../components/modals/ModalWithTextBox";
 
 export const SendFeedback = ({ isOpen, onSubmit, onClose }) => {
   return (

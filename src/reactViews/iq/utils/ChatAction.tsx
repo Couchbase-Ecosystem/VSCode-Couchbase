@@ -1,4 +1,4 @@
-import { IActionBarButton } from "chatscope/src/components/ActionBar/ActionBar";
+import { IActionBarButton } from "./../chatscope/src/components/ActionBar/ActionBar";
 
 export const availableActions = [
   "Data Import",
