@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
           architecture: ${{ matrix.arch }}
           cache: 'npm'
       - run: echo '${{ secrets.CONFIG_JSON }}' > ${{ github.workspace }}/src/config.json
@@ -54,10 +54,10 @@ jobs:
       - name: windows-specific
         shell: pwsh
         if: matrix.platform == 'win32'
-        run: choco install openssl.light --version=1.1.1  && choco install cmake && npm config set msvs_version 2022 && npm config set msvs-version 2022 --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB
+        run: choco install openssl.light --version=1.1.1  && choco install cmake --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB
       - name: mac-specific
         shell: zsh
-        if: matrix.platform =='macos'
+        if: matrix.platform =='darwin'
         run: brew install openssl@3
       - name: general
         run: npm ci && npm run rebuild
