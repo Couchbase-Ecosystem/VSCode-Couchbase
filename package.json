@@ -54,7 +54,7 @@
     "@types/react-dom": "^18.2.4",
     "@types/tar": "^6.1.5",
     "@types/uuid": "^9.0.6",
-    "@types/vscode": "^1.87.0",
+    "@types/vscode": "^1.63.1",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
     "@vscode/test-electron": "^2.3.9",

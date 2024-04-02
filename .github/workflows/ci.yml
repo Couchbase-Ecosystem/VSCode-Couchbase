@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-latest
+          - os: windows-2022
             platform: win32
             arch: x64
           #- os: windows-latest
@@ -33,17 +33,17 @@ jobs:
           - os: ubuntu-latest
             platform: alpine
             arch: x64
-          - os: macos-latest
+          - os: macos-13
             platform: darwin
             arch: x64
-          - os: macos-latest
+          - os: macos-13
             platform: darwin
             arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
       - shell: pwsh
         run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -54,7 +54,7 @@ jobs:
       - name: windows-specific
         shell: pwsh
         if: matrix.platform == 'win32'
-        run: choco install openssl.light --version=1.1.1  && choco install cmake && npm install --global windows-build-tools && npm config set msvs-version 2022 --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB
+        run: choco install openssl.light --version=1.1.1  && choco install cmake && npm config set msvs_version 2022 && npm config set msvs-version 2022 --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB
       - name: mac-specific
         shell: zsh
         if: matrix.platform =='macos'
