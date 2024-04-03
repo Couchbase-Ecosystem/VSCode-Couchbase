@@ -19,27 +19,26 @@
 "use strict";
 
 const path = require("path");
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const { ModuleFederationPlugin } = require("webpack").container;
 
 /**@type {import('webpack').Configuration}*/
 const extensionConfig = {
   target: "node", // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
   mode: "none", // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
-  entry: {
-    extension: "./src/extension.ts", // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
-  },
+  entry: "./src/extension.ts", // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
+  
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
     path: path.resolve(__dirname, "dist"),
-    filename: "[name].js",
+    filename: "extension.js",
     libraryTarget: "commonjs2",
+    devtoolModuleFilenameTemplate: '../[resource-path]'
   },
   devtool: "source-map",
   externals: {
     vscode: "commonjs vscode", // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
   },
   resolve: {
+    mainFields: ['browser', 'module', 'main'],
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
     extensions: [".ts", ".js"],
   },
@@ -135,81 +134,9 @@ const reactConfig = {
   plugins: [],
 };
 
-// /**@type {import('webpack').Configuration}*/
-// const iqReactConfig = {
-//   target: "web",
-//   entry: {
-//     reactBuild: "./src/reactViews/iq/index",
-//   },
-//   output: {
-//     path: path.resolve(__dirname, "dist/iq"),
-//     filename: "[name].js",
-//   },
-//   devtool: "source-map",
-//   resolve: {
-//     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
-//     extensions: [".ts", ".tsx", ".js", ".jsx"],
-//     alias: {
-//       'components': path.resolve(__dirname, 'src/reactViews/iq/components'),
-//       'pages': path.resolve(__dirname, 'src/reactViews/iq/pages'),
-//       'chatscope': path.resolve(__dirname,'src/reactViews/iq/chatscope'),
-//       'utils': path.resolve(__dirname,'src/reactViews/iq/utils'),
-//       'types': path.resolve(__dirname, 'src/reactViews/iq/types'),
-//       'assets': path.resolve(__dirname, 'src/reactViews/iq/assets')
-//     },
-//     fallback: {
-//       "path": false,
-//       "fs": false
-//     }
-//   },
-//   module: {
-//     rules: [
-//       {
-//         test: /\.tsx?$/,
-//         exclude: /node_modules/,
-//         use: [
-//           {
-//             loader: "ts-loader",
-//             options: {
-//               configFile: "src/reactViews/iq/tsconfig.json",
-//             },
-
-//           },
-//         ],
-//       },
-//       {
-//         test: /\.(js|jsx)$/,
-//         exclude: /node_modules/,
-//         use: {
-//           loader: 'babel-loader',
-//         },
-//       },
-//       {
-//         test: /\.svg$/,
-//         use: [
-//           {
-//             loader: "file-loader", // You can also use "url-loader" if you prefer
-//             options: {
-//               name: "[name].[ext]", // Output file name and extension
-//             },
-//           },
-//         ],
-//       }, 
-//       {
-//         test: /\.css$/,
-//         use: ["style-loader", "css-loader"],
-//       },
-//       {
-//         test: /\.scss$/, // Regular SCSS files (without CSS modules)
-//         use: ['style-loader', 'css-loader', 'sass-loader'],
-//       },
-//     ],
-//   },
-//   plugins: [],
-// };
-
 const iqReactConfig = {
   mode: 'development',
+  target: 'web',
   entry: {
     index: path.resolve(__dirname, 'src/reactViews/iq/index.tsx')
   },
