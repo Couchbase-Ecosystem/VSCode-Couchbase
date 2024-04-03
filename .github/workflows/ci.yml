@@ -12,18 +12,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2022
-            platform: win32
-            arch: x64
+          # - os: windows-2022
+          #   platform: win32
+          #   arch: x64
           #- os: windows-latest
           #  platform: win32
           #  arch: ia32
           #- os: windows-latest
           #  platform: win32
           #  arch: arm64
-          - os: ubuntu-latest
-            platform: linux
-            arch: x64
+          # - os: ubuntu-latest
+          #   platform: linux
+          #   arch: x64
           # - os: ubuntu-latest
           #   platform: linux
           #   arch: arm64
@@ -36,9 +36,9 @@ jobs:
           - os: macos-13
             platform: darwin
             arch: x64
-          - os: macos-13
-            platform: darwin
-            arch: arm64
+          # - os: macos-13
+          #   platform: darwin
+          #   arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
       - shell: pwsh
@@ -55,6 +55,10 @@ jobs:
         shell: pwsh
         if: matrix.platform == 'win32'
         run: choco install openssl.light --version=1.1.1  && choco install cmake --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB
+      - name: mac-specific
+        shell: bash
+        if: matrix.platform == 'darwin'
+        run: cmake --version && brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/e26e881a5dc87daaab3c96096288e67f055bb7d6/Formula/c/cmake.rb && cmake --version
       - name: general
         run: npm i && npm run rebuild
       - run: npx vsce package --target ${{ env.target }}
