@@ -59,11 +59,12 @@ jobs:
         shell: bash
         if: matrix.platform == 'darwin'
         run: |
-          pwd && which cmake && rm -rf /usr/local/bin/cmake
-          wget https://cmake.org/files/v3.27/cmake-3.27.9-macos-universal.tar.gz
-          tar xf cmake-3.27.9-macos-universal.tar.gz
-          echo "`pwd`/cmake-3.27.9-macos-universal/CMake.app/Contents/bin" >> $GITHUB_PATH
-          cmake --version
+              pwd && which cmake && rm -rf /usr/local/bin/cmake
+              wget https://cmake.org/files/v3.27/cmake-3.27.9-macos-universal.tar.gz
+              tar xf cmake-3.27.9-macos-universal.tar.gz
+              WORKING_DIRECTORY=$(pwd)
+              echo "${WORKING_DIRECTORY}/cmake-3.27.9-macos-universal/CMake.app/Contents/bin" >> $GITHUB_PATH
+              cmake --version
       - name: general
         run: npm i && npm run rebuild
       - run: npx vsce package --target ${{ env.target }}
