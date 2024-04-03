@@ -58,7 +58,12 @@ jobs:
       - name: mac-specific
         shell: bash
         if: matrix.platform == 'darwin'
-        run: which cmake && rm -rf /usr/local/bin/cmake && wget https://cmake.org/files/v3.27/cmake-3.27.9-macos-universal.tar.gz && tar xf cmake-3.27.9-macos-universal.tar.gz && export PATH="`pwd`/cmake-3.27.9-macos-universal/CMake.app/Contents/bin:$PATH" && cmake --version 
+        run: |
+          which cmake && rm -rf /usr/local/bin/cmake
+          echo "Running on macOS"
+      - uses: ssrobins/install-cmake@v1
+        with:
+          version: 3.27.9
       - name: general
         run: npm i && npm run rebuild
       - run: npx vsce package --target ${{ env.target }}
