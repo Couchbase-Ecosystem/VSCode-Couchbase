@@ -64,7 +64,7 @@ jobs:
           tar xf cmake-3.27.9-macos-universal.tar.gz
           WORKING_DIRECTORY=$(pwd)
           echo "${WORKING_DIRECTORY}/cmake-3.27.9-macos-universal/CMake.app/Contents/bin" >> $GITHUB_PATH
-          echo "${WORKING_DIRECTORY}/cmake-3.27.9-macos-universal/CMake.app/Contents/bin" >> $GITHUB_ENV
+          echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.9-macos-universal/CMake.app/Contents/bin:$PATH" >> $GITHUB_ENV
           cmake --version
       - name: general
         run: npm i && npm run rebuild
