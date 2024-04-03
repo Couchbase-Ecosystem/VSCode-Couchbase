@@ -286,6 +286,7 @@ class DependenciesDownloader {
         if (shell == undefined) {
             return;
         }
+        // Checks if CB shell is installed and requires update by comparing current version of tool with version config value
         if (
             this.isInstalled(toolsPath, shell, CBToolsType.SHELL) &&
             (
@@ -309,6 +310,7 @@ class DependenciesDownloader {
         if (cbimport_export == undefined) {
             return;
         }
+        // Checks if CB Import/Export is installed and requires update by comparing current version of tool with version config value
         if (this.isInstalled(toolsPath, cbimport_export, CBToolsType.CB_EXPORT) && (DependenciesUtil.CBIMPORT_EXPORT_VERSION !== DependenciesUtil.getPropertyValue(extensionPath, DependenciesUtil.CBIMPORT_EXPORT_KEY))) {
             logger.info("A new version of Couchbase CB Import/Export is available. Removing local version and downloading the new one");
             DependenciesUtil.deleteFolder(
@@ -319,6 +321,7 @@ class DependenciesDownloader {
         if (cbMigrate == undefined) {
             return;
         }
+        // Checks if CB Migrate is installed and requires update by comparing current version of tool with version config value
         if (this.isInstalled(toolsPath, cbMigrate, CBToolsType.CB_MIGRATE) && (DependenciesUtil.CBMIGRATE_VERSION !== DependenciesUtil.getPropertyValue(extensionPath, DependenciesUtil.CBMIGRATE_KEY))) {
             logger.info("A new version of Couchbase CBMigrate is available. Removing local version and downloading the new one");
             DependenciesUtil.deleteFolder(
@@ -333,8 +336,8 @@ class DependenciesDownloader {
             "..",
             "cb-vscode-extension"
         );
-        DependenciesUtil.createVersioningFile(extensionPath);
         createFolder(extensionPath);
+        DependenciesUtil.createVersioningFile(extensionPath);
         const toolsPath = path.join(extensionPath, "tools");
         createFolder(toolsPath);
         const osArch = OSUtil.getOSArch();
