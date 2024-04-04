@@ -59,7 +59,7 @@ jobs:
         shell: bash
         if: matrix.platform == 'darwin'
         run: |
-          pwd && which cmake && rm -rf /usr/local/bin/cmake
+          rm -rf /usr/local/bin/cmake
           wget https://cmake.org/files/v3.27/cmake-3.27.9-macos-universal.tar.gz
           tar xf cmake-3.27.9-macos-universal.tar.gz
           WORKING_DIRECTORY=$(pwd)
