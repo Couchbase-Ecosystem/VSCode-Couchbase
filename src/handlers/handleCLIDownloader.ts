@@ -14,6 +14,7 @@ import * as fs from "fs";
 import axios from "axios";
 import decompress from "decompress";
 import { logger } from "../logger/logger";
+import DependenciesUtil from "./dependenciesUtil";
 
 class DependenciesDownloader {
     private readonly TOOL_SHELL = "shell";
@@ -275,6 +276,60 @@ class DependenciesDownloader {
         return map;
     }
 
+    public cleanOldVersions(
+        extensionPath: string,
+        toolsPath: string,
+        downloads: Map<string, ToolSpec>
+    ) {
+        logger.info("Cleaning up older tools versions if update required");
+        const shell: ToolSpec | undefined = downloads.get(this.TOOL_SHELL);
+        if (shell == undefined) {
+            return;
+        }
+        // Checks if CB shell is installed and requires update by comparing current version of tool with version config value
+        if (
+            this.isInstalled(toolsPath, shell, CBToolsType.SHELL) &&
+            (
+                DependenciesUtil.SHELL_VERSION !==
+                DependenciesUtil.getPropertyValue(
+                    extensionPath,
+                    DependenciesUtil.SHELL_KEY
+                )
+            )
+        ) {
+            logger.info(
+                "A new version of Couchbase Shell is available. Removing local version and downloading the new one"
+            );
+            DependenciesUtil.deleteFolder(
+                toolsPath + path.sep + shell.getInstallationPath()
+            );
+
+
+        }
+        const cbimport_export: ToolSpec | undefined = downloads.get(this.TOOL_IMPORT_EXPORT);
+        if (cbimport_export == undefined) {
+            return;
+        }
+        // Checks if CB Import/Export is installed and requires update by comparing current version of tool with version config value
+        if (this.isInstalled(toolsPath, cbimport_export, CBToolsType.CB_EXPORT) && (DependenciesUtil.CBIMPORT_EXPORT_VERSION !== DependenciesUtil.getPropertyValue(extensionPath, DependenciesUtil.CBIMPORT_EXPORT_KEY))) {
+            logger.info("A new version of Couchbase CB Import/Export is available. Removing local version and downloading the new one");
+            DependenciesUtil.deleteFolder(
+                toolsPath + path.sep + cbimport_export.getInstallationPath()
+            );
+        }
+        const cbMigrate: ToolSpec | undefined = downloads.get(this.TOOL_MDB_MIGRATE);
+        if (cbMigrate == undefined) {
+            return;
+        }
+        // Checks if CB Migrate is installed and requires update by comparing current version of tool with version config value
+        if (this.isInstalled(toolsPath, cbMigrate, CBToolsType.CB_MIGRATE) && (DependenciesUtil.CBMIGRATE_VERSION !== DependenciesUtil.getPropertyValue(extensionPath, DependenciesUtil.CBMIGRATE_KEY))) {
+            logger.info("A new version of Couchbase CBMigrate is available. Removing local version and downloading the new one");
+            DependenciesUtil.deleteFolder(
+                toolsPath + path.sep + cbMigrate.getInstallationPath()
+            );
+        }
+    }
+
     public handleCLIDownloader = () => {
         const extensionPath = path.join(
             __filename,
@@ -282,15 +337,16 @@ class DependenciesDownloader {
             "cb-vscode-extension"
         );
         createFolder(extensionPath);
+        DependenciesUtil.createVersioningFile(extensionPath);
         const toolsPath = path.join(extensionPath, "tools");
         createFolder(toolsPath);
         const osArch = OSUtil.getOSArch();
         const downloads: Map<string, ToolSpec> = this.getDownloadList(osArch);
+        this.cleanOldVersions(extensionPath, toolsPath, downloads);
         // Installs the tools if not already installed
-        this.manageShellInstallation(downloads, toolsPath);
-        this.manageCbMigrateInstallation(downloads, toolsPath);
-        this.manageDataImportExportInstallation(downloads, toolsPath);
-
+        this.manageShellInstallation(downloads, toolsPath, extensionPath);
+        this.manageCbMigrateInstallation(downloads, toolsPath, extensionPath);
+        this.manageDataImportExportInstallation(downloads, toolsPath, extensionPath);
     };
 
     private setToolActive(
@@ -307,7 +363,7 @@ class DependenciesDownloader {
         });
     }
 
-    public downloadAndUnzip(targetDir: string, spec: ToolSpec) {
+    public downloadAndUnzip(targetDir: string, spec: ToolSpec, configFolder: string, key: string, value: string) {
         try {
             createFolder(targetDir);
             const fileName = spec
@@ -327,6 +383,7 @@ class DependenciesDownloader {
                 });
             });
             this.setToolActive(ToolStatus.AVAILABLE, targetDir, spec);
+            DependenciesUtil.setPropertyValue(configFolder, key, value)
         } catch (e) {
             this.setToolActive(ToolStatus.NOT_AVAILABLE, "", spec);
             logger.error(e);
@@ -351,7 +408,11 @@ class DependenciesDownloader {
         return fs.existsSync(toolPath);
     }
 
-    public manageShellInstallation(downloads: Map<string, ToolSpec>, toolsPath: string): void {
+    public manageShellInstallation(
+        downloads: Map<string, ToolSpec>,
+        toolsPath: string,
+        extensionPath: string
+    ): void {
         const shell = downloads.get(this.TOOL_SHELL);
         if (shell === undefined) {
             return;
@@ -374,14 +435,18 @@ class DependenciesDownloader {
             // Avoiding 2 threads to install the same thing at the same time
             logger.info("Downloading CB Shell.");
             shellTool.status = ToolStatus.DOWNLOADING;
-            this.downloadAndUnzip(shellPath, shell);
+            this.downloadAndUnzip(shellPath, shell, extensionPath, DependenciesUtil.SHELL_KEY, DependenciesUtil.SHELL_VERSION);
         } else {
             logger.debug("CBShell is already installed");
             this.setToolActive(ToolStatus.AVAILABLE, shellPath, shell);
         }
     }
 
-    public manageCbMigrateInstallation(downloads: Map<string, ToolSpec>, toolsPath: string): void {
+    public manageCbMigrateInstallation(
+        downloads: Map<string, ToolSpec>,
+        toolsPath: string,
+        extensionPath: string
+    ): void {
         const cbMigrate = downloads.get(this.TOOL_MDB_MIGRATE);
         if (cbMigrate === undefined) {
             return;
@@ -392,7 +457,7 @@ class DependenciesDownloader {
         );
         const cbMigrateTool = CBTools.getTool(CBToolsType.CB_MIGRATE);
         const cbMigrateStatus = cbMigrateTool.status;
-        const cbMigrateDownloadsMap = downloads.get(this.TOOL_SHELL);
+        const cbMigrateDownloadsMap = downloads.get(this.TOOL_MDB_MIGRATE);
         if (cbMigrateDownloadsMap === undefined) {
             return;
         }
@@ -407,14 +472,18 @@ class DependenciesDownloader {
             // Avoiding 2 threads to install the same thing at the same time
             logger.info("Downloading CB Migrate.");
             cbMigrateTool.status = ToolStatus.DOWNLOADING;
-            this.downloadAndUnzip(cbMigratePath, cbMigrate);
+            this.downloadAndUnzip(cbMigratePath, cbMigrate, extensionPath, DependenciesUtil.CBMIGRATE_KEY, DependenciesUtil.CBMIGRATE_VERSION);
         } else {
             logger.debug("CBMigrate is already installed");
             this.setToolActive(ToolStatus.AVAILABLE, cbMigratePath, cbMigrate);
         }
     }
 
-    public manageDataImportExportInstallation(downloads: Map<string, ToolSpec>, toolsPath: string): void {
+    public manageDataImportExportInstallation(
+        downloads: Map<string, ToolSpec>,
+        toolsPath: string,
+        extensionPath: string
+    ): void {
         const cbImport: ToolSpec | undefined = downloads.get(
             this.TOOL_IMPORT_EXPORT
         );
@@ -448,14 +517,12 @@ class DependenciesDownloader {
             cbExportTool.status = ToolStatus.DOWNLOADING;
             cbImportTool.status = ToolStatus.DOWNLOADING;
 
-            this.downloadAndUnzip(cbImportDir, cbImport);
+            this.downloadAndUnzip(cbImportDir, cbImport, extensionPath, DependenciesUtil.CBIMPORT_EXPORT_KEY, DependenciesUtil.CBIMPORT_EXPORT_VERSION);
         } else {
             logger.info("CB Import/Export is already installed");
             this.setToolActive(ToolStatus.AVAILABLE, cbImportDir, cbImport);
         }
     }
-
-
 
     // This is a test function, keeping this here to check for any specific downloaded CLI tool
     /* public runFile(targetDir:string) {
