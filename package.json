@@ -19,7 +19,7 @@
     "type": "git",
     "url": "https://github.com/couchbaselabs/VSCode-Couchbase.git"
   },
-  "keywords": ["Database", "Databases", "DBaaS", "Capella", "JSON"],
+  "keywords": ["Database", "Databases", "DBaaS", "Capella", "JSON", "AI", "iQ", "SQL++"],
   "preview": false,
   "icon": "images/couchbase.png",
   "scripts": {
