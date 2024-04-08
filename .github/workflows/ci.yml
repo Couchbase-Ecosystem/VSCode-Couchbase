@@ -12,30 +12,30 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - os: windows-latest
-          #   platform: win32
-          #   arch: x64
-          # #- os: windows-latest
-          # #  platform: win32
-          # #  arch: ia32
-          # #- os: windows-latest
-          # #  platform: win32
-          # #  arch: arm64
+          - os: windows-latest
+            platform: win32
+            arch: x64
+          #- os: windows-latest
+          #  platform: win32
+          #  arch: ia32
+          #- os: windows-latest
+          #  platform: win32
+          #  arch: arm64
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
           # - os: ubuntu-latest
           #   platform: linux
+          #   arch: arm64
+          # - os: ubuntu-latest
+          #   platform: linux
+          #   arch: armhf
+          # - os: ubuntu-latest
+          #   platform: alpine
           #   arch: x64
-          # # - os: ubuntu-latest
-          # #   platform: linux
-          # #   arch: arm64
-          # # - os: ubuntu-latest
-          # #   platform: linux
-          # #   arch: armhf
-          # # - os: ubuntu-latest
-          # #   platform: alpine
-          # #   arch: x64
-          # - os: macos-latest
-          #   platform: darwin
-          #   arch: x64
+          - os: macos-latest
+            platform: darwin
+            arch: x64
           - os: macos-13-xlarge
             platform: darwin
             arch: arm64
