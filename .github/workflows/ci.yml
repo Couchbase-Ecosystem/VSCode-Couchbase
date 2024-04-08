@@ -36,7 +36,7 @@ jobs:
           # - os: macos-latest
           #   platform: darwin
           #   arch: x64
-          - os: macos-latest
+          - os: macos-13-xlarge
             platform: darwin
             arch: arm64
     runs-on: ${{ matrix.os }}
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.8.1
+          node-version: 20
           architecture: ${{ matrix.arch }}
           cache: 'npm'
       - run: echo '${{ secrets.CONFIG_JSON }}' > ${{ github.workspace }}/src/config.json
