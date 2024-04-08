@@ -36,7 +36,7 @@ jobs:
           # - os: macos-latest
           #   platform: darwin
           #   arch: x64
-          - os: macos-latest-arm64
+          - os: macos-13-arm64
             platform: darwin
             arch: arm64
     runs-on: ${{ matrix.os }}
