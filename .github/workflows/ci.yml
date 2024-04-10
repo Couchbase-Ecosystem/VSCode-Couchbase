@@ -68,7 +68,7 @@ jobs:
       - name: general
         run: npm i && npm run rebuild
       - run: npx vsce package --target ${{ env.target }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.target }}
           path: "*.vsix"
