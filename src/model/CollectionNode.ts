@@ -30,6 +30,9 @@ import { Commands } from "../commands/extensionCommands/commands";
 import { IndexDirectory } from "./IndexDirectory";
 import { logger } from "../logger/logger";
 import { CouchbaseRestAPI } from "../util/apis/CouchbaseRestAPI";
+import { CacheService } from "../../src/util/cacheService/cacheService"
+import { Constants } from "../util/constants";
+
 
 export default class CollectionNode implements INode {
   constructor(
@@ -41,7 +44,8 @@ export default class CollectionNode implements INode {
     public readonly collectionName: string,
     public readonly filter: boolean,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public limit: number = 10
+    public cacheService: CacheService,
+    public limit: number = 10,
   ) {
     vscode.workspace.fs.createDirectory(
       vscode.Uri.parse(
@@ -88,7 +92,8 @@ export default class CollectionNode implements INode {
       this.scopeName,
       this.collectionName,
       [],
-      vscode.TreeItemCollapsibleState.None
+      vscode.TreeItemCollapsibleState.None,
+      this.cacheService
     );
     const connection = getActiveConnection();
     if (!connection) {
@@ -96,6 +101,7 @@ export default class CollectionNode implements INode {
     }
     const isQueryServicesEnable = hasQueryService(connection?.services);
     if (isQueryServicesEnable) {
+      this.cacheService.checkCacheTimeout(Constants.BUCKET_CACHE_EXPIRY_DURATION, Constants.COLLECTION_CACHE_EXPIRY_DURATION, false);
       documentList.push(indexItem);
       documentList.push(
         new SchemaDirectory(
@@ -104,7 +110,8 @@ export default class CollectionNode implements INode {
           "Schema",
           this.bucketName,
           this.scopeName,
-          this.collectionName
+          this.collectionName,
+          this.cacheService
         )
       );
     }

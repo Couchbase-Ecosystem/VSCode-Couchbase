@@ -84,6 +84,8 @@ export class Constants {
   public static SWAP_USED = "Swap Used";
   public static CORES_AVAILABLE = "Cores Available";
   public static CPU_STOLE_RATE = "CPU Stole Rate";
+  public static BUCKET_CACHE_EXPIRY_DURATION = 10;
+  public static COLLECTION_CACHE_EXPIRY_DURATION = 10;
   public static DOCUMENTS_DATA_SIZE = "Documents Data Size";
   public static DOCUMENTS_DATA_SIZE_ON_DISK = "Documents Data Size on Disk";
   public static SPATIAL_DATA_SIZE = "Spatial Data Size";

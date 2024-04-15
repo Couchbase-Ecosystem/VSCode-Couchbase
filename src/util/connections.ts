@@ -138,6 +138,8 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         }
         clusterConnectionTreeProvider.refresh();
         currentPanel.dispose();
+        // Do a full cache for the first time user creates connection
+        clusterConnectionTreeProvider.cacheService.fullCache(true);
         logger.info(`Successfully saved a new connection with the name ${connection.connectionIdentifier}`);
         break;
 

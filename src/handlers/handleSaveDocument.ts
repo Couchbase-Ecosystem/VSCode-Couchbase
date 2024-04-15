@@ -22,9 +22,12 @@ import { logger } from "../logger/logger";
 import { updateDocumentToServer } from "../util/documentUtils/updateDocument";
 import { MemFS } from "../util/fileSystemProvider";
 import { handleSaveTextDocumentConflict } from "./handleSaveDocumentConflict";
+import { CouchbaseRestAPI } from "../util/apis/CouchbaseRestAPI";
+import { CacheService } from "../util/cacheService/cacheService";
+import { Constants } from "../util/constants";
 
 
-export const handleOnSaveTextDocument = async (document: vscode.TextDocument, uriToCasMap: Map<string, string>, memFs: MemFS) => {
+export const handleOnSaveTextDocument = async (document: vscode.TextDocument, uriToCasMap: Map<string, string>, memFs: MemFS, cacheService: CacheService) => {
     const activeConnection = getActiveConnection();
     if (!activeConnection) {
         return;
@@ -50,5 +53,11 @@ export const handleOnSaveTextDocument = async (document: vscode.TextDocument, ur
         vscode.window.setStatusBarMessage("Document saved", 2000);
         logger.info(`Document with id ${documentInfo.name} has been updated`);
         uriToCasMap.set(document.uri.toString(), cas);
+        const couchbaseRestAPI = new CouchbaseRestAPI(activeConnection);
+        const KVCollectionCount: Map<string, number> = await couchbaseRestAPI.getKVDocumentCount(documentInfo.bucket, documentInfo.scope);
+        const documentCountInCollection = KVCollectionCount.get(`kv_collection_item_count-${documentInfo.bucket}-${documentInfo.scope}-${documentInfo.collection}`) ?? 0;
+        if ((documentCountInCollection + 1) < 2000) {
+            await cacheService.updateCollectionSchemaCache(activeConnection, documentInfo.bucket, documentInfo.scope, documentInfo.collection, Constants.COLLECTION_CACHE_EXPIRY_DURATION, true);
+        }
     }
 };

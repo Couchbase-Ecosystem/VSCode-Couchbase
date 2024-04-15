@@ -100,6 +100,7 @@ export const createDocument = async (node: CollectionNode, memFs: MemFS, uriToCa
     let documentContent = Buffer.from("{}");
     let patternCnt = 0;
     try {
+        // TODO: Use Collection Schema Cache to fetch patternCnt
         let query = "INFER `" + node.bucketName + "`.`" + node.scopeName + "`.`" + node.collectionName + "` WITH {\"sample_size\": 2000}";
         const result = await connection?.cluster?.query(query);
         patternCnt = result?.rows[0].length || 0;
