@@ -58,7 +58,7 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
     }];
 
     const payload = {
-        model: "gpt-4",
+        model: "gpt-4-turbo",
         messages: messagesPayload
     };
 
@@ -106,7 +106,7 @@ const getFinalResponse = async (message: string, additionalContext: IAdditionalC
     }];
 
     let payload = {
-        model: "gpt-4",
+        model: "gpt-4-turbo",
         messages: messagesPayload
     };
 

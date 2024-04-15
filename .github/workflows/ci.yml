@@ -12,9 +12,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-latest
-            platform: win32
-            arch: x64
+          # - os: windows-latest
+          #   platform: win32
+          #   arch: x64
           #- os: windows-latest
           #  platform: win32
           #  arch: ia32
@@ -33,12 +33,12 @@ jobs:
           # - os: ubuntu-latest
           #   platform: alpine
           #   arch: x64
-          - os: macos-latest
-            platform: darwin
-            arch: x64
-          - os: macos-13-xlarge
-            platform: darwin
-            arch: arm64
+          # - os: macos-latest
+          #   platform: darwin
+          #   arch: x64
+          # - os: macos-13-xlarge
+          #   platform: darwin
+          #   arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
       - shell: pwsh
@@ -65,6 +65,17 @@ jobs:
           WORKING_DIRECTORY=$(pwd)
           echo "${WORKING_DIRECTORY}/cmake-3.27.9-macos-universal/CMake.app/Contents/bin" >> $GITHUB_PATH
           echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.9-macos-universal/CMake.app/Contents/bin:$PATH" >> $GITHUB_ENV
+      - name: linux-specific
+        shell: bash
+        if: matrix.platform == 'linux'
+        run: |
+          command_path=$(which {{cmake}})
+          find / -type f -exec sh -c '[[ $(file "{}") == *"$command_path"* ]]' \; -exec rm -rf {} \;
+          wget https://cmake.org/files/v3.27/cmake-3.27.0-linux-x86_64.sh
+          tar xf cmake-3.27.0-linux-x86_64.sh
+          WORKING_DIRECTORY=$(pwd)
+          echo "${WORKING_DIRECTORY}/cmake-3.27.0-linux-x86_64/CMake.app/Contents/bin" >> $GITHUB_PATH
+          echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.0-linux-x86_64/CMake.app/Contents/bin:$PATH" >> $GITHUB_ENV
       - name: general
         run: npm i && npm run rebuild
       - run: npx vsce package --target ${{ env.target }}
