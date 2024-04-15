@@ -69,8 +69,8 @@ jobs:
         shell: bash
         if: matrix.platform == 'linux'
         run: |
-          command_path=$(which {{cmake}})
-          find / -type f -exec sh -c '[[ $(file "{}") == *"$command_path"* ]]' \; -exec rm -rf {} \;
+          command_path=$(which cmake)
+          find / -type f -exec sh -c '[[ $(file "{}") == "$command_path"* ]]' \; -exec rm -rf {} \;
           wget https://cmake.org/files/v3.27/cmake-3.27.0-linux-x86_64.sh
           tar xf cmake-3.27.0-linux-x86_64.sh
           WORKING_DIRECTORY=$(pwd)
