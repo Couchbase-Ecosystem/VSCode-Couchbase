@@ -69,6 +69,7 @@ jobs:
         shell: bash
         if: matrix.platform == 'linux'
         run: |
+          ldd --version
           rm -rf /usr/local/bin/cmake
           wget https://cmake.org/files/v3.27/cmake-3.27.9-linux-x86_64.tar.gz
           tar xf cmake-3.27.9-linux-x86_64.tar.gz
