@@ -70,8 +70,8 @@ jobs:
         if: matrix.platform == 'linux'
         run: |
           rm -rf /usr/local/bin/cmake
-          wget https://cmake.org/files/v3.27/cmake-3.27.9-linux-x86_64.sh
-          tar xf cmake-3.27.9-linux-x86_64.sh
+          wget https://cmake.org/files/v3.27/cmake-3.27.9-linux-x86_64.tar.gz
+          tar xf cmake-3.27.9-linux-x86_64.tar.gz
           WORKING_DIRECTORY=$(pwd)
           echo "${WORKING_DIRECTORY}/cmake-3.27.9-linux-x86_64/CMake.app/Contents/bin" >> $GITHUB_PATH
           echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.9-linux-x86_64/CMake.app/Contents/bin:$PATH" >> $GITHUB_ENV
