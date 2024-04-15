@@ -135,29 +135,45 @@ const reactConfig = {
 };
 
 const iqReactConfig = {
-  mode: 'development',
-  target: 'web',
+  target: "web",
   entry: {
-    index: path.resolve(__dirname, 'src/reactViews/iq/index.tsx')
+    reactBuild: "./src/reactViews/iq/index",
   },
-  resolve: {
-    extensions: ['.ts', '.tsx', '.js', ".jsx"]
-  },
-  devtool: 'inline-source-map',
   output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'dist/iq')
+    path: path.resolve(__dirname, "dist/iq"),
+    filename: "[name].js",
+  },
+  devtool: "source-map",
+  resolve: {
+    // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
+    extensions: [".ts", ".tsx", ".js", ".jsx"],
+    alias: {
+      'components': path.resolve(__dirname, 'src/reactViews/iq/components'),
+      'pages': path.resolve(__dirname, 'src/reactViews/iq/pages'),
+      'chatscope': path.resolve(__dirname,'src/reactViews/iq/chatscope'),
+      'utils': path.resolve(__dirname,'src/reactViews/iq/utils'),
+      'types': path.resolve(__dirname, 'src/reactViews/iq/types'),
+      'assets': path.resolve(__dirname, 'src/reactViews/iq/assets')
+    },
+    fallback: {
+      "path": false,
+      "fs": false
+    }
   },
   module: {
     rules: [
-      { test: /\.tsx?$/, loader: 'ts-loader', exclude: /node_modules/ },
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"]
-      },
-      {
-        test: /\.scss$/, // Regular SCSS files (without CSS modules)
-        use: ['style-loader', 'css-loader', 'sass-loader'],
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              configFile: "src/reactViews/iq/tsconfig.json",
+            },
+
+          },
+        ],
       },
       {
         test: /\.(js|jsx)$/,
@@ -176,9 +192,18 @@ const iqReactConfig = {
             },
           },
         ],
+      }, 
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
       },
-    ]
-  }
+      {
+        test: /\.scss$/, // Regular SCSS files (without CSS modules)
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+    ],
+  },
+  plugins: [],
 };
 
 module.exports = [extensionConfig, reactConfig, iqReactConfig];
