@@ -81,7 +81,7 @@ export class ClusterConnectionNode implements INode {
           )
         );
       });
-      this.cacheService.checkCacheTimeout(Constants.BUCKET_CACHE_EXPIRY_DURATION, Constants.COLLECTION_CACHE_EXPIRY_DURATION, false);
+      this.cacheService.refreshCacheOnTimeout(Constants.BUCKET_CACHE_EXPIRY_DURATION, Constants.COLLECTION_CACHE_EXPIRY_DURATION, false);
     } catch (err: any) {
       logger.error("Failed to load Buckets");
       logger.debug(err);

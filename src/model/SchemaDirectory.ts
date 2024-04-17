@@ -34,15 +34,15 @@ export class SchemaDirectory implements INode {
             if (!connection) {
                 return [];
             }
-            const result = await connection?.cluster?.query(query);
+            const queryResult = await connection?.cluster?.query(query);
             const schemaChildren: INode[] = [];
-            const patternCnt: number = result?.rows[0].length || 0;
-            if (!result) {
+            const patternCnt: number = queryResult?.rows[0].length || 0;
+            if (!queryResult) {
                 return []
             }
-            this.cacheService.updateCollectionSchemaCache(connection, this.bucketName, this.scopeName, this.collectionName, Constants.COLLECTION_CACHE_EXPIRY_DURATION, true, result);
+            this.cacheService.updateCollectionSchemaCache(connection, this.bucketName, this.scopeName, this.collectionName, Constants.COLLECTION_CACHE_EXPIRY_DURATION, true, queryResult);
             for (let i = 0; i < patternCnt; i++) {
-                const row = result?.rows[0][i];
+                const row = queryResult?.rows[0][i];
                 const childrenNode = this.treeTraversal(row.properties);
                 const patternDirectory = new SchemaNode(
                     `Pattern #${i + 1}`,

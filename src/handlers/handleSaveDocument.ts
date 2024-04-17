@@ -56,7 +56,7 @@ export const handleOnSaveTextDocument = async (document: vscode.TextDocument, ur
         const couchbaseRestAPI = new CouchbaseRestAPI(activeConnection);
         const KVCollectionCount: Map<string, number> = await couchbaseRestAPI.getKVDocumentCount(documentInfo.bucket, documentInfo.scope);
         const documentCountInCollection = KVCollectionCount.get(`kv_collection_item_count-${documentInfo.bucket}-${documentInfo.scope}-${documentInfo.collection}`) ?? 0;
-        if ((documentCountInCollection + 1) < 2000) {
+        if ((documentCountInCollection + 1) < Constants.INFER_SAMPLE_SIZE) {
             await cacheService.updateCollectionSchemaCache(activeConnection, documentInfo.bucket, documentInfo.scope, documentInfo.collection, Constants.COLLECTION_CACHE_EXPIRY_DURATION, true);
         }
     }

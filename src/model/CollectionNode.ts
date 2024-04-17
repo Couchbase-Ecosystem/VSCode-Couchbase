@@ -101,7 +101,7 @@ export default class CollectionNode implements INode {
     }
     const isQueryServicesEnable = hasQueryService(connection?.services);
     if (isQueryServicesEnable) {
-      this.cacheService.checkCacheTimeout(Constants.BUCKET_CACHE_EXPIRY_DURATION, Constants.COLLECTION_CACHE_EXPIRY_DURATION, false);
+      this.cacheService.refreshCacheOnTimeout(Constants.BUCKET_CACHE_EXPIRY_DURATION, Constants.COLLECTION_CACHE_EXPIRY_DURATION, false);
       documentList.push(indexItem);
       documentList.push(
         new SchemaDirectory(

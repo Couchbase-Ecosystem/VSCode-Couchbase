@@ -124,7 +124,7 @@ describe("Given CacheService is responsible for refreshing the caching of couchb
         const exampleBucketCache = createBucketCache(mockConnection, tenMinutesAgo, tenMinutesAgo);
         // Helper method to set this.BucketsData 
         cacheService.updateBucketsData("exampleBucket", exampleBucketCache);
-        await cacheService.checkCacheTimeout(10, 10, false);
+        await cacheService.refreshCacheOnTimeout(10, 10, false);
         // Helper method to get this.BucketsData
         const updatedCache = cacheService.getBucketData("exampleBucket");
         if (updatedCache && updatedCache.timeStamp) {
@@ -144,7 +144,7 @@ describe("Given CacheService is responsible for refreshing the caching of couchb
 
         cacheService.updateBucketsData("exampleBucket", exampleBucketCache);
 
-        await cacheService.checkCacheTimeout(10, 10, false);
+        await cacheService.refreshCacheOnTimeout(10, 10, false);
         const updatedCache = cacheService.getBucketData("exampleBucket");
 
         if (updatedCache && updatedCache.timeStamp) {
@@ -164,7 +164,7 @@ describe("Given CacheService is responsible for refreshing the caching of couchb
 
         cacheService.updateBucketsData("exampleBucket", exampleBucketCache);
 
-        await cacheService.checkCacheTimeout(10, 10, false);
+        await cacheService.refreshCacheOnTimeout(10, 10, false);
         const updatedCache = cacheService.getBucketData("exampleBucket");
 
         if (updatedCache && updatedCache.timeStamp) {
@@ -186,7 +186,7 @@ describe("Given CacheService is responsible for refreshing the caching of couchb
 
         cacheService.updateBucketsData("exampleBucket", exampleBucketCache);
 
-        await cacheService.checkCacheTimeout(10, 10, false);
+        await cacheService.refreshCacheOnTimeout(10, 10, false);
         const updatedCache = cacheService.getBucketData("exampleBucket");
 
         if (!updatedCache) {

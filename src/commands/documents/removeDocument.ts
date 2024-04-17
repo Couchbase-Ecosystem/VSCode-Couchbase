@@ -50,7 +50,7 @@ export const removeDocument = async (node: DocumentNode, uriToCasMap: Map<string
         const couchbaseRestAPI = new CouchbaseRestAPI(connection);
         const KVCollectionCount: Map<string, number> = await couchbaseRestAPI.getKVDocumentCount(node.bucketName, node.scopeName);
         const documentCountInCollection = KVCollectionCount.get(`kv_collection_item_count-${node.bucketName}-${node.scopeName}-${node.collectionName}`) ?? 0;
-        if (((documentCountInCollection - 1) < 2000)) {
+        if (((documentCountInCollection - 1) < Constants.INFER_SAMPLE_SIZE)) {
             await cacheService.updateCollectionSchemaCache(connection, node.bucketName, node.scopeName, node.collectionName, Constants.COLLECTION_CACHE_EXPIRY_DURATION, true);
         }
     } catch (err) {

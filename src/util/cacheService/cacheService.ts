@@ -176,15 +176,10 @@ export class CacheService {
         }
     };
 
-
-
-
     //Refreshes the cache for all buckets if they are older than timeout or force refresh or not present in the cache
     private refreshBucketCache = async (connection: IConnection, bucketTimeOut: number, forceRefresh: boolean) => {
         try {
             const buckets = await connection.cluster?.buckets().getAllBuckets();
-
-
             if (!buckets) {
                 logger.debug("Error while fetching buckets and returned undefined");
                 return;
@@ -241,7 +236,7 @@ export class CacheService {
 
 
     // Checks and refreshes the cache for timeout.If the cache is loaded successfully, it refreshes the cache by updating bucket and collection cache if required
-    public checkCacheTimeout = async (bucketTimeOut: number, collectionTimeout: number, forceRefresh: boolean) => {
+    public refreshCacheOnTimeout = async (bucketTimeOut: number, collectionTimeout: number, forceRefresh: boolean) => {
 
         const connection = getActiveConnection();
         if (connection) {
@@ -255,14 +250,11 @@ export class CacheService {
                 await this.fullCache(true);
             }
         }
-
-
-
     }
 
 
     // Refreshes the index and schema cache for a single collection if necessary
-    private refreshCollectionSchemaCache = async (connection: IConnection, bucketName: string, scopeName: string, collectionName: string, collectionTimeout: number, forceRefresh: boolean, result?: QueryResult<any>) => {
+    private refreshCollectionSchemaCache = async (connection: IConnection, bucketName: string, scopeName: string, collectionName: string, collectionTimeout: number, forceRefresh: boolean, queryResult?: QueryResult<any>) => {
         const currentTimestamp = new Date();
         if (this.cacheStatus === false) {
             return undefined;
@@ -299,7 +291,7 @@ export class CacheService {
 
         if (minsDifference > collectionTimeout || minsDifference === 0 || forceRefresh) {
             if (hasQueryService(connection.services)) {
-                await this.cacheSchemaForCollection(connection, collectionData, result);
+                await this.cacheSchemaForCollection(connection, collectionData, queryResult);
             }
         }
 

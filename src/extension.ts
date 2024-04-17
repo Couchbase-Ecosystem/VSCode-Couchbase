@@ -663,11 +663,6 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  context.subscriptions.push(
-    vscode.commands.registerCommand(Commands.forceUpdateCache, async () => {
-      cacheService.fullCache(true);
-    })
-  );
 }
 
 // this method is called when your extension is deactivated

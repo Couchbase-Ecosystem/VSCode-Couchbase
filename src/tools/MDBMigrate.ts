@@ -47,7 +47,7 @@ export class MDBToCB {
                 cmd.push("--cb-username");
                 cmd.push(connection.username);
                 cmd.push("--cb-password");
-                cmd.push(password);
+                cmd.push("'" + password + "'");
                 cmd.push("--cb-bucket");
                 cmd.push(cbBucket);
                 cmd.push("--cb-scope");

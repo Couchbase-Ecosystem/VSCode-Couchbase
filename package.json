@@ -36,8 +36,7 @@
     "compile:views": "webpack --mode development",
     "watch:extension": "tsc -watch -p ./",
     "watch:views": "webpack --watch --mode development",
-    "test": "node ./out/test/runTest.js",
-    "testCache": "jest",
+    "test": "node ./out/test/runTest.js && jest",
     "format": "prettier 'src/**/*.ts' --write",
     "lint": "eslint src --ext ts --fix",
     "pretest": "npm run compile:extension"
@@ -650,12 +649,6 @@
         "title": "Show iQ settings",
         "category": "Couchbase",
         "icon": "$(gear)"
-      },
-      {
-        "command": "vscode-couchbase.forceUpdateCache",
-        "title": "Forced update cache",
-        "category": "couchbase",
-        "icon": "$(cloud-download)"
       }
     ],
     "keybindings": [
