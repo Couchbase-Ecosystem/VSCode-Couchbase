@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./IqChat.scss";
 import { MainContainer } from "./../../chatscope/src/components/MainContainer/MainContainer";
-import { ChatContainer } from "../../chatscope/src/components/ChatContainer/ChatContainer";
-import MessageList from "../../chatscope/src/components/MessageList/MessageList";
-import { Message } from "../../chatscope/src/components/Message/Message";
-import { MessageInput } from "../../chatscope/src/components/MessageInput/MessageInput";
-import { TypingIndicator } from "../../chatscope/src/components/TypingIndicator/TypingIndicator";
+import { ChatContainer } from "./../../chatscope/src/components/ChatContainer/ChatContainer";
+import MessageList from "./../../chatscope/src/components/MessageList/MessageList";
+import { Message } from "./../../chatscope/src/components/Message/Message";
+import { MessageInput } from "./../../chatscope/src/components/MessageInput/MessageInput";
+import { TypingIndicator } from "./../../chatscope/src/components/TypingIndicator/TypingIndicator";
 import { v4 as uuid } from "uuid";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -17,17 +17,17 @@ import {
 import {
   ActionBar,
   IActionBarButton,
-} from "chatscope/src/components/ActionBar/ActionBar";
-import { ChatAction, availableActions } from "utils/ChatAction";
-import { SendFeedback } from "components/chatActions/SendFeedback";
+} from "./../../chatscope/src/components/ActionBar/ActionBar";
+import { ChatAction, availableActions } from "./../../utils/ChatAction";
+import { SendFeedback } from "./../../components/chatActions/SendFeedback";
 import ThumbsUp from "../../assets/icons/ThumbsUp";
 import ThumbsDown from "../../assets/icons/ThumbsDown";
-import { ModalWithCancelButton } from "components/modals/ModalWithCancelButton";
+import { ModalWithCancelButton } from "./../../components/modals/ModalWithCancelButton";
 import { ConversationHeader } from "../../chatscope/src/components/ConversationHeader/ConversationHeader";
-import { parseErrorMessages } from "utils/ErrorMessages";
-import { CopyButton } from "assets/icons/CopyButton";
-import { applyCodeQuery, handleCodeCopy } from "utils/utils";
-import { SendToWorkbench } from "assets/icons/SendToWorkbench";
+import { parseErrorMessages } from "./../../utils/ErrorMessages";
+import { CopyButton } from "./../../assets/icons/CopyButton";
+import { applyCodeQuery, handleCodeCopy } from "./../../utils/utils";
+import { SendToWorkbench } from "./../../assets/icons/SendToWorkbench";
 import { Tooltip } from "react-tooltip";
 
 export type userMessage = {
@@ -68,7 +68,9 @@ const IqChat = ({ org, setIsLoading }) => {
     qaId: "",
   });
   const [actions, setActions] = useState<IActionBarButton[]>([]);
-  const [runningConversation, setRunningConversation] = useState<string | undefined>(undefined);
+  const [runningConversation, setRunningConversation] = useState<
+    string | undefined
+  >(undefined);
 
   useEffect(() => {
     setIsLoading(false);
@@ -255,7 +257,6 @@ const IqChat = ({ org, setIsLoading }) => {
     );
   };
 
-
   // Keeping the handle paste function here if some paste issue arises later
   // const handlePaste = (event) => {
   //   // Prevent the original paste action
@@ -307,10 +308,10 @@ const IqChat = ({ org, setIsLoading }) => {
     try {
       const formattedError = parseErrorMessages(JSON.parse(error));
       setErrorMessage(formattedError);
-    } catch{ // Adding if error is not JSON type or it failed to parse
+    } catch {
+      // Adding if error is not JSON type or it failed to parse
       setErrorMessage(error);
     }
-    
   };
 
   window.addEventListener("message", (event) => {
@@ -417,12 +418,13 @@ const IqChat = ({ org, setIsLoading }) => {
 
       setRunningConversation(newMessage.qaId);
 
-      setTimeout(()=>{
-        if(runningConversation === newMessage.qaId){
-          onChatCompleted("The chat has timed out. Please ask again with a new conversation");
+      setTimeout(() => {
+        if (runningConversation === newMessage.qaId) {
+          onChatCompleted(
+            "The chat has timed out. Please ask again with a new conversation"
+          );
         }
       }, 60000);
-      
     } catch (error) {
       console.error("Error processing message:", error);
     }

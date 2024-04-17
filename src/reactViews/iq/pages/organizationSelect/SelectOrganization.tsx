@@ -1,5 +1,5 @@
-import Dropdown from "components/inputs/dropdown/Dropdown";
-import IqChat from "pages/chatscreen/IqChat";
+import Dropdown from "./../../components/inputs/dropdown/Dropdown";
+import IqChat from "./../../pages/chatscreen/IqChat";
 import { useEffect, useState } from "react";
 import "./SelectOrganization.scss";
 

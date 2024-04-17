@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./LoginPage.scss";
-import { HidePasswordIcon } from "assets/icons/HidePassword";
-import { ShowPasswordIcon } from "assets/icons/ShowPassword";
+import { HidePasswordIcon } from "./../../assets/icons/HidePassword";
+import { ShowPasswordIcon } from "./../../assets/icons/ShowPassword";
 
 interface IFormData {
     username: string;

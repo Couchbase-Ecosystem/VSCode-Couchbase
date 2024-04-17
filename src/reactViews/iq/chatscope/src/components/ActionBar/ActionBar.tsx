@@ -1,6 +1,6 @@
 import classNames from "classnames";
-import { prefix } from "../settings";
-import { Button } from "../Buttons/Button";
+import { prefix } from "./../settings";
+import { Button } from "./../Buttons/Button";
 import "./ActionBar.scss";
 
 export type IActionBarButton = {
