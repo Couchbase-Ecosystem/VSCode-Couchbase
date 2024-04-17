@@ -12,9 +12,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - os: windows-latest
-          #   platform: win32
-          #   arch: x64
+          - os: windows-latest
+            platform: win32
+            arch: x64
           #- os: windows-latest
           #  platform: win32
           #  arch: ia32
@@ -33,12 +33,12 @@ jobs:
           # - os: ubuntu-latest
           #   platform: alpine
           #   arch: x64
-          # - os: macos-latest
-          #   platform: darwin
-          #   arch: x64
-          # - os: macos-13-xlarge
-          #   platform: darwin
-          #   arch: arm64
+          - os: macos-latest
+            platform: darwin
+            arch: x64
+          - os: macos-13-xlarge
+            platform: darwin
+            arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
       - shell: pwsh
