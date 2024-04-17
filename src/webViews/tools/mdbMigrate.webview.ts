@@ -485,9 +485,7 @@ function submitForm(event) {
     event.preventDefault(); // Prevent the form from submitting in the traditional way
     document.getElementById("validation-error").innerHTML = "";
     // Gather data from form fields
-    const connectionString = document.getElementById(
-        "mongoConnectionString"
-    ).value;
+    const connectionString = "'" + document.getElementById("mongoConnectionString").value + "'";
     const database = document.getElementById("databases").value;
     const collections = getSelectedCollections();
     const indexesCheckbox = document.getElementById("indexes");

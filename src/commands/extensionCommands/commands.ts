@@ -53,6 +53,7 @@ export namespace Commands {
     export const editDocumentFilter: string = "vscode-couchbase.editDocumentFilter";
     export const clearDocumentFilter: string = "vscode-couchbase.clearDocumentFilter";
     export const refreshClusterOverview: string = "vscode-couchbase.refreshClusterOverview";
+    export const refreshCache: string = "vscode-couchbase.refreshCache";
     export const checkAndCreatePrimaryIndex: string = "vscode-couchbase.checkAndCreatePrimaryIndex";
     export const dataExport: string = "vscode-couchbase.tools.dataExport";
     export const mdbMigrate: string = "vscode-couchbase.tools.mdbMigrate";
@@ -62,5 +63,4 @@ export namespace Commands {
     export const logoutIq: string = "vscode-couchbase.iq.logout";
     export const showIqSettings: string = "vscode-couchbase.iq.showSettings";
     export const newIqChat: string = "vscode-couchbase.iq.newChat";
-    export const forceUpdateCache: string = "vscode-couchbase.forceUpdateCache";
 }

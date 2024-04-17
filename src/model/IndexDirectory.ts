@@ -21,6 +21,7 @@ import { getActiveConnection } from "../util/connections";
 import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
 import { getIndexDefinition } from "../util/indexUtils";
+import { CacheService } from "../util/cacheService/cacheService";
 
 export class IndexDirectory implements INode {
     constructor(
@@ -31,7 +32,8 @@ export class IndexDirectory implements INode {
         public readonly scopeName: string,
         public readonly collection: string,
         public readonly indexes: any[],
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        public cacheService: CacheService
     ) {
         vscode.workspace.fs.createDirectory(
             vscode.Uri.parse(
@@ -57,8 +59,12 @@ export class IndexDirectory implements INode {
         try {
             const connection = getActiveConnection();
             //TODO: Change it to not include IndexNode with undefined scope once the issues with undefined scope and collections fixed
+            if (!connection){
+                return [];
+            }
             result = await connection?.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collection });
             if (result === undefined) { return []; }
+            this.cacheService.updateCollectionIndexCache(connection,this.bucketName,this.scopeName,this.collection, result);
             for (const query of result) {
                 if (query.scopeName === this.scopeName || this.scopeName === "_default") {
                     const indexNode = new IndexNode(

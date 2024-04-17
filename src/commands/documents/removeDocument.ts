@@ -20,8 +20,10 @@ import { MemFS } from "../../util/fileSystemProvider";
 import { Memory } from "../../util/util";
 import { IConnection } from "../../types/IConnection";
 import { Constants } from "../../util/constants";
+import { CacheService } from "../../util/cacheService/cacheService";
+import { CouchbaseRestAPI } from "../../util/apis/CouchbaseRestAPI";
 
-export const removeDocument = async (node: DocumentNode, uriToCasMap: Map<string, string>, memFs: MemFS) => {
+export const removeDocument = async (node: DocumentNode, uriToCasMap: Map<string, string>, memFs: MemFS, cacheService: CacheService) => {
     const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
     if (!connection) {
         return;
@@ -45,6 +47,12 @@ export const removeDocument = async (node: DocumentNode, uriToCasMap: Map<string
         );
         memFs.delete(uri);
         uriToCasMap.delete(uri.toString());
+        const couchbaseRestAPI = new CouchbaseRestAPI(connection);
+        const KVCollectionCount: Map<string, number> = await couchbaseRestAPI.getKVDocumentCount(node.bucketName, node.scopeName);
+        const documentCountInCollection = KVCollectionCount.get(`kv_collection_item_count-${node.bucketName}-${node.scopeName}-${node.collectionName}`) ?? 0;
+        if (((documentCountInCollection - 1) < Constants.INFER_SAMPLE_SIZE)) {
+            await cacheService.updateCollectionSchemaCache(connection, node.bucketName, node.scopeName, node.collectionName, Constants.COLLECTION_CACHE_EXPIRY_DURATION, true);
+        }
     } catch (err) {
         if (!(err instanceof vscode.FileSystemError)) {
             logger.error(err);

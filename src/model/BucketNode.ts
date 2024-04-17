@@ -22,6 +22,7 @@ import { ScopeSpec } from "couchbase";
 import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
 import { getActiveConnection } from "../util/connections";
+import { CacheService } from "../../src/util/cacheService/cacheService"
 
 export class BucketNode implements INode {
   constructor(
@@ -29,7 +30,8 @@ export class BucketNode implements INode {
     public readonly connection: IConnection,
     public readonly bucketName: string,
     public readonly isScopesandCollections: boolean,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public cacheService: CacheService
   ) { }
 
   public getTreeItem(): vscode.TreeItem {
@@ -76,7 +78,8 @@ export class BucketNode implements INode {
               scope.name,
               this.bucketName,
               scope.collections,
-              vscode.TreeItemCollapsibleState.None
+              vscode.TreeItemCollapsibleState.None,
+              this.cacheService
             )
           );
         });

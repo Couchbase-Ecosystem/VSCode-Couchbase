@@ -84,6 +84,8 @@ export class Constants {
   public static SWAP_USED = "Swap Used";
   public static CORES_AVAILABLE = "Cores Available";
   public static CPU_STOLE_RATE = "CPU Stole Rate";
+  public static BUCKET_CACHE_EXPIRY_DURATION = 3 * 24 * 60;
+  public static COLLECTION_CACHE_EXPIRY_DURATION = 24 * 60;
   public static DOCUMENTS_DATA_SIZE = "Documents Data Size";
   public static DOCUMENTS_DATA_SIZE_ON_DISK = "Documents Data Size on Disk";
   public static SPATIAL_DATA_SIZE = "Spatial Data Size";
@@ -96,6 +98,7 @@ export class Constants {
   public static HITS = "Hits";
   public static INDEX_DATA_SIZE = "Index Data Size";
   public static INDEX_DATA_SIZE_ON_DISK = "Index Data Size on Disk";
+  public static INFER_SAMPLE_SIZE = 2000;
   public static OPS = "Ops";
   public static CURRENT_VBUCKET_REPLICA_ITEMS = "Current vBucket Replica Items";
   public static QUERY_RESULT = "Couchbase Query Result";
