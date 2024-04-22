@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { getWebviewContent } from '../webViews/workbench.webview';
-import { QueryResult, QueryStatus } from 'couchbase';
+import { QueryStatus } from 'couchbase';
 import { Memory } from '../util/util';
 import { Constants } from '../util/constants';
 

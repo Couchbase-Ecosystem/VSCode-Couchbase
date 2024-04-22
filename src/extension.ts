@@ -73,6 +73,8 @@ import { iqLogoutHandler } from "./commands/iq/iqLogoutHandler";
 import { CacheService } from "./util/cacheService/cacheService";
 import { secretUpdater } from "./util/secretUpdater";
 import { newChatHandler } from "./commands/iq/chat/newChatHandler";
+import { SearchWorkbench } from "./commands/fts/SearchWorkbench/searchWorkbench";
+import { PreviewManager } from "./commands/fts/SearchWorkbench/UIManager";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -89,6 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const uriToCasMap = new Map<string, string>();
   const workbench = new QueryWorkbench();
+  const searchWorkbench = new SearchWorkbench();
 
   const subscriptions = context.subscriptions;
   const cacheService = new CacheService();
@@ -616,6 +619,15 @@ export function activate(context: vscode.ExtensionContext) {
       getSampleProjects(context);
     })
   );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.openSearchWorkbench, async () => {
+      searchWorkbench.openSearchWorkbench(memFs);
+    })
+  );
+
+  const previewManager = new PreviewManager(context.extensionPath)
+  vscode.window.registerWebviewPanelSerializer('search-ui', previewManager)
 
   context.subscriptions.push(
     vscode.workspace.registerNotebookSerializer(

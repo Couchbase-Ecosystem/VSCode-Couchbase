@@ -1,11 +1,10 @@
 import { IConnection } from "../types/IConnection";
 import { INode } from "../types/INode";
 import * as vscode from 'vscode';
-import { QueryOptions, QueryProfileMode } from "couchbase";
 import SchemaNode from "./SchemaNode";
 import { logger } from "../logger/logger";
 import { getActiveConnection } from "../util/connections";
-import { CacheService } from "../../src/util/cacheService/cacheService"
+import { CacheService } from "../../src/util/cacheService/cacheService";
 import { Constants } from "../util/constants";
 
 export class SchemaDirectory implements INode {
@@ -38,7 +37,7 @@ export class SchemaDirectory implements INode {
             const schemaChildren: INode[] = [];
             const patternCnt: number = queryResult?.rows[0].length || 0;
             if (!queryResult) {
-                return []
+                return [];
             }
             this.cacheService.updateCollectionSchemaCache(connection, this.bucketName, this.scopeName, this.collectionName, Constants.COLLECTION_CACHE_EXPIRY_DURATION, true, queryResult);
             for (let i = 0; i < patternCnt; i++) {

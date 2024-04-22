@@ -650,6 +650,11 @@
         "title": "Show iQ settings",
         "category": "Couchbase",
         "icon": "$(gear)"
+      },
+      {
+        "command": "vscode-couchbase.openSearchWorkbench",
+        "title": "Create Search Workbench",
+        "category": "Couchbase"
       }
     ],
     "keybindings": [
@@ -847,6 +852,10 @@
         {
           "command": "vscode-couchbase.iq.showSettings",
           "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.openSearchWorkbench",
+          "when": "false"
         }
       ],
       "view/item/context": [
@@ -974,6 +983,10 @@
           "command": "vscode-couchbase.copyQueryHistoryItem",
           "when": "view == query-history && !isKVCluster",
           "group": "inline"
+        },
+        {
+          "command": "vscode-couchbase.openSearchWorkbench",
+          "when": "view == couchbase && viewItem == searchIndex"
         }
       ],
       "view/title": [
