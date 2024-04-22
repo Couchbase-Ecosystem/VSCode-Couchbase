@@ -54,6 +54,46 @@ export default class CollectionNode implements INode {
     );
   }
 
+  public async getIndexedField(): Promise<string | null> {
+    const idxs = await this.connection?.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collectionName });
+    let filter: string | null = null;
+    if (!idxs) {
+      return null;
+    }
+
+    for (const idx of idxs) {
+      if (idx.isPrimary) {
+        return "meta().id";
+      } else {
+        const result = this.getValidIndexKey(idx.indexKey);
+        if (result) {
+          if (!idx.condition && result[1]) {
+            return result[0];
+          } else {
+            filter = result[0];
+          }
+        }
+      }
+    }
+
+    return filter;
+  }
+
+  private getValidIndexKey(array: any[]): [string, boolean] | null {
+    for (let i = 0; i < array.length; i++) {
+      let key: string = array[i];
+      if (!key.includes("(")) {
+        if (key.endsWith(" DESC") || key.endsWith(" ASC")) {
+          key = key.replace(" ASC", "").replace(" DESC", "").trim();
+        }
+        key = key.replace(/`/g, "");
+
+        return [key, i === 0];
+      }
+    }
+    return null;
+  }
+
   public async getTreeItem(): Promise<vscode.TreeItem> {
     return {
       label: `${this.collectionName} (${abbreviateCount(this.documentCount)})`,
@@ -117,8 +157,8 @@ export default class CollectionNode implements INode {
     }
     // TODO: default limit could be managed as user settings / preference
     let result;
-    // A primary index is required for database querying. If one is present, a result will be obtained.
-    // If not, the user will be prompted to create a primary index before querying.
+    // An index is required for database querying. If one is present, a result will be obtained.
+    // If not, the user will be prompted to create a index before querying.
     let docFilter = Memory.state.get<IFilterDocuments>(
       `filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
     );
@@ -133,9 +173,13 @@ export default class CollectionNode implements INode {
     }
     else {
       try {
+        // selects the attribute that needs to be used according to the index
+        const idxField = await this.getIndexedField();
+        if (idxField === null) {
+          throw new PlanningFailureError();
+        }
         result = await connection?.cluster?.query(
-          `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName
-          }\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""
+          `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${'WHERE ' + idxField + ' IS NOT MISSING'} ${filter.length > 0 ? "AND  " + filter : ""
           } LIMIT ${this.limit}`
         );
       } catch (err) {
