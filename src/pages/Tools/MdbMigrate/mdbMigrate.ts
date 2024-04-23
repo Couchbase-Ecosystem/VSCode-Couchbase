@@ -195,7 +195,6 @@ export const mdbMigrate = async (context: vscode.ExtensionContext) => {
               formData.indexes,
               formData.bucket,
               formData.cbScope,
-              context
             );
           } else {
             currentPanel.webview.postMessage({

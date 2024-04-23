@@ -14,7 +14,6 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
-import * as keytar from "keytar";
 import * as path from "path";
 import { Constants } from "./constants";
 import { Global, Memory } from "./util";
@@ -26,6 +25,7 @@ import { logger } from "../logger/logger";
 import { getServices } from "./OverviewClusterUtils/ClusterOverviewGeneralTab";
 import { CouchbaseRestAPI } from "./apis/CouchbaseRestAPI";
 import { hasQueryService } from "./common";
+import { SecretService } from "./secretService";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username } = connection;
@@ -65,11 +65,12 @@ async function saveConnection(connection: IConnection): Promise<string> {
     connectionIdentifier,
     isSecure
   };
+  const secretService = SecretService.getInstance();
   const password =
     connection.password ||
-    (await keytar.getPassword(Constants.extensionID, id));
+    (await secretService.get(`${Constants.extensionID}-${id}`));
   if (password) {
-    await keytar.setPassword(Constants.extensionID, id, password);
+    secretService.store(`${Constants.extensionID}-${id}`, password);
   }
   await Global.state.update(Constants.connectionKeys, connections);
   return id;
@@ -129,7 +130,8 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
             if (connectionStatus === false) {
               delete connections[connectionId];
               Global.state.update(Constants.connectionKeys, connections);
-              await keytar.deletePassword(Constants.extensionID, connectionId);
+              const secretService = SecretService.getInstance();
+              secretService.delete(`${Constants.extensionID}-${connectionId}`);
               currentPanel.dispose();
               addConnection(clusterConnectionTreeProvider, message);
               break;
@@ -173,7 +175,8 @@ async function handleConnectionError(err: any) {
 export async function useConnection(connection: IConnection): Promise<boolean> {
   const id = getConnectionId(connection);
   let status = false;
-  const password = await keytar.getPassword(Constants.extensionID, id);
+  const secretService = SecretService.getInstance();
+  const password = await secretService.get(`${Constants.extensionID}-${id}`);
   if (!password) {
     return status;
   }
@@ -221,7 +224,8 @@ export async function removeConnection(connection: IConnection) {
 
   delete connections[connectionId];
   Global.state.update(Constants.connectionKeys, connections);
-  await keytar.deletePassword(Constants.extensionID, connectionId);
+  const secretService = SecretService.getInstance();
+  await secretService.delete(`${Constants.extensionID}-${connectionId}`);
 
   const activeConnection = getActiveConnection();
   if (connection.connectionIdentifier === activeConnection?.connectionIdentifier) {

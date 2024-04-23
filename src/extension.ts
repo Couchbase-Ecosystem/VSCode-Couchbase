@@ -73,6 +73,7 @@ import { iqLogoutHandler } from "./commands/iq/iqLogoutHandler";
 import { CacheService } from "./util/cacheService/cacheService";
 import { secretUpdater } from "./util/secretUpdater";
 import { newChatHandler } from "./commands/iq/chat/newChatHandler";
+import { SecretService } from "./util/secretService";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -97,6 +98,8 @@ export function activate(context: vscode.ExtensionContext) {
     cacheService
   );
 
+  // Update secret service with context at startup of extension.
+  const secretService = SecretService.getInstance(context);
 
   // Function to update secrets, before building, update this file
   secretUpdater(context);
@@ -205,7 +208,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.createClusterConnection,
       async () => {
-        await addConnection(clusterConnectionTreeProvider);
+        await addConnection(clusterConnectionTreeProvider, context);
       }
     )
   );
@@ -497,7 +500,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.getClusterOverview,
       async (node: ClusterConnectionNode) => {
-        fetchClusterOverview(node, false);
+        fetchClusterOverview(node, context, false);
       }
     )
   );
@@ -506,7 +509,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.refreshClusterOverview,
       async (node: ClusterConnectionNode) => {
-        fetchClusterOverview(node, true); // Setting refresh to true so that all data is refetched
+        fetchClusterOverview(node, context, true); // Setting refresh to true so that all data is refetched
       }
     )
   );
