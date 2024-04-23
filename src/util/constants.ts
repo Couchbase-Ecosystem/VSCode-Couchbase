@@ -16,7 +16,7 @@
 const pkg = require('../../package.json');
 export class Constants {
   public static extensionID = "vscode-couchbase";
-  public static connectionKeys = "cluster.connections";
+  public static connectionKeys = "clusterConnections";
   public static QUERY_HISTORY = "cluster.queryHistory";
   public static FAVORITE_QUERY = "cluster.favoriteQueries";
   public static ACTIVE_CONNECTION = "activeConnection";
@@ -24,7 +24,7 @@ export class Constants {
   public static CLUSTER_OVERVIEW_WEBVIEW = "clusterOverviewWebview";
   public static CLUSTER_OVERVIEW_DATA = "clusterOverviewData";
   public static QUERY_CONTEXT_STATUS_BAR = "queryContextStatusBar";
-  public static IQ_USER_ID = "iqUserId";
+  public static IQ_USER_ID = "iqStoredUserId";
   public static IQ_PASSWORD = "iqPassword";
   public static IQ_WEBVIEW = "iqWebview";
   public static notebookType = "couchbase-query-notebook";
