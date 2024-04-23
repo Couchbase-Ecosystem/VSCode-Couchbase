@@ -33,7 +33,7 @@ jobs:
           # - os: ubuntu-latest
           #   platform: alpine
           #   arch: x64
-          - os: macos-latest
+          - os: macos-13
             platform: darwin
             arch: x64
           - os: macos-13-xlarge
@@ -54,7 +54,7 @@ jobs:
       - name: windows-specific
         shell: pwsh
         if: matrix.platform == 'win32'
-        run: choco install openssl.light --version=1.1.1  && choco install cmake --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB && npm i -g @vscode/vsce
+        run: choco install openssl.light --version=1.1.1  && choco install cmake --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB
       - name: mac-specific
         shell: bash
         if: matrix.platform == 'darwin'
@@ -65,7 +65,6 @@ jobs:
           WORKING_DIRECTORY=$(pwd)
           echo "${WORKING_DIRECTORY}/cmake-3.27.9-macos-universal/CMake.app/Contents/bin" >> $GITHUB_PATH
           echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.9-macos-universal/CMake.app/Contents/bin:$PATH" >> $GITHUB_ENV
-          brew install vsce
       - name: linux-specific
         shell: bash
         if: matrix.platform == 'linux'
@@ -77,10 +76,9 @@ jobs:
           WORKING_DIRECTORY=$(pwd)
           echo "${WORKING_DIRECTORY}/cmake-3.27.9-linux-x86_64/bin" >> $GITHUB_PATH
           echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.9-linux-x86_64/bin:$PATH" >> $GITHUB_ENV
-          npm install @vscode/vsce -g
       - name: general
         run: npm i && npm run rebuild
-      - run: vsce package --target ${{ env.target }} --pre-release
+      - run: npx vsce package --target ${{ env.target }} --pre-release
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.target }}
