@@ -3,26 +3,26 @@ import * as vscode from "vscode";
 import { Memory } from "../../util/util";
 import { IFilterDocuments } from "../../types/IFilterDocuments";
 import { logger } from "../../logger/logger";
-import { ParsingFailureError } from "couchbase";
+import { ParsingFailureError, PlanningFailureError } from "couchbase";
 
 export const filterDocuments = async (node: CollectionNode) => {
     // Check if indexes are present for collection
     const query = `
     SELECT COUNT(*) AS indexCount FROM system:indexes
-    WHERE bucket_id="${node.bucketName}" AND scope_id="${node.scopeName}" AND keyspace_id="${node.collectionName}" AND is_primary=true
+    WHERE bucket_id="${node.bucketName}" AND scope_id="${node.scopeName}" AND keyspace_id="${node.collectionName}"
   `;
     // Execute the query
-    const primaryIndexExists = await node.connection.cluster
+    const indexExists = await node.connection.cluster
         ?.query(query)
         .then((result) => {
             const rows = result.rows;
             if (!(rows.length > 0 && rows[0].indexCount > 0)) {
-                // Primary Index Doesn't Exists
+                // Index Doesn't Exists
                 vscode.window.showErrorMessage(
-                    "Primary index doesn't exists for this document, Please create one before setting document filter"
+                    "Filters can only be applied to collections that have at least one index."
                 );
                 logger.error(
-                    "Error setting document filter: Primary index doesn't exists"
+                    "Error setting document filter: index doesn't exist"
                 );
                 return false;
             }
@@ -32,7 +32,7 @@ export const filterDocuments = async (node: CollectionNode) => {
             logger.error("Error checking primary index: " + err);
             return false;
         });
-    if (!primaryIndexExists) {
+    if (!indexExists) {
         return;
     }
 
@@ -74,7 +74,13 @@ export const filterDocuments = async (node: CollectionNode) => {
             vscode.window.showErrorMessage(
                 "Parsing Failed: Incorrect filter definition"
             );
-        } else {
+        }
+        else if (err instanceof PlanningFailureError) {
+            vscode.window.showErrorMessage(
+                "Planning Failed: Incorrect filter definition, check if the query is correct"
+            );
+        }
+        else {
             logger.error(err);
         }
         return;
