@@ -2,9 +2,9 @@ import { CBTools, Type } from "../util/DependencyDownloaderUtils/CBTool";
 import { getActiveConnection, getConnectionId } from "../util/connections";
 import { Constants } from "../util/constants";
 import { getCurrentDateTime } from "../util/util";
-import * as keytar from "keytar";
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { SecretService } from "../util/secretService";
 
 export class CBExport {
     static async export(
@@ -52,7 +52,8 @@ export class CBExport {
         const includeData = scp.join(",");
         const fullPath = `\"${currentPath}\"`;
 
-        const password = await keytar.getPassword(Constants.extensionID, getConnectionId(connection));
+        const secretService = SecretService.getInstance();
+        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
         if (!password) {
             return undefined;
         }

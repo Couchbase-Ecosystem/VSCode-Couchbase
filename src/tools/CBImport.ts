@@ -1,10 +1,10 @@
 import { getActiveConnection, getConnectionId } from "../util/connections";
 import * as vscode from 'vscode';
-import * as keytar from "keytar";
 import { Constants } from "../util/constants";
 import { logger } from "../logger/logger";
 import { IConnection } from "../types/IConnection";
 import { CBTools, Type } from "../util/DependencyDownloaderUtils/CBTool";
+import { SecretService } from "../util/secretService";
 
 export interface ICBImportData {
     bucket: string;
@@ -44,7 +44,8 @@ export class CBImport {
 
         // CMD Runner
         try {
-            const password = await keytar.getPassword(Constants.extensionID, getConnectionId(connection));
+            const secretService = SecretService.getInstance();
+            const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
             if (!password) {
                 logger.error("password not found");
                 return ;

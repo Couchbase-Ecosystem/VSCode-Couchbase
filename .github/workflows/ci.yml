@@ -33,7 +33,7 @@ jobs:
           # - os: ubuntu-latest
           #   platform: alpine
           #   arch: x64
-          - os: macos-latest
+          - os: macos-13
             platform: darwin
             arch: x64
           - os: macos-13-xlarge
