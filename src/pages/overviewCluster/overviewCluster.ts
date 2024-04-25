@@ -13,7 +13,7 @@ export interface IClusterOverviewWebviewState {
     webviewPanel: vscode.WebviewPanel
 }
 
-export async function fetchClusterOverview(node: ClusterConnectionNode, refresh: boolean = false) {
+export async function fetchClusterOverview(node: ClusterConnectionNode, context: vscode.ExtensionContext, refresh: boolean = false) {
     const connection = getActiveConnection();
     if (!connection) {
         return;

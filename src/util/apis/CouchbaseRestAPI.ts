@@ -14,7 +14,6 @@
  *   limitations under the License.
  */
 import axios from "axios";
-import * as keytar from "keytar";
 import { Constants } from "../constants";
 import { getConnectionId } from "../connections";
 import { IConnection } from "../../types/IConnection";
@@ -24,6 +23,7 @@ import { ServerOverview } from "./ServerOverview";
 import { getServerURL } from "./NSLookup";
 import https from 'https';
 import { BucketOverview } from "./BucketOverview";
+import { SecretService } from "../secretService";
 export class CouchbaseRestAPI {
     constructor(
         public readonly connection: IConnection,
@@ -32,7 +32,8 @@ export class CouchbaseRestAPI {
     public async getOverview(): Promise<ServerOverview | undefined> {
         logger.info(`fetching cluster overview`);
         const username = this.connection.username;
-        const password = await keytar.getPassword(Constants.extensionID, getConnectionId(this.connection));
+        const secretService = SecretService.getInstance();
+        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
         if (!password) {
             return undefined;
         }
@@ -62,7 +63,8 @@ export class CouchbaseRestAPI {
     public async getBucketsOverview(bucketName: string): Promise<BucketOverview | undefined> {
         logger.info(`fetching bucket, bucketName:${bucketName}`);
         const username = this.connection.username;
-        const password = await keytar.getPassword(Constants.extensionID, getConnectionId(this.connection));
+        const secretService = SecretService.getInstance();
+        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
         if (!password) {
             return undefined;
         }
@@ -91,7 +93,8 @@ export class CouchbaseRestAPI {
 
     public async getKVDocuments(bucketName: string, scopeName: string, collectionName: string, skip: number, limit: number) {
         const username = this.connection.username;
-        const password = await keytar.getPassword(Constants.extensionID, getConnectionId(this.connection));
+        const secretService = SecretService.getInstance();
+        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
         if (!password) {
             return undefined;
         }
@@ -114,7 +117,8 @@ export class CouchbaseRestAPI {
 
     public async getKVDocumentCount(bucketName: string, scopeName: string): Promise<Map<string, number>> {
         const username = this.connection.username;
-        const password = await keytar.getPassword(Constants.extensionID, getConnectionId(this.connection));
+        const secretService = SecretService.getInstance();
+        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
         const KVCollectionCount = new Map<string, number>;
         if (!password) {
             return KVCollectionCount;
@@ -173,7 +177,8 @@ export class CouchbaseRestAPI {
 
     public async getKVDocumentMetaData(bucketName: string, scopeName: string, collectionName: string, documentId: string) {
         const username = this.connection.username;
-        const password = await keytar.getPassword(Constants.extensionID, getConnectionId(this.connection));
+        const secretService = SecretService.getInstance();
+        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
         if (!password) {
             return undefined;
         }

@@ -1,5 +1,13 @@
 # Change Log
 
+## [v2.0.0]
+- Bump Node.js version to 20
+- Add MongoDB to Couchbase data Migration tool
+- Add Github Codespaces support (Changes in authentication library)
+- Update Document filtering to support secondary indexes
+- Updates to the cache service to handle refreshing of cache
+- Add Couchbase iQ Support
+
 ## [v1.0.0]
 - Add sample project workflow
 - Implement React in VS code extension

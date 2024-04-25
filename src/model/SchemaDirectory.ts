@@ -5,6 +5,8 @@ import { QueryOptions, QueryProfileMode } from "couchbase";
 import SchemaNode from "./SchemaNode";
 import { logger } from "../logger/logger";
 import { getActiveConnection } from "../util/connections";
+import { CacheService } from "../../src/util/cacheService/cacheService"
+import { Constants } from "../util/constants";
 
 export class SchemaDirectory implements INode {
     constructor(public readonly parentNode: INode,
@@ -12,7 +14,8 @@ export class SchemaDirectory implements INode {
         public readonly itemName: string,
         public readonly bucketName: string,
         public readonly scopeName: string,
-        public readonly collectionName: string) {
+        public readonly collectionName: string,
+        public cacheService: CacheService) {
     }
 
     public getTreeItem(): vscode.TreeItem {
@@ -28,11 +31,18 @@ export class SchemaDirectory implements INode {
             // get all schemas
             const query = "INFER `" + this.bucketName + "`.`" + this.scopeName + "`.`" + this.collectionName + "` WITH {\"sample_size\": 2000}";
             const connection = getActiveConnection();
-            const result = await connection?.cluster?.query(query);
+            if (!connection) {
+                return [];
+            }
+            const queryResult = await connection?.cluster?.query(query);
             const schemaChildren: INode[] = [];
-            const patternCnt: number = result?.rows[0].length || 0;
+            const patternCnt: number = queryResult?.rows[0].length || 0;
+            if (!queryResult) {
+                return []
+            }
+            this.cacheService.updateCollectionSchemaCache(connection, this.bucketName, this.scopeName, this.collectionName, Constants.COLLECTION_CACHE_EXPIRY_DURATION, true, queryResult);
             for (let i = 0; i < patternCnt; i++) {
-                const row = result?.rows[0][i];
+                const row = queryResult?.rows[0][i];
                 const childrenNode = this.treeTraversal(row.properties);
                 const patternDirectory = new SchemaNode(
                     `Pattern #${i + 1}`,

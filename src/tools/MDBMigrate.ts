@@ -1,8 +1,8 @@
 import { CBTools, Type } from "../util/DependencyDownloaderUtils/CBTool";
 import { getActiveConnection, getConnectionId } from "../util/connections";
 import { Constants } from "../util/constants";
-import * as keytar from "keytar";
 import * as vscode from "vscode";
+import { SecretService } from "../util/secretService";
 
 export class MDBToCB {
     static async export(
@@ -12,17 +12,14 @@ export class MDBToCB {
         indexes: string,
         cbBucket: string,
         cbScope: string,
-        context: vscode.ExtensionContext
     ): Promise<void> {
         const connection = getActiveConnection();
         if (!connection) {
             return;
         }
 
-        const password = await keytar.getPassword(
-            Constants.extensionID,
-            getConnectionId(connection)
-        );
+        const secretService = SecretService.getInstance();
+        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
         if (!password) {
             return undefined;
         }
@@ -47,7 +44,7 @@ export class MDBToCB {
                 cmd.push("--cb-username");
                 cmd.push(connection.username);
                 cmd.push("--cb-password");
-                cmd.push(password);
+                cmd.push("'" + password + "'");
                 cmd.push("--cb-bucket");
                 cmd.push(cbBucket);
                 cmd.push("--cb-scope");

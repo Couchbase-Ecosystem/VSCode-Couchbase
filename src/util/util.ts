@@ -37,8 +37,9 @@ class LocalState {
     return;
   }
   update(key: string, value: any): Thenable<void> {
-    return new Promise(() => {
+    return new Promise((resolve) => {
       this.state[key] = value;
+      resolve();
     });
   }
 }

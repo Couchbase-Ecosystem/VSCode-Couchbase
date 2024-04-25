@@ -26,6 +26,8 @@ import InformationNode from "./InformationNode";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
 import { hasQueryService } from "../util/common";
 import { CouchbaseRestAPI } from "../util/apis/CouchbaseRestAPI";
+import { CacheService } from "../../src/util/cacheService/cacheService"
+
 
 export class ScopeNode implements INode {
   constructor(
@@ -34,7 +36,8 @@ export class ScopeNode implements INode {
     public readonly scopeName: string,
     public readonly bucketName: string,
     public readonly collections: any[],
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public cacheService: CacheService 
   ) { }
 
   public getTreeItem(): vscode.TreeItem {
@@ -110,7 +113,8 @@ export class ScopeNode implements INode {
           this.bucketName,
           collection.name,
           filter !== "",
-          vscode.TreeItemCollapsibleState.None
+          vscode.TreeItemCollapsibleState.None,
+          this.cacheService
         );
         collectionList.push(collectionTreeItem);
       } catch (err: any) {

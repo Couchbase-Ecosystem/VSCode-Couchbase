@@ -73,6 +73,7 @@ import { iqLogoutHandler } from "./commands/iq/iqLogoutHandler";
 import { CacheService } from "./util/cacheService/cacheService";
 import { secretUpdater } from "./util/secretUpdater";
 import { newChatHandler } from "./commands/iq/chat/newChatHandler";
+import { SecretService } from "./util/secretService";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -91,12 +92,14 @@ export function activate(context: vscode.ExtensionContext) {
   const workbench = new QueryWorkbench();
 
   const subscriptions = context.subscriptions;
-
+  const cacheService = new CacheService();
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
-    context
+    context,
+    cacheService
   );
 
-  const cacheService = new CacheService();
+  // Update secret service with context at startup of extension.
+  const secretService = SecretService.getInstance(context);
 
   // Function to update secrets, before building, update this file
   secretUpdater(context);
@@ -186,7 +189,7 @@ export function activate(context: vscode.ExtensionContext) {
           document && document.languageId === "json" &&
           document.uri.scheme === "couchbase"
         ) {
-          await handleOnSaveTextDocument(document, uriToCasMap, memFs);
+          await handleOnSaveTextDocument(document, uriToCasMap, memFs, cacheService);
           clusterConnectionTreeProvider.refresh();
         }
       }
@@ -200,18 +203,12 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  subscriptions.push(
-    vscode.window.registerTreeDataProvider(
-      "couchbase",
-      clusterConnectionTreeProvider
-    )
-  );
 
   subscriptions.push(
     vscode.commands.registerCommand(
       Commands.createClusterConnection,
       async () => {
-        await addConnection(clusterConnectionTreeProvider);
+        await addConnection(clusterConnectionTreeProvider, context);
       }
     )
   );
@@ -233,6 +230,15 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
+      Commands.refreshCache,
+      async (node: ClusterConnectionNode) => {
+        await cacheService.clearAndRefreshCache(node.connection, true);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
       Commands.refreshConnection,
       (node: INode) => {
         clusterConnectionTreeProvider.refresh(node);
@@ -246,7 +252,6 @@ export function activate(context: vscode.ExtensionContext) {
       async (node: ClusterConnectionNode) => {
         await useConnection(node.connection);
         clusterConnectionTreeProvider.refresh();
-        cacheService.fullCache(false);
         getClusterOverviewData();
       }
     )
@@ -309,7 +314,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.removeDocument,
       async (node: DocumentNode) => {
-        await removeDocument(node, uriToCasMap, memFs);
+        await removeDocument(node, uriToCasMap, memFs, cacheService);
         clusterConnectionTreeProvider.refresh();
       }
     )
@@ -325,6 +330,9 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         clusterConnectionTreeProvider.refresh(node);
+        // Force refresh cache of particular collection 
+        await cacheService.updateCollectionSchemaAndIndexCache(connection, node.bucketName, node.scopeName, node.collectionName, Constants.COLLECTION_CACHE_EXPIRY_DURATION, true);
+
       }
     )
   );
@@ -364,6 +372,7 @@ export function activate(context: vscode.ExtensionContext) {
       async (node: ScopeNode) => {
         await createCollection(node);
         clusterConnectionTreeProvider.refresh();
+        await cacheService.updateBucketCache(node.bucketName, true);
       }
     )
   );
@@ -374,6 +383,7 @@ export function activate(context: vscode.ExtensionContext) {
       async (node: CollectionNode) => {
         await removeCollection(node);
         clusterConnectionTreeProvider.refresh();
+        await cacheService.updateBucketCache(node.bucketName, true);
       }
     )
   );
@@ -490,7 +500,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.getClusterOverview,
       async (node: ClusterConnectionNode) => {
-        fetchClusterOverview(node, false);
+        fetchClusterOverview(node, context, false);
       }
     )
   );
@@ -499,7 +509,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.refreshClusterOverview,
       async (node: ClusterConnectionNode) => {
-        fetchClusterOverview(node, true); // Setting refresh to true so that all data is refetched
+        fetchClusterOverview(node, context, true); // Setting refresh to true so that all data is refetched
       }
     )
   );
@@ -656,11 +666,6 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  context.subscriptions.push(
-    vscode.commands.registerCommand(Commands.forceUpdateCache, async () => {
-      cacheService.fullCache(true);
-    })
-  );
 }
 
 // this method is called when your extension is deactivated

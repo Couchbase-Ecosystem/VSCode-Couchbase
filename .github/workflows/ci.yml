@@ -21,7 +21,7 @@ jobs:
           #- os: windows-latest
           #  platform: win32
           #  arch: arm64
-          - os: ubuntu-latest
+          - os: ubuntu-20.04
             platform: linux
             arch: x64
           # - os: ubuntu-latest
@@ -30,23 +30,23 @@ jobs:
           # - os: ubuntu-latest
           #   platform: linux
           #   arch: armhf
-          - os: ubuntu-latest
-            platform: alpine
-            arch: x64
-          - os: macos-latest
+          # - os: ubuntu-latest
+          #   platform: alpine
+          #   arch: x64
+          - os: macos-13
             platform: darwin
             arch: x64
-          - os: macos-latest
+          - os: macos-13-xlarge
             platform: darwin
             arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
       - shell: pwsh
         run: echo "target=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           architecture: ${{ matrix.arch }}
           cache: 'npm'
       - run: echo '${{ secrets.CONFIG_JSON }}' > ${{ github.workspace }}/src/config.json
@@ -54,12 +54,32 @@ jobs:
       - name: windows-specific
         shell: pwsh
         if: matrix.platform == 'win32'
-        run: choco install openssl.light --version=1.1.1  && choco install cmake && npm config set msvs_version 2022 --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB && npm ci && npm run rebuild
+        run: choco install openssl.light --version=1.1.1  && choco install cmake --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB
+      - name: mac-specific
+        shell: bash
+        if: matrix.platform == 'darwin'
+        run: |
+          rm -rf /usr/local/bin/cmake
+          wget https://cmake.org/files/v3.27/cmake-3.27.9-macos-universal.tar.gz
+          tar xf cmake-3.27.9-macos-universal.tar.gz
+          WORKING_DIRECTORY=$(pwd)
+          echo "${WORKING_DIRECTORY}/cmake-3.27.9-macos-universal/CMake.app/Contents/bin" >> $GITHUB_PATH
+          echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.9-macos-universal/CMake.app/Contents/bin:$PATH" >> $GITHUB_ENV
+      - name: linux-specific
+        shell: bash
+        if: matrix.platform == 'linux'
+        run: |
+          ldd --version
+          rm -rf /usr/local/bin/cmake
+          wget https://cmake.org/files/v3.27/cmake-3.27.9-linux-x86_64.tar.gz
+          tar xf cmake-3.27.9-linux-x86_64.tar.gz
+          WORKING_DIRECTORY=$(pwd)
+          echo "${WORKING_DIRECTORY}/cmake-3.27.9-linux-x86_64/bin" >> $GITHUB_PATH
+          echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.9-linux-x86_64/bin:$PATH" >> $GITHUB_ENV
       - name: general
-        if: matrix.platform != 'win32'
-        run: npm ci && npm run rebuild
+        run: npm i && npm run rebuild
       - run: npx vsce package --target ${{ env.target }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.target }}
           path: "*.vsix"

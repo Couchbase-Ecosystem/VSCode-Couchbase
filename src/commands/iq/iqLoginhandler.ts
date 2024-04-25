@@ -1,7 +1,7 @@
 import { Constants } from "../../util/constants";
+import { SecretService } from "../../util/secretService";
 import { Global, Memory } from "../../util/util";
 import { iqRestApiService } from "./iqRestApiService";
-import * as keytar from "keytar";
 
 interface IFormData {
     username: string;
@@ -35,11 +35,8 @@ export const iqLoginHandler = async (formData: IFormData) => {
         // Check for remember me
         if (formData.rememberMe === true) {
             Global.state.update(Constants.IQ_USER_ID, formData.username);
-            keytar.setPassword(
-                Constants.IQ_PASSWORD,
-                formData.username,
-                formData.password
-            );
+            const secretService = SecretService.getInstance();
+            await secretService.store(`${Constants.IQ_PASSWORD}-${formData.username}`, formData.password);
         }
 
         // Return organization select page data
@@ -73,10 +70,8 @@ export const iqSavedLoginDataGetter =
 
 export const iqSavedLoginHandler = async (username: string) => {
     try {
-        const password = await keytar.getPassword(
-            Constants.IQ_PASSWORD,
-            username
-        );
+        const secretService = SecretService.getInstance();
+        const password = await secretService.get(`${Constants.IQ_PASSWORD}-${username}`);
         if (password) {
             // Return organization select page data
             const jwtToken = await getSessionsJwt({

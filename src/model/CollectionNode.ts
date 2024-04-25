@@ -30,6 +30,9 @@ import { Commands } from "../commands/extensionCommands/commands";
 import { IndexDirectory } from "./IndexDirectory";
 import { logger } from "../logger/logger";
 import { CouchbaseRestAPI } from "../util/apis/CouchbaseRestAPI";
+import { CacheService } from "../../src/util/cacheService/cacheService"
+import { Constants } from "../util/constants";
+
 
 export default class CollectionNode implements INode {
   constructor(
@@ -41,13 +44,54 @@ export default class CollectionNode implements INode {
     public readonly collectionName: string,
     public readonly filter: boolean,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public limit: number = 10
+    public cacheService: CacheService,
+    public limit: number = 10,
   ) {
     vscode.workspace.fs.createDirectory(
       vscode.Uri.parse(
         `couchbase:/${bucketName}/${scopeName}/Collections/${collectionName}`
       )
     );
+  }
+
+  public async getIndexedField(): Promise<string | null> {
+    const idxs = await this.connection?.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collectionName });
+    let filter: string | null = null;
+    if (!idxs) {
+      return null;
+    }
+
+    for (const idx of idxs) {
+      if (idx.isPrimary) {
+        return "meta().id";
+      } else {
+        const result = this.getValidIndexKey(idx.indexKey);
+        if (result) {
+          if (!idx.condition && result[1]) {
+            return result[0];
+          } else {
+            filter = result[0];
+          }
+        }
+      }
+    }
+
+    return filter;
+  }
+
+  private getValidIndexKey(array: any[]): [string, boolean] | null {
+    for (let i = 0; i < array.length; i++) {
+      let key: string = array[i];
+      if (!key.includes("(")) {
+        if (key.endsWith(" DESC") || key.endsWith(" ASC")) {
+          key = key.replace(" ASC", "").replace(" DESC", "").trim();
+        }
+        key = key.replace(/`/g, "");
+
+        return [key, i === 0];
+      }
+    }
+    return null;
   }
 
   public async getTreeItem(): Promise<vscode.TreeItem> {
@@ -88,7 +132,8 @@ export default class CollectionNode implements INode {
       this.scopeName,
       this.collectionName,
       [],
-      vscode.TreeItemCollapsibleState.None
+      vscode.TreeItemCollapsibleState.None,
+      this.cacheService
     );
     const connection = getActiveConnection();
     if (!connection) {
@@ -96,6 +141,7 @@ export default class CollectionNode implements INode {
     }
     const isQueryServicesEnable = hasQueryService(connection?.services);
     if (isQueryServicesEnable) {
+      this.cacheService.refreshCacheOnTimeout(Constants.BUCKET_CACHE_EXPIRY_DURATION, Constants.COLLECTION_CACHE_EXPIRY_DURATION, false);
       documentList.push(indexItem);
       documentList.push(
         new SchemaDirectory(
@@ -104,14 +150,15 @@ export default class CollectionNode implements INode {
           "Schema",
           this.bucketName,
           this.scopeName,
-          this.collectionName
+          this.collectionName,
+          this.cacheService
         )
       );
     }
     // TODO: default limit could be managed as user settings / preference
     let result;
-    // A primary index is required for database querying. If one is present, a result will be obtained.
-    // If not, the user will be prompted to create a primary index before querying.
+    // An index is required for database querying. If one is present, a result will be obtained.
+    // If not, the user will be prompted to create a index before querying.
     let docFilter = Memory.state.get<IFilterDocuments>(
       `filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
     );
@@ -126,9 +173,13 @@ export default class CollectionNode implements INode {
     }
     else {
       try {
+        // selects the attribute that needs to be used according to the index
+        const idxField = await this.getIndexedField();
+        if (idxField === null) {
+          throw new PlanningFailureError();
+        }
         result = await connection?.cluster?.query(
-          `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName
-          }\`.\`${this.collectionName}\` ${filter.length > 0 ? "WHERE " + filter : ""
+          `SELECT RAW META().id FROM \`${this.bucketName}\`.\`${this.scopeName}\`.\`${this.collectionName}\` ${'WHERE ' + idxField + ' IS NOT MISSING'} ${filter.length > 0 ? "AND  " + filter : ""
           } LIMIT ${this.limit}`
         );
       } catch (err) {

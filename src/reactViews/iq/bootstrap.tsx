@@ -1,13 +1,13 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 import "./index.scss";
-import { IqLogin } from "pages/login/Login";
-import LoadingScreen from "pages/loader/Loader";
-import SelectOrganizationPage from "pages/organizationSelect/SelectOrganization";
-import LoginSingleClick from "pages/login/LoginSingleClick";
-import IqChat from "pages/chatscreen/IqChat";
-import { Modal } from "components/modals/Modal";
-import { ModaliQTerm } from "components/modals/ModaliQTerms";
+import { IqLogin } from "./pages/login/Login";
+import LoadingScreen from "./pages/loader/Loader";
+import SelectOrganizationPage from "./pages/organizationSelect/SelectOrganization";
+import LoginSingleClick from "./pages/login/LoginSingleClick";
+import IqChat from "./pages/chatscreen/IqChat";
+import { Modal } from "./components/modals/Modal";
+import { ModaliQTerm } from "./components/modals/ModaliQTerms";
 
 const container: HTMLElement = document.getElementById("vscodeRootIQ");
 const newRoot = createRoot(container);
