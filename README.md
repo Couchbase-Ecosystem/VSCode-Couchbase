@@ -5,7 +5,8 @@ Welcome to the official Visual Studio Code extension for Couchbase!
 This extension is designed to provide a seamless experience for Couchbase Server users who want to work within the popular Visual Studio Code editor. 
 
 # Requirements
-Most of the requirements are taken care in the build. For Linux users a latest version of glibc may be required depending on the distro.
+Most of the requirements are taken care in the build. For Linux users glibc >= 2.31 is required as part of kernel.
+
 
 # Quick Tour
 
@@ -49,29 +50,33 @@ Click on Scope to list Collections and Indexes. Open context menu on Collection 
 4. Select a code related to couchbase query or SDK to ask more about it.
 5. Use actions to open stuff in VSCode. Send feedback to the team for improvements.
 
-<img src="gifs/iQDemo.gif" height="80%" width="80%" alt="Interact with Documents" />
+<img src="gifs/iQDemo.gif" height="80%" width="80%" alt="use Capella iQ" />
 
 ### Open SQL++ Notebook
 1. Simply right-click on the Cluster and select the "New SQL++ Notebook" option from the context menu.
 2. Once you have opened the notebook, you will be presented with a powerful text editor that allows you to craft your SQL++ queries with ease.
 3. And once you have completed your work, you can save the notebook to your local machine for future reference.
 
-<img src="gifs/QueryNotebook.gif" height="80%" width="80%" alt="Interact with Documents" />
+<img src="gifs/QueryNotebook.gif" height="80%" width="80%" alt="Open SQL++ Notebook" />
 
 ### SQL++ Workbench
 1. Fully functional workbench to run SQL++ query and see result in Tabular, JSON and Explain Plan format.
 2. Query History to see last executed query.
 3. Favourite your query and set Query context.
 
-<img src="gifs/workbench.gif" height="80%" width="80%" alt="Interact with Documents" />
+<img src="gifs/workbench.gif" height="80%" width="80%" alt="Use Query Inside Plugin" />
 
-### Data Export, Import and DDL Export Tools
+### Data Export, Import, DDL Export and MongoDB Data Migrator Tools
 1. Use Data Export to export particular bucket, scope or collections in your choice of format
 2. Use Data Import to import data in your required bucket.
 3. Use DDL export to export all bucket and indexes details as Query and run those queries to create a replica
-4. Complete bucket cloning is now possible, right from the VSCode. Just do DDL Export and Data Export of the particular bucket. Then run the DDL Export queries for the target bucket and then Data Import to send all data in the newer bucket
+4. Complete bucket cloning is now possible, right from the VSCode. Just do DDL Export and Data Export of the particular bucket. Then run the DDL Export queries for the target bucket and then Data Import to send all data in the newer bucket.
+5. Use <a href="https://www.couchbase.com/blog/migrate-from-mongodb-to-couchbase/">MongoDB Migrator Tool</a> to migrate data from MongoDB to Couchbase including indexes
 
-<img src="gifs/DataTools.gif" height="80%" width="80%" alt="Interact with Documents" />
+<img src="gifs/DataTools.gif" height="80%" width="80%" alt="Interact with various Couchbase tools" />
+
+<br>
+<img src="gifs/mdbDataMigrator.gif" height="80%" width="80%" alt="MongoDB To Couchbase Data Migrator" />
 
 
 ## License
