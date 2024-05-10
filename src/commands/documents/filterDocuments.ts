@@ -4,6 +4,7 @@ import { Memory } from "../../util/util";
 import { IFilterDocuments } from "../../types/IFilterDocuments";
 import { logger } from "../../logger/logger";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
+import { getActiveConnection } from "../../util/connections";
 
 export const filterDocuments = async (node: CollectionNode) => {
     // Check if indexes are present for collection
@@ -12,7 +13,11 @@ export const filterDocuments = async (node: CollectionNode) => {
     WHERE bucket_id="${node.bucketName}" AND scope_id="${node.scopeName}" AND keyspace_id="${node.collectionName}"
   `;
     // Execute the query
-    const indexExists = await node.connection.cluster
+    const connection = getActiveConnection();
+    if(!connection){
+        return;
+    }
+    const indexExists = await connection.cluster
         ?.query(query)
         .then((result) => {
             const rows = result.rows;

@@ -55,7 +55,11 @@ export default class CollectionNode implements INode {
   }
 
   public async getIndexedField(): Promise<string | null> {
-    const idxs = await this.connection?.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collectionName });
+    const connection = getActiveConnection();
+    if(!connection){
+      return null;
+    }
+    const idxs = await connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collectionName });
     let filter: string | null = null;
     if (!idxs) {
       return null;
