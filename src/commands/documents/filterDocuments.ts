@@ -7,38 +7,21 @@ import { ParsingFailureError, PlanningFailureError } from "couchbase";
 import { getActiveConnection } from "../../util/connections";
 
 export const filterDocuments = async (node: CollectionNode) => {
-    // Check if indexes are present for collection
-    const query = `
-    SELECT COUNT(*) AS indexCount FROM system:indexes
-    WHERE bucket_id="${node.bucketName}" AND scope_id="${node.scopeName}" AND keyspace_id="${node.collectionName}"
-  `;
-    // Execute the query
     const connection = getActiveConnection();
-    if(!connection){
+    if (!connection) {
         return;
     }
-    const indexExists = await connection.cluster
-        ?.query(query)
-        .then((result) => {
-            const rows = result.rows;
-            if (!(rows.length > 0 && rows[0].indexCount > 0)) {
-                // Index Doesn't Exists
-                vscode.window.showErrorMessage(
-                    "Filters can only be applied to collections that have at least one index."
-                );
-                logger.error(
-                    "Error setting document filter: index doesn't exist"
-                );
-                return false;
-            }
-            return true;
-        })
-        .catch((err) => {
-            logger.error("Error checking primary index: " + err);
-            return false;
-        });
-    if (!indexExists) {
-        return;
+    // Check if indexes are present for collection
+    const indexExists = await node.getIndexedField();
+    if (indexExists === null) {
+        // Index Doesn't Exists
+        vscode.window.showErrorMessage(
+            "Filters can only be applied to collections that have at least one index."
+        );
+        logger.error(
+            "Error setting document filter: index doesn't exist"
+        );
+        return false;
     }
 
     const docFilter = Memory.state.get<IFilterDocuments>(
@@ -72,7 +55,7 @@ export const filterDocuments = async (node: CollectionNode) => {
     }
     try {
         if (newDocFilterStmt.trim() !== "") {
-            await node.connection.cluster?.query(`SELECT META().id FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${collectionName}\` WHERE ${newDocFilterStmt}`);
+            await connection.cluster?.query(`SELECT META().id FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${collectionName}\` WHERE ${newDocFilterStmt}`);
         }
     } catch (err) {
         if (err instanceof ParsingFailureError) {
