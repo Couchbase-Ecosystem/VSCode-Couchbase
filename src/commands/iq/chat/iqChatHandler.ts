@@ -58,7 +58,12 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
     }];
 
     const payload = {
-        model: "gpt-4",
+        completionSettings: {
+            "model": "gpt-4-1106-preview",
+            "temperature": 0,
+            "stream": false,
+            "seed": 1
+        },
         messages: messagesPayload
     };
 
@@ -106,7 +111,12 @@ const getFinalResponse = async (message: string, additionalContext: IAdditionalC
     }];
 
     let payload = {
-        model: "gpt-4",
+        completionSettings: {
+            "model": "gpt-4-1106-preview",
+            "temperature": 0,
+            "stream": false,
+            "seed": 1
+        },
         messages: messagesPayload
     };
 
