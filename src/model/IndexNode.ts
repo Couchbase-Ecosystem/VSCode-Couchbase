@@ -21,7 +21,6 @@ import { INode } from "../types/INode";
 export default class IndexNode extends vscode.TreeItem {
     constructor(
         public readonly parentNode: INode,
-        public readonly connection: IConnection,
         public readonly scopeName: string,
         public readonly bucketName: string,
         public readonly indexName: string,

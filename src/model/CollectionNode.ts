@@ -37,7 +37,6 @@ import { Constants } from "../util/constants";
 export default class CollectionNode implements INode {
   constructor(
     public readonly parentNode: INode,
-    public readonly connection: IConnection,
     public readonly scopeName: string,
     public readonly documentCount: number,
     public readonly bucketName: string,
@@ -130,7 +129,6 @@ export default class CollectionNode implements INode {
     // Index directory to contains list of indexes
     const indexItem = new IndexDirectory(
       this,
-      this.connection,
       "Indexes",
       this.bucketName,
       this.scopeName,
@@ -150,7 +148,6 @@ export default class CollectionNode implements INode {
       documentList.push(
         new SchemaDirectory(
           this,
-          this.connection,
           "Schema",
           this.bucketName,
           this.scopeName,
@@ -164,7 +161,7 @@ export default class CollectionNode implements INode {
     // An index is required for database querying. If one is present, a result will be obtained.
     // If not, the user will be prompted to create a index before querying.
     let docFilter = Memory.state.get<IFilterDocuments>(
-      `filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
+      `filterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
     );
     let filter: string = "";
     if (docFilter && docFilter.filter.length > 0) {
@@ -209,7 +206,6 @@ export default class CollectionNode implements INode {
       const documentTreeItem = new DocumentNode(
         this,
         documentName,
-        this.connection,
         this.scopeName,
         this.bucketName,
         this.collectionName,

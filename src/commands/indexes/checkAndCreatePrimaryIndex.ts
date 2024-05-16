@@ -1,6 +1,7 @@
-import * as vscode from 'vscode';
-import { logger } from '../../logger/logger';
-import { Commands } from '../extensionCommands/commands';
+import * as vscode from "vscode";
+import { logger } from "../../logger/logger";
+import { Commands } from "../extensionCommands/commands";
+import { getActiveConnection } from "../../util/connections";
 
 export const checkAndCreatePrimaryIndex = async (elementData: any) => {
     const answer = await vscode.window.showWarningMessage(
@@ -10,16 +11,27 @@ export const checkAndCreatePrimaryIndex = async (elementData: any) => {
         "No"
     );
     if (answer === "Yes") {
-        try{
+        try {
+            const connection = getActiveConnection();
+            if (!connection) {
+                return;
+            }
             vscode.window.showInformationMessage("Creating primary index");
-            await elementData.connection.cluster?.query(
+            await connection.cluster?.query(
                 `CREATE PRIMARY INDEX ON \`${elementData.bucketName}\`.\`${elementData.scopeName}\`.\`${elementData.collectionName}\` USING GSI`
             );
-            logger.info(`Created Primay Index on ${elementData.bucketName} ${elementData.scopeName} ${elementData.collectionName} USING GSI`);
-            vscode.commands.executeCommand(Commands.refreshCollection, elementData.parentNode);
-        } catch(e){
-            vscode.window.showErrorMessage("Error while creating primary index "+e);
-            logger.error("Error while creating primary index "+ e);
+            logger.info(
+                `Created Primay Index on ${elementData.bucketName} ${elementData.scopeName} ${elementData.collectionName} USING GSI`
+            );
+            vscode.commands.executeCommand(
+                Commands.refreshCollection,
+                elementData.parentNode
+            );
+        } catch (e) {
+            vscode.window.showErrorMessage(
+                "Error while creating primary index " + e
+            );
+            logger.error("Error while creating primary index " + e);
         }
     }
 };

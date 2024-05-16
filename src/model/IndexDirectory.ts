@@ -26,7 +26,6 @@ import { CacheService } from "../util/cacheService/cacheService";
 export class IndexDirectory implements INode {
     constructor(
         public readonly parentNode: INode,
-        public readonly connection: IConnection,
         public readonly itemName: string,
         public readonly bucketName: string,
         public readonly scopeName: string,
@@ -69,7 +68,6 @@ export class IndexDirectory implements INode {
                 if (query.scopeName === this.scopeName || this.scopeName === "_default") {
                     const indexNode = new IndexNode(
                         this,
-                        this.connection,
                         this.scopeName,
                         this.bucketName,
                         `${query.name[0] === '#' ? query.name.substring(1) : query.name}${(query.collectionName ? ("_" + query.collectionName) : "")}`,

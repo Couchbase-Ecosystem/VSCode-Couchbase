@@ -35,7 +35,7 @@ export const removeCollection = async (node: CollectionNode) => {
     }
 
     // Remove any document filter if set
-    Memory.state.update(`filterDocuments-${node.connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`, '');
+    Memory.state.update(`filterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`, '');
 
     const collectionManager = await connection.cluster
       ?.bucket(node.bucketName)

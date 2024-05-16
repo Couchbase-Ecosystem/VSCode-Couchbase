@@ -22,7 +22,6 @@ export default class DocumentNode extends vscode.TreeItem {
   constructor(
     public readonly parentNode: INode,
     public readonly documentName: string,
-    public readonly connection: IConnection,
     public readonly scopeName: string,
     public readonly bucketName: string,
     public readonly collectionName: string,

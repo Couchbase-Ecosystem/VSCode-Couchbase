@@ -25,7 +25,7 @@ export const filterDocuments = async (node: CollectionNode) => {
     }
 
     const docFilter = Memory.state.get<IFilterDocuments>(
-        `filterDocuments-${node.connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`
+        `filterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`
     );
     const filterStmt: string = docFilter ? docFilter.filter : "";
     let collectionName = node.collectionName;
@@ -78,7 +78,7 @@ export const filterDocuments = async (node: CollectionNode) => {
         filter: newDocFilterStmt.trim(),
     };
     Memory.state.update(
-        `filterDocuments-${node.connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
+        `filterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
         newDocFilter
     );
 };

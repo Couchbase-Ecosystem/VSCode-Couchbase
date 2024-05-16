@@ -73,7 +73,6 @@ export class ClusterConnectionNode implements INode {
         nodes.push(
           new BucketNode(
             this,
-            this.connection,
             bucket.name,
             isScopesandCollections,
             vscode.TreeItemCollapsibleState.None,
