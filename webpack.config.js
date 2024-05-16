@@ -19,6 +19,8 @@
 "use strict";
 
 const path = require("path");
+const TerserPlugin = require('terser-webpack-plugin');
+
 
 /**@type {import('webpack').Configuration}*/
 const extensionConfig = {
@@ -27,12 +29,18 @@ const extensionConfig = {
   entry: {
      "extension": "./src/extension.ts"
   }, // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
-
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
     path: path.resolve(__dirname, "dist"),
     filename: "[name].js",
     libraryTarget: "commonjs2",
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+    splitChunks: {
+      chunks: 'all',
+    },
   },
   devtool: "source-map",
   externals: {
@@ -74,6 +82,13 @@ const reactConfig = {
   output: {
     path: path.resolve(__dirname, "dist/workbench"),
     filename: "[name].js",
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+    splitChunks: {
+      chunks: 'all',
+    },
   },
   devtool: "source-map",
   resolve: {
@@ -131,7 +146,6 @@ const reactConfig = {
       },
     ],
   },
-  plugins: [],
 };
 
 const iqReactConfig = {
@@ -142,6 +156,13 @@ const iqReactConfig = {
   output: {
     path: path.resolve(__dirname, "dist/iq"),
     filename: "[name].js",
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+    splitChunks: {
+      chunks: 'all',
+    },
   },
   devtool: "source-map",
   resolve: {
@@ -203,7 +224,6 @@ const iqReactConfig = {
       },
     ],
   },
-  plugins: [],
 };
 
 module.exports = [extensionConfig, reactConfig, iqReactConfig];
