@@ -32,7 +32,6 @@ import { CacheService } from "../../src/util/cacheService/cacheService"
 export class ScopeNode implements INode {
   constructor(
     public readonly parentNode: INode,
-    public readonly connection: IConnection,
     public readonly scopeName: string,
     public readonly bucketName: string,
     public readonly collections: any[],
@@ -78,7 +77,7 @@ export class ScopeNode implements INode {
     for (const collection of this.collections) {
       try {
         const docFilter = Memory.state.get<IFilterDocuments>(
-          `filterDocuments-${this.connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`
+          `filterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`
         );
         const filter: string =
           docFilter && docFilter.filter.length > 0 ? docFilter.filter : "";
@@ -107,7 +106,6 @@ export class ScopeNode implements INode {
 
         const collectionTreeItem = new CollectionNode(
           this,
-          this.connection,
           this.scopeName,
           rowCount,
           this.bucketName,

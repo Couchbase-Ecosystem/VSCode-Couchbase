@@ -10,7 +10,6 @@ import { Constants } from "../util/constants";
 
 export class SchemaDirectory implements INode {
     constructor(public readonly parentNode: INode,
-        public readonly connection: IConnection,
         public readonly itemName: string,
         public readonly bucketName: string,
         public readonly scopeName: string,

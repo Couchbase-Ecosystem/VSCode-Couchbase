@@ -27,7 +27,6 @@ import { CacheService } from "../../src/util/cacheService/cacheService"
 export class BucketNode implements INode {
   constructor(
     public readonly parentNode: INode,
-    public readonly connection: IConnection,
     public readonly bucketName: string,
     public readonly isScopesandCollections: boolean,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
@@ -74,7 +73,6 @@ export class BucketNode implements INode {
           nodes.push(
             new ScopeNode(
               this,
-              this.connection,
               scope.name,
               this.bucketName,
               scope.collections,

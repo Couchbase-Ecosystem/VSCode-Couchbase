@@ -92,7 +92,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_IMPORT_EXPORT,
                 this.getToolSpec(
-                    "https://packages.couchbase.com/releases/7.2.0/couchbase-server-tools_7.2.0-macos_x86_64.zip",
+                    "https://packages.couchbase.com/releases/7.6.0/couchbase-server-tools_7.6.0-macos_x86_64.zip",
                     this.TOOL_IMPORT_EXPORT,
                     OSUtil.MACOS_64
                 )
@@ -125,7 +125,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_IMPORT_EXPORT,
                 this.getToolSpec(
-                    "https://packages.couchbase.com/releases/7.2.0/couchbase-server-tools_7.2.0-macos_arm64.zip",
+                    "https://packages.couchbase.com/releases/7.6.0/couchbase-server-tools_7.6.0-macos_arm64.zip",
                     this.TOOL_IMPORT_EXPORT,
                     OSUtil.MACOS_ARM
                 )
@@ -158,7 +158,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_IMPORT_EXPORT,
                 this.getToolSpec(
-                    "https://packages.couchbase.com/releases/7.2.0/couchbase-server-tools_7.2.0-windows_amd64.zip",
+                    "https://packages.couchbase.com/releases/7.6.0/couchbase-server-tools_7.6.0-windows_amd64.zip",
                     this.TOOL_IMPORT_EXPORT,
                     OSUtil.WINDOWS_64
                 )
@@ -191,7 +191,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_IMPORT_EXPORT,
                 this.getToolSpec(
-                    "https://packages.couchbase.com/releases/7.2.0/couchbase-server-tools_7.2.0-windows_amd64.zip",
+                    "https://packages.couchbase.com/releases/7.6.0/couchbase-server-tools_7.6.0-windows_amd64.zip",
                     this.TOOL_IMPORT_EXPORT,
                     OSUtil.WINDOWS_ARM
                 )
@@ -224,7 +224,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_IMPORT_EXPORT,
                 this.getToolSpec(
-                    "https://packages.couchbase.com/releases/7.2.0/couchbase-server-tools_7.2.0-linux_x86_64.tar.gz",
+                    "https://packages.couchbase.com/releases/7.6.0/couchbase-server-tools_7.6.0-linux_x86_64.tar.gz",
                     this.TOOL_IMPORT_EXPORT,
                     OSUtil.LINUX_64
                 )
@@ -257,7 +257,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_IMPORT_EXPORT,
                 this.getToolSpec(
-                    "https://packages.couchbase.com/releases/7.2.0/couchbase-server-tools_7.2.0-linux_aarch64.tar.gz",
+                    "https://packages.couchbase.com/releases/7.6.0/couchbase-server-tools_7.6.0-linux_aarch64.tar.gz",
                     this.TOOL_IMPORT_EXPORT,
                     OSUtil.LINUX_ARM
                 )

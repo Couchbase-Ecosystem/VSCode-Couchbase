@@ -7,5 +7,5 @@ export const config = {
     TOOLS_VERSION: "7.2",
     CBMIGRATE_VERSION: "1",
     SHELL_VERSION: "1",
-    CBIMPORT_EXPORT_VERSION: "7.2",
+    CBIMPORT_EXPORT_VERSION: "7.6",
 };

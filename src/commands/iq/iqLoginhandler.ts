@@ -32,19 +32,19 @@ const getSessionsJwt = async (formData: IFormData): Promise<string> => {
 
 export const iqLoginHandler = async (formData: IFormData) => {
     try {
-        // Check for remember me
-        if (formData.rememberMe === true) {
-            Global.state.update(Constants.IQ_USER_ID, formData.username);
-            const secretService = SecretService.getInstance();
-            await secretService.store(`${Constants.IQ_PASSWORD}-${formData.username}`, formData.password);
-        }
-
         // Return organization select page data
         const jwtToken = await getSessionsJwt(formData);
         Memory.state.update("vscode-couchbase.iq.jwtToken", jwtToken);
         const organizations = await iqRestApiService.loadOrganizations(
             jwtToken
         );
+        
+         // Check for remember me
+         if (formData.rememberMe === true) {
+            Global.state.update(Constants.IQ_USER_ID, formData.username);
+            const secretService = SecretService.getInstance();
+            await secretService.store(`${Constants.IQ_PASSWORD}-${formData.username}`, formData.password);
+        }
         return organizations;
     } catch (error: any) {
         throw new Error(error.message.toString());

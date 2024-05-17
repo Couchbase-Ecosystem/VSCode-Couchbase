@@ -12,3 +12,7 @@ node_modules/
 .github/
 Makefile
 webpack.config.json
+.git/**
+**/cmake*/
+**/cmake*
+**/cb-vscode-extension*/
