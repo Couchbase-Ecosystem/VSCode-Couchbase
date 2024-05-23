@@ -91,7 +91,7 @@ export class CouchbaseRestAPI {
         return bucketOverview;
     }
 
-    public async getKVDocuments(bucketName: string, scopeName: string, collectionName: string, skip: number, limit: number) {
+    public async getKVDocuments(bucketName: string, scopeName: string, collectionName: string, skip: number, limit: number, startDocId?: string, endDocId?: string): Promise<any> {
         const username = this.connection.username;
         const secretService = SecretService.getInstance();
         const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
@@ -101,18 +101,35 @@ export class CouchbaseRestAPI {
         let url = (await getServerURL(this.connection.url))[0];
         url = (this.connection.isSecure ? `https://${url}:18091` : `http://${url}:8091`);
         url += `/pools/default/buckets/${bucketName}/scopes/${scopeName}/collections/${collectionName}/docs?skip=${skip}&limit=${limit}&include_doc=false`;
+        if(startDocId && startDocId.length > 0) {
+            url += `&startkey=%22${startDocId}%22`;
+        }
+        if(endDocId && endDocId.length > 0) {
+            url += `&endkey=%22${endDocId}%22`;
+        }
+
+        console.log(url);
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-        let content = await axios.get(url, {
-            method: "GET",
-            headers: {
-                Authorization: `Basic ${btoa(`${username}:${password}`)}`
-            },
-            httpsAgent: new https.Agent({
-                rejectUnauthorized: false,
-            })
-        });
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
-        return content.data;
+        try {
+            let content = await axios.get(url, {
+                method: "GET",
+                headers: {
+                    Authorization: `Basic ${btoa(`${username}:${password}`)}`
+                },
+                httpsAgent: new https.Agent({
+                    rejectUnauthorized: false,
+                })
+            });
+           console.log(content.data)
+            return content.data;
+        }
+        catch (error) {
+            logger.error(`Failed to fetch bucket data, bucketName:${bucketName} , url:${url}, error:${error}`);
+            return undefined;
+        }
+        finally {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
+        }
     }
 
     public async getKVDocumentCount(bucketName: string, scopeName: string): Promise<Map<string, number>> {

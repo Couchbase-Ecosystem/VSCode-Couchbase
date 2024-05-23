@@ -19,6 +19,7 @@ import { Memory } from "../../util/util";
 import { logger } from "../../logger/logger";
 import CollectionNode from "../../model/CollectionNode";
 import { Constants } from "../../util/constants";
+import { clearDocumentFilter } from "../documents/documentFilters/clearDocumentFilter";
 
 export const removeCollection = async (node: CollectionNode) => {
     const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
@@ -35,7 +36,7 @@ export const removeCollection = async (node: CollectionNode) => {
     }
 
     // Remove any document filter if set
-    Memory.state.update(`filterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`, '');
+    clearDocumentFilter(node);
 
     const collectionManager = await connection.cluster
       ?.bucket(node.bucketName)

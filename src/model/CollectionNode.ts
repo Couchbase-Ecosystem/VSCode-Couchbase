@@ -15,7 +15,6 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { IConnection } from "../types/IConnection";
 import { INode } from "../types/INode";
 import DocumentNode from "./DocumentNode";
 import { PagerNode } from "./PagerNode";
@@ -23,14 +22,13 @@ import { abbreviateCount, hasQueryService } from "../util/common";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
 import InformationNode from "./InformationNode";
 import { Memory } from "../util/util";
-import { IFilterDocuments } from "../types/IFilterDocuments";
 import { SchemaDirectory } from "./SchemaDirectory";
 import { getActiveConnection } from "../util/connections";
 import { Commands } from "../commands/extensionCommands/commands";
 import { IndexDirectory } from "./IndexDirectory";
 import { logger } from "../logger/logger";
 import { CouchbaseRestAPI } from "../util/apis/CouchbaseRestAPI";
-import { CacheService } from "../../src/util/cacheService/cacheService"
+import { CacheService } from "../../src/util/cacheService/cacheService";
 import { Constants } from "../util/constants";
 
 
@@ -55,7 +53,7 @@ export default class CollectionNode implements INode {
 
   public async getIndexedField(): Promise<string | null> {
     const connection = getActiveConnection();
-    if(!connection){
+    if (!connection) {
       return null;
     }
     const idxs = await connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collectionName });
@@ -160,20 +158,35 @@ export default class CollectionNode implements INode {
     let result;
     // An index is required for database querying. If one is present, a result will be obtained.
     // If not, the user will be prompted to create a index before querying.
-    let docFilter = Memory.state.get<IFilterDocuments>(
-      `filterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
+
+    const filterDocumentsType = Memory.state.get<string>(
+      `filterDocumentsType-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
     );
-    let filter: string = "";
-    if (docFilter && docFilter.filter.length > 0) {
-      filter = docFilter.filter;
+
+    let isKVFilterEnabled = false;
+    if (filterDocumentsType && filterDocumentsType === "kv") {
+      isKVFilterEnabled = true;
     }
-    const couchbbaseRestAPI = new CouchbaseRestAPI(connection);
-    if (!hasQueryService(connection?.services!)) {
-      result = await couchbbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
+
+    const couchbaseRestAPI = new CouchbaseRestAPI(connection);
+    if (!hasQueryService(connection?.services!) || isKVFilterEnabled) { // KV Based Fetching Documents
+      console.log("inside");
+      let [startingDocId, endingDocId]: [string | undefined, string | undefined] = [undefined, undefined];
+      if (isKVFilterEnabled) {
+        [startingDocId, endingDocId] = Memory.state.get<string>(
+          `kvTypeFilterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
+        )?.split('|') ?? ["", ""];
+      }
+      console.log("docIds", startingDocId, endingDocId);
+      result = await couchbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit, startingDocId, endingDocId);
       result.rows = result.rows.map((item: any) => item.id);
     }
-    else {
+    else { // Query Based Fetching Documents
       try {
+        let docFilter = Memory.state.get<string>(
+          `queryTypeFilterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
+        );
+        let filter: string = docFilter ?? "";
         // selects the attribute that needs to be used according to the index
         const idxField = await this.getIndexedField();
         if (idxField === null) {
@@ -195,7 +208,7 @@ export default class CollectionNode implements INode {
             }
           );
           documentList.push(infoNode);
-          result = await couchbbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
+          result = await couchbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
           result.rows = result.rows.map((item: any) => item.id);
         } else if (err instanceof ParsingFailureError) {
           logger.error(`In Collection Node: ${this.collectionName}: Parsing Failed: Incorrect filter definition`);
@@ -219,7 +232,7 @@ export default class CollectionNode implements INode {
     // Checking document list length with 2 as Schema and index Directory are always present
     if (((!isQueryServicesEnable && documentList.length === 0)) || (isQueryServicesEnable && documentList.length === 2)) {
       documentList.push(new InformationNode("No Documents found"));
-    } else if (this.documentCount > documentList.length) {
+    } else if (this.documentCount > documentList.length && result?.rows.length >= this.limit) {
       documentList.push(new PagerNode(this));
     }
     return documentList;
