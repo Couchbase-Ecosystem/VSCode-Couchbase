@@ -49,8 +49,10 @@ export namespace Commands {
     export const deleteQueryHistoryItem: string = "vscode-couchbase.deleteQueryHistoryItem";
     export const copyQueryHistoryItem: string = "vscode-couchbase.copyQueryHistoryItem";
     export const refreshQueryHistory: string = "vscode-couchbase.refreshQueryHistory";
-    export const filterDocuments: string = "vscode-couchbase.filterDocuments";
-    export const editDocumentFilter: string = "vscode-couchbase.editDocumentFilter";
+    export const queryTypeDocumentFilter: string = "vscode-couchbase.queryTypeDocumentFilter";
+    export const kvTypeDocumentFilter: string = "vscode-couchbase.kvTypeDocumentFilter";
+    export const editQueryTypeDocumentFilter: string = "vscode-couchbase.editQueryTypeDocumentFilter";
+    export const editKvTypeDocumentFilter: string = "vscode-couchbase.editKvTypeDocumentFilter";
     export const clearDocumentFilter: string = "vscode-couchbase.clearDocumentFilter";
     export const refreshClusterOverview: string = "vscode-couchbase.refreshClusterOverview";
     export const refreshCache: string = "vscode-couchbase.refreshCache";

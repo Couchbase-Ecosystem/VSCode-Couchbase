@@ -60,8 +60,8 @@ import { deleteQueryItem } from "./commands/queryHistory/deleteQuery";
 import { copyQuery } from "./commands/queryHistory/copyQuery";
 import { applyQuery } from "./commands/queryHistory/applyQuery";
 import { handleQueryContextStatusbar } from "./handlers/handleQueryContextStatusbar";
-import { filterDocuments } from "./commands/documents/filterDocuments";
-import { clearDocumentFilter } from "./commands/documents/clearDocumentFilter";
+import { queryTypeFilterDocuments } from "./commands/documents/documentFilters/queryTypeFilterDocuments";
+import { clearDocumentFilter } from "./commands/documents/documentFilters/clearDocumentFilter";
 import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewClusterData";
 import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePrimaryIndex";
 import { dataExport } from "./pages/Tools/DataExport/dataExport";
@@ -74,6 +74,7 @@ import { CacheService } from "./util/cacheService/cacheService";
 import { secretUpdater } from "./util/secretUpdater";
 import { newChatHandler } from "./commands/iq/chat/newChatHandler";
 import { SecretService } from "./util/secretService";
+import { kvTypeFilterDocuments } from "./commands/documents/documentFilters/kvTypeFilterDocuments";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -427,9 +428,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      Commands.filterDocuments,
+      Commands.queryTypeDocumentFilter,
       async (node: CollectionNode) => {
-        await filterDocuments(node);
+        await queryTypeFilterDocuments(node);
         clusterConnectionTreeProvider.refresh(node.parentNode);
       }
     )
@@ -437,9 +438,29 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      Commands.editDocumentFilter,
+      Commands.kvTypeDocumentFilter,
       async (node: CollectionNode) => {
-        await filterDocuments(node);
+        await kvTypeFilterDocuments(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.editQueryTypeDocumentFilter,
+      async (node: CollectionNode) => {
+        await queryTypeFilterDocuments(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.editKvTypeDocumentFilter,
+      async (node: CollectionNode) => {
+        await kvTypeFilterDocuments(node);
         clusterConnectionTreeProvider.refresh(node.parentNode);
       }
     )

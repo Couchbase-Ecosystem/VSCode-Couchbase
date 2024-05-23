@@ -15,7 +15,6 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { IConnection } from "../types/IConnection";
 import { INode } from "../types/INode";
 import DocumentNode from "./DocumentNode";
 import { PagerNode } from "./PagerNode";
@@ -23,14 +22,13 @@ import { abbreviateCount, hasQueryService } from "../util/common";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
 import InformationNode from "./InformationNode";
 import { Memory } from "../util/util";
-import { IFilterDocuments } from "../types/IFilterDocuments";
 import { SchemaDirectory } from "./SchemaDirectory";
 import { getActiveConnection } from "../util/connections";
 import { Commands } from "../commands/extensionCommands/commands";
 import { IndexDirectory } from "./IndexDirectory";
 import { logger } from "../logger/logger";
 import { CouchbaseRestAPI } from "../util/apis/CouchbaseRestAPI";
-import { CacheService } from "../../src/util/cacheService/cacheService"
+import { CacheService } from "../../src/util/cacheService/cacheService";
 import { Constants } from "../util/constants";
 
 
@@ -41,7 +39,6 @@ export default class CollectionNode implements INode {
     public readonly documentCount: number,
     public readonly bucketName: string,
     public readonly collectionName: string,
-    public readonly filter: boolean,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public cacheService: CacheService,
     public limit: number = 10,
@@ -55,31 +52,36 @@ export default class CollectionNode implements INode {
 
   public async getIndexedField(): Promise<string | null> {
     const connection = getActiveConnection();
-    if(!connection){
+    if (!connection) {
       return null;
     }
-    const idxs = await connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collectionName });
-    let filter: string | null = null;
-    if (!idxs) {
-      return null;
-    }
+    try {
+      const idxs = await connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collectionName });
+      let filter: string | null = null;
+      if (!idxs) {
+        return null;
+      }
 
-    for (const idx of idxs) {
-      if (idx.isPrimary) {
-        return "meta().id";
-      } else {
-        const result = this.getValidIndexKey(idx.indexKey);
-        if (result) {
-          if (!idx.condition && result[1]) {
-            return result[0];
-          } else {
-            filter = result[0];
+      for (const idx of idxs) {
+        if (idx.isPrimary) {
+          return "meta().id";
+        } else {
+          const result = this.getValidIndexKey(idx.indexKey);
+          if (result) {
+            if (!idx.condition && result[1]) {
+              return result[0];
+            } else {
+              filter = result[0];
+            }
           }
         }
       }
-    }
 
-    return filter;
+      return filter;
+    } catch (e) {
+      logger.error("error getting indexed fields: " + e);
+      return null;
+    }
   }
 
   private getValidIndexKey(array: any[]): [string, boolean] | null {
@@ -98,27 +100,38 @@ export default class CollectionNode implements INode {
   }
 
   public async getTreeItem(): Promise<vscode.TreeItem> {
+    const connection = getActiveConnection();
+    if (!connection) {
+      return new vscode.TreeItem(this.collectionName, vscode.TreeItemCollapsibleState.None);
+    }
+    const filterDocumentsType = Memory.state.get<string>(
+      `filterDocumentsType-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
+    ) ?? "";
+
+
     return {
       label: `${this.collectionName} (${abbreviateCount(this.documentCount)})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue:
         (this.collectionName === "_default"
           ? "default_collection"
-          : "collection") + (this.filter ? "_filter" : ""),
+          : "collection") + (filterDocumentsType !== "" ? "_filter" : "") 
+          + (filterDocumentsType === "kv" ? "_kv" : "") 
+          + (filterDocumentsType === "query" ? "_query" : ""),
       iconPath: {
         light: path.join(
           __filename,
           "..",
           "..",
           "images/light",
-          this.filter ? "filter.svg" : "documents-icon.svg"
+          filterDocumentsType !== "" ? "filter.svg" : "documents-icon.svg"
         ),
         dark: path.join(
           __filename,
           "..",
           "..",
           "images/dark",
-          this.filter ? "filter.svg" : "documents-icon.svg"
+          filterDocumentsType !== "" ? "filter.svg" : "documents-icon.svg"
         ),
       },
     };
@@ -160,20 +173,34 @@ export default class CollectionNode implements INode {
     let result;
     // An index is required for database querying. If one is present, a result will be obtained.
     // If not, the user will be prompted to create a index before querying.
-    let docFilter = Memory.state.get<IFilterDocuments>(
-      `filterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
+
+    const filterDocumentsType = Memory.state.get<string>(
+      `filterDocumentsType-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
     );
-    let filter: string = "";
-    if (docFilter && docFilter.filter.length > 0) {
-      filter = docFilter.filter;
+
+    let isKVFilterEnabled = false;
+    if (filterDocumentsType && filterDocumentsType === "kv") {
+      isKVFilterEnabled = true;
     }
-    const couchbbaseRestAPI = new CouchbaseRestAPI(connection);
-    if (!hasQueryService(connection?.services!)) {
-      result = await couchbbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
+
+    const couchbaseRestAPI = new CouchbaseRestAPI(connection);
+    if (!hasQueryService(connection?.services!) || isKVFilterEnabled) { // KV Based Fetching Documents
+      let [startingDocId, endingDocId]: [string | undefined, string | undefined] = [undefined, undefined];
+      if (isKVFilterEnabled) {
+        [startingDocId, endingDocId] = Memory.state.get<string>(
+          `kvTypeFilterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
+        )?.split('|') ?? ["", ""];
+      }
+
+      result = await couchbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit, startingDocId, endingDocId);
       result.rows = result.rows.map((item: any) => item.id);
     }
-    else {
+    else { // Query Based Fetching Documents
       try {
+        let docFilter = Memory.state.get<string>(
+          `queryTypeFilterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
+        );
+        let filter: string = docFilter ?? "";
         // selects the attribute that needs to be used according to the index
         const idxField = await this.getIndexedField();
         if (idxField === null) {
@@ -195,7 +222,7 @@ export default class CollectionNode implements INode {
             }
           );
           documentList.push(infoNode);
-          result = await couchbbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
+          result = await couchbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit);
           result.rows = result.rows.map((item: any) => item.id);
         } else if (err instanceof ParsingFailureError) {
           logger.error(`In Collection Node: ${this.collectionName}: Parsing Failed: Incorrect filter definition`);
@@ -219,7 +246,7 @@ export default class CollectionNode implements INode {
     // Checking document list length with 2 as Schema and index Directory are always present
     if (((!isQueryServicesEnable && documentList.length === 0)) || (isQueryServicesEnable && documentList.length === 2)) {
       documentList.push(new InformationNode("No Documents found"));
-    } else if (this.documentCount > documentList.length) {
+    } else if (this.documentCount > documentList.length && result?.rows.length >= this.limit) {
       documentList.push(new PagerNode(this));
     }
     return documentList;

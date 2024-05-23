@@ -1,12 +1,12 @@
-import CollectionNode from "../../model/CollectionNode";
+import CollectionNode from "../../../model/CollectionNode";
 import * as vscode from "vscode";
-import { Memory } from "../../util/util";
-import { IFilterDocuments } from "../../types/IFilterDocuments";
-import { logger } from "../../logger/logger";
+import { Memory } from "../../../util/util";
+import { logger } from "../../../logger/logger";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
-import { getActiveConnection } from "../../util/connections";
+import { getActiveConnection } from "../../../util/connections";
+import { clearDocumentFilter } from "./clearDocumentFilter";
 
-export const filterDocuments = async (node: CollectionNode) => {
+export const queryTypeFilterDocuments = async (node: CollectionNode) => {
     const connection = getActiveConnection();
     if (!connection) {
         return;
@@ -24,10 +24,10 @@ export const filterDocuments = async (node: CollectionNode) => {
         return false;
     }
 
-    const docFilter = Memory.state.get<IFilterDocuments>(
-        `filterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`
+    const docFilter = Memory.state.get<string>(
+        `queryTypeFilterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`
     );
-    const filterStmt: string = docFilter ? docFilter.filter : "";
+    const filterStmt: string = docFilter ?? "";
     let collectionName = node.collectionName;
     if (collectionName.length > 15) {
         collectionName = collectionName.substring(0, 13) + "...";
@@ -36,7 +36,7 @@ export const filterDocuments = async (node: CollectionNode) => {
         title: `Apply filter for collection \`${collectionName}\``,
         placeHolder: `airline="AI" OR country="United States"`,
         value: filterStmt,
-        prompt: `SELECT meta.id() FROM \`${collectionName}\` WHERE [Your Filter] | `,
+        prompt: `SELECT meta.id() FROM \`${collectionName}\` WHERE [Your Filter] | This may reset other document filters | `,
         validateInput: (input) => {
             const tokens = input.split(" ");
             for (const token of tokens) {
@@ -74,11 +74,16 @@ export const filterDocuments = async (node: CollectionNode) => {
         return;
     }
 
-    const newDocFilter: IFilterDocuments = {
-        filter: newDocFilterStmt.trim(),
-    };
+    // Reset any existing document filter
+    clearDocumentFilter(node);
+
     Memory.state.update(
-        `filterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
-        newDocFilter
+        `filterDocumentsType-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
+        `query`
+    );
+
+    Memory.state.update(
+        `queryTypeFilterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
+        newDocFilterStmt.trim()
     );
 };
