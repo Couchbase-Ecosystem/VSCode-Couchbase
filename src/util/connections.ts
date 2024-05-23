@@ -91,6 +91,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
     {
       enableScripts: true,
       enableForms: true,
+      retainContextWhenHidden: true,
     }
   );
   currentPanel.iconPath = vscode.Uri.file(path.join(__filename, "..", "..", "images", "cb-logo-icon.svg"));

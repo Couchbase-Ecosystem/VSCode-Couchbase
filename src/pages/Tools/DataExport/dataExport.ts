@@ -102,6 +102,7 @@ export const dataExport = async (context: vscode.ExtensionContext) => {
     {
       enableScripts: true,
       enableForms: true,
+      retainContextWhenHidden: true
     }
   );
   Memory.state.update(Constants.DATA_EXPORT_WEBVIEW, {

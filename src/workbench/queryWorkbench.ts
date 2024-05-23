@@ -56,7 +56,10 @@ export class QueryWorkbench {
             const queryOptions: QueryOptions = {
                 profile: QueryProfileMode.Timings,
                 metrics: true,
-                queryContext: queryContextString
+                queryContext: queryContextString,
+                parameters: {
+                    
+                }
             };
             try {
                 // Reveal the webview when the extension is activated

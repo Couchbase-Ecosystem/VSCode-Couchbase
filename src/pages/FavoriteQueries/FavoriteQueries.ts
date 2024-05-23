@@ -26,6 +26,7 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
         {
             enableScripts: true,
             enableForms: true,
+            retainContextWhenHidden: true,
         },
     );
 

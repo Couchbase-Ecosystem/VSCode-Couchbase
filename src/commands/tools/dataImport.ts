@@ -885,6 +885,7 @@ export class DataImport {
             {
                 enableScripts: true,
                 enableForms: true,
+                retainContextWhenHidden: true
             }
         );
         Memory.state.update(Constants.DATA_IMPORT_WEBVIEW, {
