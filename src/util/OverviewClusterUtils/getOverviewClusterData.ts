@@ -79,7 +79,7 @@ export const getClusterOverviewData = async (refreshRequired: boolean = false): 
         let allBuckets = fetchBucketNames(bucketsSettings, connection);
 
         // General Overview
-        let generalClusterDetails = getGeneralClusterDetails(serverOverview);
+        let generalClusterDetails = getGeneralClusterDetails(serverOverview, connection.url);
         let generalQuotaDetails = getGeneralQuotaDetails(serverOverview);
         let generalRAMDetails = getGeneralRAMDetails(serverOverview);
         let generalStorageDetails = getGeneraStorageDetails(serverOverview);

@@ -33,6 +33,7 @@ export class Constants {
   public static prefixURL = "couchbase://";
   public static extensionVersion = pkg.version;
   public static COUCHBASEVERSIONKEY = "Couchbase Version";
+  public static CLUSTERTYPE = "Cluster Type";
   public static STATUS = "Status";
   public static SERVICES= "Services";
   public static NODES= "Nodes";

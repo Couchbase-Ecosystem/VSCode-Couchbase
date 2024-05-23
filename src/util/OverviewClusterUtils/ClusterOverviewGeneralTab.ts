@@ -17,8 +17,9 @@ import { IKeyValuePair } from "../../types/IKeyValuePair";
 import { fmtByte, formatServices, mbToGb } from "./OverviewClusterHelper";
 import { ServerOverview } from "../apis/ServerOverview";
 import { Constants } from "../constants";
+import { IConnection } from "../../types/IConnection";
 
-export const getGeneralClusterDetails = (serverOverview: ServerOverview | undefined): IKeyValuePair[] => {
+export const getGeneralClusterDetails = (serverOverview: ServerOverview | undefined, connectionUrl: string): IKeyValuePair[] => {
     let details: IKeyValuePair[] = [];
     if (serverOverview === undefined) {
         return details;
@@ -27,6 +28,12 @@ export const getGeneralClusterDetails = (serverOverview: ServerOverview | undefi
     details.push({
         key: Constants.COUCHBASEVERSIONKEY,
         value: (serverOverview.getNodes()[0]).version || "NA"
+    });
+
+    // Cluster Type (Capella or Self Managed)
+    details.push({
+        key: Constants.CLUSTERTYPE,
+        value: connectionUrl.includes(".cloud.couchbase.com") ? "Capella" : "Self Managed" || "NA"
     });
 
     // Status
