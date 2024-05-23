@@ -39,7 +39,6 @@ export default class CollectionNode implements INode {
     public readonly documentCount: number,
     public readonly bucketName: string,
     public readonly collectionName: string,
-    public readonly filter: boolean,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public cacheService: CacheService,
     public limit: number = 10,
@@ -56,28 +55,33 @@ export default class CollectionNode implements INode {
     if (!connection) {
       return null;
     }
-    const idxs = await connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collectionName });
-    let filter: string | null = null;
-    if (!idxs) {
-      return null;
-    }
+    try {
+      const idxs = await connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collectionName });
+      let filter: string | null = null;
+      if (!idxs) {
+        return null;
+      }
 
-    for (const idx of idxs) {
-      if (idx.isPrimary) {
-        return "meta().id";
-      } else {
-        const result = this.getValidIndexKey(idx.indexKey);
-        if (result) {
-          if (!idx.condition && result[1]) {
-            return result[0];
-          } else {
-            filter = result[0];
+      for (const idx of idxs) {
+        if (idx.isPrimary) {
+          return "meta().id";
+        } else {
+          const result = this.getValidIndexKey(idx.indexKey);
+          if (result) {
+            if (!idx.condition && result[1]) {
+              return result[0];
+            } else {
+              filter = result[0];
+            }
           }
         }
       }
-    }
 
-    return filter;
+      return filter;
+    } catch (e) {
+      logger.error("error getting indexed fields: " + e);
+      return null;
+    }
   }
 
   private getValidIndexKey(array: any[]): [string, boolean] | null {
@@ -96,27 +100,38 @@ export default class CollectionNode implements INode {
   }
 
   public async getTreeItem(): Promise<vscode.TreeItem> {
+    const connection = getActiveConnection();
+    if (!connection) {
+      return new vscode.TreeItem(this.collectionName, vscode.TreeItemCollapsibleState.None);
+    }
+    const filterDocumentsType = Memory.state.get<string>(
+      `filterDocumentsType-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
+    ) ?? "";
+
+
     return {
       label: `${this.collectionName} (${abbreviateCount(this.documentCount)})`,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue:
         (this.collectionName === "_default"
           ? "default_collection"
-          : "collection") + (this.filter ? "_filter" : ""),
+          : "collection") + (filterDocumentsType !== "" ? "_filter" : "") 
+          + (filterDocumentsType === "kv" ? "_kv" : "") 
+          + (filterDocumentsType === "query" ? "_query" : ""),
       iconPath: {
         light: path.join(
           __filename,
           "..",
           "..",
           "images/light",
-          this.filter ? "filter.svg" : "documents-icon.svg"
+          filterDocumentsType !== "" ? "filter.svg" : "documents-icon.svg"
         ),
         dark: path.join(
           __filename,
           "..",
           "..",
           "images/dark",
-          this.filter ? "filter.svg" : "documents-icon.svg"
+          filterDocumentsType !== "" ? "filter.svg" : "documents-icon.svg"
         ),
       },
     };
@@ -170,14 +185,13 @@ export default class CollectionNode implements INode {
 
     const couchbaseRestAPI = new CouchbaseRestAPI(connection);
     if (!hasQueryService(connection?.services!) || isKVFilterEnabled) { // KV Based Fetching Documents
-      console.log("inside");
       let [startingDocId, endingDocId]: [string | undefined, string | undefined] = [undefined, undefined];
       if (isKVFilterEnabled) {
         [startingDocId, endingDocId] = Memory.state.get<string>(
           `kvTypeFilterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
         )?.split('|') ?? ["", ""];
       }
-      console.log("docIds", startingDocId, endingDocId);
+
       result = await couchbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit, startingDocId, endingDocId);
       result.rows = result.rows.map((item: any) => item.id);
     }

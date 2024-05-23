@@ -108,7 +108,6 @@ export class CouchbaseRestAPI {
             url += `&endkey=%22${endDocId}%22`;
         }
 
-        console.log(url);
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         try {
             let content = await axios.get(url, {
@@ -120,7 +119,6 @@ export class CouchbaseRestAPI {
                     rejectUnauthorized: false,
                 })
             });
-           console.log(content.data)
             return content.data;
         }
         catch (error) {

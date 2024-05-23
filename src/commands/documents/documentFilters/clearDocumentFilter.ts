@@ -3,17 +3,11 @@ import CollectionNode from "../../../model/CollectionNode";
 import { getActiveConnection } from "../../../util/connections";
 import { Memory } from "../../../util/util";
 
-export const clearDocumentFilter = async (node: CollectionNode) => {
+export const clearDocumentFilter = (node: CollectionNode) => {
     const connection = getActiveConnection();
     if(!connection){
         return;
     }
-
-    commands.executeCommand(
-        "setContext",
-        "vscode-couchbase.documentFilterType",
-        ""
-    );
 
     Memory.state.update(
         `filterDocumentsType-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,

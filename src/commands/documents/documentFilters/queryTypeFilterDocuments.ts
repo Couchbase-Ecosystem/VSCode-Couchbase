@@ -4,6 +4,7 @@ import { Memory } from "../../../util/util";
 import { logger } from "../../../logger/logger";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
 import { getActiveConnection } from "../../../util/connections";
+import { clearDocumentFilter } from "./clearDocumentFilter";
 
 export const queryTypeFilterDocuments = async (node: CollectionNode) => {
     const connection = getActiveConnection();
@@ -35,7 +36,7 @@ export const queryTypeFilterDocuments = async (node: CollectionNode) => {
         title: `Apply filter for collection \`${collectionName}\``,
         placeHolder: `airline="AI" OR country="United States"`,
         value: filterStmt,
-        prompt: `SELECT meta.id() FROM \`${collectionName}\` WHERE [Your Filter] | `,
+        prompt: `SELECT meta.id() FROM \`${collectionName}\` WHERE [Your Filter] | This may reset other document filters | `,
         validateInput: (input) => {
             const tokens = input.split(" ");
             for (const token of tokens) {
@@ -73,11 +74,8 @@ export const queryTypeFilterDocuments = async (node: CollectionNode) => {
         return;
     }
 
-    vscode.commands.executeCommand(
-        "setContext",
-        "vscode-couchbase.documentFilterType",
-        "query"
-    );
+    // Reset any existing document filter
+    clearDocumentFilter(node);
 
     Memory.state.update(
         `filterDocumentsType-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,

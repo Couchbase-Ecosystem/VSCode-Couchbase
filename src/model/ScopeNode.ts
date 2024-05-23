@@ -115,7 +115,6 @@ export class ScopeNode implements INode {
           rowCount,
           this.bucketName,
           collection.name,
-          filterDocumentsType !== "",
           vscode.TreeItemCollapsibleState.None,
           this.cacheService
         );

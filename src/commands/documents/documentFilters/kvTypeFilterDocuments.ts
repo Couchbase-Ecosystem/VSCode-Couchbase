@@ -2,6 +2,7 @@ import CollectionNode from "../../../model/CollectionNode";
 import { getActiveConnection } from "../../../util/connections";
 import * as vscode from "vscode";
 import { Memory } from "../../../util/util";
+import { clearDocumentFilter } from "./clearDocumentFilter";
 
 export const kvTypeFilterDocuments = async (node: CollectionNode) => {
     const connection = getActiveConnection();
@@ -41,11 +42,7 @@ export const kvTypeFilterDocuments = async (node: CollectionNode) => {
         return;
     }
 
-    vscode.commands.executeCommand(
-        "setContext",
-        "vscode-couchbase.documentFilterType",
-        "kv"
-    );
+    clearDocumentFilter(node);
 
     Memory.state.update(
         `filterDocumentsType-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,

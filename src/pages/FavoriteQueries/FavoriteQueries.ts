@@ -13,7 +13,6 @@ export interface IFavoriteQueriesWebviewState {
 }
 
 export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
-    console.log("context is", context);
     const favoriteQueryWebviewDetails = Memory.state.get<IFavoriteQueriesWebviewState>(Constants.FAVORITE_QUERIES_WEBVIEW);
     if (favoriteQueryWebviewDetails) {
         // Favorite Queries Webview already exists, Closing existing and creating new
