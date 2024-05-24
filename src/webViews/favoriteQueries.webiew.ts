@@ -2,7 +2,7 @@ import { getFavoriteQueries } from "../util/favoriteQuery";
 
 export const showFavoriteQueries = (): string => {
     let favQueries = getFavoriteQueries();
-    return `
+    return /*HTML*/`
     <!DOCTYPE html>
     <html lang="en">
        <head>

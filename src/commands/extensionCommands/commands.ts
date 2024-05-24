@@ -45,6 +45,7 @@ export namespace Commands {
     export const queryContext: string = "vscode-couchbase.queryContext";
     export const showFavoriteQueries: string = "vscode-couchbase.showFavoriteQueries";
     export const markFavoriteQuery: string = "vscode-couchbase.markFavoriteQuery";
+    export const showNamedParameters: string = "vscode-couchbase.showNamedParameters";
     export const applyQueryHistory: string = "vscode-couchbase.applyQueryHistory";
     export const deleteQueryHistoryItem: string = "vscode-couchbase.deleteQueryHistoryItem";
     export const copyQueryHistoryItem: string = "vscode-couchbase.copyQueryHistoryItem";

@@ -478,12 +478,12 @@
       },
       {
         "command": "vscode-couchbase.queryTypeDocumentFilter",
-        "title": "Add Query Type Document Filter",
+        "title": "Add Query Filter",
         "category": "Couchbase"
       },
       {
         "command": "vscode-couchbase.kvTypeDocumentFilter",
-        "title": "Add KV Range Type Document Filter",
+        "title": "Add KV Range Filter",
         "category": "Couchbase"
       },
       {
@@ -596,6 +596,15 @@
         "icon": "$(star-empty)"
       },
       {
+        "title": "Show Named Parameters List",
+        "command": "vscode-couchbase.showNamedParameters",
+        "category": "Couchbase",
+        "icon": {
+          "light": "images/light/favorites-list.svg",
+          "dark": "images/dark/favorites-list.svg"
+        }
+      },
+      {
         "title": "Apply Query History",
         "command": "vscode-couchbase.applyQueryHistory",
         "category": "Couchbase"
@@ -619,17 +628,17 @@
         "icon": "$(refresh)"
       },
       {
-        "title": "Edit Query Type Document Filter",
+        "title": "Edit Query Filter",
         "command": "vscode-couchbase.editQueryTypeDocumentFilter",
         "category": "Couchbase"
       },
       {
-        "title": "Edit KV Range Type Document Filter",
+        "title": "Edit KV Range Filter",
         "command": "vscode-couchbase.editKvTypeDocumentFilter",
         "category": "Couchbase"
       },
       {
-        "title": "Clear Document Filter",
+        "title": "Clear Filters",
         "command": "vscode-couchbase.clearDocumentFilter",
         "category": "Couchbase"
       },
@@ -704,6 +713,13 @@
           "category": "Couchbase",
           "group": "navigation@4",
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
+        },
+        {
+          "title": "Show Named Parameters",
+          "command": "vscode-couchbase.showNamedParameters",
+          "category": "Couchbase",
+          "group": "navigation@3",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/) && !isKVCluster"
         },
         {
           "title": "Refresh Cluster Overview",
@@ -826,6 +842,10 @@
         },
         {
           "command": "vscode-couchbase.markFavoriteQuery",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.showNamedParameters",
           "when": "false"
         },
         {

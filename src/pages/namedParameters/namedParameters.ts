@@ -1,26 +1,26 @@
 import * as vscode from 'vscode';
 import { logger } from '../../logger/logger';
-import { showFavoriteQueries } from '../../webViews/favoriteQueries.webiew';
+import { showNamedParameters } from '../../webViews/namedParameters.webview';
 import { applyQuery } from '../../commands/queryHistory/applyQuery';
 import { Memory, getUUID } from '../../util/util';
-import { deleteFavoriteQuery } from '../../util/favoriteQuery';
+import { deleteNamedParameter } from '../../util/namedParameters';
 import { IConnection } from '../../types/IConnection';
 import { Constants } from '../../util/constants';
 
-export interface IFavoriteQueriesWebviewState {
+export interface INamedParametersWebviewState {
     webviewPanel: vscode.WebviewPanel
 }
 
-export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
-    const favoriteQueryWebviewDetails = Memory.state.get<IFavoriteQueriesWebviewState>(Constants.FAVORITE_QUERIES_WEBVIEW);
-    if (favoriteQueryWebviewDetails) {
-        // Favorite Queries Webview already exists, Closing existing and creating new
-        favoriteQueryWebviewDetails.webviewPanel.dispose();
-        Memory.state.update(Constants.FAVORITE_QUERIES_WEBVIEW, null);
+export const fetchNamedParameters = (context: vscode.ExtensionContext) => {
+    const namedParametersWebviewDetails = Memory.state.get<INamedParametersWebviewState>(Constants.NAMED_PARAMETERS_WEBVIEW);
+    if (namedParametersWebviewDetails) {
+        // Named Parameters Webview already exists, Closing existing and creating new
+        namedParametersWebviewDetails.webviewPanel.dispose();
+        Memory.state.update(Constants.NAMED_PARAMETERS_WEBVIEW, null);
     }
     const currentPanel = vscode.window.createWebviewPanel(
-        "showFavoriteQueries",
-        "Favorite Queries",
+        "showNamedParameters",
+        "Named Parameters",
         vscode.ViewColumn.Beside,
         {
             enableScripts: true,
@@ -30,7 +30,7 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
     );
 
     try {
-        currentPanel.webview.html = showFavoriteQueries();
+        currentPanel.webview.html = showNamedParameters();
         currentPanel.webview.onDidReceiveMessage(async (message) => {
             switch (message.command) {
                 case 'vscode-couchbase.pasteQuery':
@@ -47,11 +47,11 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
                     break;
                 case 'vscode-couchbase.deleteQuery':
                     const queryId = message.id;
-                    vscode.window.showWarningMessage(`Are you sure you want to delete the query from favorite queries? Query: ${message.query}`,
+                    vscode.window.showWarningMessage(`Are you sure you want to delete the query from named parameters? Query: ${message.query}`,
                         "Yes",
                         "No").then((value)=>{
                             if(value === "Yes"){
-                                deleteFavoriteQuery(queryId, context);
+                                deleteNamedParameter(queryId, context);
                             }
                         });
                     break;
@@ -62,10 +62,10 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
         });
 
         currentPanel.onDidDispose(() => {
-            Memory.state.update(Constants.FAVORITE_QUERIES_WEBVIEW, null);
+            Memory.state.update(Constants.NAMED_PARAMETERS_WEBVIEW, null);
         });
 
-        Memory.state.update(Constants.FAVORITE_QUERIES_WEBVIEW, {
+        Memory.state.update(Constants.NAMED_PARAMETERS_WEBVIEW, {
             webviewPanel: currentPanel
         });
 

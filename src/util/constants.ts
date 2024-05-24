@@ -19,8 +19,10 @@ export class Constants {
   public static connectionKeys = "clusterConnections";
   public static QUERY_HISTORY = "cluster.queryHistory";
   public static FAVORITE_QUERY = "cluster.favoriteQueries";
+  public static NAMED_PARAMETER = "cluster.namedParameters";
   public static ACTIVE_CONNECTION = "activeConnection";
   public static FAVORITE_QUERIES_WEBVIEW = "favoriteQueriesWebview";
+  public static NAMED_PARAMETERS_WEBVIEW = "namedParametersWebview";
   public static CLUSTER_OVERVIEW_WEBVIEW = "clusterOverviewWebview";
   public static CLUSTER_OVERVIEW_DATA = "clusterOverviewData";
   public static QUERY_CONTEXT_STATUS_BAR = "queryContextStatusBar";
