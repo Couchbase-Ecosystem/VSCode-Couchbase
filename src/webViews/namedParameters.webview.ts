@@ -1,7 +1,7 @@
-import { getNamedParameters, getProjectsNamedParameters } from "../util/namedParameters";
+import { getUsersNamedParameters, getProjectsNamedParameters } from "../util/namedParameters";
 
 export const showNamedParameters = (): string => {
-    let namedParams = getNamedParameters();
+    let namedParams = getUsersNamedParameters();
     let projectNamedParams = getProjectsNamedParameters();
     return /*HTML*/`
     <!DOCTYPE html>
@@ -23,6 +23,7 @@ export const showNamedParameters = (): string => {
               }
               
               .named-parameters-table {
+                min-height: 150px;
                 display: flex;
                 justify-content: space-between;
                 width: 100%;
@@ -98,6 +99,12 @@ export const showNamedParameters = (): string => {
                 margin-top: 20px;
                 flex-wrap: wrap;
                 gap: 20px;
+              }
+
+              .named-parameter-note {
+                display: inline-block;
+                width: 100%;
+                margin-top: 20px;
               }
               
               .named-parameter-copy-button,
@@ -184,8 +191,8 @@ export const showNamedParameters = (): string => {
        </head>
         <body>
             <div class="tabs">
-                <div class="tab" onclick="changeTab('my')">My Named Parameters</div>
-                <div class="tab" onclick="changeTab('project')">Project's Named Parameters</div>
+                <div class="tab" onclick="changeTab(event, 'my')">My Named Parameters</div>
+                <div class="tab" onclick="changeTab(event, 'project')">Project's Named Parameters</div>
             </div>
             <div id="my" class="tabcontent">
                 <div class="named-parameters-container">
@@ -194,23 +201,12 @@ export const showNamedParameters = (): string => {
                             <div class="named-parameters-keys-header">Keys</div>
                             <div class="named-parameters-key-container">
                                 ${namedParams !== undefined && namedParams.map((kv, index) => {
-                                    return (`<div class="named-parameters-key" onClick="openQuery('${index}')">${kv.key}</div>`);
+                                    return (`<div class="named-parameters-key user-named-parameters-key" onClick="openMyNamedParams('${index}')">${kv.key}</div>`);
                                 }).join('')}
                             </div>
                         </div>
                         
-                        <textarea class="named-parameters-value" disabled>No Query Selected</textarea>
-                    </div>
-                    <div class="named-parameter-buttons">
-                        <div class="named-parameter-paste-button" id="named-parameter-paste-button" onClick="pasteQuery()">
-                            Paste
-                        </div>
-                        <div class="named-parameter-copy-button" id="named-parameter-copy-button" onClick="copyQuery()">
-                            Copy
-                        </div>
-                        <div class="named-parameter-delete-button" id="named-parameter-delete-button" onClick="deleteQuery()">
-                            Delete
-                        </div>
+                        <textarea class="named-parameters-value user-named-parameters-value" disabled>No Query Selected</textarea>
                     </div>
                 </div>
                 
@@ -221,15 +217,15 @@ export const showNamedParameters = (): string => {
                         <div class="named-parameters-keys">
                             <div class="named-parameters-keys-header">Keys</div>
                             <div class="named-parameters-key-container">
-                                ${namedParams !== undefined && namedParams.map((kv, index) => {
-                                    return (`<div class="named-parameters-key" onClick="openQuery('${index}')">${kv.key}</div>`);
+                                ${projectNamedParams !== undefined && projectNamedParams.map((kv, index) => {
+                                    return (`<div class="named-parameters-key project-named-parameters-key" onClick="openProjectNamedParams('${index}')">${kv.key}</div>`);
                                 }).join('')}
                             </div>
                         </div>
                         
-                        <textarea class="named-parameters-value" disabled>No Query Selected</textarea>
+                        <textarea class="named-parameters-value project-named-parameters-value" disabled>No Query Selected</textarea>
                     </div>
-                    <div class="named-parameter-buttons">
+                    <div class="named-parameter-note" style="display: inline-block;">
                         Note: Project's parameters are loaded directly from the <strong>.cbNamedParams.properties</strong> file in the project root directory. You can edit from that file.
                     </div>
                 </div>
@@ -237,69 +233,45 @@ export const showNamedParameters = (): string => {
             
         </body>
         <script>
-        const vscode = acquireVsCodeApi();
-        document.getElementById("named-parameter-paste-button").disabled = true;
-            function openQuery(index) {
+            const vscode = acquireVsCodeApi();
+            function openMyNamedParams(index) {
                 let namedParams = ${JSON.stringify(namedParams)};
                 let queryKey = namedParams[index].key;
                 let queryValue = namedParams[index].value;
-                document.querySelector(".named-parameters-value").innerHTML = queryValue;
-                document.querySelector(".named-parameters-value").id = queryKey;
-                document.getElementById("named-parameter-paste-button").disabled = false;
+                document.querySelector(".user-named-parameters-value").innerHTML = queryValue;
+                document.querySelector(".user-named-parameters-value").id = queryKey;
             }
 
-            function pasteQuery(){
-                if(document.getElementById("named-parameter-paste-button").disabled){
-                    vscode.postMessage({
-                        command: 'vscode-couchbase.queryNotSelected'
-                    });
-                    return;
-                }
-                let query = document.querySelector(".named-parameters-value").innerHTML;
-                vscode.postMessage({
-                    command: 'vscode-couchbase.pasteQuery',
-                    query: query,
-                });
+            function openProjectNamedParams(index) {
+                let namedParams = ${JSON.stringify(projectNamedParams)};
+                let queryKey = namedParams[index].key;
+                let queryValue = namedParams[index].value;
+                document.querySelector(".project-named-parameters-value").innerHTML = queryValue;
+                document.querySelector(".project-named-parameters-value").id = queryKey;
             }
 
-            function copyQuery(){
-                if(document.getElementById("named-parameter-paste-button").disabled){
-                    vscode.postMessage({
-                        command: 'vscode-couchbase.queryNotSelected'
-                    });
-                    return;
-                }
-                let query = document.querySelector(".named-parameters-value").innerHTML;
-                navigator.clipboard.writeText(query);
-            }
-
-            function deleteQuery(){
-                if(document.getElementById("named-parameter-paste-button").disabled){
-                    vscode.postMessage({
-                        command: 'vscode-couchbase.queryNotSelected'
-                    });
-                    return;
-                }
-                let key = document.querySelector(".named-parameters-value").id;
-                let query = document.querySelector(".named-parameters-value").innerHTML;
-                vscode.postMessage({
-                    command: 'vscode-couchbase.deleteQuery',
-                    id: key,
-                    query: query,
-                });
-            }
-
-            const keys = document.querySelectorAll('.named-parameters-key');
-            keys.forEach((key) => {
+            // initialize selection event listeners for keys
+            const userKeys = document.querySelectorAll('.user-named-parameters-key');
+            userKeys.forEach((key) => {
                 key.addEventListener('click', () => {
-                    keys.forEach((k) => {
+                    userKeys.forEach((k) => {
                         k.classList.remove('selected');
                     });
                     key.classList.add('selected');
                 });
             });
 
-            function changeTab(tabName) {
+            const projectKeys = document.querySelectorAll('.project-named-parameters-key');
+            projectKeys.forEach((key) => {
+                key.addEventListener('click', () => {
+                    projectKeys.forEach((k) => {
+                        k.classList.remove('selected');
+                    });
+                    key.classList.add('selected');
+                });
+            });
+
+            function changeTab(evt, tabName) {
                 let i, tabcontent, tab;
                 tabcontent = document.getElementsByClassName("tabcontent");
                 for (i = 0; i < tabcontent.length; i++) {

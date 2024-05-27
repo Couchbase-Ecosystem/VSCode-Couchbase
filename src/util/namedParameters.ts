@@ -6,26 +6,33 @@ import * as vscode from "vscode";
 const fs = require('fs');
 const path = require('path');
 
-export function getNamedParameters(): IKeyValuePair[] {
-    let namedParameters = Global.state.get<IKeyValuePair[]>(Constants.NAMED_PARAMETER);
-    if (namedParameters === undefined) {
-        Global.state.update(Constants.NAMED_PARAMETER, []);
+export function getUsersNamedParameters(): IKeyValuePair[] {
+    try {
+        let config = vscode.workspace.getConfiguration('couchbase');
+        let userNamedParametersObject = config.get<{ [key: string]: string }>('workbench.userNamedParameters');
+        if (!userNamedParametersObject) {
+            return [];
+        }
+        let userNamedParameters: IKeyValuePair[] = Object.entries(
+            userNamedParametersObject
+        ).map(([key, value]) => ({ key, value }));
+        return userNamedParameters;
+    } catch (error) {
+        console.error("Error reading userNamedParameters from config:", error);
         return [];
-    } else {
-        return namedParameters;
     }
 }
 
 export function getProjectsNamedParameters(): IKeyValuePair[] {
     const workspaceFolders = vscode.workspace.workspaceFolders;
-    if(workspaceFolders && workspaceFolders.length > 0) {
+    if (workspaceFolders && workspaceFolders.length > 0) {
         const rootPath = workspaceFolders[0].uri.fsPath;
         const filePath = path.join(rootPath, '.cbNamedParams.properties');
         let namedParameters: IKeyValuePair[] = [];
         try {
             const fileContent = fs.readFileSync(filePath, 'utf-8');
             const lines = fileContent.split('\n');
-    
+
             for (let line of lines) {
                 const [key, value] = line.split('=');
                 namedParameters.push({ key: key.trim(), value: value.trim() });
@@ -36,41 +43,5 @@ export function getProjectsNamedParameters(): IKeyValuePair[] {
         return namedParameters;
     } else {
         return [];
-    }
-}
-
-export async function saveNamedParameter(newParameter: IKeyValuePair): Promise<IKeyValuePair[]> {
-    let namedParameters = getNamedParameters();
-    for (let parameter of namedParameters) {
-        if (parameter.key === newParameter.key) {
-            vscode.window.showErrorMessage("Key already exists: please try again with a new key");
-            return namedParameters;
-        }
-    }
-    namedParameters.push({ key: newParameter.key, value: newParameter.value });
-    await Global.state.update(Constants.NAMED_PARAMETER, namedParameters);
-    vscode.window.showInformationMessage('Named Parameter Saved Successfully');
-    return namedParameters;
-}
-
-export async function deleteNamedParameter(key: string, context: vscode.ExtensionContext): Promise<IKeyValuePair[]> {
-    let namedParameters = getNamedParameters();
-    let lenOfNamedParameters = namedParameters.length;
-    let deleted = false;
-    for (let i = 0; i < lenOfNamedParameters; i++) {
-        if (namedParameters[i].key === key) {
-            namedParameters.splice(i, 1);
-            deleted = true;
-            break;
-        }
-    }
-    if (!deleted) {
-        vscode.window.showErrorMessage("No named parameter with the given key exists: Aborting deletion");
-        return namedParameters;
-    } else {
-        await Global.state.update(Constants.NAMED_PARAMETER, namedParameters);
-        fetchNamedParameters(context);
-        vscode.window.showInformationMessage("Parameter deleted successfully");
-        return namedParameters;
     }
 }
