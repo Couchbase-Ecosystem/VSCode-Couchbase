@@ -1,22 +1,25 @@
 import * as vscode from 'vscode';
 import { logger } from '../../logger/logger';
 import { showNamedParameters } from '../../webViews/namedParameters.webview';
-import { applyQuery } from '../../commands/queryHistory/applyQuery';
-import { Memory, getUUID } from '../../util/util';
-import { IConnection } from '../../types/IConnection';
+import { Memory } from '../../util/util';
 import { Constants } from '../../util/constants';
 
 export interface INamedParametersWebviewState {
     webviewPanel: vscode.WebviewPanel
 }
 
-export const fetchNamedParameters = (context: vscode.ExtensionContext) => {
+export const fetchNamedParameters = (isRefresh:boolean = false) => {
     const namedParametersWebviewDetails = Memory.state.get<INamedParametersWebviewState>(Constants.NAMED_PARAMETERS_WEBVIEW);
     if (namedParametersWebviewDetails) {
+        if(isRefresh){
+            namedParametersWebviewDetails.webviewPanel.webview.html = showNamedParameters();
+            return;
+        }
         // Named Parameters Webview already exists, Closing existing and creating new
         namedParametersWebviewDetails.webviewPanel.dispose();
         Memory.state.update(Constants.NAMED_PARAMETERS_WEBVIEW, null);
     }
+
     const currentPanel = vscode.window.createWebviewPanel(
         "showNamedParameters",
         "Named Parameters",
@@ -31,8 +34,12 @@ export const fetchNamedParameters = (context: vscode.ExtensionContext) => {
     try {
         currentPanel.webview.html = showNamedParameters();
         currentPanel.webview.onDidReceiveMessage(async (message) => {
-            switch (message.command) {
+            if (message.command === "openSettings") {
+                vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.workbench");
+            } else {
+                console.debug("Unhandled Message received from named parameters webview", message);
             }
+            
         });
 
         currentPanel.onDidDispose(() => {

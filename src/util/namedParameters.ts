@@ -1,10 +1,7 @@
-import { fetchNamedParameters } from "../pages/namedParameters/namedParameters";
 import { IKeyValuePair } from "../types/IKeyValuePair";
-import { Constants } from "./constants";
-import { Global } from "./util";
 import * as vscode from "vscode";
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 export function getUsersNamedParameters(): IKeyValuePair[] {
     try {
@@ -44,4 +41,22 @@ export function getProjectsNamedParameters(): IKeyValuePair[] {
     } else {
         return [];
     }
+}
+
+export function getAllNamedParameters(): {[key: string]: any} {
+    const userNamedParameters = getUsersNamedParameters();
+    const projectNamedParameters = getProjectsNamedParameters();
+
+    // if any parameter is repeated, then the user's parameter will be used
+    let allNamedParameters: {[key: string]: any} = {};
+    
+    for (let parameter of projectNamedParameters) {
+        allNamedParameters[parameter.key] = parameter.value;
+    }
+
+    for (let parameter of userNamedParameters) {
+        allNamedParameters[parameter.key] = parameter.value;
+    }
+
+    return allNamedParameters;
 }

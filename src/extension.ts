@@ -171,6 +171,14 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.showWorkbenchSettings,
+      () => {
+        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.workbench");
+      }
+    )
+  );
 
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
@@ -601,7 +609,16 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.showNamedParameters,
       () => {
-        fetchNamedParameters(context);
+         fetchNamedParameters();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.refreshNamedParameters,
+      () => {
+        fetchNamedParameters(true);
       }
     )
   );

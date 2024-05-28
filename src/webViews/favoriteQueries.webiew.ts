@@ -22,7 +22,7 @@ export const showFavoriteQueries = (): string => {
               }
               
               .favorite-queries-table {
-                min-height: 150px;
+                min-height: 200px;
                 display: flex;
                 justify-content: space-between;
                 width: 100%;
