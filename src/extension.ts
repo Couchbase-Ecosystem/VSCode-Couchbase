@@ -76,7 +76,7 @@ import { newChatHandler } from "./commands/iq/chat/newChatHandler";
 import { SecretService } from "./util/secretService";
 import { kvTypeFilterDocuments } from "./commands/documents/documentFilters/kvTypeFilterDocuments";
 import { fetchNamedParameters } from "./pages/namedParameters/namedParameters";
-import { sqlppComlpletions, sqlppNamedParametersCompletions } from "./commands/sqlpp/sqlppCompletions";
+import { sqlppComlpletions, sqlppNamedParametersCompletions, sqlppSchemaComlpletions } from "./commands/sqlpp/sqlppCompletions";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -536,6 +536,19 @@ export function activate(context: vscode.ExtensionContext) {
     provideCompletionItems(document, position) {
       return sqlppNamedParametersCompletions(document, position);
   }}, '$');
+
+  let sqlppSchemaComlpletionsDisposable: vscode.Disposable | undefined = undefined;
+
+  CacheService.eventEmitter.on("cacheSuccessful", ()=>{
+    if(sqlppSchemaComlpletionsDisposable){
+      sqlppSchemaComlpletionsDisposable.dispose();
+    }
+
+    sqlppSchemaComlpletionsDisposable = vscode.languages.registerCompletionItemProvider("SQL++", {
+      provideCompletionItems() {
+        return sqlppSchemaComlpletions(cacheService);
+    }});
+  });
 
   subscriptions.push(
     vscode.commands.registerCommand(
