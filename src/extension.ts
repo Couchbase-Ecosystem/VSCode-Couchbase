@@ -75,6 +75,7 @@ import { secretUpdater } from "./util/secretUpdater";
 import { newChatHandler } from "./commands/iq/chat/newChatHandler";
 import { SecretService } from "./util/secretService";
 import { kvTypeFilterDocuments } from "./commands/documents/documentFilters/kvTypeFilterDocuments";
+import { fetchNamedParameters } from "./pages/namedParameters/namedParameters";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -170,6 +171,14 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.showWorkbenchSettings,
+      () => {
+        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.workbench");
+      }
+    )
+  );
 
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
@@ -592,6 +601,24 @@ export function activate(context: vscode.ExtensionContext) {
       Commands.markFavoriteQuery,
       async () => {
         await markFavoriteQuery(context);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.showNamedParameters,
+      () => {
+         fetchNamedParameters();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.refreshNamedParameters,
+      () => {
+        fetchNamedParameters(true);
       }
     )
   );

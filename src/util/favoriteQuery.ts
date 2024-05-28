@@ -2,9 +2,8 @@
 import { fetchFavoriteQueries } from "../pages/FavoriteQueries/FavoriteQueries";
 import { favoriteQueryType } from "../types/FavoriteQueryType";
 import { IKeyValuePair } from "../types/IKeyValuePair";
-import { IQuery } from "../types/IQuery";
 import { Constants } from "./constants";
-import { Global, Memory } from "./util";
+import { Global } from "./util";
 import * as vscode from "vscode";
 
 export function getFavoriteQueries(): favoriteQueryType {

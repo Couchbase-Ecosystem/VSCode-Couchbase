@@ -24,6 +24,7 @@ import { saveQuery } from '../util/queryHistory';
 import { getUUID } from '../util/util';
 import { QueryHistoryTreeProvider } from '../tree/QueryHistoryTreeProvider';
 import { IQueryContext } from '../types/IQueryContext';
+import { getAllNamedParameters } from '../util/namedParameters';
 
 export class QueryWorkbench {
     private _untitledSqlppDocumentService: UntitledSqlppDocumentService;
@@ -53,10 +54,13 @@ export class QueryWorkbench {
             const query = activeTextEditor.selection.isEmpty ? activeTextEditor.document.getText() : activeTextEditor.document.getText(activeTextEditor.selection);
             const queryContext = this.editorToContext.get(activeTextEditor.document.uri.toString());
             const queryContextString = queryContext && (`${queryContext?.bucketName}.${queryContext?.scopeName}`); // Query context string is of format bucketName.ScopeName
+            const queryParameters = getAllNamedParameters();
+            
             const queryOptions: QueryOptions = {
                 profile: QueryProfileMode.Timings,
                 metrics: true,
-                queryContext: queryContextString
+                queryContext: queryContextString,
+                parameters: queryParameters
             };
             try {
                 // Reveal the webview when the extension is activated

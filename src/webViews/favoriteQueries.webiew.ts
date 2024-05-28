@@ -2,7 +2,7 @@ import { getFavoriteQueries } from "../util/favoriteQuery";
 
 export const showFavoriteQueries = (): string => {
     let favQueries = getFavoriteQueries();
-    return `
+    return /*HTML*/`
     <!DOCTYPE html>
     <html lang="en">
        <head>
@@ -22,6 +22,7 @@ export const showFavoriteQueries = (): string => {
               }
               
               .favorite-queries-table {
+                min-height: 200px;
                 display: flex;
                 justify-content: space-between;
                 width: 100%;

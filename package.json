@@ -478,12 +478,12 @@
       },
       {
         "command": "vscode-couchbase.queryTypeDocumentFilter",
-        "title": "Add Query Type Document Filter",
+        "title": "Add Query Filter",
         "category": "Couchbase"
       },
       {
         "command": "vscode-couchbase.kvTypeDocumentFilter",
-        "title": "Add KV Range Type Document Filter",
+        "title": "Add KV Range Filter",
         "category": "Couchbase"
       },
       {
@@ -596,6 +596,21 @@
         "icon": "$(star-empty)"
       },
       {
+        "title": "Show Named Parameters List",
+        "command": "vscode-couchbase.showNamedParameters",
+        "category": "Couchbase",
+        "icon": {
+          "light": "images/light/named-parameters.svg",
+          "dark": "images/dark/named-parameters.svg"
+        }
+      },
+      {
+        "title": "Refresh Named Parameters List",
+        "command": "vscode-couchbase.refreshNamedParameters",
+        "category": "Couchbase",
+        "icon": "$(refresh)"
+      },
+      {
         "title": "Apply Query History",
         "command": "vscode-couchbase.applyQueryHistory",
         "category": "Couchbase"
@@ -619,17 +634,17 @@
         "icon": "$(refresh)"
       },
       {
-        "title": "Edit Query Type Document Filter",
+        "title": "Edit Query Filter",
         "command": "vscode-couchbase.editQueryTypeDocumentFilter",
         "category": "Couchbase"
       },
       {
-        "title": "Edit KV Range Type Document Filter",
+        "title": "Edit KV Range Filter",
         "command": "vscode-couchbase.editKvTypeDocumentFilter",
         "category": "Couchbase"
       },
       {
-        "title": "Clear Document Filter",
+        "title": "Clear Filters",
         "command": "vscode-couchbase.clearDocumentFilter",
         "category": "Couchbase"
       },
@@ -664,6 +679,12 @@
       {
         "command": "vscode-couchbase.iq.showSettings",
         "title": "Show iQ settings",
+        "category": "Couchbase",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "vscode-couchbase.workbench.showSettings",
+        "title": "Show Workbench settings",
         "category": "Couchbase",
         "icon": "$(gear)"
       }
@@ -706,11 +727,32 @@
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
         },
         {
+          "title": "Show Named Parameters",
+          "command": "vscode-couchbase.showNamedParameters",
+          "category": "Couchbase",
+          "group": "navigation@3",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/) && !isKVCluster"
+        },
+        {
           "title": "Refresh Cluster Overview",
           "command": "vscode-couchbase.refreshClusterOverview",
           "category": "Couchbase",
           "group": "navigation",
           "when": "activeWebviewPanelId == clusterOverview"
+        },
+        {
+          "title": "Refresh Named Parameters List",
+          "command": "vscode-couchbase.refreshNamedParameters",
+          "category": "Couchbase",
+          "group": "navigation@2",
+          "when": "activeWebviewPanelId == showNamedParameters"
+        },
+        {
+          "title": "Show Named Parameters List",
+          "command": "vscode-couchbase.workbench.showSettings",
+          "category": "Couchbase",
+          "group": "navigation@1",
+          "when": "activeWebviewPanelId == showNamedParameters"
         }
       ],
       "editor/context": [
@@ -829,6 +871,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.showNamedParameters",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.editQueryTypeDocumentFilter",
           "when": "false"
         },
@@ -870,6 +916,10 @@
         },
         {
           "command": "vscode-couchbase.iq.showSettings",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.workbench.showSettings",
           "when": "false"
         }
       ],
@@ -1114,6 +1164,22 @@
             "type": "boolean",
             "default": true,
             "markdownDescription": "Would you like to anonymously submit the queries made to iQ, along with their results, to Couchbase in order to improve iQ's performance?"
+          }
+        }
+      },
+      {
+        "id": "couchbase-workbench",
+        "title": "Workbench",
+        "properties": {
+          "couchbase.workbench.userNamedParameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "value": "string"
+            },
+            "title": "User Named Parameters",
+            "default": {},
+            "markdownDescription": "This field represents the user-defined named parameters. You can modify the user-defined named parameters here."
           }
         }
       }
