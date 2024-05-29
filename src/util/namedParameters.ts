@@ -15,7 +15,7 @@ export function getUsersNamedParameters(): IKeyValuePair[] {
         ).map(([key, value]) => ({ key, value }));
         return userNamedParameters;
     } catch (error) {
-        console.error("Error reading userNamedParameters from config:", error);
+        console.log("Error reading userNamedParameters from config:", error);
         return [];
     }
 }
@@ -23,10 +23,10 @@ export function getUsersNamedParameters(): IKeyValuePair[] {
 export function getProjectsNamedParameters(): IKeyValuePair[] {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders && workspaceFolders.length > 0) {
-        const rootPath = workspaceFolders[0].uri.fsPath;
-        const filePath = path.join(rootPath, '.cbNamedParams.properties');
         let namedParameters: IKeyValuePair[] = [];
         try {
+            const rootPath = workspaceFolders[0].uri.fsPath;
+            const filePath = path.join(rootPath, '.cbNamedParams.properties');
             const fileContent = fs.readFileSync(filePath, 'utf-8');
             const lines = fileContent.split('\n');
 
@@ -34,8 +34,12 @@ export function getProjectsNamedParameters(): IKeyValuePair[] {
                 const [key, value] = line.split('=');
                 namedParameters.push({ key: key.trim(), value: value.trim() });
             }
-        } catch (error) {
-            console.error('Error reading .cbNamedParams.properties file:', error);
+        } catch (error: any) {
+            if (error.code === 'ENOENT') {
+                console.log('.cbNamedParams.properties file does not exist');
+            } else {
+                console.error('Error reading .cbNamedParams.properties file:', error);
+            }
         }
         return namedParameters;
     } else {
