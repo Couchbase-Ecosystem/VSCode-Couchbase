@@ -88,6 +88,7 @@ export const mdbMigrate = async (context: vscode.ExtensionContext) => {
     {
       enableScripts: true,
       enableForms: true,
+      retainContextWhenHidden: true
     }
   );
   Memory.state.update(Constants.DATA_MIGRATE_MDB_WEBVIEW, {

@@ -17,7 +17,9 @@ import { IDocumentData } from "../types/IDocument";
 
 // A function to abbreviate a given count number into a string format with an appropriate abbreviation suffix
 export function abbreviateCount(count: number): string {
-    if (count < 1000) {
+    if(count < 0){
+        return "?";
+    } else if (count < 1000) {
         return count.toString();
     } else if (count < 1000000) {
         return (count / 1000).toFixed(1) + "k";

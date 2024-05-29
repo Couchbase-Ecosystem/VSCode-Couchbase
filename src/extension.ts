@@ -51,7 +51,7 @@ import { QueryWorkbench } from "./workbench/queryWorkbench";
 import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 import DependenciesDownloader from "./handlers/handleCLIDownloader";
-import { sqlppFormatter } from "./commands/formatting/sqlppFormatter";
+import { sqlppFormatter } from "./commands/sqlpp/sqlppFormatter";
 import { fetchQueryContext } from "./pages/queryContext/queryContext";
 import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
 import { markFavoriteQuery } from "./commands/favoriteQueries/markFavoriteQuery";
@@ -60,8 +60,8 @@ import { deleteQueryItem } from "./commands/queryHistory/deleteQuery";
 import { copyQuery } from "./commands/queryHistory/copyQuery";
 import { applyQuery } from "./commands/queryHistory/applyQuery";
 import { handleQueryContextStatusbar } from "./handlers/handleQueryContextStatusbar";
-import { filterDocuments } from "./commands/documents/filterDocuments";
-import { clearDocumentFilter } from "./commands/documents/clearDocumentFilter";
+import { queryTypeFilterDocuments } from "./commands/documents/documentFilters/queryTypeFilterDocuments";
+import { clearDocumentFilter } from "./commands/documents/documentFilters/clearDocumentFilter";
 import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewClusterData";
 import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePrimaryIndex";
 import { dataExport } from "./pages/Tools/DataExport/dataExport";
@@ -74,6 +74,9 @@ import { CacheService } from "./util/cacheService/cacheService";
 import { secretUpdater } from "./util/secretUpdater";
 import { newChatHandler } from "./commands/iq/chat/newChatHandler";
 import { SecretService } from "./util/secretService";
+import { kvTypeFilterDocuments } from "./commands/documents/documentFilters/kvTypeFilterDocuments";
+import { fetchNamedParameters } from "./pages/namedParameters/namedParameters";
+import { sqlppComlpletions, sqlppNamedParametersCompletions, sqlppSchemaComlpletions } from "./commands/sqlpp/sqlppCompletions";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -169,6 +172,14 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.showWorkbenchSettings,
+      () => {
+        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.workbench");
+      }
+    )
+  );
 
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
@@ -427,9 +438,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      Commands.filterDocuments,
+      Commands.queryTypeDocumentFilter,
       async (node: CollectionNode) => {
-        await filterDocuments(node);
+        await queryTypeFilterDocuments(node);
         clusterConnectionTreeProvider.refresh(node.parentNode);
       }
     )
@@ -437,9 +448,29 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      Commands.editDocumentFilter,
+      Commands.kvTypeDocumentFilter,
       async (node: CollectionNode) => {
-        await filterDocuments(node);
+        await kvTypeFilterDocuments(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.editQueryTypeDocumentFilter,
+      async (node: CollectionNode) => {
+        await queryTypeFilterDocuments(node);
+        clusterConnectionTreeProvider.refresh(node.parentNode);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.editKvTypeDocumentFilter,
+      async (node: CollectionNode) => {
+        await kvTypeFilterDocuments(node);
         clusterConnectionTreeProvider.refresh(node.parentNode);
       }
     )
@@ -494,6 +525,29 @@ export function activate(context: vscode.ExtensionContext) {
     provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
       return sqlppFormatter(document);
     },
+  });
+
+  vscode.languages.registerCompletionItemProvider("SQL++", {
+    provideCompletionItems() {
+      return sqlppComlpletions();
+  }});
+
+  vscode.languages.registerCompletionItemProvider("SQL++", {
+    provideCompletionItems(document, position) {
+      return sqlppNamedParametersCompletions(document, position);
+  }}, '$');
+
+  let sqlppSchemaComlpletionsDisposable: vscode.Disposable | undefined = undefined;
+
+  CacheService.eventEmitter.on("cacheSuccessful", ()=>{
+    if(sqlppSchemaComlpletionsDisposable){
+      sqlppSchemaComlpletionsDisposable.dispose();
+    }
+
+    sqlppSchemaComlpletionsDisposable = vscode.languages.registerCompletionItemProvider("SQL++", {
+      provideCompletionItems() {
+        return sqlppSchemaComlpletions(cacheService);
+    }});
   });
 
   subscriptions.push(
@@ -571,6 +625,24 @@ export function activate(context: vscode.ExtensionContext) {
       Commands.markFavoriteQuery,
       async () => {
         await markFavoriteQuery(context);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.showNamedParameters,
+      () => {
+         fetchNamedParameters();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.refreshNamedParameters,
+      () => {
+        fetchNamedParameters(true);
       }
     )
   );

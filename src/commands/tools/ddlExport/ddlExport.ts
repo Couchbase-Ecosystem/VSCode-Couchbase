@@ -136,6 +136,7 @@ export const ddlExport = async () => {
         {
             enableScripts: true,
             enableForms: true,
+            retainContextWhenHidden: true
         }
     );
     currentPanel.iconPath = {

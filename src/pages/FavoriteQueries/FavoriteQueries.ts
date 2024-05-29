@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { logger } from '../../logger/logger';
 import { showFavoriteQueries } from '../../webViews/favoriteQueries.webiew';
 import { applyQuery } from '../../commands/queryHistory/applyQuery';
@@ -26,6 +25,7 @@ export const fetchFavoriteQueries = (context: vscode.ExtensionContext) => {
         {
             enableScripts: true,
             enableForms: true,
+            retainContextWhenHidden: true,
         },
     );
 

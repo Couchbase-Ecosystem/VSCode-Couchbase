@@ -21,6 +21,7 @@ export class Constants {
   public static FAVORITE_QUERY = "cluster.favoriteQueries";
   public static ACTIVE_CONNECTION = "activeConnection";
   public static FAVORITE_QUERIES_WEBVIEW = "favoriteQueriesWebview";
+  public static NAMED_PARAMETERS_WEBVIEW = "namedParametersWebview";
   public static CLUSTER_OVERVIEW_WEBVIEW = "clusterOverviewWebview";
   public static CLUSTER_OVERVIEW_DATA = "clusterOverviewData";
   public static QUERY_CONTEXT_STATUS_BAR = "queryContextStatusBar";
@@ -33,6 +34,7 @@ export class Constants {
   public static prefixURL = "couchbase://";
   public static extensionVersion = pkg.version;
   public static COUCHBASEVERSIONKEY = "Couchbase Version";
+  public static CLUSTERTYPE = "Cluster Type";
   public static STATUS = "Status";
   public static SERVICES= "Services";
   public static NODES= "Nodes";

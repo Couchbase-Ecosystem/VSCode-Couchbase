@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -409,6 +409,11 @@
         "label": "Tools",
         "id": "vscode-couchbase.toolsMenu",
         "icon": "images/couchbase.svg"
+      },
+      {
+        "label": "Filter Documents",
+        "id": "vscode-couchbase.filterDocumentsMenu",
+        "icon": "images/couchbase.svg"
       }
     ],
     "commands": [
@@ -472,8 +477,13 @@
         "category": "Couchbase"
       },
       {
-        "command": "vscode-couchbase.filterDocuments",
-        "title": "Add Document Filter",
+        "command": "vscode-couchbase.queryTypeDocumentFilter",
+        "title": "Add Query Filter",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.kvTypeDocumentFilter",
+        "title": "Add KV Range Filter",
         "category": "Couchbase"
       },
       {
@@ -586,6 +596,21 @@
         "icon": "$(star-empty)"
       },
       {
+        "title": "Show Named Parameters List",
+        "command": "vscode-couchbase.showNamedParameters",
+        "category": "Couchbase",
+        "icon": {
+          "light": "images/light/named-parameters.svg",
+          "dark": "images/dark/named-parameters.svg"
+        }
+      },
+      {
+        "title": "Refresh Named Parameters List",
+        "command": "vscode-couchbase.refreshNamedParameters",
+        "category": "Couchbase",
+        "icon": "$(refresh)"
+      },
+      {
         "title": "Apply Query History",
         "command": "vscode-couchbase.applyQueryHistory",
         "category": "Couchbase"
@@ -609,12 +634,17 @@
         "icon": "$(refresh)"
       },
       {
-        "title": "Edit Document Filter",
-        "command": "vscode-couchbase.editDocumentFilter",
+        "title": "Edit Query Filter",
+        "command": "vscode-couchbase.editQueryTypeDocumentFilter",
         "category": "Couchbase"
       },
       {
-        "title": "Clear Document Filter",
+        "title": "Edit KV Range Filter",
+        "command": "vscode-couchbase.editKvTypeDocumentFilter",
+        "category": "Couchbase"
+      },
+      {
+        "title": "Clear Filters",
         "command": "vscode-couchbase.clearDocumentFilter",
         "category": "Couchbase"
       },
@@ -649,6 +679,12 @@
       {
         "command": "vscode-couchbase.iq.showSettings",
         "title": "Show iQ settings",
+        "category": "Couchbase",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "vscode-couchbase.workbench.showSettings",
+        "title": "Show Workbench settings",
         "category": "Couchbase",
         "icon": "$(gear)"
       }
@@ -691,11 +727,32 @@
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
         },
         {
+          "title": "Show Named Parameters",
+          "command": "vscode-couchbase.showNamedParameters",
+          "category": "Couchbase",
+          "group": "navigation@3",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/) && !isKVCluster"
+        },
+        {
           "title": "Refresh Cluster Overview",
           "command": "vscode-couchbase.refreshClusterOverview",
           "category": "Couchbase",
           "group": "navigation",
           "when": "activeWebviewPanelId == clusterOverview"
+        },
+        {
+          "title": "Refresh Named Parameters List",
+          "command": "vscode-couchbase.refreshNamedParameters",
+          "category": "Couchbase",
+          "group": "navigation@2",
+          "when": "activeWebviewPanelId == showNamedParameters"
+        },
+        {
+          "title": "Show Named Parameters List",
+          "command": "vscode-couchbase.workbench.showSettings",
+          "category": "Couchbase",
+          "group": "navigation@1",
+          "when": "activeWebviewPanelId == showNamedParameters"
         }
       ],
       "editor/context": [
@@ -783,7 +840,11 @@
           "when": "false"
         },
         {
-          "command": "vscode-couchbase.filterDocuments",
+          "command": "vscode-couchbase.queryTypeDocumentFilter",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.kvTypeDocumentFilter",
           "when": "false"
         },
         {
@@ -810,7 +871,15 @@
           "when": "false"
         },
         {
-          "command": "vscode-couchbase.editDocumentFilter",
+          "command": "vscode-couchbase.showNamedParameters",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.editQueryTypeDocumentFilter",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.editKvTypeDocumentFilter",
           "when": "false"
         },
         {
@@ -847,6 +916,10 @@
         },
         {
           "command": "vscode-couchbase.iq.showSettings",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.workbench.showSettings",
           "when": "false"
         }
       ],
@@ -894,17 +967,17 @@
         },
         {
           "command": "vscode-couchbase.createDocument",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter || viewItem == collection_filter)",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter_kv || viewItem == default_collection_filter_query || viewItem == collection_filter_kv || viewItem == collection_filter_query)",
           "group": "primary"
         },
         {
           "command": "vscode-couchbase.searchDocument",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter || viewItem == collection_filter)",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter_kv || viewItem == default_collection_filter_query || viewItem == collection_filter_kv || viewItem == collection_filter_query)",
           "group": "primary"
         },
         {
-          "command": "vscode-couchbase.filterDocuments",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection) && !isKVCluster",
+          "submenu": "vscode-couchbase.filterDocumentsMenu",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter_kv || viewItem == default_collection_filter_query || viewItem == collection_filter_kv || viewItem == collection_filter_query)",
           "group": "secondary"
         },
         {
@@ -917,7 +990,7 @@
         },
         {
           "command": "vscode-couchbase.refreshCollection",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter || viewItem == collection_filter)",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter_kv || viewItem == default_collection_filter_query || viewItem == collection_filter_kv || viewItem == collection_filter_query)",
           "group": "tertiary"
         },
         {
@@ -945,18 +1018,8 @@
         },
         {
           "command": "vscode-couchbase.removeCollection",
-          "when": "view == couchbase && (viewItem == collection || viewItem == collection_filter)",
+          "when": "view == couchbase && (viewItem == collection || viewItem == collection_filter_kv || viewItem == collection_filter_query)",
           "group": "tertiary"
-        },
-        {
-          "command": "vscode-couchbase.editDocumentFilter",
-          "when": "view == couchbase && (viewItem == collection_filter || viewItem == default_collection_filter)",
-          "group": "secondary"
-        },
-        {
-          "command": "vscode-couchbase.clearDocumentFilter",
-          "when": "view == couchbase && (viewItem == collection_filter || viewItem == default_collection_filter)",
-          "group": "secondary"
         },
         {
           "command": "vscode-couchbase.refreshCollections",
@@ -1029,6 +1092,33 @@
           "command": "vscode-couchbase.tools.DDLExport",
           "group": "navigation"
         }
+      ],
+      "vscode-couchbase.filterDocumentsMenu": [
+        {
+          "command": "vscode-couchbase.queryTypeDocumentFilter",
+          "group": "navigation",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == collection_filter_kv || viewItem == default_collection_filter_kv) && !isKVCluster"
+        },
+        {
+          "command": "vscode-couchbase.kvTypeDocumentFilter",
+          "group": "navigation",
+          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == collection_filter_query || viewItem == default_collection_filter_query)"
+        },
+        {
+          "command": "vscode-couchbase.editQueryTypeDocumentFilter",
+          "when": "view == couchbase && (viewItem == collection_filter_query || viewItem == default_collection_filter_query) && !isKVCluster",
+          "group": "secondary"
+        },
+        {
+          "command": "vscode-couchbase.editKvTypeDocumentFilter",
+          "when": "view == couchbase && (viewItem == collection_filter_kv || viewItem == default_collection_filter_kv)",
+          "group": "secondary"
+        },
+        {
+          "command": "vscode-couchbase.clearDocumentFilter",
+          "when": "view == couchbase && (viewItem == collection_filter_kv || viewItem == default_collection_filter_kv || viewItem == collection_filter_query || viewItem == default_collection_filter_query)",
+          "group": "tertiary"
+        }
       ]
     },
     "views": {
@@ -1074,6 +1164,22 @@
             "type": "boolean",
             "default": true,
             "markdownDescription": "Would you like to anonymously submit the queries made to iQ, along with their results, to Couchbase in order to improve iQ's performance?"
+          }
+        }
+      },
+      {
+        "id": "couchbase-workbench",
+        "title": "Workbench",
+        "properties": {
+          "couchbase.workbench.userNamedParameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "value": "string"
+            },
+            "title": "User Named Parameters",
+            "default": {},
+            "markdownDescription": "This field represents the user-defined named parameters. You can modify the user-defined named parameters here."
           }
         }
       }

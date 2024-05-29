@@ -171,7 +171,7 @@ export const getClusterConnectingFormView = (message: any) => {
                     <h1>Connect to Couchbase</h1>
                     <b>Enter your connection details below</b><br><br>
                     <div>
-                    <label for="url">Cluster Connection URL</label><br>
+                    <label for="url">Connection String</label><br>
                     <input type="text" id="url" name="url" placeholder="localhost" value=${message?.url ?? "localhost"} />
                     <div class="secure-box">
                     <input type="checkbox" id="secureCheck" ${message?.isSecure ? 'checked' : ''}>

@@ -36,6 +36,7 @@ export async function fetchClusterOverview(node: ClusterConnectionNode, context:
         {
             enableScripts: true,
             enableForms: true,
+            retainContextWhenHidden: true
         }
     );
     Memory.state.update(Constants.CLUSTER_OVERVIEW_WEBVIEW, {

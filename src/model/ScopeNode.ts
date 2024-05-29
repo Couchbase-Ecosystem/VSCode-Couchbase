@@ -15,18 +15,16 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { IConnection } from "../types/IConnection";
 import { INode } from "../types/INode";
 import { Memory } from "../util/util";
 import { getActiveConnection } from "../util/connections";
-import { IFilterDocuments } from "../types/IFilterDocuments";
 import CollectionNode from "./CollectionNode";
 import { logger } from "../logger/logger";
 import InformationNode from "./InformationNode";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
 import { hasQueryService } from "../util/common";
 import { CouchbaseRestAPI } from "../util/apis/CouchbaseRestAPI";
-import { CacheService } from "../../src/util/cacheService/cacheService"
+import { CacheService } from "../../src/util/cacheService/cacheService";
 
 
 export class ScopeNode implements INode {
@@ -76,20 +74,27 @@ export class ScopeNode implements INode {
 
     for (const collection of this.collections) {
       try {
-        const docFilter = Memory.state.get<IFilterDocuments>(
-          `filterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`
-        );
-        const filter: string =
-          docFilter && docFilter.filter.length > 0 ? docFilter.filter : "";
+        const queryTypeFilter = Memory.state.get<string>(
+          `queryTypeFilterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`
+        ) ?? "";
+
+        const filterDocumentsType =  Memory.state.get<string>(
+          `filterDocumentsType-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`
+        ) ?? "";
+
         let rowCount = 0;
         try {
-          if (!hasQueryService(connection?.services) || filter === "") {
+          if (!hasQueryService(connection?.services) || filterDocumentsType !== "query") {
             rowCount = KVCollectionCount.get(`kv_collection_item_count-${this.bucketName}-${this.scopeName}-${collection.name}`) ?? 0;
+
+            if(filterDocumentsType === "kv") {
+              rowCount = -1;
+            }
           }
           else {
             const queryResult = await connection?.cluster?.query(
               `select count(1) as count from \`${this.bucketName}\`.\`${this.scopeName
-              }\`.\`${collection.name}\` ${filter.length > 0 ? "WHERE " + filter : ""
+              }\`.\`${collection.name}\` ${queryTypeFilter.length > 0 ? "WHERE " + queryTypeFilter : ""
               };`
             );
             rowCount = queryResult?.rows[0].count;
@@ -110,7 +115,6 @@ export class ScopeNode implements INode {
           rowCount,
           this.bucketName,
           collection.name,
-          filter !== "",
           vscode.TreeItemCollapsibleState.None,
           this.cacheService
         );

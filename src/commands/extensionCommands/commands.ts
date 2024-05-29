@@ -45,12 +45,16 @@ export namespace Commands {
     export const queryContext: string = "vscode-couchbase.queryContext";
     export const showFavoriteQueries: string = "vscode-couchbase.showFavoriteQueries";
     export const markFavoriteQuery: string = "vscode-couchbase.markFavoriteQuery";
+    export const showNamedParameters: string = "vscode-couchbase.showNamedParameters";
+    export const refreshNamedParameters: string = "vscode-couchbase.refreshNamedParameters";
     export const applyQueryHistory: string = "vscode-couchbase.applyQueryHistory";
     export const deleteQueryHistoryItem: string = "vscode-couchbase.deleteQueryHistoryItem";
     export const copyQueryHistoryItem: string = "vscode-couchbase.copyQueryHistoryItem";
     export const refreshQueryHistory: string = "vscode-couchbase.refreshQueryHistory";
-    export const filterDocuments: string = "vscode-couchbase.filterDocuments";
-    export const editDocumentFilter: string = "vscode-couchbase.editDocumentFilter";
+    export const queryTypeDocumentFilter: string = "vscode-couchbase.queryTypeDocumentFilter";
+    export const kvTypeDocumentFilter: string = "vscode-couchbase.kvTypeDocumentFilter";
+    export const editQueryTypeDocumentFilter: string = "vscode-couchbase.editQueryTypeDocumentFilter";
+    export const editKvTypeDocumentFilter: string = "vscode-couchbase.editKvTypeDocumentFilter";
     export const clearDocumentFilter: string = "vscode-couchbase.clearDocumentFilter";
     export const refreshClusterOverview: string = "vscode-couchbase.refreshClusterOverview";
     export const refreshCache: string = "vscode-couchbase.refreshCache";
@@ -62,5 +66,6 @@ export namespace Commands {
     export const couchbaseIqViewsCommand: string = "couchbase-iq";
     export const logoutIq: string = "vscode-couchbase.iq.logout";
     export const showIqSettings: string = "vscode-couchbase.iq.showSettings";
+    export const showWorkbenchSettings: string = "vscode-couchbase.workbench.showSettings";
     export const newIqChat: string = "vscode-couchbase.iq.newChat";
 }
