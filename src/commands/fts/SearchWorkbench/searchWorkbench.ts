@@ -47,9 +47,6 @@ export class SearchWorkbench {
                 await workbenchWebviewProvider.sendQueryResult(JSON.stringify([{ "status": "Executing statement" }]), { queryStatus: QueryStatus.Running }, null);
                 const explainPlan = JSON.stringify("");
                 const couchbbaseRestAPI = new CouchbaseRestAPI(connection);
-                if (queryContext?.indexName){
-
-                }
                 const searchQueryResult = await couchbbaseRestAPI.runSearchIndexes(queryContext?.indexName, indexQueryPayload);
                 workbenchWebviewProvider.setSearchQueryResult(
                     JSON.stringify(searchQueryResult?.hits),
