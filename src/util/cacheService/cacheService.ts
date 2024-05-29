@@ -5,7 +5,8 @@ import { hasQueryService } from "../common";
 import { Global } from "../util";
 import { QueryIndex } from "couchbase";
 import { QueryResult } from "couchbase";
-import { CouchbaseError } from 'couchbase'
+import { CouchbaseError } from 'couchbase';
+import { EventEmitter } from "events";
 
 export type SchemaCacheType = { [index: string]: any };
 export interface ISchemaCache {
@@ -37,6 +38,7 @@ export interface IBucketCache {
 export class CacheService {
     private bucketsData: Map<string, IBucketCache> = new Map();
     private cacheStatus: boolean = false;
+    public static eventEmitter = new EventEmitter();
 
     CacheService() { }
 
@@ -80,7 +82,7 @@ export class CacheService {
     }
 
 
-    public cacheSchemaForCollection = async (connection: IConnection, collection: ICollectionCache, result?: QueryResult<any>) => {
+    private cacheSchemaForCollection = async (connection: IConnection, collection: ICollectionCache, result?: QueryResult<any>) => {
         try {
             if (!result) {
                 const query = "INFER `" + collection.bucketName + "`.`" + collection.scopeName + "`.`" + collection.name + "` WITH {\"sample_size\": 2000}";
@@ -105,7 +107,7 @@ export class CacheService {
         }
     };
 
-    public async cacheIndexesForCollection(connection: IConnection, collection: ICollectionCache, indexesResult?: QueryIndex[]): Promise<QueryIndex[]> {
+    private async cacheIndexesForCollection(connection: IConnection, collection: ICollectionCache, indexesResult?: QueryIndex[]): Promise<QueryIndex[]> {
         if (!indexesResult) {
             indexesResult = await connection?.cluster?.queryIndexes().getAllIndexes(collection.bucketName, { scopeName: collection.scopeName, collectionName: collection.name });
         }
@@ -117,7 +119,7 @@ export class CacheService {
     }
 
     // This function focuses on complete caching of schema of each collection which are saved in bucket cache
-    public cacheIndexesAndSchemaForAllBuckets = async (connection: IConnection) => {
+    private cacheIndexesAndSchemaForAllBuckets = async (connection: IConnection) => {
         for (let [_, bucket] of this.bucketsData) {
             for (let [_, scope] of bucket.scopes) {
                 for (let [_, collection] of scope.collections) {
@@ -205,7 +207,7 @@ export class CacheService {
         } catch (error) {
             logger.error("Error while refreshing bucket cache" + error);
         }
-    }
+    };
 
 
     // Refreshes the cache by updating bucket and collection cache if timestamps are older than timeouts specified/ force refresh is true
@@ -250,7 +252,7 @@ export class CacheService {
                 await this.fullCache(true);
             }
         }
-    }
+    };
 
 
     // Refreshes the index and schema cache for a single collection if necessary
@@ -283,9 +285,9 @@ export class CacheService {
         }
 
         const collectionTimestamp = new Date(collectionData.timeStamp);
-        let minsDifference = 0
+        let minsDifference = 0;
         const difference = currentTimestamp.getTime() - collectionTimestamp.getTime();
-        if (difference != 0) {
+        if (difference !== 0) {
             minsDifference = difference / (1000 * 60);
         }
 
@@ -295,7 +297,7 @@ export class CacheService {
             }
         }
 
-    }
+    };
 
     // Refreshes the index cache for a single collection
     private refreshCollectionIndexCache = async (connection: IConnection, bucketName: string, scopeName: string, collectionName: string, indexesResult?: QueryIndex[]) => {
@@ -319,7 +321,7 @@ export class CacheService {
         if (hasQueryService(connection.services)) {
             const indexes = await this.cacheIndexesForCollection(connection, collectionData, indexesResult);
         }
-    }
+    };
 
     // Updates the Bucket cache if required
     public updateBucketCache = async (bucketName: string, forceRefresh: boolean) => {
@@ -337,7 +339,7 @@ export class CacheService {
                 await this.fullCache(true);
             }
         }
-    }
+    };
 
 
     // Updates the Index cache for a particular collection if required
@@ -357,7 +359,7 @@ export class CacheService {
 
         }
 
-    }
+    };
 
     // Updates the Schema cache for a particular collection if required
     public updateCollectionSchemaCache = async (connection: IConnection, bucketName: string, scopeName: string, collectionName: string, collectionTimeout: number, forceRefresh: boolean, queryResult?: QueryResult<any>) => {
@@ -375,7 +377,7 @@ export class CacheService {
             }
 
         }
-    }
+    };
 
     // Updates the Index cache and Schema cache for a particular collection if required
     public async updateCollectionSchemaAndIndexCache(connection: IConnection, bucketName: string, scopeName: string, collectionName: string, collectionTimeout: number, forceRefresh: boolean, result?: QueryResult<any>, indexesResult?: QueryIndex[]) {
@@ -403,9 +405,7 @@ export class CacheService {
             Global.state.update(`vscode-couchbase.iq.bucketsCache.${connection.connectionIdentifier}`, "");
             this.bucketsData.clear();
             await this.fullCache(true);
-
         }
-
     }
 
     public updateBucketsData(bucketName: string, bucket: IBucketCache) {
@@ -418,9 +418,13 @@ export class CacheService {
         return this.bucketsData.get(bucketName);
     }
 
+    public getAllBucketsData(): Map<string, IBucketCache> {
+        return this.bucketsData;
+    }
+
 
     // This function focuses on caching the scopes and collections data for each bucket
-    public cacheAllBuckets = async (connection: IConnection) => {
+    private cacheAllBuckets = async (connection: IConnection) => {
         this.bucketsData = new Map(); // Remove any existing cache
 
         try {
@@ -579,6 +583,7 @@ export class CacheService {
 
         const finalJson = JSON.stringify(serializedData);
         Global.state.update(`vscode-couchbase.iq.bucketsCache.${connection.connectionIdentifier}`, finalJson);
+        CacheService.eventEmitter.emit('cacheSuccessful');
         // return vscode.globalState.update(BUCKETS_STATE_KEY, finalJson);
     }
 
@@ -623,6 +628,7 @@ export class CacheService {
                 }
             }
         }
+        CacheService.eventEmitter.emit('cacheSuccessful');
         return true;
     }
 

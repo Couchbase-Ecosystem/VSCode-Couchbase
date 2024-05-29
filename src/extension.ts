@@ -51,7 +51,7 @@ import { QueryWorkbench } from "./workbench/queryWorkbench";
 import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 import DependenciesDownloader from "./handlers/handleCLIDownloader";
-import { sqlppFormatter } from "./commands/formatting/sqlppFormatter";
+import { sqlppFormatter } from "./commands/sqlpp/sqlppFormatter";
 import { fetchQueryContext } from "./pages/queryContext/queryContext";
 import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
 import { markFavoriteQuery } from "./commands/favoriteQueries/markFavoriteQuery";
@@ -76,6 +76,7 @@ import { newChatHandler } from "./commands/iq/chat/newChatHandler";
 import { SecretService } from "./util/secretService";
 import { kvTypeFilterDocuments } from "./commands/documents/documentFilters/kvTypeFilterDocuments";
 import { fetchNamedParameters } from "./pages/namedParameters/namedParameters";
+import { sqlppComlpletions, sqlppNamedParametersCompletions, sqlppSchemaComlpletions } from "./commands/sqlpp/sqlppCompletions";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -524,6 +525,29 @@ export function activate(context: vscode.ExtensionContext) {
     provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
       return sqlppFormatter(document);
     },
+  });
+
+  vscode.languages.registerCompletionItemProvider("SQL++", {
+    provideCompletionItems() {
+      return sqlppComlpletions();
+  }});
+
+  vscode.languages.registerCompletionItemProvider("SQL++", {
+    provideCompletionItems(document, position) {
+      return sqlppNamedParametersCompletions(document, position);
+  }}, '$');
+
+  let sqlppSchemaComlpletionsDisposable: vscode.Disposable | undefined = undefined;
+
+  CacheService.eventEmitter.on("cacheSuccessful", ()=>{
+    if(sqlppSchemaComlpletionsDisposable){
+      sqlppSchemaComlpletionsDisposable.dispose();
+    }
+
+    sqlppSchemaComlpletionsDisposable = vscode.languages.registerCompletionItemProvider("SQL++", {
+      provideCompletionItems() {
+        return sqlppSchemaComlpletions(cacheService);
+    }});
   });
 
   subscriptions.push(
