@@ -29,6 +29,7 @@ export namespace Commands {
     export const getBucketMetaData: string = "vscode-couchbase.getBucketInfo";
     export const createDocument: string = "vscode-couchbase.createDocument";
     export const openDocument: string = "vscode-couchbase.openDocument";
+    export const openSearchIndex: string = "vscode-couchbase.openSearchIndex";
     export const removeDocument: string = "vscode-couchbase.removeDocument";
     export const getDocumentMetaData: string = "vscode-couchbase.getDocumentMetaData";
     export const searchDocument: string = "vscode-couchbase.searchDocument";
@@ -36,13 +37,17 @@ export namespace Commands {
     export const refreshIndexes: string = "vscode-couchbase.refreshIndexes";
     export const openQueryNotebook: string = "vscode-couchbase.openQueryNotebook";
     export const openQueryWorkbench: string = "vscode-couchbase.openQueryWorkbench";
+    export const openSearchWorkbench: string = "vscode-couchbase.openSearchWorkbench";
     export const getSampleProjects: string = "vscode-couchbase.openSampleProjects";
     export const loadMore: string = "vscode-couchbase.loadMore";
     export const showOutputConsole: string = "vscode-couchbase.showOutputConsole";
     export const runQuery: string = "vscode-couchbase.runQuery";
+    export const runSearchQuery: string = "vscode-couchbase.runSearch";
     export const queryWorkbench: string = "vscode-couchbase.couchbase-query-workbench";
+    export const searchWorkbench: string = "vscode-couchbase.couchbase-search-workbench";
     export const getClusterOverview: string = "vscode-couchbase.getClusterOverview";
     export const queryContext: string = "vscode-couchbase.queryContext";
+    export const searchContext: string = "vscode-couchbase.searchContext";
     export const showFavoriteQueries: string = "vscode-couchbase.showFavoriteQueries";
     export const markFavoriteQuery: string = "vscode-couchbase.markFavoriteQuery";
     export const showNamedParameters: string = "vscode-couchbase.showNamedParameters";

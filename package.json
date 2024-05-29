@@ -357,6 +357,18 @@
           "SQL++"
         ],
         "configuration": "./language/language-configuration.json"
+      },
+
+      {
+        "id":"searchQuery",
+        "extensions": [
+          ".cbs.json"
+        ],
+        "aliases": [
+          "SEARCH"
+        ],
+        "configuration": "./language/language-configuration.json"
+
       }
     ],
     "grammars": [
@@ -431,6 +443,12 @@
       {
         "command": "vscode-couchbase.openQueryNotebook",
         "title": "New SQL++ Notebook",
+        "category": "Couchbase",
+        "icon": "images/create.svg"
+      },
+      {
+        "command": "vscode-couchbase.openSearchWorkbench",
+        "title": "New Search Workbench",
         "category": "Couchbase",
         "icon": "images/create.svg"
       },
@@ -547,6 +565,14 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.runSearch",
+        "title": "Run Search",
+        "category": "Couchbase",
+        "icon": "$(play)",
+        "tooltip": "Run Search",
+        "enablement": "vscode-couchbase.runSearchButtonEnabled"
+      },
+      {
         "command": "vscode-couchbase.runQuery",
         "title": "Run Query",
         "category": "Couchbase",
@@ -568,6 +594,12 @@
         "command": "vscode-couchbase.tools.mdbMigrate",
         "title": "MongoDB Migrate",
         "category": "Couchbase"
+      },
+      {
+        "title": "Search Context",
+        "command": "vscode-couchbase.searchContext",
+        "category": "Couchbase",
+        "icon": "$(group-by-ref-type)"
       },
       {
         "command": "vscode-couchbase.tools.dataImport",
@@ -695,6 +727,12 @@
         "key": "ctrl+shift+e",
         "mac": "cmd+shift+e",
         "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/) && !isKVCluster"
+      },
+      {
+        "command": "vscode-couchbase.runSearch",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "(editorLangId == cbs.json || resourceFilename =~ /.cbs.json$/) && !isKVCluster"
       }
     ],
     "menus": {
@@ -706,11 +744,24 @@
           "group": "navigation@1"
         },
         {
+          "command": "vscode-couchbase.runSearch",
+          "category": "Couchbase",
+          "when": "(editorLangId == cbs.json || resourceFilename =~ /.cbs.json$/)  && !isKVCluster",
+          "group": "navigation@1"
+        },
+        {
           "title": "Query Context",
           "command": "vscode-couchbase.queryContext",
           "category": "Couchbase",
           "group": "navigation@2",
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
+        },
+        {
+          "title": "Search Context",
+          "command": "vscode-couchbase.searchContext",
+          "category": "Couchbase",
+          "group": "navigation@2",
+          "when": "(editorLangId == cbs.json || resourceFilename =~ /.cbs.json$/)  && !isKVCluster"
         },
         {
           "title": "Show Favorite Queries",
@@ -760,6 +811,11 @@
           "command": "vscode-couchbase.runQuery",
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster",
           "group": "navigation@1"
+        },
+        {
+          "command": "vscode-couchbase.runSearch",
+          "when": "(editorLangId == .cbs.json || resourceFilename =~ /.cbs.json$/)  && !isKVCluster",
+          "group": "navigation@1"
         }
       ],
       "commandPalette": [
@@ -777,6 +833,10 @@
         },
         {
           "command": "vscode-couchbase.openQueryWorkbench",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.openSearchWorkbench",
           "when": "false"
         },
         {
@@ -860,6 +920,10 @@
         },
         {
           "command": "vscode-couchbase.queryContext",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.searchContext",
           "when": "false"
         },
         {
@@ -955,6 +1019,11 @@
         {
           "command": "vscode-couchbase.openQueryWorkbench",
           "when": "view == couchbase && viewItem == active_connection && !isKVCluster",
+          "group": "workbench@1"
+        },
+        {
+          "command": "vscode-couchbase.openSearchWorkbench",
+          "when": "view == couchbase && viewItem == searchIndex && !isKVCluster",
           "group": "workbench@1"
         },
         {

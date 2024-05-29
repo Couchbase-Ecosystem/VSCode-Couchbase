@@ -130,6 +130,57 @@ export class CouchbaseRestAPI {
         }
     }
 
+    public async runSearchIndexes(indexName:string | undefined, payload:any) {
+        const username = this.connection.username;
+        const secretService = SecretService.getInstance();
+        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
+        if (!password) {
+            return undefined;
+        }
+        let url = (await getServerURL(this.connection.url))[0];
+        url = (this.connection.isSecure ? `https://${url}:18094` : `http://${url}:8094`);
+        url += `/api/index/${indexName}/query`;
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+        let content = await axios.post(url, payload, {  
+            headers: {
+                'Content-Type': 'application/json',  
+                Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`
+            },
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false
+            })
+        });
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
+        return content.data;
+    }
+
+    public async fetchSearchIndexDefinition(indexName:string) {
+
+        const username = this.connection.username;
+        const secretService = SecretService.getInstance();
+        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
+        if (!password) {
+            return undefined;
+        }
+        let url = (await getServerURL(this.connection.url))[0];
+        url = (this.connection.isSecure ? `https://${url}:18094` : `http://${url}:8094`);
+        url += `/api/index/${indexName}`;
+
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+        let content = await axios.get(url, {
+            method: "GET",
+            headers: {
+                Authorization: `Basic ${btoa(`${username}:${password}`)}`
+            },
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false,
+            })
+        });
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
+        return content.data;
+
+    }
+
     public async getKVDocumentCount(bucketName: string, scopeName: string): Promise<Map<string, number>> {
         const username = this.connection.username;
         const secretService = SecretService.getInstance();

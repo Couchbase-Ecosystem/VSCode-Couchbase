@@ -52,7 +52,7 @@ import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 import DependenciesDownloader from "./handlers/handleCLIDownloader";
 import { sqlppFormatter } from "./commands/formatting/sqlppFormatter";
-import { fetchQueryContext } from "./pages/queryContext/queryContext";
+import { fetchQueryContext, fetchSearchContext } from "./pages/queryContext/queryContext";
 import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
 import { markFavoriteQuery } from "./commands/favoriteQueries/markFavoriteQuery";
 import { QueryHistoryTreeProvider } from "./tree/QueryHistoryTreeProvider";
@@ -76,6 +76,10 @@ import { newChatHandler } from "./commands/iq/chat/newChatHandler";
 import { SecretService } from "./util/secretService";
 import { kvTypeFilterDocuments } from "./commands/documents/documentFilters/kvTypeFilterDocuments";
 import { fetchNamedParameters } from "./pages/namedParameters/namedParameters";
+import { SearchWorkbench } from "./commands/fts/SearchWorkbench/searchWorkbench";
+import SearchIndexNode from "./model/SearchIndexNode";
+import { openSearchIndex } from "./commands/fts/SearchWorkbench/openSearchIndex";
+import { handleSearchContextStatusbar } from "./handlers/handleSearchQueryContextStatusBar";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -92,6 +96,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   const uriToCasMap = new Map<string, string>();
   const workbench = new QueryWorkbench();
+  const searchWorkbench = new SearchWorkbench();
+
+  let currentSearchIndexNode: SearchIndexNode;
+  let currentSearchWorkbench: SearchWorkbench;
 
   const subscriptions = context.subscriptions;
   const cacheService = new CacheService();
@@ -185,7 +193,8 @@ export function activate(context: vscode.ExtensionContext) {
       if (
         editor &&
         editor.document.languageId === "json" &&
-        editor.document.uri.scheme === "couchbase"
+        editor.document.uri.scheme === "couchbase" &&
+        !editor.document.uri.path.includes("Search")
       ) {
         await handleActiveEditorChange(editor, uriToCasMap, memFs);
       }
@@ -287,6 +296,15 @@ export function activate(context: vscode.ExtensionContext) {
       Commands.openDocument,
       async (documentNode: DocumentNode) => {
         await openDocument(documentNode, clusterConnectionTreeProvider, uriToCasMap, memFs);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.openSearchIndex,
+      async (searchIndexNode: SearchIndexNode) => {
+        await openSearchIndex(searchIndexNode, clusterConnectionTreeProvider, uriToCasMap, memFs);
       }
     )
   );
@@ -520,6 +538,10 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  // Initialize the global status bar item which will be used for query and search query context
+  let globalStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 1000);
+  globalStatusBarItem.hide(); 
+
   vscode.languages.registerDocumentFormattingEditProvider('SQL++', {
     provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
       return sqlppFormatter(document);
@@ -573,19 +595,19 @@ export function activate(context: vscode.ExtensionContext) {
 
   subscriptions.push(
     vscode.commands.registerCommand(Commands.queryContext, () => {
-      fetchQueryContext(workbench, context);
+      fetchQueryContext(workbench, context, globalStatusBarItem);
     })
   );
 
   // subscription to make sure query context status bar is only visible on sqlpp files
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-      await handleQueryContextStatusbar(editor, workbench);
+      await handleQueryContextStatusbar(editor, workbench, globalStatusBarItem);
     })
   );
-  // Handle initial view of context status bar
+  // // Handle initial view of context status bar
   const activeEditor = vscode.window.activeTextEditor;
-  handleQueryContextStatusbar(activeEditor, workbench);
+  handleQueryContextStatusbar(activeEditor, workbench, globalStatusBarItem);
 
   subscriptions.push(
     vscode.commands.registerCommand(
@@ -609,7 +631,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       Commands.showNamedParameters,
       () => {
-         fetchNamedParameters();
+        fetchNamedParameters();
       }
     )
   );
@@ -668,6 +690,37 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
+  const searchContextCommand = vscode.commands.registerCommand(Commands.searchContext, () => {
+    fetchSearchContext(currentSearchIndexNode, currentSearchWorkbench, context, globalStatusBarItem);
+  });
+  context.subscriptions.push(searchContextCommand);
+
+
+
+  const openSearchWorkbenchCommand = vscode.commands.registerCommand(Commands.openSearchWorkbench, async (searchIndexNode: SearchIndexNode) => {
+    const connection = Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
+    if (!connection) {
+      vscode.window.showErrorMessage("No active connection available.");
+      return;
+    }
+
+    currentSearchIndexNode = searchIndexNode;
+    currentSearchWorkbench = searchWorkbench;
+
+    searchWorkbench.openSearchWorkbench(searchIndexNode, memFs);
+
+    const editorChangeSubscription = vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+      if (editor && editor.document.languageId === "searchQuery") {
+        await handleSearchContextStatusbar(editor, searchIndexNode, searchWorkbench, globalStatusBarItem);
+      }
+    });
+    context.subscriptions.push(editorChangeSubscription);
+
+  });
+  context.subscriptions.push(openSearchWorkbenchCommand);
+
+
+
   context.subscriptions.push(
     vscode.workspace.registerNotebookSerializer(
       Constants.notebookType, new QueryContentSerializer(), { transientOutputs: true }
@@ -698,6 +751,30 @@ export function activate(context: vscode.ExtensionContext) {
     "vscode-couchbase.runButtonEnabled",
     true
   ); // Required to enable run query button at the start
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(Commands.runSearchQuery, async (searchIndexNode: SearchIndexNode) => {
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.runSearchButtonEnabled",
+        undefined
+      );
+      await searchWorkbench.runCouchbaseSearchQuery(
+        workbenchWebviewProvider
+      );
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.runSearchButtonEnabled",
+        true
+      );
+    })
+  );
+  vscode.commands.executeCommand(
+    "setContext",
+    "vscode-couchbase.runSearchButtonEnabled",
+    true
+  ); // Required to enable run search query button at the start
+
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
