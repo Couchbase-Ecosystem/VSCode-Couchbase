@@ -694,7 +694,7 @@
         "command": "vscode-couchbase.runQuery",
         "key": "ctrl+shift+e",
         "mac": "cmd+shift+e",
-        "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/) && !isKVCluster"
+        "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/) && !isKVCluster"
       }
     ],
     "menus": {
@@ -702,7 +702,7 @@
         {
           "command": "vscode-couchbase.runQuery",
           "category": "Couchbase",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster",
           "group": "navigation@1"
         },
         {
@@ -710,28 +710,28 @@
           "command": "vscode-couchbase.queryContext",
           "category": "Couchbase",
           "group": "navigation@2",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
         },
         {
           "title": "Show Favorite Queries",
           "command": "vscode-couchbase.showFavoriteQueries",
           "category": "Couchbase",
           "group": "navigation@3",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
         },
         {
           "title": "Mark Favorite Query",
           "command": "vscode-couchbase.markFavoriteQuery",
           "category": "Couchbase",
           "group": "navigation@4",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
         },
         {
           "title": "Show Named Parameters",
           "command": "vscode-couchbase.showNamedParameters",
           "category": "Couchbase",
           "group": "navigation@3",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/) && !isKVCluster"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/) && !isKVCluster"
         },
         {
           "title": "Refresh Cluster Overview",
@@ -758,7 +758,7 @@
       "editor/context": [
         {
           "command": "vscode-couchbase.runQuery",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster",
           "group": "navigation@1"
         }
       ],
