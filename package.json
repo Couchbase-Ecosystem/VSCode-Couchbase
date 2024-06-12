@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -732,13 +732,6 @@
           "category": "Couchbase",
           "group": "navigation@3",
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/) && !isKVCluster"
-        },
-        {
-          "title": "Show Named Parameters",
-          "command": "vscode-couchbase.showNamedParameters",
-          "category": "Couchbase",
-          "group": "navigation@3",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/) && !isKVCluster"
         },
         {
           "title": "Refresh Cluster Overview",
