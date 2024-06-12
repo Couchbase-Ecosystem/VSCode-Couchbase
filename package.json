@@ -734,13 +734,6 @@
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/) && !isKVCluster"
         },
         {
-          "title": "Show Named Parameters",
-          "command": "vscode-couchbase.showNamedParameters",
-          "category": "Couchbase",
-          "group": "navigation@3",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/) && !isKVCluster"
-        },
-        {
           "title": "Refresh Cluster Overview",
           "command": "vscode-couchbase.refreshClusterOverview",
           "category": "Couchbase",
