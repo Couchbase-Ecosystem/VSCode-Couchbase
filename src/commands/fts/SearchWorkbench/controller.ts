@@ -35,10 +35,16 @@ export default class UntitledSearchJsonDocumentService {
 
 
 
-    public async openSearchJsonTextDocument(searchIndexNode: SearchIndexNode,memFs: MemFS): Promise<vscode.TextEditor> {
+    public async openSearchJsonTextDocument(searchIndexNode: SearchIndexNode, memFs: MemFS): Promise<vscode.TextEditor> {
         const uri = vscode.Uri.parse(`couchbase:/search-workbench-${searchIndexNode.searchIndexName}-${this.untitledCount}.cbs.json`);
         this.untitledCount++;
-        let documentContent = Buffer.from('');
+        const defaultJsonContent = `{
+            "query": {
+              "query": "your_query_here"
+            },
+            "fields": ["*"]
+}`;
+        let documentContent = Buffer.from(defaultJsonContent);
         memFs.writeFile(uri, documentContent, {
             create: true,
             overwrite: true,

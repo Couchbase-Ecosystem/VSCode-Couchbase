@@ -80,6 +80,7 @@ import { SearchWorkbench } from "./commands/fts/SearchWorkbench/searchWorkbench"
 import SearchIndexNode from "./model/SearchIndexNode";
 import { openSearchIndex } from "./commands/fts/SearchWorkbench/openSearchIndex";
 import { handleSearchContextStatusbar } from "./handlers/handleSearchQueryContextStatusBar";
+import { validateDocument } from "./commands/fts/SearchWorkbench/validators/validationUtil";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -100,6 +101,19 @@ export function activate(context: vscode.ExtensionContext) {
 
   let currentSearchIndexNode: SearchIndexNode;
   let currentSearchWorkbench: SearchWorkbench;
+
+  let diagnosticCollection = vscode.languages.createDiagnosticCollection('jsonValidation');
+
+  diagnosticCollection = vscode.languages.createDiagnosticCollection('jsonValidation');
+  context.subscriptions.push(diagnosticCollection);
+
+context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
+    if (event.document === vscode.window.activeTextEditor?.document && event.document.languageId == "searchQuery") {
+        validateDocument(event.document, diagnosticCollection);
+    }
+}));
+
+
 
   const subscriptions = context.subscriptions;
   const cacheService = new CacheService();
@@ -194,6 +208,7 @@ export function activate(context: vscode.ExtensionContext) {
         editor &&
         editor.document.languageId === "json" &&
         editor.document.uri.scheme === "couchbase" &&
+        // TODO: Find better way to identify index def files
         !editor.document.uri.path.includes("Search")
       ) {
         await handleActiveEditorChange(editor, uriToCasMap, memFs);
