@@ -1,17 +1,17 @@
-import { MDBToCB } from "../../../tools/MDBMigrate";
+import { MDBToCB } from "../../../../tools/MDBMigrate";
 import {
   CBTools,
   Type as CBToolsType,
-} from "../../../util/DependencyDownloaderUtils/CBTool";
+} from "../../../../util/DependencyDownloaderUtils/CBTool";
 import * as vscode from "vscode";
-import { getActiveConnection } from "../../../util/connections";
-import { Memory } from "../../../util/util";
-import { Constants } from "../../../util/constants";
-import { logger } from "../../../logger/logger";
+import { getActiveConnection } from "../../../../util/connections";
+import { Memory } from "../../../../util/util";
+import { Constants } from "../../../../util/constants";
+import { logger } from "../../../../logger/logger";
 import * as path from "path";
-import { getLoader } from "../../../webViews/loader.webview";
-import { MdbMigrateWebview } from "../../../webViews/tools/mdbMigrate.webview";
-import { IConnection } from "../../../types/IConnection";
+import { getLoader } from "../../../../webViews/loader.webview";
+import { MdbMigrateWebview } from "../../../../webViews/tools/mdbMigrate.webview";
+import { IConnection } from "../../../../types/IConnection";
 import { MongoClient } from "mongodb";
 
 export const getScopes = async (bucketId: string, connection: IConnection) => {
@@ -55,7 +55,7 @@ export interface IDataMigrateWebviewState {
   webviewPanel: vscode.WebviewPanel;
 }
 
-export const mdbMigrate = async (context: vscode.ExtensionContext) => {
+export const cbMigrator = async (context: vscode.ExtensionContext) => {
   const connection = getActiveConnection();
   if (!connection) {
     return;

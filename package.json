@@ -570,6 +570,11 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.tools.openCbMigrator",
+        "title": "CB Data Migrator",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.tools.dataImport",
         "title": "Data Import",
         "category": "Couchbase"
@@ -899,6 +904,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.tools.openCbMigrator",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.tools.dataImport",
           "when": "false"
         },
@@ -1082,6 +1091,10 @@
         },
         {
           "command": "vscode-couchbase.tools.mdbMigrate",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-couchbase.tools.openCbMigrator",
           "group": "navigation"
         },
         {

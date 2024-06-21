@@ -65,7 +65,7 @@ import { clearDocumentFilter } from "./commands/documents/documentFilters/clearD
 import { getClusterOverviewData } from "./util/OverviewClusterUtils/getOverviewClusterData";
 import { checkAndCreatePrimaryIndex } from "./commands/indexes/checkAndCreatePrimaryIndex";
 import { dataExport } from "./pages/Tools/DataExport/dataExport";
-import { mdbMigrate } from "./pages/Tools/MdbMigrate/mdbMigrate";
+import { mdbMigrate } from "./pages/Tools/CbMigrator/MdbMigrate/mdbMigrate";
 import { DataImport } from "./commands/tools/dataImport";
 import { ddlExport } from "./commands/tools/ddlExport/ddlExport";
 import { CouchbaseIqWebviewProvider } from "./commands/iq/couchbaseIqWebviewProvider";
@@ -582,6 +582,15 @@ export function activate(context: vscode.ExtensionContext) {
       Commands.mdbMigrate,
       async () => {
         await mdbMigrate(context);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.openCbMigrator,
+      async () => {
+        await cbMigrator(context);
       }
     )
   );
