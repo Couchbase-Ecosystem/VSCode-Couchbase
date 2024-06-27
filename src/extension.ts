@@ -77,6 +77,7 @@ import { SecretService } from "./util/secretService";
 import { kvTypeFilterDocuments } from "./commands/documents/documentFilters/kvTypeFilterDocuments";
 import { fetchNamedParameters } from "./pages/namedParameters/namedParameters";
 import { sqlppComlpletions, sqlppNamedParametersCompletions, sqlppSchemaComlpletions } from "./commands/sqlpp/sqlppCompletions";
+import { dynamodbMigrate } from "./pages/Tools/DynamoDbMigrate/dynamoDbMigrate";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -582,6 +583,15 @@ export function activate(context: vscode.ExtensionContext) {
       Commands.mdbMigrate,
       async () => {
         await mdbMigrate(context);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.dynamodbMigrate,
+      async () => {
+        await dynamodbMigrate(context);
       }
     )
   );

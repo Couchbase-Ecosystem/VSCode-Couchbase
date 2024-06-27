@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -91,6 +91,8 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.602.0",
+    "@aws-sdk/credential-providers": "^3.600.0",
     "@chatscope/chat-ui-kit-styles": "^1.4.0",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
@@ -570,6 +572,11 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.tools.dynamodbMigrate",
+        "title": "DynamoDB Migrate",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.tools.dataImport",
         "title": "Data Import",
         "category": "Couchbase"
@@ -899,6 +906,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.tools.dynamodbMigrate",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.tools.dataImport",
           "when": "false"
         },
@@ -1082,6 +1093,10 @@
         },
         {
           "command": "vscode-couchbase.tools.mdbMigrate",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-couchbase.tools.dynamodbMigrate",
           "group": "navigation"
         },
         {
