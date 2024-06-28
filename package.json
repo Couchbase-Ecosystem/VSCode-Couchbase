@@ -1089,23 +1089,23 @@
       "vscode-couchbase.toolsMenu": [
         {
           "command": "vscode-couchbase.tools.dataExport",
-          "group": "navigation"
+          "group": "secondary"
         },
         {
           "command": "vscode-couchbase.tools.mdbMigrate",
-          "group": "navigation"
+          "group": "tertiary"
         },
         {
           "command": "vscode-couchbase.tools.dynamodbMigrate",
-          "group": "navigation"
+          "group": "tertiary"
         },
         {
           "command": "vscode-couchbase.tools.dataImport",
-          "group": "navigation"
+          "group": "secondary"
         },
         {
           "command": "vscode-couchbase.tools.DDLExport",
-          "group": "navigation"
+          "group": "secondary"
         }
       ],
       "vscode-couchbase.filterDocumentsMenu": [
