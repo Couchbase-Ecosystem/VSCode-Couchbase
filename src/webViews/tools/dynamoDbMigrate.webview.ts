@@ -238,7 +238,11 @@ export const dynamoDBMigrateWebView = async (buckets: string[], awsProfiles: Set
                 margin-left: 4px; 
                 position: relative;
                 bottom: -2px; 
-            }            
+            } 
+            
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 33px;
+            }
           </style>
 </head>
 
@@ -332,7 +336,7 @@ export const dynamoDBMigrateWebView = async (buckets: string[], awsProfiles: Set
             <span class="tooltiptext">Choose the top level bucket on which migration should happen. Only 1 bucket can be
                 migrated at a time</span>
         </label>
-        <select name="bucket" id="bucket" onchange="onBucketClick(value)">
+        <select name="bucket" id="bucket" onchange="onBucketClick(value)" class="js-select2">
             <option value="" disabled selected>Select a bucket</option>
             ${buckets.map((bucketName) => {
             return `
@@ -552,6 +556,8 @@ window.addEventListener("message", (event) => {
                 message.error;
             break;
         case "vscode-couchbase.tools.dynamodbMigrate.connectValidationError":
+            document.getElementById("tables").setAttribute("disabled", "disabled");
+            document.getElementById("tables").innerHTML = '';
             const connectError = message.error;
             document.getElementById("validation-error-connect").innerHTML =
                 connectError;

@@ -36,7 +36,7 @@ const validateFormData = (formData: any): string => {
     }
 
     if (!formData.tables || formData.tables.length === 0) {
-        errors.push("Please specify the DynamoDb tables field");
+        errors.push("Please specify the DynamoDB tables field");
     }
 
     if (!formData.cbBucket) {
@@ -320,9 +320,14 @@ async function listTablesFromClient(ddb: DynamoDBClient): Promise<{ tables: stri
     try {
         const command = new ListTablesCommand({});
         const response: ListTablesCommandOutput = await ddb.send(command);
-        return { tables: response.TableNames || [], error: null };
+        if (response.TableNames && response.TableNames.length > 0) {
+            return { tables: response.TableNames, error: null };
+        } else {
+            return { tables: [], error: "No DynamoDB tables found for the selected region and credentials." };
+        }
     } catch (err) {
-        return { tables: [], error: "There was an error connecting to the DynamoDB instance." };;
+        logger.error("Error occured while connecting to DynamoDB instance " + err)
+        return { tables: [], error: "An error occured while trying to connect to the DynamoDB instance. Check logs for error." };;
     }
 
 }
