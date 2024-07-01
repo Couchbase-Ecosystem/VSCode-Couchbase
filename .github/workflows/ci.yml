@@ -54,7 +54,7 @@ jobs:
       - name: windows-specific
         shell: pwsh
         if: matrix.platform == 'win32'
-        run: choco install openssl.light --version=1.1.1  && choco install cmake  --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB
+        run: choco install openssl.light --version=1.1.1 && choco install cmake --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB
       - name: mac-specific
         shell: bash
         if: matrix.platform == 'darwin'
