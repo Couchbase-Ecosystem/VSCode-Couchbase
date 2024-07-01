@@ -243,6 +243,11 @@ export const dynamoDBMigrateWebView = async (buckets: string[], awsProfiles: Set
             .select2-container--default .select2-selection--single .select2-selection__rendered {
                 line-height: 33px;
             }
+
+            .select2-container--default.select2-container--disabled .select2-selection--single,
+            .select2-container--default.select2-container--disabled .select2-selection--multiple {
+                background-color: #ccc; 
+            }
           </style>
 </head>
 
