@@ -108,7 +108,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_MDB_MIGRATE,
                 this.getToolSpec(
-                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_darwin_amd64.zip",
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.1.0_darwin_amd64.zip",
                     this.TOOL_MDB_MIGRATE,
                     OSUtil.MACOS_64
                 )
@@ -141,7 +141,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_MDB_MIGRATE,
                 this.getToolSpec(
-                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_darwin_arm64.zip",
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.1.0_darwin_arm64.zip",
                     this.TOOL_MDB_MIGRATE,
                     OSUtil.MACOS_ARM
                 )
@@ -174,7 +174,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_MDB_MIGRATE,
                 this.getToolSpec(
-                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_windows_amd64.zip",
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.1.0_windows_amd64.zip",
                     this.TOOL_MDB_MIGRATE,
                     OSUtil.WINDOWS_64
                 )
@@ -207,7 +207,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_MDB_MIGRATE,
                 this.getToolSpec(
-                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_windows_amd64.zip",
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.1.0_windows_amd64.zip",
                     this.TOOL_MDB_MIGRATE,
                     OSUtil.WINDOWS_ARM
                 )
@@ -240,7 +240,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_MDB_MIGRATE,
                 this.getToolSpec(
-                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_linux_amd64.zip",
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.1.0_linux_amd64.zip",
                     this.TOOL_MDB_MIGRATE,
                     OSUtil.LINUX_64
                 )
@@ -265,7 +265,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_MDB_MIGRATE,
                 this.getToolSpec(
-                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.0.1-beta_linux_arm64.zip",
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/cbmigrate/cbmigrate_0.1.0_linux_arm64.zip",
                     this.TOOL_MDB_MIGRATE,
                     OSUtil.LINUX_ARM
                 )
