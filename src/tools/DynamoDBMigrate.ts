@@ -67,8 +67,6 @@ export class DynamoDBToCb {
                 cmd.push("--cb-password");
                 cmd.push("'" + password + "'");
 
-                cmd.push("--cb-generate-key");
-                cmd.push("#UUID#");
 
                 if (debug) {
                     cmd.push("--debug")
