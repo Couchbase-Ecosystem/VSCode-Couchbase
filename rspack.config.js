@@ -19,10 +19,10 @@
 "use strict";
 
 const path = require("path");
-const TerserPlugin = require('terser-webpack-plugin');
+const rspack = require('@rspack/core');
 
 
-/**@type {import('webpack').Configuration}*/
+/**@type {import('rspack').Configuration}*/
 const extensionConfig = {
   target: "node", // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
   mode: "none", // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
@@ -37,7 +37,7 @@ const extensionConfig = {
   },
   optimization: {
     minimize: true,
-    minimizer: [new TerserPlugin()],
+    minimizer: [new rspack.SwcJsMinimizerRspackPlugin()],
     splitChunks: {
       chunks: 'all',
     },
@@ -73,7 +73,7 @@ const extensionConfig = {
   },
 };
 
-/**@type {import('webpack').Configuration}*/
+/**@type {import('rspack').Configuration}*/
 const reactConfig = {
   target: "web",
   entry: {
@@ -85,7 +85,7 @@ const reactConfig = {
   },
   optimization: {
     minimize: true,
-    minimizer: [new TerserPlugin()],
+    minimizer: [new rspack.SwcJsMinimizerRspackPlugin()],
     splitChunks: {
       chunks: 'all',
     },
@@ -159,7 +159,7 @@ const iqReactConfig = {
   },
   optimization: {
     minimize: true,
-    minimizer: [new TerserPlugin()],
+    minimizer: [new rspack.SwcJsMinimizerRspackPlugin()],
     splitChunks: {
       chunks: 'all',
     },
