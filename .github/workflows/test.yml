@@ -14,7 +14,24 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 20   
+          node-version: 20  
+      - run: echo '${{ secrets.CONFIG_JSON }}' > ${{ github.workspace }}/src/config.json
+      - uses: ilammy/setup-nasm@v1
+      - name: windows-specific
+        shell: pwsh
+        if: runner.os == 'windows-latest'
+        run: choco install openssl.light --version=1.1.1 && choco install cmake --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB 
+      - name: linux-specific
+        shell: bash
+        if: runner.os == 'ubuntu-latest'
+        run: |
+          ldd --version
+          rm -rf /usr/local/bin/cmake
+          wget https://cmake.org/files/v3.27/cmake-3.27.9-linux-x86_64.tar.gz
+          tar xf cmake-3.27.9-linux-x86_64.tar.gz
+          WORKING_DIRECTORY=$(pwd)
+          echo "${WORKING_DIRECTORY}/cmake-3.27.9-linux-x86_64/bin" >> $GITHUB_PATH
+          echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.9-linux-x86_64/bin:$PATH" >> $GITHUB_ENV
       - name: Install Dependencies
         run: npm install
       - name: Run Rebuild
