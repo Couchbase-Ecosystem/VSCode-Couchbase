@@ -14,13 +14,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 20
-      - name: Remove Node modules
-        run: rm -rf node_modules     
+          node-version: 20   
       - name: Install Dependencies
         run: npm install
-      - name: Rebuild Electron Modules
-        run: ./node_modules/.bin/electron-rebuild
+      - name: Run Rebuild
+        run: npm run rebuild
       - name: Run Tests
         if: runner.os == 'Linux'
         run: xvfb-run -a npm test
