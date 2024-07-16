@@ -15,8 +15,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-      - name: Install Dependencies
-        run: npm install
+      - name: Clear node_modules and Reinstall Dependencies
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            if exist node_modules rmdir /s /q node_modules
+          else
+            rm -rf node_modules
+          fi
+          npm install
       - name: Rebuild Electron Modules
         run: ./node_modules/.bin/electron-rebuild
       - name: Run Tests
