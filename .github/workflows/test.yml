@@ -17,6 +17,8 @@ jobs:
           node-version: 20
       - name: Install Dependencies
         run: npm install
+      - name: Rebuild Electron Modules
+        run: ./node_modules/.bin/electron-rebuild
       - name: Run Tests
         if: runner.os == 'Linux'
         run: xvfb-run -a npm test
