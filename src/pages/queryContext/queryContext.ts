@@ -106,7 +106,7 @@ export async function fetchSearchContext(searchIndexNode: SearchIndexNode, workb
     }
     try {
         const activeEditor = vscode.window.activeTextEditor;
-        if (!(activeEditor && activeEditor.document.languageId === "searchQuery")) {
+        if (!(activeEditor && activeEditor.document.languageId === "json" && activeEditor.document.fileName.endsWith(".cbs.json"))) {
             vscode.window.showErrorMessage("Please ensure that the workbench is open/active");
             return;
         }

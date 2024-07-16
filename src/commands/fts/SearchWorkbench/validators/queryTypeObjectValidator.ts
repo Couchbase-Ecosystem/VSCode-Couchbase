@@ -23,29 +23,40 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
         const isCompound = this.validateCompound(jsonObject, properties, diagnosticsList, document);
 
         if (!containsMatchAllNone && !isCompound && !isBooleanQuery && !properties.includes("geometry")) {
+            let newDiagnostic: vscode.Diagnostic;
+
             if (isFieldMissing && !containsQuery) {
-                diagnosticsList.push(new vscode.Diagnostic(
+                newDiagnostic = new vscode.Diagnostic(
                     ValidationHelper.getPositionMap(document).get(key) || new vscode.Range(0, 0, 0, 1),
                     QueryTypeObjectValidator.getMissingFieldOrQueryMessage(),
                     vscode.DiagnosticSeverity.Error
-                ));
+                );
+                if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                    diagnosticsList.push(newDiagnostic);
+                }
             } else if (!isFieldMissing && !containsQuery) {
                 if (jsonObject.children.length === 1) {
-                    diagnosticsList.push(new vscode.Diagnostic(
+                    newDiagnostic = new vscode.Diagnostic(
                         ValidationHelper.getPositionMap(document).get(key) || new vscode.Range(0, 0, 0, 1),
                         QueryTypeObjectValidator.getMissingFieldOperationMessage(),
                         vscode.DiagnosticSeverity.Error
-                    ));
+                    );
+                    if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                        diagnosticsList.push(newDiagnostic);
+                    }
                 } else {
                     this.validateQueryType(jsonObject, diagnosticsList, document);
                 }
             } else {
                 if (jsonObject.children.length > 1) {
-                    diagnosticsList.push(new vscode.Diagnostic(
+                    newDiagnostic = new vscode.Diagnostic(
                         ValidationHelper.getPositionMap(document).get(key) || new vscode.Range(0, 0, 0, 1),
                         QueryTypeObjectValidator.getInvalidFieldWithQueryMessage(),
                         vscode.DiagnosticSeverity.Error
-                    ));
+                    );
+                    if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                        diagnosticsList.push(newDiagnostic);
+                    }
                 }
             }
         }
@@ -62,11 +73,15 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
         if (hasCompound) {
             jsonObject.children.forEach(child => {
                 if (!(child instanceof JsonProperty) || !allowedCompoundAttrs.includes((child as JsonProperty).key)) {
-                    diagnosticsList.push(new vscode.Diagnostic(
+                    const newDiagnostic = new vscode.Diagnostic(
                         ValidationHelper.getPositionMap(document).get((child as JsonProperty).key) || new vscode.Range(0, 0, 0, 1),
                         QueryTypeObjectValidator.getFieldNotAllowedOnCompound(),
                         vscode.DiagnosticSeverity.Error
-                    ));
+                    );
+
+                    if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                        diagnosticsList.push(newDiagnostic);
+                    }
                 }
             });
         }
@@ -91,15 +106,12 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
     }
 
     private containsQuery(jsonObject: JsonObject): boolean {
-        // Check if jsonObject has any children
         if (!jsonObject.children || jsonObject.children.length === 0) {
             return false;
         }
 
         for (const child of jsonObject.children) {
-            // Check if the child is a JsonProperty
             if (child instanceof JsonProperty) {
-                // Check if the key of the JsonProperty is "query"
                 if (child.key === "query") {
                     return true;
                 }
@@ -110,14 +122,14 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
     }
 
     private validateQueryType(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        jsonObject.children.forEach(child => {
+        for (let i = 0; i < jsonObject.children.length; i++) {
+            const child = jsonObject.children[i];
             if (!(child instanceof JsonProperty)) {
-                return;
+                continue;
             }
 
             const property = child as JsonProperty;
             const propertyKey = property.key;
-
 
 
             switch (propertyKey) {
@@ -162,11 +174,15 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
                         this.validateTermRange(jsonObject, diagnosticsList, document);
                         return;
                     } else {
-                        diagnosticsList.push(new vscode.Diagnostic(
+                        const newDiagnostic = new vscode.Diagnostic(
                             ValidationHelper.getPositionMap(document).get(propertyKey) || new vscode.Range(0, 0, 0, 1),
                             QueryTypeObjectValidator.invalidQueryFormatMessage(),
                             vscode.DiagnosticSeverity.Error
-                        ));
+                        );
+
+                        if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                            diagnosticsList.push(newDiagnostic);
+                        }
                         return;
                     }
                 case "inclusive_start":
@@ -188,8 +204,16 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
 
             }
 
-        });
+        }
+        const newDiagnostic = new vscode.Diagnostic(
+            ValidationHelper.getPositionMap(document).get("query") || new vscode.Range(0, 0, 0, 1),
+            QueryTypeObjectValidator.invalidQueryFormatMessage(),
+            vscode.DiagnosticSeverity.Error
+        );
 
+        if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+            diagnosticsList.push(newDiagnostic);
+        }
     }
 
 
@@ -207,11 +231,15 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
             currentAttributes.push(propertyKey);
 
             if (!allowedFields.includes(propertyKey)) {
-                diagnosticsList.push(new vscode.Diagnostic(
+                const newDiagnostic = new vscode.Diagnostic(
                     ValidationHelper.getPositionMap(document).get(propertyKey) || new vscode.Range(0, 0, 0, 1),
                     ValidationHelper.getUnexpectedAttributeMessageForQuery(propertyKey, target),
                     vscode.DiagnosticSeverity.Error
-                ));
+                );
+
+                if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                    diagnosticsList.push(newDiagnostic);
+                }
             } else {
                 counter.set(propertyKey, (counter.get(propertyKey) || 0) + 1);
             }
@@ -221,11 +249,15 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
 
         const missingFields = requiredFields.filter(field => !currentAttributes.includes(field));
         if (currentAttributes.length > 0 && missingFields.length > 0) {
-            diagnosticsList.push(new vscode.Diagnostic(
+            const newDiagnostic = new vscode.Diagnostic(
                 ValidationHelper.getPositionMap(document).get(target) || new vscode.Range(0, 0, 0, 1),
                 ValidationHelper.missingRequiredAttributeQuery(missingFields.join(", "), target),
                 vscode.DiagnosticSeverity.Error
-            ));
+            );
+
+            if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 
@@ -260,11 +292,15 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
     validateGenericRange(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
         const properties = jsonObject.children.map(child => (child as JsonProperty).key);
         if (!properties.includes("min") && !properties.includes("max")) {
-            diagnosticsList.push(new vscode.Diagnostic(
+            const newDiagnostic = new vscode.Diagnostic(
                 ValidationHelper.getPositionMap(document).get("min") || new vscode.Range(0, 0, 0, 1),
                 QueryTypeObjectValidator.minOrMaxRequiredMessage(),
                 vscode.DiagnosticSeverity.Error
-            ));
+            );
+
+            if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 
@@ -289,11 +325,15 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
 
         const properties = jsonObject.children.map(child => (child as JsonProperty).key);
         if (!properties.includes("start") && !properties.includes("end")) {
-            diagnosticsList.push(new vscode.Diagnostic(
+            const newDiagnostic = new vscode.Diagnostic(
                 ValidationHelper.getPositionMap(document).get("start") || new vscode.Range(0, 0, 0, 1),
                 QueryTypeObjectValidator.startOrEndRequiredMessage(),
                 vscode.DiagnosticSeverity.Error
-            ));
+            );
+
+            if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 
@@ -319,11 +359,15 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
             }
         });
         if (matchValue !== null && (matchValue as string).includes(" ") && !isOperatorPresent) {
-            diagnosticsList.push(new vscode.Diagnostic(
+            const newDiagnostic = new vscode.Diagnostic(
                 ValidationHelper.getPositionMap(document).get("match") || new vscode.Range(0, 0, 0, 1),
                 QueryTypeObjectValidator.matchWithSpaceMessage(),
                 vscode.DiagnosticSeverity.Error
-            ));
+            );
+
+            if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 
@@ -345,11 +389,15 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
 
     private validateOperatorValue(diagnosticsList: vscode.Diagnostic[], property: JsonProperty, document: vscode.TextDocument): void {
         if (property.value.value !== "or" && property.value.value !== "and") {
-            diagnosticsList.push(new vscode.Diagnostic(
+            const newDiagnostic = new vscode.Diagnostic(
                 ValidationHelper.getPositionMap(document).get(property.key) || new vscode.Range(0, 0, 0, 1),
                 QueryTypeObjectValidator.invalidOperatorMessage(),
                 vscode.DiagnosticSeverity.Error
-            ));
+            );
+
+            if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
     static matchWithSpaceMessage(): string {

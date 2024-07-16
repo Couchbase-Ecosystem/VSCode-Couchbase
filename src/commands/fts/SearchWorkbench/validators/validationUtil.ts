@@ -13,6 +13,7 @@ import { GeometryObjectValidator } from './geometryObjectValidator'
 import { ShapeObjectValidator } from './shapeObjectValidator'
 import { JsonObject, JsonArray, JsonProperty, JsonNode } from './JsonNodes';
 import { ValidationHelper } from './validationHelper';
+import { logger } from '../../../../logger/logger';
 
 
 
@@ -104,6 +105,7 @@ export function validateDocument(document: vscode.TextDocument | undefined, diag
         visitJsonObject(jsonObject, diagnosticsList, document);
 
     } catch (error) {
+        logger.error("Invalid Json Error: "+ error)
         diagnosticsList.push(new vscode.Diagnostic(new vscode.Range(0, 0, 0, 1), `Invalid JSON: ${error}`,vscode.DiagnosticSeverity.Error));
     }
 
@@ -229,7 +231,6 @@ function validateProperty(property: JsonProperty, contextKey:string, diagnostics
 
 
 function isTopLevel(property: JsonProperty): boolean {
-    // Checks if the property's parent is either null or the root JsonObject
     return !property.parent || property.parent.parent === null;
 }
 

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { SearchObjectValidator } from './searchValidator';
-import { JsonArray, JsonObject,JsonProperty } from './JsonNodes';
+import { JsonArray, JsonObject, JsonProperty } from './JsonNodes';
 import { ValidationHelper } from './validationHelper';
 
 
@@ -11,7 +11,7 @@ export class ShapeObjectValidator implements SearchObjectValidator {
 
     validate(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument, key: string): void {
         const target = "shape";
-        const requiredFields = ['type'];
+        let requiredFields = ['type'];
         const counter: Map<string, number> = new Map();
         const currentAttributes: string[] = [];
         const positionMap = ValidationHelper.getPositionMap(document);
@@ -33,11 +33,15 @@ export class ShapeObjectValidator implements SearchObjectValidator {
             }
 
             if (!["type", "coordinates", "geometries", "radius"].includes(propertyKey)) {
-                diagnosticsList.push(new vscode.Diagnostic(
+                const newDiagnostic = new vscode.Diagnostic(
                     positionMap.get(propertyKey) || new vscode.Range(0, 0, 0, 1),
                     `Unexpected attribute '${propertyKey}' for query '${target}'`,
                     vscode.DiagnosticSeverity.Error
-                ));
+                );
+            
+                if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                    diagnosticsList.push(newDiagnostic);
+                }
             } else {
                 counter.set(propertyKey, (counter.get(propertyKey) || 0) + 1);
 
@@ -49,14 +53,18 @@ export class ShapeObjectValidator implements SearchObjectValidator {
 
             // this.validateMultipleOccurrences(counter, jsonObject, diagnosticsList, positionMap);
         });
-
+        requiredFields = requiredFields.filter(item => !currentAttributes.includes(item));
         requiredFields.forEach(field => {
-            if (!currentAttributes.includes(field)) {
-                diagnosticsList.push(new vscode.Diagnostic(
+            if (!currentAttributes.includes(field) && currentAttributes.length !== 0 && requiredFields.length !== 0) {
+                const newDiagnostic = new vscode.Diagnostic(
                     positionMap.get(key) || new vscode.Range(0, 0, 0, 1),
                     ValidationHelper.missingRequiredAttributeQuery(field, key),
                     vscode.DiagnosticSeverity.Error
-                ));
+                );
+        
+                if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                    diagnosticsList.push(newDiagnostic);
+                }
             }
         });
 
@@ -65,11 +73,13 @@ export class ShapeObjectValidator implements SearchObjectValidator {
         } else if (typeValue === "GeometryCollection") {
             this.validateGeometryCollection(currentAttributes, diagnosticsList, positionMap, key);
         } else {
-            this.validateCoordinates(typeValue, currentAttributes, coordinates, diagnosticsList, positionMap);
+            if (typeValue) {
+                this.validateCoordinates(typeValue, currentAttributes, coordinates, diagnosticsList, positionMap);
+            }
         }
 
         if (typeValue && coordinates != null && (["LineString", "Polygon", "MultiLineString", "MultiPolygon", "Envelope", "MultiPoint"].includes(typeValue))) {
-            this.validateCoordinatesStructure(coordinates,typeValue,diagnosticsList,document,key)
+            this.validateCoordinatesStructure(coordinates, typeValue, diagnosticsList, document, key)
         }
     }
 
@@ -79,64 +89,88 @@ export class ShapeObjectValidator implements SearchObjectValidator {
                 "Point", "Circle", "Envelope", "LineString", "MultiPoint",
                 "MultiLineString", "MultiPolygon", "GeometryCollection", "Polygon"
             ];
-
+    
             if (!validTypes.includes(typeValue)) {
-                diagnosticsList.push(new vscode.Diagnostic(
+                const newDiagnostic = new vscode.Diagnostic(
                     positionMap.get(property.key) || new vscode.Range(0, 0, 0, 1),
                     `Invalid type '${typeValue}'`,
                     vscode.DiagnosticSeverity.Error
-                ));
+                );
+    
+                if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                    diagnosticsList.push(newDiagnostic);
+                }
             }
         }
     }
 
-    private validateCoordinatesStructure(coordinates: JsonArray, type: string, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument, key:string): void {
+    private validateCoordinatesStructure(coordinates: JsonArray, type: string, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument, key: string): void {
         if (type && coordinates instanceof JsonArray) {
-        if (!coordinates.children.every(child => child instanceof JsonArray)) {
-            const positionMap = ValidationHelper.getPositionMap(document); 
-            diagnosticsList.push(new vscode.Diagnostic(
-                positionMap.get(key) || new vscode.Range(0, 0, 0, 1),
-                `'${type}' in '${key}' requires 'coordinates' to be an array of arrays.`,
-                vscode.DiagnosticSeverity.Error
-            ));
+            if (!coordinates.children.every(child => child instanceof JsonArray)) {
+                const positionMap = ValidationHelper.getPositionMap(document);
+                const newDiagnostic = new vscode.Diagnostic(
+                    positionMap.get(key) || new vscode.Range(0, 0, 0, 1),
+                    `'${type}' in '${key}' requires 'coordinates' to be an array of arrays.`,
+                    vscode.DiagnosticSeverity.Error
+                );
+    
+                if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                    diagnosticsList.push(newDiagnostic);
+                }
+            }
         }
-    }
     }
 
     private validateCircle(currentAttributes: string[], diagnosticsList: vscode.Diagnostic[], positionMap: any, key: string): void {
         if (!currentAttributes.includes("radius")) {
-            diagnosticsList.push(new vscode.Diagnostic(
+            const newDiagnostic = new vscode.Diagnostic(
                 positionMap.get(key) || new vscode.Range(0, 0, 0, 1),
                 ValidationHelper.missingRequiredAttributeQuery("radius", key),
                 vscode.DiagnosticSeverity.Error
-            ));
+            );
+    
+            if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
         if (!currentAttributes.includes("coordinates")) {
-            diagnosticsList.push(new vscode.Diagnostic(
+            const newDiagnostic = new vscode.Diagnostic(
                 positionMap.get(key) || new vscode.Range(0, 0, 0, 1),
                 ValidationHelper.missingRequiredAttributeQuery("coordinates", key),
                 vscode.DiagnosticSeverity.Error
-            ));
+            );
+    
+            if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 
     private validateGeometryCollection(currentAttributes: string[], diagnosticsList: vscode.Diagnostic[], positionMap: any, key: string): void {
         if (!currentAttributes.includes("geometries")) {
-            diagnosticsList.push(new vscode.Diagnostic(
+            const newDiagnostic = new vscode.Diagnostic(
                 positionMap.get(key) || new vscode.Range(0, 0, 0, 1),
                 ValidationHelper.missingRequiredAttributeQuery("geometries", key),
                 vscode.DiagnosticSeverity.Error
-            ));
+            );
+    
+            if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 
     private validateCoordinates(typeValue: string | null, currentAttributes: string[], coordinates: JsonProperty | null, diagnosticsList: vscode.Diagnostic[], positionMap: any): void {
         if (!currentAttributes.includes("coordinates")) {
-            diagnosticsList.push(new vscode.Diagnostic(
+            const newDiagnostic = new vscode.Diagnostic(
                 positionMap.get("type") || new vscode.Range(0, 0, 0, 1),
                 ValidationHelper.missingRequiredAttributeQuery("coordinates", "shape"),
                 vscode.DiagnosticSeverity.Error
-            ));
+            );
+    
+            if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 

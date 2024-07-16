@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { getActiveConnection } from '../../../util/connections';
-import UntitledSqlppDocumentService from './controller';
 import { WorkbenchWebviewProvider } from '../../../workbench/workbenchWebviewProvider';
 import { CouchbaseError, QueryOptions, QueryProfileMode, QueryStatus } from "couchbase";
 import { ISearchQueryContext } from '../../../types/ISearchQueryContext';
@@ -8,6 +7,7 @@ import { CouchbaseRestAPI } from '../../../util/apis/CouchbaseRestAPI';
 import { MemFS } from "../../../util/fileSystemProvider";
 import UntitledSearchJsonDocumentService from './controller';
 import SearchIndexNode from '../../../model/SearchIndexNode';
+import { logger } from '../../../logger/logger';
 
 export class SearchWorkbench {
     private _untitledSearchJsonDocumentService: UntitledSearchJsonDocumentService;
@@ -33,7 +33,7 @@ export class SearchWorkbench {
 
         // Get the active text editor
         const activeTextEditor = vscode.window.activeTextEditor;
-        if (activeTextEditor && activeTextEditor.document.languageId === "searchQuery") {
+        if (activeTextEditor && activeTextEditor.document.languageId === "json" && activeTextEditor.document.fileName.endsWith(".cbs.json")) {
 
             activeTextEditor.document.save();
             const indexQueryPayload = activeTextEditor.selection.isEmpty ? activeTextEditor.document.getText() : activeTextEditor.document.getText(activeTextEditor.selection);
@@ -48,10 +48,11 @@ export class SearchWorkbench {
                 const explainPlan = JSON.stringify("");
                 const couchbbaseRestAPI = new CouchbaseRestAPI(connection);
                 const searchQueryResult = await couchbbaseRestAPI.runSearchIndexes(queryContext?.indexName, indexQueryPayload);
-                workbenchWebviewProvider.setSearchQueryResult(
+                workbenchWebviewProvider.setQueryResult(
                     JSON.stringify(searchQueryResult?.hits),
                     {},
-                    explainPlan
+                    explainPlan,
+                    true
                 );
             } catch (err) {
                 const errorArray = [];
@@ -85,7 +86,8 @@ export class SearchWorkbench {
                 workbenchWebviewProvider.setQueryResult(
                     JSON.stringify(errorArray),
                     queryStatusProps,
-                    null
+                    null,
+                    true
                 );
             }
             
@@ -96,7 +98,7 @@ export class SearchWorkbench {
         try {
             return this._untitledSearchJsonDocumentService.newQuery(searchIndexNode, memFs);
         } catch (error) {
-            console.log("Error in openSearchWorkbench:", error);
+            logger.error("Error while opening Search WorkBench:" + error);
             throw error; 
         }
     }

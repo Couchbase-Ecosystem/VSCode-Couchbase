@@ -194,7 +194,7 @@ describe("Query Type Object Tests", () => {
         await getDiagnosticsForJson(json);
         const uri = vscode.Uri.parse('untitled:test.json');
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getUnexpectedAttributeMessageForQuery("min", "match")))).toBeTruthy();
+        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getUnexpectedAttributeMessageForQuery("match", "numeric range")))).toBeTruthy();
     });
 
     test("Valid Match Phrase", async () => {

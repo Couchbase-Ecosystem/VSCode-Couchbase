@@ -33,6 +33,7 @@ export const openSearchIndex = async (searchIndexNode: SearchIndexNode, clusterC
                 { create: true, overwrite: true }
             );
         } catch (error) {
+            logger.error("Failed to open Index definition, as it is not a valid JSON");
             vscode.window.showInformationMessage("Unable to open Index definition: It is not a valid JSON ", { modal: true });
             return false;
         }

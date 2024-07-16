@@ -81,6 +81,8 @@ import SearchIndexNode from "./model/SearchIndexNode";
 import { openSearchIndex } from "./commands/fts/SearchWorkbench/openSearchIndex";
 import { handleSearchContextStatusbar } from "./handlers/handleSearchQueryContextStatusBar";
 import { validateDocument } from "./commands/fts/SearchWorkbench/validators/validationUtil";
+import { AutocompleteVisitor } from "./commands/fts/SearchWorkbench/contributor/autoCompleteVisitor";
+import { CbsJsonHoverProvider } from "./commands/fts/SearchWorkbench/documentation/documentationProvider";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -108,11 +110,52 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(diagnosticCollection);
 
 context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-    if (event.document === vscode.window.activeTextEditor?.document && event.document.languageId == "searchQuery") {
+    if (event.document === vscode.window.activeTextEditor?.document && event.document.languageId == "json" && vscode.window.activeTextEditor?.document.fileName.endsWith(".cbs.json")) {
         validateDocument(event.document, diagnosticCollection);
     }
 }));
 
+const hoverProvider = new CbsJsonHoverProvider(context);
+context.subscriptions.push(
+    vscode.languages.registerHoverProvider({ language: 'json', pattern: '**/*.cbs.json' }, hoverProvider)
+);
+
+const provider = vscode.languages.registerCompletionItemProvider(
+  { language: 'json', pattern: '**/*.cbs.json' },
+  {
+      async provideCompletionItems(document, position, token, context) {
+          const autoComplete = new AutocompleteVisitor();
+          const suggestions = await autoComplete.getAutoCompleteContributor(document, position, currentSearchWorkbench);
+          if (suggestions.length === 0) {
+            return [new vscode.CompletionItem('', vscode.CompletionItemKind.Text)].map(item => {
+                item.sortText = '\u0000';
+                item.preselect = true;
+                item.keepWhitespace = true;
+                item.insertText = '';
+                item.range = new vscode.Range(position, position);
+                return item;
+            });
+        }
+          return suggestions;
+      }
+  },
+  '\"' 
+);
+
+
+
+context.subscriptions.push(provider);
+
+const disposable = vscode.window.onDidChangeTextEditorSelection(async (e) => {
+  if (e.kind === vscode.TextEditorSelectionChangeKind.Command) {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor && activeEditor.document.fileName.endsWith('.cbs.json')) {
+          await vscode.commands.executeCommand('editor.action.formatDocument');
+      }
+  }
+});
+
+context.subscriptions.push(disposable);
 
 
   const subscriptions = context.subscriptions;
@@ -208,8 +251,8 @@ context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
         editor &&
         editor.document.languageId === "json" &&
         editor.document.uri.scheme === "couchbase" &&
-        // TODO: Find better way to identify index def files
-        !editor.document.uri.path.includes("Search")
+        !editor.document.uri.path.endsWith("cbs.json") &&
+        !editor.document.uri.path.includes("/Search/")
       ) {
         await handleActiveEditorChange(editor, uriToCasMap, memFs);
       }
@@ -221,7 +264,9 @@ context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
       async (document: vscode.TextDocument) => {
         if (
           document && document.languageId === "json" &&
-          document.uri.scheme === "couchbase"
+          document.uri.scheme === "couchbase" && 
+          !document.uri.path.endsWith("cbs.json") &&
+          !document.uri.path.includes("/Search/")
         ) {
           await handleOnSaveTextDocument(document, uriToCasMap, memFs, cacheService);
           clusterConnectionTreeProvider.refresh();
@@ -725,7 +770,7 @@ context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
     searchWorkbench.openSearchWorkbench(searchIndexNode, memFs);
 
     const editorChangeSubscription = vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-      if (editor && editor.document.languageId === "searchQuery") {
+      if (editor && editor.document.languageId === "json" && editor.document.fileName.endsWith(".cbs.json")) {
         await handleSearchContextStatusbar(editor, searchIndexNode, searchWorkbench, globalStatusBarItem);
       }
     });

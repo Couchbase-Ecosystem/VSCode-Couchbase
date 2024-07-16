@@ -49,22 +49,30 @@ export class GeometryObjectValidator implements SearchObjectValidator {
     private validateRelation(propertyValue: any, property: JsonProperty, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
         if (!["intersects", "contains", "within"].includes(propertyValue.value)) {
             const positionMap = ValidationHelper.getPositionMap(document);
-            diagnosticsList.push(new vscode.Diagnostic(
+            const newDiagnostic = new vscode.Diagnostic(
                 positionMap.get("relation") || new vscode.Range(0, 0, 0, 1),
                 ValidationHelper.getRelationErrorMessage(),
                 vscode.DiagnosticSeverity.Error
-            ));
+            );
+    
+            if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 
-    private checkMissingFields(requiredFields: string[], currentAttributes: string[], diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument,positionMap:any): void {
+    private checkMissingFields(requiredFields: string[], currentAttributes: string[], diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument, positionMap: any): void {
         requiredFields.forEach(field => {
             if (!currentAttributes.includes(field)) {
-                diagnosticsList.push(new vscode.Diagnostic(
+                const newDiagnostic = new vscode.Diagnostic(
                     positionMap.get("geometry") || new vscode.Range(0, 0, 0, 1),
                     ValidationHelper.missingRequiredAttributeQuery(field, "geometry"),
                     vscode.DiagnosticSeverity.Error
-                ));
+                );
+    
+                if (!ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)) {
+                    diagnosticsList.push(newDiagnostic);
+                }
             }
         });
     }

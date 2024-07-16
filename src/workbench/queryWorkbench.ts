@@ -85,7 +85,8 @@ export class QueryWorkbench {
                 workbenchWebviewProvider.setQueryResult(
                     JSON.stringify(result?.rows),
                     queryStatusProps,
-                    explainPlan
+                    explainPlan,
+                    false
                 );
                 await saveQuery({ query: query, id: getUUID() });
                 queryHistoryTreeProvider.refresh();
@@ -126,7 +127,8 @@ export class QueryWorkbench {
                 workbenchWebviewProvider.setQueryResult(
                     JSON.stringify(errorArray),
                     queryStatusProps,
-                    null
+                    null,
+                    false
                 );
             }
         }
