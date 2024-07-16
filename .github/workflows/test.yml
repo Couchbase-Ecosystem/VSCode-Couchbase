@@ -19,11 +19,11 @@ jobs:
       - uses: ilammy/setup-nasm@v1
       - name: windows-specific
         shell: pwsh
-        if: runner.os == 'windows-latest'
+        if: runner.os == 'Windows'
         run: choco install openssl.light --version=1.1.1 && choco install cmake --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB 
       - name: linux-specific
         shell: bash
-        if: runner.os == 'ubuntu-latest'
+        if: runner.os == 'Linux'
         run: |
           ldd --version
           rm -rf /usr/local/bin/cmake
