@@ -72,6 +72,7 @@
     "class-transformer": "^0.5.1",
     "cmake-js": "^6.3.2",
     "css-loader": "^6.10.0",
+    "electron": "^31.2.1",
     "eslint": "^8.56.0",
     "file-loader": "^6.2.0",
     "glob": "^7.2.0",
