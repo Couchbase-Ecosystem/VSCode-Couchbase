@@ -24,7 +24,7 @@ export class CollectionDirectory implements INode {
     public getTreeItem(): vscode.TreeItem {
         return {
             label: `Collections`,
-            collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+            collapsibleState: vscode.TreeItemCollapsibleState.Expanded,
             contextValue: "collectionDirectory",
         };
     }

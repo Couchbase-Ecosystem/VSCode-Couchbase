@@ -487,6 +487,11 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.deleteSearchIndex",
+        "title": "Delete Search Index",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.useClusterConnection",
         "title": "Connect to Cluster",
         "category": "Couchbase"
@@ -852,6 +857,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.deleteSearchIndex",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.deleteClusterConnection",
           "when": "false"
         },
@@ -1035,8 +1044,18 @@
         },
         {
           "command": "vscode-couchbase.openSearchWorkbench",
+          "when": "view == couchbase && viewItem == active_connection && !isKVCluster && isSearchEnabled",
+          "group": "workbench@1"
+        },
+        {
+          "command": "vscode-couchbase.openSearchWorkbench",
           "when": "view == couchbase && viewItem == searchIndex && !isKVCluster && isSearchEnabled",
           "group": "workbench@1"
+        },
+        {
+          "command": "vscode-couchbase.deleteSearchIndex",
+          "when": "view == couchbase && viewItem == searchIndex && !isKVCluster && isSearchEnabled",
+          "group": "workbench@2"
         },
         {
           "submenu": "vscode-couchbase.toolsMenu",

@@ -37,28 +37,30 @@ export const showSearchContextStatusbar = async (editor: vscode.TextEditor, sear
             context.statusBarItem.hide();
         }
     });
+    if (!editorContext) {
+        editorContext = {
+            bucketName: searchNode.bucketName,
+            indexName: searchNode.indexName,
+            statusBarItem: globalStatusBarItem,
+            searchNode: searchNode
+        };
+        workbench.editorToContext.set(editorId, editorContext);
+    }
+ 
+    const contextSearchNode = editorContext;
 
-    editorContext = {
-        bucketName: searchNode.bucketName,
-        indexName: searchNode.indexName,
-        statusBarItem: globalStatusBarItem,
-        searchNode: searchNode
-    };
-    workbench.editorToContext.set(editorId, editorContext);
+    let displayBucketName = contextSearchNode.bucketName ?? "";  
+    let displayIndexName = contextSearchNode.indexName ?? "";   
 
-
-    // Update global status bar text based on Node selected by user
-    let displayBucketName = searchNode.bucketName.length > 15 ? `${searchNode.bucketName.substring(0, 13)}...` : searchNode.bucketName;
-    let displayIndexName = searchNode.searchIndexName.length > 15 ? `${searchNode.searchIndexName.substring(0, 13)}...` : searchNode.searchIndexName;
+    displayBucketName = displayBucketName.length > 15 ? `${displayBucketName.substring(0, 13)}...` : displayBucketName;
+    displayIndexName = displayIndexName.length > 15 ? `${displayIndexName.substring(0, 13)}...` : displayIndexName;
     editorContext.statusBarItem.text = `$(group-by-ref-type) ${displayBucketName} > ${displayIndexName}`;
+    if (displayBucketName === "" || displayIndexName === ""){
+        editorContext.statusBarItem.text = `$(group-by-ref-type) No Search Query Context Set`;
+    }
     editorContext.statusBarItem.tooltip = "Search Query Context";
     editorContext.statusBarItem.command = Commands.searchContext;
 
-    // Check and update the context if it has changed
-    if (editorContext.searchNode !== searchNode) {
-        editorContext.searchNode = searchNode;
-        workbench.editorToContext.set(editorId, editorContext);
-    }
 
     editorContext.statusBarItem.show();
 };

@@ -38,6 +38,7 @@ export namespace Commands {
     export const openQueryNotebook: string = "vscode-couchbase.openQueryNotebook";
     export const openQueryWorkbench: string = "vscode-couchbase.openQueryWorkbench";
     export const openSearchWorkbench: string = "vscode-couchbase.openSearchWorkbench";
+    export const deleteSearchIndex: string = "vscode-couchbase.deleteSearchIndex";
     export const getSampleProjects: string = "vscode-couchbase.openSampleProjects";
     export const loadMore: string = "vscode-couchbase.loadMore";
     export const showOutputConsole: string = "vscode-couchbase.showOutputConsole";

@@ -83,6 +83,7 @@ import { handleSearchContextStatusbar } from "./handlers/handleSearchQueryContex
 import { validateDocument } from "./commands/fts/SearchWorkbench/validators/validationUtil";
 import { AutocompleteVisitor } from "./commands/fts/SearchWorkbench/contributor/autoCompleteVisitor";
 import { CbsJsonHoverProvider } from "./commands/fts/SearchWorkbench/documentation/documentationProvider";
+import { deleteIndex } from "./util/ftsIndexUtils";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -365,6 +366,16 @@ context.subscriptions.push(disposable);
       Commands.openSearchIndex,
       async (searchIndexNode: SearchIndexNode) => {
         await openSearchIndex(searchIndexNode, clusterConnectionTreeProvider, uriToCasMap, memFs);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.deleteSearchIndex,
+      async (searchIndexNode: SearchIndexNode) => {
+        await deleteIndex(searchIndexNode);
+        clusterConnectionTreeProvider.refresh();
       }
     )
   );
@@ -769,16 +780,18 @@ context.subscriptions.push(disposable);
 
     searchWorkbench.openSearchWorkbench(searchIndexNode, memFs);
 
-    const editorChangeSubscription = vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-      if (editor && editor.document.languageId === "json" && editor.document.fileName.endsWith(".cbs.json")) {
-        await handleSearchContextStatusbar(editor, searchIndexNode, searchWorkbench, globalStatusBarItem);
-      }
-    });
-    context.subscriptions.push(editorChangeSubscription);
 
   });
   context.subscriptions.push(openSearchWorkbenchCommand);
 
+
+  subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+      if (editor && editor.document.languageId === "json" && editor.document.fileName.endsWith(".cbs.json")) {
+        await handleSearchContextStatusbar(editor, currentSearchIndexNode, searchWorkbench, globalStatusBarItem);
+      }
+    })
+  );
 
 
   context.subscriptions.push(

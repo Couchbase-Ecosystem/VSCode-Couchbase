@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import { logger } from "../../logger/logger";
 import { Bucket, BucketSettings } from "couchbase";
 import { QueryWorkbench } from "../../workbench/queryWorkbench";
-import { showQueryContextStatusbar } from "../../util/queryContextUtils";
+import { showQueryContextStatusbar, showSearchContextStatusbar } from "../../util/queryContextUtils";
 import { getActiveConnection } from "../../util/connections";
 import { SearchWorkbench } from "../../commands/fts/SearchWorkbench/searchWorkbench";
 import SearchIndexNode from "../../model/SearchIndexNode";
@@ -124,7 +124,7 @@ export async function fetchSearchContext(searchIndexNode: SearchIndexNode, workb
             label: bucket.name,
             iconPath: new vscode.ThemeIcon("database")
         })), {
-            placeHolder: 'Query Context: Select a bucket',
+            placeHolder: 'Search Query Context: Select a bucket',
             canPickMany: false
         });
 
@@ -133,7 +133,7 @@ export async function fetchSearchContext(searchIndexNode: SearchIndexNode, workb
             return;
         }
 
-        const bucketNameSelected = selectedItem.label;
+        let bucketNameSelected = selectedItem.label;
 
         // Fetching search indexes specific to the selected bucket
         const searchIndexesManager = connection?.cluster?.searchIndexes();
@@ -158,22 +158,22 @@ export async function fetchSearchContext(searchIndexNode: SearchIndexNode, workb
             return;
         }
 
-        const editorId = activeEditor.document.uri.toString();
+        let editorId = activeEditor.document.uri.toString();
+        let editorContext = workbench.editorToContext.get(editorId);
+        
+        let displayBucketName = bucketNameSelected.length > 15 ? `${bucketNameSelected.substring(0, 13)}...` : bucketNameSelected;
+        let displayIndexName = indexNameSelected.label.length > 15 ? `${indexNameSelected.label.substring(0, 13)}...` : indexNameSelected.label;
 
-        // Setting new context
-        workbench.editorToContext.set(editorId, {
+        editorContext = {
             bucketName: bucketNameSelected,
             indexName: indexNameSelected.label,
             statusBarItem: globalStatusBarItem,
             searchNode: searchIndexNode
-        });
-
-        // Update the status bar directly
-        let displayBucketName = bucketNameSelected.length > 15 ? `${bucketNameSelected.substring(0, 13)}...` : bucketNameSelected;
-        let displayIndexName = indexNameSelected.label.length > 15 ? `${indexNameSelected.label.substring(0, 13)}...` : indexNameSelected.label;
-        globalStatusBarItem.text = `$(group-by-ref-type) ${displayBucketName} > ${displayIndexName}`;
-        globalStatusBarItem.tooltip = "Search Query Context";
-        globalStatusBarItem.command = Commands.searchContext;
+        };
+        workbench.editorToContext.set(editorId, editorContext);
+        editorContext.statusBarItem.text = `$(group-by-ref-type) ${displayBucketName} > ${displayIndexName}`;
+        editorContext.statusBarItem.tooltip = "Search Query Context";
+        editorContext.statusBarItem.command = Commands.searchContext;
 
     } catch (err) {
         logger.error(`Failed to open and set query context: ${err}`);
