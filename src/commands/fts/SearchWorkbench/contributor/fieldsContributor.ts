@@ -11,8 +11,8 @@ export class fieldsContributor {
     static async getFieldNames(
         bucketName: string,
         indexName: string,
+        cache: CacheService
     ): Promise<string[]> {
-        const cache = new CacheService();
         const suggestions: string[] = [];
         const connection = getActiveConnection();
         if (!connection) {
@@ -20,7 +20,6 @@ export class fieldsContributor {
         }
         const api = new CouchbaseRestAPI(connection);
 
-        cache.loadCache(connection);
         const bucketCache = cache.getCache(bucketName);
         const result = await api.fetchSearchIndexDefinition(indexName);
         if (!bucketCache) {

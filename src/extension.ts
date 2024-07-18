@@ -128,7 +128,7 @@ const provider = vscode.languages.registerCompletionItemProvider(
   {
       async provideCompletionItems(document, position, token, context) {
           const autoComplete = new AutocompleteVisitor();
-          const suggestions = await autoComplete.getAutoCompleteContributor(document, position, currentSearchWorkbench);
+          const suggestions = await autoComplete.getAutoCompleteContributor(document, position, currentSearchWorkbench, cacheService);
           if (suggestions.length === 0) {
             return [new vscode.CompletionItem('', vscode.CompletionItemKind.Text)].map(item => {
                 item.sortText = '\u0000';

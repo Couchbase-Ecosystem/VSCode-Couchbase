@@ -14,6 +14,7 @@ import { ctlCbsContributor } from "./ctlCbsContributor";
 import { shapeCbsContributor } from "./shapeCbsContributor";
 import { SearchWorkbench } from "../searchWorkbench";
 import { logger } from "../../../../logger/logger";
+import { CacheService } from "../../../../util/cacheService/cacheService";
 
 export class AutocompleteVisitor {
     public topLevelKeywords: string[] = [
@@ -51,6 +52,7 @@ export class AutocompleteVisitor {
         document: vscode.TextDocument,
         position: vscode.Position,
         searchWorkBench?: SearchWorkbench,
+        cache?:CacheService
     ): Promise<vscode.CompletionItem[]> {
         const text = document.getText();
         // const rootNode = jsonc.parseTree(text);
@@ -125,11 +127,13 @@ export class AutocompleteVisitor {
                         if (
                             attributeName == "field" &&
                             queryContext?.bucketName &&
-                            queryContext?.indexName
+                            queryContext?.indexName &&
+                            cache
                         ) {
                             fields = await fieldsContributor.getFieldNames(
                                 queryContext?.bucketName,
                                 queryContext?.indexName,
+                                cache
                             );
                         }
                         contributor.contributeValue(
