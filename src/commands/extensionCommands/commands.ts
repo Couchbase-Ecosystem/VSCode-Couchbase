@@ -67,6 +67,7 @@ export namespace Commands {
     export const checkAndCreatePrimaryIndex: string = "vscode-couchbase.checkAndCreatePrimaryIndex";
     export const dataExport: string = "vscode-couchbase.tools.dataExport";
     export const mdbMigrate: string = "vscode-couchbase.tools.mdbMigrate";
+    export const dynamodbMigrate: string = "vscode-couchbase.tools.dynamodbMigrate";
     export const dataImport: string = "vscode-couchbase.tools.dataImport";
     export const ddlExport: string = "vscode-couchbase.tools.DDLExport";
     export const couchbaseIqViewsCommand: string = "couchbase-iq";

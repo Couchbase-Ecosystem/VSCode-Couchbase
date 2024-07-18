@@ -94,6 +94,8 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.602.0",
+    "@aws-sdk/credential-providers": "^3.600.0",
     "@chatscope/chat-ui-kit-styles": "^1.4.0",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
@@ -619,6 +621,11 @@
         "icon": "$(group-by-ref-type)"
       },
       {
+        "command": "vscode-couchbase.tools.dynamodbMigrate",
+        "title": "DynamoDB Migrate",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.tools.dataImport",
         "title": "Data Import",
         "category": "Couchbase"
@@ -743,7 +750,7 @@
         "command": "vscode-couchbase.runQuery",
         "key": "ctrl+shift+e",
         "mac": "cmd+shift+e",
-        "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/) && !isKVCluster"
+        "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/) && !isKVCluster"
       },
       {
         "command": "vscode-couchbase.runSearch",
@@ -757,7 +764,7 @@
         {
           "command": "vscode-couchbase.runQuery",
           "category": "Couchbase",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster",
           "group": "navigation@1"
         },
         {
@@ -771,7 +778,7 @@
           "command": "vscode-couchbase.queryContext",
           "category": "Couchbase",
           "group": "navigation@2",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
         },
         {
           "title": "Search Context",
@@ -785,21 +792,21 @@
           "command": "vscode-couchbase.showFavoriteQueries",
           "category": "Couchbase",
           "group": "navigation@3",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
         },
         {
           "title": "Mark Favorite Query",
           "command": "vscode-couchbase.markFavoriteQuery",
           "category": "Couchbase",
           "group": "navigation@4",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
         },
         {
           "title": "Show Named Parameters",
           "command": "vscode-couchbase.showNamedParameters",
           "category": "Couchbase",
           "group": "navigation@3",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/) && !isKVCluster"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/) && !isKVCluster"
         },
         {
           "title": "Refresh Cluster Overview",
@@ -826,7 +833,7 @@
       "editor/context": [
         {
           "command": "vscode-couchbase.runQuery",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/)  && !isKVCluster",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster",
           "group": "navigation@1"
         },
         {
@@ -981,6 +988,10 @@
         },
         {
           "command": "vscode-couchbase.tools.mdbMigrate",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.tools.dynamodbMigrate",
           "when": "false"
         },
         {
@@ -1178,19 +1189,23 @@
       "vscode-couchbase.toolsMenu": [
         {
           "command": "vscode-couchbase.tools.dataExport",
-          "group": "navigation"
+          "group": "secondary"
         },
         {
           "command": "vscode-couchbase.tools.mdbMigrate",
-          "group": "navigation"
+          "group": "tertiary"
+        },
+        {
+          "command": "vscode-couchbase.tools.dynamodbMigrate",
+          "group": "tertiary"
         },
         {
           "command": "vscode-couchbase.tools.dataImport",
-          "group": "navigation"
+          "group": "secondary"
         },
         {
           "command": "vscode-couchbase.tools.DDLExport",
-          "group": "navigation"
+          "group": "secondary"
         }
       ],
       "vscode-couchbase.filterDocumentsMenu": [
@@ -1286,3 +1301,4 @@
     ]
   }
 }
+
