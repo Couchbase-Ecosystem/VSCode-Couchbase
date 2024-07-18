@@ -1,10 +1,8 @@
-import * as vscode from 'vscode';
-import * as jsonc from 'jsonc-parser';
-import * as fs from 'fs';
-import * as path from 'path';
-import { logger } from '../../../../logger/logger';
-
-
+import * as vscode from "vscode";
+import * as jsonc from "jsonc-parser";
+import * as fs from "fs";
+import * as path from "path";
+import { logger } from "../../../../logger/logger";
 
 export class CbsJsonHoverProvider implements vscode.HoverProvider {
     private context: vscode.ExtensionContext;
@@ -13,7 +11,11 @@ export class CbsJsonHoverProvider implements vscode.HoverProvider {
         this.context = context;
     }
 
-    provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Hover> {
+    provideHover(
+        document: vscode.TextDocument,
+        position: vscode.Position,
+        token: vscode.CancellationToken,
+    ): vscode.ProviderResult<vscode.Hover> {
         if (!this.isCbsJsonFile(document)) {
             return null;
         }
@@ -21,16 +23,23 @@ export class CbsJsonHoverProvider implements vscode.HoverProvider {
         const offset = document.offsetAt(position);
         const text = document.getText();
         const rootNode = jsonc.parseTree(text);
-        if (!rootNode){
-            return 
+        if (!rootNode) {
+            return;
         }
         let node = jsonc.findNodeAtOffset(rootNode, offset);
-        node = node?.parent
+        node = node?.parent;
 
-        if (node && node.type === 'property' && node.children && node.children[0].type === 'string') {
-
+        if (
+            node &&
+            node.type === "property" &&
+            node.children &&
+            node.children[0].type === "string"
+        ) {
             const key = node.children[0].value;
-            const parentNode = jsonc.findNodeAtOffset(rootNode, node.parent!.offset);
+            const parentNode = jsonc.findNodeAtOffset(
+                rootNode,
+                node.parent!.offset,
+            );
             const type = this.getParentType(parentNode);
 
             const documentation = this.getDocumentationForKey(key, type);
@@ -43,24 +52,29 @@ export class CbsJsonHoverProvider implements vscode.HoverProvider {
     }
 
     private isCbsJsonFile(document: vscode.TextDocument): boolean {
-        return document.fileName.endsWith('.cbs.json');
+        return document.fileName.endsWith(".cbs.json");
     }
 
     private getParentType(node: jsonc.Node | undefined): string | null {
         if (!node || !node.parent) return null;
-        if (node.parent.type === 'property') {
+        if (node.parent.type === "property") {
             return node.parent.children![0].value;
         }
         return null;
     }
 
-
-    private getDocumentationForKey(key: string, type: string | null): vscode.MarkdownString | null {
+    private getDocumentationForKey(
+        key: string,
+        type: string | null,
+    ): vscode.MarkdownString | null {
         let filePath: string;
 
         switch (key) {
             case "query":
-                filePath = type === null ? "/docs/search/query.md" : "/docs/search/query_string.md";
+                filePath =
+                    type === null
+                        ? "/docs/search/query.md"
+                        : "/docs/search/query_string.md";
                 break;
             case "must":
                 filePath = "/docs/search/must.md";
@@ -165,7 +179,10 @@ export class CbsJsonHoverProvider implements vscode.HoverProvider {
                 filePath = "/docs/search/shape.md";
                 break;
             case "type":
-                filePath = type === "shape" ? "/docs/search/type_shape.md" : "/docs/search/type_facet.md";
+                filePath =
+                    type === "shape"
+                        ? "/docs/search/type_shape.md"
+                        : "/docs/search/type_facet.md";
                 break;
             case "coordinates":
                 filePath = "/docs/search/coordinates.md";
@@ -263,11 +280,13 @@ export class CbsJsonHoverProvider implements vscode.HoverProvider {
                 filePath = "/docs/search/style.md";
                 break;
             default:
-                return new vscode.MarkdownString("No documentation available for this key.");
+                return new vscode.MarkdownString(
+                    "No documentation available for this key.",
+                );
         }
         try {
             const fullPath = path.join(this.context.extensionPath, filePath);
-            const content = fs.readFileSync(fullPath, 'utf8');
+            const content = fs.readFileSync(fullPath, "utf8");
             return new vscode.MarkdownString(content);
         } catch (error) {
             logger.error(`Error reading documentation file: ${error}`);
@@ -275,5 +294,4 @@ export class CbsJsonHoverProvider implements vscode.HoverProvider {
             return new vscode.MarkdownString("");
         }
     }
-
 }

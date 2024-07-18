@@ -1,21 +1,25 @@
-import * as vscode from 'vscode';
-import { validateDocument } from '../validators/validationUtil'; 
-import { ValidationHelper } from '../validators/validationHelper';
-import { QueryTypeObjectValidator } from '../validators/queryTypeObjectValidator';
+import * as vscode from "vscode";
+import { validateDocument } from "../validators/validationUtil";
+import { ValidationHelper } from "../validators/validationHelper";
+import { QueryTypeObjectValidator } from "../validators/queryTypeObjectValidator";
 
 let mockText = "";
 
-jest.mock('vscode', () => ({
+jest.mock("vscode", () => ({
     languages: {
         createDiagnosticCollection: jest.fn().mockImplementation(() => {
             const diagnosticsMap = new Map();
             return {
                 clear: jest.fn(() => diagnosticsMap.clear()),
                 dispose: jest.fn(),
-                get: jest.fn(uri => diagnosticsMap.get(uri.toString())),
-                set: jest.fn((uri, diagnostics) => diagnosticsMap.set(uri.toString(), diagnostics)),
-                delete: jest.fn(uri => diagnosticsMap.delete(uri.toString())),
-                forEach: jest.fn(callback => diagnosticsMap.forEach(callback)),
+                get: jest.fn((uri) => diagnosticsMap.get(uri.toString())),
+                set: jest.fn((uri, diagnostics) =>
+                    diagnosticsMap.set(uri.toString(), diagnostics),
+                ),
+                delete: jest.fn((uri) => diagnosticsMap.delete(uri.toString())),
+                forEach: jest.fn((callback) =>
+                    diagnosticsMap.forEach(callback),
+                ),
             };
         }),
     },
@@ -26,38 +30,41 @@ jest.mock('vscode', () => ({
     },
     workspace: {
         openTextDocument: jest.fn().mockImplementation((uri) => ({
-            getText: jest.fn(() => mockText),  
+            getText: jest.fn(() => mockText),
             uri: uri,
             positionAt: jest.fn().mockImplementation((index) => {
-                return new vscode.Position(Math.floor(index / 100), index % 100); 
+                return new vscode.Position(
+                    Math.floor(index / 100),
+                    index % 100,
+                );
             }),
         })),
         fs: {
             writeFile: jest.fn(),
-        }
+        },
     },
     Range: jest.fn().mockImplementation((start, end) => ({
         start: start,
-        end: end
+        end: end,
     })),
     Position: jest.fn().mockImplementation((line, character) => ({
         line: line,
-        character: character
+        character: character,
     })),
     Diagnostic: jest.fn().mockImplementation((range, message, severity) => ({
         range: range,
         message: message,
-        severity: severity
+        severity: severity,
     })),
     DiagnosticSeverity: {
-        Error: 0,  
+        Error: 0,
         Warning: 1,
         Information: 2,
-        Hint: 3
-    }
+        Hint: 3,
+    },
 }));
 
-const setMockText = (text:any) => {
+const setMockText = (text: any) => {
     mockText = text;
 };
 
@@ -65,7 +72,8 @@ describe("Query Type Object Tests", () => {
     let diagnosticsCollection: vscode.DiagnosticCollection;
 
     beforeEach(() => {
-        diagnosticsCollection = vscode.languages.createDiagnosticCollection('testCollection');
+        diagnosticsCollection =
+            vscode.languages.createDiagnosticCollection("testCollection");
     });
 
     afterEach(() => {
@@ -87,7 +95,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -109,14 +117,68 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "match")))).toBeTruthy();
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "field")))).toBeTruthy();
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "analyzer")))).toBeTruthy();
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "operator")))).toBeTruthy();
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("number", "fuzziness")))).toBeTruthy();
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("number", "prefix_length")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "match",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "field",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "analyzer",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "operator",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "number",
+                        "fuzziness",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "number",
+                        "prefix_length",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Valid Match Operator", async () => {
@@ -134,9 +196,15 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(QueryTypeObjectValidator.invalidOperatorMessage()))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    QueryTypeObjectValidator.invalidOperatorMessage(),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Match Without Operator", async () => {
@@ -153,9 +221,15 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(QueryTypeObjectValidator.matchWithSpaceMessage()))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    QueryTypeObjectValidator.matchWithSpaceMessage(),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Match", async () => {
@@ -173,9 +247,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getUnexpectedAttributeMessageForQuery("min", "match")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getUnexpectedAttributeMessageForQuery(
+                        "min",
+                        "match",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Valid Numeric Range", async () => {
@@ -192,9 +275,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getUnexpectedAttributeMessageForQuery("match", "numeric range")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getUnexpectedAttributeMessageForQuery(
+                        "match",
+                        "numeric range",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Match Phrase", async () => {
@@ -213,7 +305,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -234,9 +326,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "match_phrase")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "match_phrase",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Boolean", async () => {
@@ -252,7 +353,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -270,10 +371,19 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(1);
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("boolean", "bool")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "boolean",
+                        "bool",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Prefix", async () => {
@@ -289,7 +399,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -307,9 +417,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "prefix")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "prefix",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Prefix With Fuzziness", async () => {
@@ -326,9 +445,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getUnexpectedAttributeMessageForQuery("fuzziness", "prefix")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getUnexpectedAttributeMessageForQuery(
+                        "fuzziness",
+                        "prefix",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Regex", async () => {
@@ -344,7 +472,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -362,9 +490,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "regexp")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "regexp",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Term", async () => {
@@ -381,7 +518,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -401,9 +538,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getUnexpectedAttributeMessageForQuery("analyzer", "term")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getUnexpectedAttributeMessageForQuery(
+                        "analyzer",
+                        "term",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Term", async () => {
@@ -420,9 +566,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "term")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "term",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Terms", async () => {
@@ -438,7 +593,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -457,9 +612,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getUnexpectedAttributeMessageForQuery("analyzer", "terms")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getUnexpectedAttributeMessageForQuery(
+                        "analyzer",
+                        "terms",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Terms", async () => {
@@ -475,10 +639,19 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(1);
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("array", "terms")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "array",
+                        "terms",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Wildcard", async () => {
@@ -494,7 +667,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -512,10 +685,19 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(1);
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "wildcard")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "wildcard",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid CIDR", async () => {
@@ -531,7 +713,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -549,10 +731,19 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(1);
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "cidr")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "cidr",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Numeric Range", async () => {
@@ -571,7 +762,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -590,9 +781,15 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(QueryTypeObjectValidator.minOrMaxRequiredMessage()))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    QueryTypeObjectValidator.minOrMaxRequiredMessage(),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Range", async () => {
@@ -611,10 +808,28 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("boolean", "inclusive_min")))).toBeTruthy();
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("boolean", "inclusive_max")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "boolean",
+                        "inclusive_min",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "boolean",
+                        "inclusive_max",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Date Range", async () => {
@@ -633,7 +848,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -654,14 +869,49 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "start")))).toBeTruthy();
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "end")))).toBeTruthy();
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("boolean", "inclusive_start")))).toBeTruthy();
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("boolean", "inclusive_end")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "start",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "end",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "boolean",
+                        "inclusive_start",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "boolean",
+                        "inclusive_end",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
-
 
     test("Valid Conjuncts", async () => {
         const json = `
@@ -687,7 +937,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -710,12 +960,20 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(1);
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("array", "conjuncts")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "array",
+                        "conjuncts",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
-
 
     test("Invalid Disjuncts Type", async () => {
         const json = `
@@ -735,9 +993,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("array", "disjuncts")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "array",
+                        "disjuncts",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Disjuncts", async () => {
@@ -762,7 +1029,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -791,9 +1058,15 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(QueryTypeObjectValidator.getFieldNotAllowedOnCompound()))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    QueryTypeObjectValidator.getFieldNotAllowedOnCompound(),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Distance Object", async () => {
@@ -813,7 +1086,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -834,9 +1107,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.missingRequiredAttributeQuery("distance", "distance radius")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.missingRequiredAttributeQuery(
+                        "distance",
+                        "distance radius",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Missing Location", async () => {
@@ -852,9 +1134,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.missingRequiredAttributeQuery("location", "distance radius")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.missingRequiredAttributeQuery(
+                        "location",
+                        "distance radius",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Distance Array Location", async () => {
@@ -871,7 +1162,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -892,9 +1183,17 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedObjectPropertiesMessage("location")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedObjectPropertiesMessage(
+                        "location",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Distance Attribute", async () => {
@@ -915,9 +1214,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getUnexpectedAttributeMessageForQuery("fuzziness", "distance radius")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getUnexpectedAttributeMessageForQuery(
+                        "fuzziness",
+                        "distance radius",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Distance Value", async () => {
@@ -937,9 +1245,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("string", "distance")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "string",
+                        "distance",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Distance Unit", async () => {
@@ -959,10 +1276,29 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        const validUnits = ["mm", "cm", "in", "yd", "ft", "km", "mi", "nm", "m"];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getInvalidDistanceUnitErrorMessage("distance", validUnits)))).toBeTruthy();
+        const validUnits = [
+            "mm",
+            "cm",
+            "in",
+            "yd",
+            "ft",
+            "km",
+            "mi",
+            "nm",
+            "m",
+        ];
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getInvalidDistanceUnitErrorMessage(
+                        "distance",
+                        validUnits,
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Rectangle", async () => {
@@ -982,7 +1318,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -1003,9 +1339,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.missingRequiredAttributeQuery("top_left", "rectangle based")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.missingRequiredAttributeQuery(
+                        "top_left",
+                        "rectangle based",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Rectangle Missing Bottom Right", async () => {
@@ -1021,9 +1366,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.missingRequiredAttributeQuery("bottom_right", "rectangle based")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.missingRequiredAttributeQuery(
+                        "bottom_right",
+                        "rectangle based",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Polygon", async () => {
@@ -1046,7 +1400,7 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
         expect(diagnostics.length).toBe(0);
     });
@@ -1064,9 +1418,18 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedDataTypeErrorMessage("array", "polygon_points")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedDataTypeErrorMessage(
+                        "array",
+                        "polygon_points",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Polygon Array", async () => {
@@ -1086,16 +1449,40 @@ describe("Query Type Object Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedLatLonMessage("polygon_points[0]")))).toBeTruthy();
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedLatLonMessage("polygon_points[1]")))).toBeTruthy();
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getExpectedLatLonMessage("polygon_points[2]")))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedLatLonMessage(
+                        "polygon_points[0]",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedLatLonMessage(
+                        "polygon_points[1]",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getExpectedLatLonMessage(
+                        "polygon_points[2]",
+                    ),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     async function getDiagnosticsForJson(jsonText: string) {
         try {
-            const uri = vscode.Uri.parse('untitled:test.json');
+            const uri = vscode.Uri.parse("untitled:test.json");
             await vscode.workspace.fs.writeFile(uri, Buffer.from(jsonText));
             const document = await vscode.workspace.openTextDocument(uri);
             validateDocument(document, diagnosticsCollection);
@@ -1103,5 +1490,4 @@ describe("Query Type Object Tests", () => {
             console.error("Error during testing:", error);
         }
     }
-    
-    }); 
+});

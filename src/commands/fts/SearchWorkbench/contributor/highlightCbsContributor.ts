@@ -1,6 +1,6 @@
-import { Node } from 'jsonc-parser'
-import { CBSContributor } from './autoComplete'
-import * as vscode from 'vscode';
+import { Node } from "jsonc-parser";
+import { CBSContributor } from "./autoComplete";
+import * as vscode from "vscode";
 
 export class highlightCbsContributor implements CBSContributor {
     public static keys: string[] = ["style", "fields"];
@@ -9,16 +9,19 @@ export class highlightCbsContributor implements CBSContributor {
         return key === "highlight";
     }
 
-    contributeKey(parentKey: string, node: Node, suggestion: string[], result: vscode.CompletionItem[], existingKeys: string[]) {
-        suggestion.push(...highlightCbsContributor.keys)
-
+    contributeKey(
+        parentKey: string,
+        node: Node,
+        suggestion: string[],
+        result: vscode.CompletionItem[],
+        existingKeys: string[],
+    ) {
+        suggestion.push(...highlightCbsContributor.keys);
     }
 
     contributeValue(attributeKey: string, node: Node, suggestion: string[]) {
         if (attributeKey == "style") {
-            suggestion.push("ansi", "html")
+            suggestion.push("ansi", "html");
         }
-
     }
-
 }

@@ -1,20 +1,24 @@
-import * as vscode from 'vscode';
-import { validateDocument } from '../validators/validationUtil'; 
-import { ValidationHelper } from '../validators/validationHelper';
+import * as vscode from "vscode";
+import { validateDocument } from "../validators/validationUtil";
+import { ValidationHelper } from "../validators/validationHelper";
 
 let mockText = "";
 
-jest.mock('vscode', () => ({
+jest.mock("vscode", () => ({
     languages: {
         createDiagnosticCollection: jest.fn().mockImplementation(() => {
             const diagnosticsMap = new Map();
             return {
                 clear: jest.fn(() => diagnosticsMap.clear()),
                 dispose: jest.fn(),
-                get: jest.fn(uri => diagnosticsMap.get(uri.toString())),
-                set: jest.fn((uri, diagnostics) => diagnosticsMap.set(uri.toString(), diagnostics)),
-                delete: jest.fn(uri => diagnosticsMap.delete(uri.toString())),
-                forEach: jest.fn(callback => diagnosticsMap.forEach(callback)),
+                get: jest.fn((uri) => diagnosticsMap.get(uri.toString())),
+                set: jest.fn((uri, diagnostics) =>
+                    diagnosticsMap.set(uri.toString(), diagnostics),
+                ),
+                delete: jest.fn((uri) => diagnosticsMap.delete(uri.toString())),
+                forEach: jest.fn((callback) =>
+                    diagnosticsMap.forEach(callback),
+                ),
             };
         }),
     },
@@ -25,40 +29,41 @@ jest.mock('vscode', () => ({
     },
     workspace: {
         openTextDocument: jest.fn().mockImplementation((uri) => ({
-            getText: jest.fn(() => mockText),  
+            getText: jest.fn(() => mockText),
             uri: uri,
             positionAt: jest.fn().mockImplementation((index) => {
-                return new vscode.Position(Math.floor(index / 100), index % 100); 
+                return new vscode.Position(
+                    Math.floor(index / 100),
+                    index % 100,
+                );
             }),
         })),
         fs: {
             writeFile: jest.fn(),
-        }
+        },
     },
     Range: jest.fn().mockImplementation((start, end) => ({
         start: start,
-        end: end
+        end: end,
     })),
     Position: jest.fn().mockImplementation((line, character) => ({
         line: line,
-        character: character
+        character: character,
     })),
     Diagnostic: jest.fn().mockImplementation((range, message, severity) => ({
         range: range,
         message: message,
-        severity: severity
+        severity: severity,
     })),
     DiagnosticSeverity: {
-        Error: 0,  
+        Error: 0,
         Warning: 1,
         Information: 2,
-        Hint: 3
-    }
+        Hint: 3,
+    },
 }));
 
-
-
-const setMockText = (text:any) => {
+const setMockText = (text: any) => {
     mockText = text;
 };
 
@@ -66,7 +71,8 @@ describe("CBSBooleanInspection Tests", () => {
     let diagnosticsCollection: vscode.DiagnosticCollection;
 
     beforeEach(() => {
-        diagnosticsCollection = vscode.languages.createDiagnosticCollection('testCollection');
+        diagnosticsCollection =
+            vscode.languages.createDiagnosticCollection("testCollection");
     });
 
     afterEach(() => {
@@ -94,7 +100,7 @@ describe("CBSBooleanInspection Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         expect(diagnosticsCollection.get(uri)?.length).toBe(0);
     });
 
@@ -119,9 +125,15 @@ describe("CBSBooleanInspection Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getMustConjunctsErrorMessage()))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getMustConjunctsErrorMessage(),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Should", async () => {
@@ -146,7 +158,7 @@ describe("CBSBooleanInspection Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         expect(diagnosticsCollection.get(uri)?.length).toBe(0);
     });
 
@@ -172,9 +184,15 @@ describe("CBSBooleanInspection Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getShouldErrorMessage()))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getShouldErrorMessage(),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Must", async () => {
@@ -199,9 +217,15 @@ describe("CBSBooleanInspection Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getMustConjunctsErrorMessage()))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getMustConjunctsErrorMessage(),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Valid Must not", async () => {
@@ -226,7 +250,7 @@ describe("CBSBooleanInspection Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         expect(diagnosticsCollection.get(uri)?.length).toBe(0);
     });
 
@@ -251,9 +275,15 @@ describe("CBSBooleanInspection Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getMustNotDisjunctsErrorMessage()))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getMustNotDisjunctsErrorMessage(),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     test("Invalid Must Not Min", async () => {
@@ -279,14 +309,20 @@ describe("CBSBooleanInspection Tests", () => {
         setMockText(json);
 
         await getDiagnosticsForJson(json);
-        const uri = vscode.Uri.parse('untitled:test.json');
+        const uri = vscode.Uri.parse("untitled:test.json");
         const diagnostics = diagnosticsCollection.get(uri) ?? [];
-        expect(diagnostics.some(diagnostic => diagnostic.message.includes(ValidationHelper.getMustNotDisjunctsErrorMessage()))).toBeTruthy();
+        expect(
+            diagnostics.some((diagnostic) =>
+                diagnostic.message.includes(
+                    ValidationHelper.getMustNotDisjunctsErrorMessage(),
+                ),
+            ),
+        ).toBeTruthy();
     });
 
     async function getDiagnosticsForJson(jsonText: string) {
         try {
-            const uri = vscode.Uri.parse('untitled:test.json');
+            const uri = vscode.Uri.parse("untitled:test.json");
             await vscode.workspace.fs.writeFile(uri, Buffer.from(jsonText));
             const document = await vscode.workspace.openTextDocument(uri);
             validateDocument(document, diagnosticsCollection);
