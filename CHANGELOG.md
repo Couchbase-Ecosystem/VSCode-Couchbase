@@ -1,5 +1,11 @@
 # Change Log
 
+## [v2.1.0]
+- Add FTS workbench support inside extension
+- Add FTS workbench json validation
+- Add FTS workbench json auto complete feature
+- Add FTS workbench documentation
+
 ## [v2.0.0]
 - Bump Node.js version to 20
 - Add MongoDB to Couchbase data Migration tool
