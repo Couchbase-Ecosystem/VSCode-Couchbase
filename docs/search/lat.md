@@ -1,0 +1,1 @@
+The latitude of the geo location

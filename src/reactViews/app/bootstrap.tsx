@@ -24,6 +24,8 @@ export const App: React.FC = () => {
   const [explainPlan, setExplainPlan] = React.useState<Plan>(null);
   const [theme, setTheme] = React.useState<SupportedThemes>("vs-dark");
   const [currentTab, setCurrentTab] = React.useState<QueryTabs>(QueryTabs.JSON); // TODO: initial value should be chart
+  const [isSearch, setIsSearch] = React.useState(false);
+
   window.addEventListener('message', event => {
     const message = event.data; // The JSON data our extension sent
 
@@ -31,7 +33,10 @@ export const App: React.FC = () => {
       case 'queryResult':
         setQueryResult(JSON.parse(message.result));
         setQueryStatus(message.queryStatus);
+        setIsSearch(message.isSearch);
+        if (!message.isSearch) {
         setExplainPlan(JSON.parse(message.explainPlan));
+        }
         message.isDarkTheme ? setTheme("vs-dark") : setTheme("vs-light");
         break;
       case 'theme':
@@ -42,7 +47,7 @@ export const App: React.FC = () => {
   return (
     <div className="h-screen">
       <QueryStats {...queryStatus} />
-      <TabBarMenu items={TAB_BAR_ITEMS} value={currentTab} onChange={setCurrentTab} />
+      <TabBarMenu items={isSearch ? TAB_BAR_ITEMS.filter(item => item.key === QueryTabs.JSON) : TAB_BAR_ITEMS} value={currentTab} onChange={setCurrentTab} />
       <div style={{ height: 'calc(100vh - 80px)', marginTop: '3px' }}>
         {currentTab === QueryTabs.JSON && <Editor
           value={JSON.stringify(queryResult ?? FALLBACK_MESSAGE, null, 2)}
@@ -52,8 +57,8 @@ export const App: React.FC = () => {
           theme={theme}
           language="json"
         />}
-        {currentTab === QueryTabs.Table && <DataTable data={queryResult} dataFallback={[FALLBACK_MESSAGE]} />}
-        {currentTab === QueryTabs.PLAN && <VisualExplainPlan plan={explainPlan} hideControls={false} />}
+        {!isSearch && currentTab === QueryTabs.Table && <DataTable data={queryResult} dataFallback={[FALLBACK_MESSAGE]} />}
+        {!isSearch && currentTab === QueryTabs.PLAN && <VisualExplainPlan plan={explainPlan} hideControls={false} />}
       </div>
     </div>
   );

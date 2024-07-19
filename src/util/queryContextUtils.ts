@@ -3,16 +3,13 @@ import { QueryWorkbench } from '../workbench/queryWorkbench';
 import { Memory } from './util';
 import { Constants } from './constants';
 import { Commands } from '../commands/extensionCommands/commands';
+import { SearchWorkbench } from '../commands/fts/SearchWorkbench/searchWorkbench';
+import SearchIndexNode from '../model/SearchIndexNode';
 
-export const showQueryContextStatusbar = async (editor: vscode.TextEditor, workbench: QueryWorkbench) => {
-    let statusBarItem = Memory.state.get<vscode.StatusBarItem>(Constants.QUERY_CONTEXT_STATUS_BAR);
-    if (!statusBarItem) {
-        statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 1000);
-        Memory.state.update(Constants.QUERY_CONTEXT_STATUS_BAR, statusBarItem);
-    }
+export const showQueryContextStatusbar = async (editor: vscode.TextEditor, workbench: QueryWorkbench, globalStatusBarItem: vscode.StatusBarItem) => {
     let queryContext = workbench.editorToContext.get(editor.document.uri.toString());
     if (!queryContext) {
-        statusBarItem.text = `$(group-by-ref-type) No Query Context Set`;
+        globalStatusBarItem.text = `$(group-by-ref-type) No Query Context Set`;
     } else {
         let bucketName = queryContext.bucketName;
         if (bucketName.length > 15) {
@@ -22,17 +19,50 @@ export const showQueryContextStatusbar = async (editor: vscode.TextEditor, workb
         if (scopeName.length > 15) {
             scopeName = `${scopeName.substring(0, 13)}...`;
         }
-        statusBarItem.text = `$(group-by-ref-type) ${bucketName} > ${scopeName}`;
+        globalStatusBarItem.text = `$(group-by-ref-type) ${bucketName} > ${scopeName}`;
     }
-    statusBarItem.command = Commands.queryContext;
-    statusBarItem.tooltip = "Query Context";
-    statusBarItem.show();
+    globalStatusBarItem.command = Commands.queryContext;
+    globalStatusBarItem.tooltip = "Query Context";
+    globalStatusBarItem.show();
 };
 
-export const hideQueryContextStatusbar = async () => {
-    let statusBarItem = Memory.state.get<vscode.StatusBarItem>(Constants.QUERY_CONTEXT_STATUS_BAR);
-    if (!statusBarItem) {
-        return;
+
+export const showSearchContextStatusbar = async (editor: vscode.TextEditor, searchNode: SearchIndexNode, workbench: SearchWorkbench, globalStatusBarItem: vscode.StatusBarItem) => {
+    let editorId = editor.document.uri.toString();
+    let editorContext = workbench.editorToContext.get(editorId);
+
+    // Hide all other status bar items if present
+    workbench.editorToContext.forEach((context, key) => {
+        if (key !== editorId && context.statusBarItem) {
+            context.statusBarItem.hide();
+        }
+    });
+    if (!editorContext) {
+        editorContext = {
+            bucketName: searchNode.bucketName,
+            indexName: searchNode.indexName,
+            statusBarItem: globalStatusBarItem,
+            searchNode: searchNode
+        };
+        workbench.editorToContext.set(editorId, editorContext);
     }
-    statusBarItem.hide();
+ 
+    const contextSearchNode = editorContext;
+
+    let displayBucketName = contextSearchNode.bucketName ?? "";  
+    let displayIndexName = contextSearchNode.indexName ?? "";   
+
+    displayBucketName = displayBucketName.length > 15 ? `${displayBucketName.substring(0, 13)}...` : displayBucketName;
+    displayIndexName = displayIndexName.length > 15 ? `${displayIndexName.substring(0, 13)}...` : displayIndexName;
+    editorContext.statusBarItem.text = `$(group-by-ref-type) ${displayBucketName} > ${displayIndexName}`;
+    if (displayBucketName === "" || displayIndexName === ""){
+        editorContext.statusBarItem.text = `$(group-by-ref-type) No Search Query Context Set`;
+    }
+    editorContext.statusBarItem.tooltip = "Search Query Context";
+    editorContext.statusBarItem.command = Commands.searchContext;
+
+
+    editorContext.statusBarItem.show();
 };
+
+

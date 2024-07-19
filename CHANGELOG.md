@@ -1,5 +1,25 @@
 # Change Log
 
+## [v2.1.0]
+- Add FTS workbench support inside extension
+- Add FTS workbench json validation
+- Add FTS workbench json auto complete feature
+- Add FTS workbench documentation
+
+## [v2.0.5]
+- Add UI support for DynamoDB To Couchbase Data Migration
+
+## [v2.0.4]
+- Add support for N1QL (.n1ql) files in query workbench
+
+## [v2.0.3]
+- KV Range based document filter
+- Named Parameters Support
+- Basic Autocomplete Support
+
+## [v2.0.1]
+- Update Filter Documents and Capella iQ Bug Fixes
+
 ## [v2.0.0]
 - Bump Node.js version to 20
 - Add MongoDB to Couchbase data Migration tool

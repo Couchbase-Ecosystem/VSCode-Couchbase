@@ -78,7 +78,7 @@ jobs:
           echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.9-linux-x86_64/bin:$PATH" >> $GITHUB_ENV
       - name: general
         run: npm i && npm run rebuild
-      - run: npx vsce package --target ${{ env.target }}
+      - run: npx vsce package --target ${{ env.target }} --pre-release
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.target }}

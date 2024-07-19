@@ -53,16 +53,25 @@ export class CacheService {
             const type = propertyValue.type;
             if (type === 'object') {
                 const children = this.schemaTreeTraversal(propertyValue.properties);
-                currentNodes[property[0]] = children;
+                currentNodes[property[0]] = {
+                    type: 'object',
+                    value: children
+                };
             } else if (type === 'array') {
                 try {
                     const items = propertyValue.items;
                     const itemType = items.type;
                     if (itemType === 'object') {
                         const children = this.schemaTreeTraversal(items.properties);
-                        currentNodes[property[0]] = children;
+                        currentNodes[property[0]] = {
+                            type: 'array',
+                            value: children
+                        };
                     } else {
-                        currentNodes[property[0]] = `array of ${itemType}`;
+                        currentNodes[property[0]] = {
+                            type: 'array',
+                            value: `array of ${itemType}`
+                        };;
                     }
                 } catch (error) {
                     logger.error(`Error processing array type for ${property[0]}: ${error}`);
@@ -72,7 +81,10 @@ export class CacheService {
                 try {
                     let currentType: string = type.toString();
                     currentType = currentType.replace(',', " | ");
-                    currentNodes[property[0]] = currentType;
+                    currentNodes[property[0]] = {
+                        type: currentType,
+                        value: currentType
+                    };
                 } catch (e) {
                     logger.error("Type can't be stringified: " + e);
                 }
@@ -585,6 +597,10 @@ export class CacheService {
         Global.state.update(`vscode-couchbase.iq.bucketsCache.${connection.connectionIdentifier}`, finalJson);
         CacheService.eventEmitter.emit('cacheSuccessful');
         // return vscode.globalState.update(BUCKETS_STATE_KEY, finalJson);
+    }
+
+    public getCache(bucketName:string){
+        return this.bucketsData.get(bucketName)
     }
 
     public async loadCache(connection: IConnection): Promise<boolean> {

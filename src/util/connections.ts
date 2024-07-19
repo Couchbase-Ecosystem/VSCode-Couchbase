@@ -24,7 +24,7 @@ import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider
 import { logger } from "../logger/logger";
 import { getServices } from "./OverviewClusterUtils/ClusterOverviewGeneralTab";
 import { CouchbaseRestAPI } from "./apis/CouchbaseRestAPI";
-import { hasQueryService } from "./common";
+import { hasQueryService, hasSearchService } from "./common";
 import { SecretService } from "./secretService";
 
 export function getConnectionId(connection: IConnection) {
@@ -197,6 +197,7 @@ export async function useConnection(connection: IConnection): Promise<boolean> {
         connection.services = getServices(serviceOverview!);
         // Set the isKVCluster context
         vscode.commands.executeCommand('setContext', 'isKVCluster', !hasQueryService(connection.services));
+        vscode.commands.executeCommand('setContext', 'isSearchEnabled', hasSearchService(connection.services));
         status = true;
         vscode.window.showInformationMessage("Connection established successfully!");
         logger.info(`Connection established successfully with ${connection.connectionIdentifier}`);
