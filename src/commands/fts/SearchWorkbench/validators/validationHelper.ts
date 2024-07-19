@@ -1,8 +1,10 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
 export class ValidationHelper {
     // Generates a map of JSON keys to their positions in the document
-    static getPositionMap(document: vscode.TextDocument): Map<string, vscode.Range> {
+    static getPositionMap(
+        document: vscode.TextDocument,
+    ): Map<string, vscode.Range> {
         const positionMap = new Map<string, vscode.Range>();
         const regex = /"(\w+)"\s*:/g;
         const text = document.getText();
@@ -16,26 +18,41 @@ export class ValidationHelper {
         return positionMap;
     }
 
-    static diagnosticExists(diagnosticsList: vscode.Diagnostic[], newDiagnostic: any) {
-        return diagnosticsList.some(diagnostic =>
-            diagnostic.message === newDiagnostic.message
+    static diagnosticExists(
+        diagnosticsList: vscode.Diagnostic[],
+        newDiagnostic: any,
+    ) {
+        return diagnosticsList.some(
+            (diagnostic) => diagnostic.message === newDiagnostic.message,
         );
     }
 
-
-    static getUnexpectedAttributeMessage(attribute: string, context: string): string {
+    static getUnexpectedAttributeMessage(
+        attribute: string,
+        context: string,
+    ): string {
         return `Unexpected attribute '${attribute}' under '${context}' object`;
     }
 
-    static getUnexpectedAttributeMessageForQuery(attribute: string, context: string): string {
+    static getUnexpectedAttributeMessageForQuery(
+        attribute: string,
+        context: string,
+    ): string {
         return `Unexpected attribute '${attribute}' for a  '${context}' query`;
     }
 
-    static missingRequiredAttributeQuery(missingField: string, target: string): string {
-        return `Missing required attribute(s) '${missingField}' for query ${target}`
+    static missingRequiredAttributeQuery(
+        missingField: string,
+        target: string,
+    ): string {
+        return `Missing required attribute(s) '${missingField}' for query ${target}`;
     }
 
-    static getExpectedArrayLengthMessage(key: string, expectedLength: number, actualLength: number): string {
+    static getExpectedArrayLengthMessage(
+        key: string,
+        expectedLength: number,
+        actualLength: number,
+    ): string {
         return `Expected an array of length ${expectedLength} for '${key}', got length ${actualLength}`;
     }
 
@@ -44,22 +61,36 @@ export class ValidationHelper {
     }
 
     static getExpectedLatLonMessage(target: string): string {
-        return `Each item of the array must be in the format 'lat,lon' for '${target}]'`
+        return `Each item of the array must be in the format 'lat,lon' for '${target}]'`;
     }
 
-    static getExpectedArrayOrObjectMessage(key: string, actualType: string): string {
+    static getExpectedArrayOrObjectMessage(
+        key: string,
+        actualType: string,
+    ): string {
         return `Expected an array or object for '${key}', found type ${actualType}`;
     }
 
-    static getInvalidDistanceUnitErrorMessage(key: string, validUnits: string[]): string {
-        return `Invalid distance unit for '${key}'. Expected units: ${validUnits.join(", ")}`;
+    static getInvalidDistanceUnitErrorMessage(
+        key: string,
+        validUnits: string[],
+    ): string {
+        return `Invalid distance unit for '${key}'. Expected units: ${validUnits.join(
+            ", ",
+        )}`;
     }
 
-    static getMissingAttributeMessage(attribute: string, context: string): string {
+    static getMissingAttributeMessage(
+        attribute: string,
+        context: string,
+    ): string {
         return `The attribute '${attribute}' is required under '${context}' object and must occur exactly once`;
     }
 
-    static getSingleOccurrenceMessage(attribute: string, context: string): string {
+    static getSingleOccurrenceMessage(
+        attribute: string,
+        context: string,
+    ): string {
         return `The attribute '${attribute}' must not appear more than once under '${context}'`;
     }
 
@@ -83,7 +114,10 @@ export class ValidationHelper {
         return "The value of the 'level' attribute must be 'at_plus' or 'not_bounded'";
     }
 
-    static getExpectedDataTypeErrorMessage(expectedType: string, key: string): string {
+    static getExpectedDataTypeErrorMessage(
+        expectedType: string,
+        key: string,
+    ): string {
         return `Expected ${expectedType} for property '${key}`;
     }
 
@@ -100,11 +134,10 @@ export class ValidationHelper {
     }
 
     static getUnexecptedAttributeAtTopLevel(attribute: string): string {
-        return `Unexpected attribute ${attribute} at the top level`
+        return `Unexpected attribute ${attribute} at the top level`;
     }
 
     static getRequiredQueryKnnErrorMessage(): string {
-        return "'query' and/or 'knn' attributes are expected at the top level"
+        return "'query' and/or 'knn' attributes are expected at the top level";
     }
 }
-

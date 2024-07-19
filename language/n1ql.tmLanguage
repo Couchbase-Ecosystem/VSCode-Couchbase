@@ -477,6 +477,12 @@
 						</dict>
 					</array>
 				</dict>
+				<dict>
+					<key>match</key>
+					<string>\$\w+</string>
+					<key>name</key>
+					<string>variable.parameter</string>
+				</dict>
 			</array>
 		</dict>
 	</dict>

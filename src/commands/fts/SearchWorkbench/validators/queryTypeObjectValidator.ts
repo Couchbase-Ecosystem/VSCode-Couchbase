@@ -1,51 +1,104 @@
-import * as vscode from 'vscode';
-import { SearchObjectValidator } from './searchValidator';
-import { ValidationHelper } from './validationHelper';
-import { JsonObject, JsonProperty } from './JsonNodes';
-
+import * as vscode from "vscode";
+import { SearchObjectValidator } from "./searchValidator";
+import { ValidationHelper } from "./validationHelper";
+import { JsonObject, JsonProperty } from "./JsonNodes";
 
 export class QueryTypeObjectValidator implements SearchObjectValidator {
     accept(key: string): boolean {
         return key === "conjuncts" || key === "disjuncts" || key === "query";
     }
 
-    validate(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument, key: string): void {
-
+    validate(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+        key: string,
+    ): void {
         if (!jsonObject || !(jsonObject instanceof JsonObject)) {
             return;
         }
 
         const containsQuery = this.containsQuery(jsonObject);
-        const properties = jsonObject.children.map(child => (child as JsonProperty).key);
+        const properties = jsonObject.children.map(
+            (child) => (child as JsonProperty).key,
+        );
         const isFieldMissing = !properties.includes("field");
-        const containsMatchAllNone = properties.includes("match_all") || properties.includes("match_none");
-        const isBooleanQuery = properties.includes("must") || properties.includes("must_not") || properties.includes("should");
-        const isCompound = this.validateCompound(jsonObject, properties, diagnosticsList, document);
+        const containsMatchAllNone =
+            properties.includes("match_all") ||
+            properties.includes("match_none");
+        const isBooleanQuery =
+            properties.includes("must") ||
+            properties.includes("must_not") ||
+            properties.includes("should");
+        const isCompound = this.validateCompound(
+            jsonObject,
+            properties,
+            diagnosticsList,
+            document,
+        );
 
-        if (!containsMatchAllNone && !isCompound && !isBooleanQuery && !properties.includes("geometry")) {
+        if (
+            !containsMatchAllNone &&
+            !isCompound &&
+            !isBooleanQuery &&
+            !properties.includes("geometry")
+        ) {
+            let newDiagnostic: vscode.Diagnostic;
+
             if (isFieldMissing && !containsQuery) {
-                diagnosticsList.push(new vscode.Diagnostic(
-                    ValidationHelper.getPositionMap(document).get(key) || new vscode.Range(0, 0, 0, 1),
+                newDiagnostic = new vscode.Diagnostic(
+                    ValidationHelper.getPositionMap(document).get(key) ||
+                        new vscode.Range(0, 0, 0, 1),
                     QueryTypeObjectValidator.getMissingFieldOrQueryMessage(),
-                    vscode.DiagnosticSeverity.Error
-                ));
+                    vscode.DiagnosticSeverity.Error,
+                );
+                if (
+                    !ValidationHelper.diagnosticExists(
+                        diagnosticsList,
+                        newDiagnostic,
+                    )
+                ) {
+                    diagnosticsList.push(newDiagnostic);
+                }
             } else if (!isFieldMissing && !containsQuery) {
                 if (jsonObject.children.length === 1) {
-                    diagnosticsList.push(new vscode.Diagnostic(
-                        ValidationHelper.getPositionMap(document).get(key) || new vscode.Range(0, 0, 0, 1),
+                    newDiagnostic = new vscode.Diagnostic(
+                        ValidationHelper.getPositionMap(document).get(key) ||
+                            new vscode.Range(0, 0, 0, 1),
                         QueryTypeObjectValidator.getMissingFieldOperationMessage(),
-                        vscode.DiagnosticSeverity.Error
-                    ));
+                        vscode.DiagnosticSeverity.Error,
+                    );
+                    if (
+                        !ValidationHelper.diagnosticExists(
+                            diagnosticsList,
+                            newDiagnostic,
+                        )
+                    ) {
+                        diagnosticsList.push(newDiagnostic);
+                    }
                 } else {
-                    this.validateQueryType(jsonObject, diagnosticsList, document);
+                    this.validateQueryType(
+                        jsonObject,
+                        diagnosticsList,
+                        document,
+                    );
                 }
             } else {
                 if (jsonObject.children.length > 1) {
-                    diagnosticsList.push(new vscode.Diagnostic(
-                        ValidationHelper.getPositionMap(document).get(key) || new vscode.Range(0, 0, 0, 1),
+                    newDiagnostic = new vscode.Diagnostic(
+                        ValidationHelper.getPositionMap(document).get(key) ||
+                            new vscode.Range(0, 0, 0, 1),
                         QueryTypeObjectValidator.getInvalidFieldWithQueryMessage(),
-                        vscode.DiagnosticSeverity.Error
-                    ));
+                        vscode.DiagnosticSeverity.Error,
+                    );
+                    if (
+                        !ValidationHelper.diagnosticExists(
+                            diagnosticsList,
+                            newDiagnostic,
+                        )
+                    ) {
+                        diagnosticsList.push(newDiagnostic);
+                    }
                 }
             }
         }
@@ -55,18 +108,39 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
         return "'query' doesn't support additional attributes";
     }
 
-    private validateCompound(jsonObject: JsonObject, properties: string[], diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): boolean {
-        const hasCompound = properties.includes("conjuncts") || properties.includes("disjuncts");
+    private validateCompound(
+        jsonObject: JsonObject,
+        properties: string[],
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): boolean {
+        const hasCompound =
+            properties.includes("conjuncts") ||
+            properties.includes("disjuncts");
         const allowedCompoundAttrs = ["disjuncts", "conjuncts", "min"];
 
         if (hasCompound) {
-            jsonObject.children.forEach(child => {
-                if (!(child instanceof JsonProperty) || !allowedCompoundAttrs.includes((child as JsonProperty).key)) {
-                    diagnosticsList.push(new vscode.Diagnostic(
-                        ValidationHelper.getPositionMap(document).get((child as JsonProperty).key) || new vscode.Range(0, 0, 0, 1),
+            jsonObject.children.forEach((child) => {
+                if (
+                    !(child instanceof JsonProperty) ||
+                    !allowedCompoundAttrs.includes((child as JsonProperty).key)
+                ) {
+                    const newDiagnostic = new vscode.Diagnostic(
+                        ValidationHelper.getPositionMap(document).get(
+                            (child as JsonProperty).key,
+                        ) || new vscode.Range(0, 0, 0, 1),
                         QueryTypeObjectValidator.getFieldNotAllowedOnCompound(),
-                        vscode.DiagnosticSeverity.Error
-                    ));
+                        vscode.DiagnosticSeverity.Error,
+                    );
+
+                    if (
+                        !ValidationHelper.diagnosticExists(
+                            diagnosticsList,
+                            newDiagnostic,
+                        )
+                    ) {
+                        diagnosticsList.push(newDiagnostic);
+                    }
                 }
             });
         }
@@ -91,15 +165,12 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
     }
 
     private containsQuery(jsonObject: JsonObject): boolean {
-        // Check if jsonObject has any children
         if (!jsonObject.children || jsonObject.children.length === 0) {
             return false;
         }
 
         for (const child of jsonObject.children) {
-            // Check if the child is a JsonProperty
             if (child instanceof JsonProperty) {
-                // Check if the key of the JsonProperty is "query"
                 if (child.key === "query") {
                     return true;
                 }
@@ -109,23 +180,30 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
         return false;
     }
 
-    private validateQueryType(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        jsonObject.children.forEach(child => {
+    private validateQueryType(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        for (let i = 0; i < jsonObject.children.length; i++) {
+            const child = jsonObject.children[i];
             if (!(child instanceof JsonProperty)) {
-                return;
+                continue;
             }
 
             const property = child as JsonProperty;
             const propertyKey = property.key;
-
-
 
             switch (propertyKey) {
                 case "match":
                     this.validateMatch(jsonObject, diagnosticsList, document);
                     return;
                 case "match_phrase":
-                    this.validateMatchPhrase(jsonObject, diagnosticsList, document);
+                    this.validateMatchPhrase(
+                        jsonObject,
+                        diagnosticsList,
+                        document,
+                    );
                     return;
                 case "bool":
                     this.validateBoolean(jsonObject, diagnosticsList, document);
@@ -143,61 +221,115 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
                     this.validateTerms(jsonObject, diagnosticsList, document);
                     return;
                 case "wildcard":
-                    this.validateWildcard(jsonObject, diagnosticsList, document);
+                    this.validateWildcard(
+                        jsonObject,
+                        diagnosticsList,
+                        document,
+                    );
                     return;
                 case "cidr":
                     this.validateCidr(jsonObject, diagnosticsList, document);
                     return;
                 case "inclusive_min":
                 case "inclusive_max":
-                    this.validateGenericRange(jsonObject, diagnosticsList, document);
+                    this.validateGenericRange(
+                        jsonObject,
+                        diagnosticsList,
+                        document,
+                    );
                     return;
                 case "min":
                 case "max":
-                    const type = typeof property.value.value
+                    const type = typeof property.value.value;
                     if (type === "number") {
-                        this.validateNumericRange(jsonObject, diagnosticsList, document);
+                        this.validateNumericRange(
+                            jsonObject,
+                            diagnosticsList,
+                            document,
+                        );
                         return;
                     } else if (type === "string") {
-                        this.validateTermRange(jsonObject, diagnosticsList, document);
+                        this.validateTermRange(
+                            jsonObject,
+                            diagnosticsList,
+                            document,
+                        );
                         return;
                     } else {
-                        diagnosticsList.push(new vscode.Diagnostic(
-                            ValidationHelper.getPositionMap(document).get(propertyKey) || new vscode.Range(0, 0, 0, 1),
+                        const newDiagnostic = new vscode.Diagnostic(
+                            ValidationHelper.getPositionMap(document).get(
+                                propertyKey,
+                            ) || new vscode.Range(0, 0, 0, 1),
                             QueryTypeObjectValidator.invalidQueryFormatMessage(),
-                            vscode.DiagnosticSeverity.Error
-                        ));
+                            vscode.DiagnosticSeverity.Error,
+                        );
+
+                        if (
+                            !ValidationHelper.diagnosticExists(
+                                diagnosticsList,
+                                newDiagnostic,
+                            )
+                        ) {
+                            diagnosticsList.push(newDiagnostic);
+                        }
                         return;
                     }
                 case "inclusive_start":
                 case "inclusive_end":
                 case "start":
                 case "end":
-                    this.validateDateRange(jsonObject, diagnosticsList, document);
+                    this.validateDateRange(
+                        jsonObject,
+                        diagnosticsList,
+                        document,
+                    );
                     return;
                 case "distance":
                 case "location":
-                    this.validateDistanceRadius(jsonObject, diagnosticsList, document);
+                    this.validateDistanceRadius(
+                        jsonObject,
+                        diagnosticsList,
+                        document,
+                    );
                     return;
                 case "top_left":
                 case "bottom_right":
-                    this.validateRectangle(jsonObject, diagnosticsList, document);
+                    this.validateRectangle(
+                        jsonObject,
+                        diagnosticsList,
+                        document,
+                    );
                     return;
                 case "polygon_points":
                     return;
-
             }
+        }
+        const newDiagnostic = new vscode.Diagnostic(
+            ValidationHelper.getPositionMap(document).get("query") ||
+                new vscode.Range(0, 0, 0, 1),
+            QueryTypeObjectValidator.invalidQueryFormatMessage(),
+            vscode.DiagnosticSeverity.Error,
+        );
 
-        });
-
+        if (
+            !ValidationHelper.diagnosticExists(diagnosticsList, newDiagnostic)
+        ) {
+            diagnosticsList.push(newDiagnostic);
+        }
     }
 
-
-    validateAttribute(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument, target: string, allowedFields: string[], requiredFields: string[]): void {
+    validateAttribute(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+        target: string,
+        allowedFields: string[],
+        requiredFields: string[],
+    ): void {
         const counter: Map<string, number> = new Map();
         const currentAttributes: string[] = [];
 
-        jsonObject.children.forEach(child => {
+        jsonObject.children.forEach((child) => {
             if (!(child instanceof JsonProperty)) {
                 return;
             }
@@ -207,11 +339,25 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
             currentAttributes.push(propertyKey);
 
             if (!allowedFields.includes(propertyKey)) {
-                diagnosticsList.push(new vscode.Diagnostic(
-                    ValidationHelper.getPositionMap(document).get(propertyKey) || new vscode.Range(0, 0, 0, 1),
-                    ValidationHelper.getUnexpectedAttributeMessageForQuery(propertyKey, target),
-                    vscode.DiagnosticSeverity.Error
-                ));
+                const newDiagnostic = new vscode.Diagnostic(
+                    ValidationHelper.getPositionMap(document).get(
+                        propertyKey,
+                    ) || new vscode.Range(0, 0, 0, 1),
+                    ValidationHelper.getUnexpectedAttributeMessageForQuery(
+                        propertyKey,
+                        target,
+                    ),
+                    vscode.DiagnosticSeverity.Error,
+                );
+
+                if (
+                    !ValidationHelper.diagnosticExists(
+                        diagnosticsList,
+                        newDiagnostic,
+                    )
+                ) {
+                    diagnosticsList.push(newDiagnostic);
+                }
             } else {
                 counter.set(propertyKey, (counter.get(propertyKey) || 0) + 1);
             }
@@ -219,91 +365,292 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
             // this.validateMultipleOccurrences(counter, jsonObject, diagnosticsList, document);
         });
 
-        const missingFields = requiredFields.filter(field => !currentAttributes.includes(field));
+        const missingFields = requiredFields.filter(
+            (field) => !currentAttributes.includes(field),
+        );
         if (currentAttributes.length > 0 && missingFields.length > 0) {
-            diagnosticsList.push(new vscode.Diagnostic(
-                ValidationHelper.getPositionMap(document).get(target) || new vscode.Range(0, 0, 0, 1),
-                ValidationHelper.missingRequiredAttributeQuery(missingFields.join(", "), target),
-                vscode.DiagnosticSeverity.Error
-            ));
+            const newDiagnostic = new vscode.Diagnostic(
+                ValidationHelper.getPositionMap(document).get(target) ||
+                    new vscode.Range(0, 0, 0, 1),
+                ValidationHelper.missingRequiredAttributeQuery(
+                    missingFields.join(", "),
+                    target,
+                ),
+                vscode.DiagnosticSeverity.Error,
+            );
+
+            if (
+                !ValidationHelper.diagnosticExists(
+                    diagnosticsList,
+                    newDiagnostic,
+                )
+            ) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 
-    validateBoolean(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "boolean", ["field", "bool", "boost"], ["field", "bool"]);
+    validateBoolean(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "boolean",
+            ["field", "bool", "boost"],
+            ["field", "bool"],
+        );
     }
 
-    validatePrefix(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "prefix", ["field", "prefix", "boost"], ["field", "prefix"]);
+    validatePrefix(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "prefix",
+            ["field", "prefix", "boost"],
+            ["field", "prefix"],
+        );
     }
 
-    validateRegex(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "regex", ["field", "regexp", "boost"], ["field", "regexp"]);
+    validateRegex(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "regex",
+            ["field", "regexp", "boost"],
+            ["field", "regexp"],
+        );
     }
 
-    validateTerm(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "term", ["field", "term", "boost", "fuzziness"], ["field", "term"]);
+    validateTerm(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "term",
+            ["field", "term", "boost", "fuzziness"],
+            ["field", "term"],
+        );
     }
 
-    validateTerms(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "terms", ["field", "terms", "boost"], ["field", "terms"]);
+    validateTerms(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "terms",
+            ["field", "terms", "boost"],
+            ["field", "terms"],
+        );
     }
 
-    validateWildcard(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "wildcard", ["field", "wildcard", "boost"], ["field", "wildcard"]);
+    validateWildcard(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "wildcard",
+            ["field", "wildcard", "boost"],
+            ["field", "wildcard"],
+        );
     }
 
-    validateCidr(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "cidr", ["field", "cidr", "boost"], ["field", "cidr"]);
+    validateCidr(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "cidr",
+            ["field", "cidr", "boost"],
+            ["field", "cidr"],
+        );
     }
 
-    validateGenericRange(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        const properties = jsonObject.children.map(child => (child as JsonProperty).key);
+    validateGenericRange(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        const properties = jsonObject.children.map(
+            (child) => (child as JsonProperty).key,
+        );
         if (!properties.includes("min") && !properties.includes("max")) {
-            diagnosticsList.push(new vscode.Diagnostic(
-                ValidationHelper.getPositionMap(document).get("min") || new vscode.Range(0, 0, 0, 1),
+            const newDiagnostic = new vscode.Diagnostic(
+                ValidationHelper.getPositionMap(document).get("min") ||
+                    new vscode.Range(0, 0, 0, 1),
                 QueryTypeObjectValidator.minOrMaxRequiredMessage(),
-                vscode.DiagnosticSeverity.Error
-            ));
+                vscode.DiagnosticSeverity.Error,
+            );
+
+            if (
+                !ValidationHelper.diagnosticExists(
+                    diagnosticsList,
+                    newDiagnostic,
+                )
+            ) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 
-    validateNumericRange(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "numeric range", ["field", "min", "max", "inclusive_min", "inclusive_max", "boost"], ["field"]);
+    validateNumericRange(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "numeric range",
+            ["field", "min", "max", "inclusive_min", "inclusive_max", "boost"],
+            ["field"],
+        );
     }
 
-    validateTermRange(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "term range", ["field", "min", "max", "inclusive_min", "inclusive_max", "boost"], ["field"]);
+    validateTermRange(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "term range",
+            ["field", "min", "max", "inclusive_min", "inclusive_max", "boost"],
+            ["field"],
+        );
     }
 
-    validateDistanceRadius(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "distance radius", ["field", "location", "distance", "boost"], ["field", "location", "distance"]);
+    validateDistanceRadius(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "distance radius",
+            ["field", "location", "distance", "boost"],
+            ["field", "location", "distance"],
+        );
     }
 
-    validateRectangle(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "rectangle based", ["field", "top_left", "bottom_right", "boost"], ["field", "top_left", "bottom_right"]);
+    validateRectangle(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "rectangle based",
+            ["field", "top_left", "bottom_right", "boost"],
+            ["field", "top_left", "bottom_right"],
+        );
     }
 
-    validateDateRange(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "date range", ["field", "start", "end", "inclusive_start", "inclusive_end", "boost"], ["field"]);
+    validateDateRange(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "date range",
+            [
+                "field",
+                "start",
+                "end",
+                "inclusive_start",
+                "inclusive_end",
+                "boost",
+            ],
+            ["field"],
+        );
 
-        const properties = jsonObject.children.map(child => (child as JsonProperty).key);
+        const properties = jsonObject.children.map(
+            (child) => (child as JsonProperty).key,
+        );
         if (!properties.includes("start") && !properties.includes("end")) {
-            diagnosticsList.push(new vscode.Diagnostic(
-                ValidationHelper.getPositionMap(document).get("start") || new vscode.Range(0, 0, 0, 1),
+            const newDiagnostic = new vscode.Diagnostic(
+                ValidationHelper.getPositionMap(document).get("start") ||
+                    new vscode.Range(0, 0, 0, 1),
                 QueryTypeObjectValidator.startOrEndRequiredMessage(),
-                vscode.DiagnosticSeverity.Error
-            ));
+                vscode.DiagnosticSeverity.Error,
+            );
+
+            if (
+                !ValidationHelper.diagnosticExists(
+                    diagnosticsList,
+                    newDiagnostic,
+                )
+            ) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 
-    validateMatch(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "match", ["field", "match", "analyzer", "operator", "fuzziness", "boost", "prefix_length"], ["field", "match"]);
+    validateMatch(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "match",
+            [
+                "field",
+                "match",
+                "analyzer",
+                "operator",
+                "fuzziness",
+                "boost",
+                "prefix_length",
+            ],
+            ["field", "match"],
+        );
 
         let matchValue: string | null = null;
         let isOperatorPresent = false;
 
-        jsonObject.children.forEach(child => {
+        jsonObject.children.forEach((child) => {
             if (!(child instanceof JsonProperty)) {
                 return;
             }
@@ -311,27 +658,61 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
             const property = child as JsonProperty;
             const propertyKey = property.key;
 
-            if (propertyKey === "match" && typeof property.value.value == "string") {
+            if (
+                propertyKey === "match" &&
+                typeof property.value.value == "string"
+            ) {
                 matchValue = property.value.value;
             } else if (propertyKey === "operator") {
                 isOperatorPresent = true;
                 this.validateOperatorValue(diagnosticsList, property, document);
             }
         });
-        if (matchValue !== null && (matchValue as string).includes(" ") && !isOperatorPresent) {
-            diagnosticsList.push(new vscode.Diagnostic(
-                ValidationHelper.getPositionMap(document).get("match") || new vscode.Range(0, 0, 0, 1),
+        if (
+            matchValue !== null &&
+            (matchValue as string).includes(" ") &&
+            !isOperatorPresent
+        ) {
+            const newDiagnostic = new vscode.Diagnostic(
+                ValidationHelper.getPositionMap(document).get("match") ||
+                    new vscode.Range(0, 0, 0, 1),
                 QueryTypeObjectValidator.matchWithSpaceMessage(),
-                vscode.DiagnosticSeverity.Error
-            ));
+                vscode.DiagnosticSeverity.Error,
+            );
+
+            if (
+                !ValidationHelper.diagnosticExists(
+                    diagnosticsList,
+                    newDiagnostic,
+                )
+            ) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
 
+    validateMatchPhrase(
+        jsonObject: JsonObject,
+        diagnosticsList: vscode.Diagnostic[],
+        document: vscode.TextDocument,
+    ): void {
+        this.validateAttribute(
+            jsonObject,
+            diagnosticsList,
+            document,
+            "match phrase",
+            [
+                "field",
+                "match_phrase",
+                "analyzer",
+                "operator",
+                "fuzziness",
+                "boost",
+            ],
+            ["field", "match_phrase"],
+        );
 
-    validateMatchPhrase(jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {
-        this.validateAttribute(jsonObject, diagnosticsList, document, "match phrase", ["field", "match_phrase", "analyzer", "operator", "fuzziness", "boost"], ["field", "match_phrase"]);
-
-        jsonObject.children.forEach(child => {
+        jsonObject.children.forEach((child) => {
             if (!(child instanceof JsonProperty)) {
                 return;
             }
@@ -343,13 +724,27 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
         });
     }
 
-    private validateOperatorValue(diagnosticsList: vscode.Diagnostic[], property: JsonProperty, document: vscode.TextDocument): void {
+    private validateOperatorValue(
+        diagnosticsList: vscode.Diagnostic[],
+        property: JsonProperty,
+        document: vscode.TextDocument,
+    ): void {
         if (property.value.value !== "or" && property.value.value !== "and") {
-            diagnosticsList.push(new vscode.Diagnostic(
-                ValidationHelper.getPositionMap(document).get(property.key) || new vscode.Range(0, 0, 0, 1),
+            const newDiagnostic = new vscode.Diagnostic(
+                ValidationHelper.getPositionMap(document).get(property.key) ||
+                    new vscode.Range(0, 0, 0, 1),
                 QueryTypeObjectValidator.invalidOperatorMessage(),
-                vscode.DiagnosticSeverity.Error
-            ));
+                vscode.DiagnosticSeverity.Error,
+            );
+
+            if (
+                !ValidationHelper.diagnosticExists(
+                    diagnosticsList,
+                    newDiagnostic,
+                )
+            ) {
+                diagnosticsList.push(newDiagnostic);
+            }
         }
     }
     static matchWithSpaceMessage(): string {
@@ -371,7 +766,6 @@ export class QueryTypeObjectValidator implements SearchObjectValidator {
     static startOrEndRequiredMessage(): string {
         return "'start' or 'end' is required for this query type";
     }
-
 
     // TODO: add duplicate check
     // private validateMultipleOccurrences(counter: Map<string, number>, jsonObject: JsonObject, diagnosticsList: vscode.Diagnostic[], document: vscode.TextDocument): void {

@@ -51,7 +51,7 @@ import { QueryWorkbench } from "./workbench/queryWorkbench";
 import { WorkbenchWebviewProvider } from "./workbench/workbenchWebviewProvider";
 import { fetchClusterOverview } from "./pages/overviewCluster/overviewCluster";
 import DependenciesDownloader from "./handlers/handleCLIDownloader";
-import { sqlppFormatter } from "./commands/formatting/sqlppFormatter";
+import { sqlppFormatter } from "./commands/sqlpp/sqlppFormatter";
 import { fetchQueryContext, fetchSearchContext } from "./pages/queryContext/queryContext";
 import { fetchFavoriteQueries } from "./pages/FavoriteQueries/FavoriteQueries";
 import { markFavoriteQuery } from "./commands/favoriteQueries/markFavoriteQuery";
@@ -76,11 +76,16 @@ import { newChatHandler } from "./commands/iq/chat/newChatHandler";
 import { SecretService } from "./util/secretService";
 import { kvTypeFilterDocuments } from "./commands/documents/documentFilters/kvTypeFilterDocuments";
 import { fetchNamedParameters } from "./pages/namedParameters/namedParameters";
+import { sqlppComlpletions, sqlppNamedParametersCompletions, sqlppSchemaComlpletions } from "./commands/sqlpp/sqlppCompletions";
+import { dynamodbMigrate } from "./pages/Tools/DynamoDbMigrate/dynamoDbMigrate";
 import { SearchWorkbench } from "./commands/fts/SearchWorkbench/searchWorkbench";
 import SearchIndexNode from "./model/SearchIndexNode";
 import { openSearchIndex } from "./commands/fts/SearchWorkbench/openSearchIndex";
 import { handleSearchContextStatusbar } from "./handlers/handleSearchQueryContextStatusBar";
 import { validateDocument } from "./commands/fts/SearchWorkbench/validators/validationUtil";
+import { AutocompleteVisitor } from "./commands/fts/SearchWorkbench/contributor/autoCompleteVisitor";
+import { CbsJsonHoverProvider } from "./commands/fts/SearchWorkbench/documentation/documentationProvider";
+import { deleteIndex } from "./util/ftsIndexUtils";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -108,11 +113,52 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(diagnosticCollection);
 
 context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-    if (event.document === vscode.window.activeTextEditor?.document && event.document.languageId == "searchQuery") {
+    if (event.document === vscode.window.activeTextEditor?.document && event.document.languageId == "json" && vscode.window.activeTextEditor?.document.fileName.endsWith(".cbs.json")) {
         validateDocument(event.document, diagnosticCollection);
     }
 }));
 
+const hoverProvider = new CbsJsonHoverProvider(context);
+context.subscriptions.push(
+    vscode.languages.registerHoverProvider({ language: 'json', pattern: '**/*.cbs.json' }, hoverProvider)
+);
+
+const provider = vscode.languages.registerCompletionItemProvider(
+  { language: 'json', pattern: '**/*.cbs.json' },
+  {
+      async provideCompletionItems(document, position, token, context) {
+          const autoComplete = new AutocompleteVisitor();
+          const suggestions = await autoComplete.getAutoCompleteContributor(document, position, currentSearchWorkbench, cacheService);
+          if (suggestions.length === 0) {
+            return [new vscode.CompletionItem('', vscode.CompletionItemKind.Text)].map(item => {
+                item.sortText = '\u0000';
+                item.preselect = true;
+                item.keepWhitespace = true;
+                item.insertText = '';
+                item.range = new vscode.Range(position, position);
+                return item;
+            });
+        }
+          return suggestions;
+      }
+  },
+  '\"' 
+);
+
+
+
+context.subscriptions.push(provider);
+
+const disposable = vscode.window.onDidChangeTextEditorSelection(async (e) => {
+  if (e.kind === vscode.TextEditorSelectionChangeKind.Command) {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor && activeEditor.document.fileName.endsWith('.cbs.json')) {
+          await vscode.commands.executeCommand('editor.action.formatDocument');
+      }
+  }
+});
+
+context.subscriptions.push(disposable);
 
 
   const subscriptions = context.subscriptions;
@@ -208,8 +254,8 @@ context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
         editor &&
         editor.document.languageId === "json" &&
         editor.document.uri.scheme === "couchbase" &&
-        // TODO: Find better way to identify index def files
-        !editor.document.uri.path.includes("Search")
+        !editor.document.uri.path.endsWith("cbs.json") &&
+        !editor.document.uri.path.includes("/Search/")
       ) {
         await handleActiveEditorChange(editor, uriToCasMap, memFs);
       }
@@ -221,7 +267,9 @@ context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
       async (document: vscode.TextDocument) => {
         if (
           document && document.languageId === "json" &&
-          document.uri.scheme === "couchbase"
+          document.uri.scheme === "couchbase" && 
+          !document.uri.path.endsWith("cbs.json") &&
+          !document.uri.path.includes("/Search/")
         ) {
           await handleOnSaveTextDocument(document, uriToCasMap, memFs, cacheService);
           clusterConnectionTreeProvider.refresh();
@@ -320,6 +368,16 @@ context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
       Commands.openSearchIndex,
       async (searchIndexNode: SearchIndexNode) => {
         await openSearchIndex(searchIndexNode, clusterConnectionTreeProvider, uriToCasMap, memFs);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.deleteSearchIndex,
+      async (searchIndexNode: SearchIndexNode) => {
+        await deleteIndex(searchIndexNode);
+        clusterConnectionTreeProvider.refresh();
       }
     )
   );
@@ -563,6 +621,29 @@ context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
     },
   });
 
+  vscode.languages.registerCompletionItemProvider("SQL++", {
+    provideCompletionItems() {
+      return sqlppComlpletions();
+  }});
+
+  vscode.languages.registerCompletionItemProvider("SQL++", {
+    provideCompletionItems(document, position) {
+      return sqlppNamedParametersCompletions(document, position);
+  }}, '$');
+
+  let sqlppSchemaComlpletionsDisposable: vscode.Disposable | undefined = undefined;
+
+  CacheService.eventEmitter.on("cacheSuccessful", ()=>{
+    if(sqlppSchemaComlpletionsDisposable){
+      sqlppSchemaComlpletionsDisposable.dispose();
+    }
+
+    sqlppSchemaComlpletionsDisposable = vscode.languages.registerCompletionItemProvider("SQL++", {
+      provideCompletionItems() {
+        return sqlppSchemaComlpletions(cacheService);
+    }});
+  });
+
   subscriptions.push(
     vscode.commands.registerCommand(
       Commands.getClusterOverview,
@@ -595,6 +676,15 @@ context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
       Commands.mdbMigrate,
       async () => {
         await mdbMigrate(context);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.dynamodbMigrate,
+      async () => {
+        await dynamodbMigrate(context);
       }
     )
   );
@@ -724,16 +814,18 @@ context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
 
     searchWorkbench.openSearchWorkbench(searchIndexNode, memFs);
 
-    const editorChangeSubscription = vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-      if (editor && editor.document.languageId === "searchQuery") {
-        await handleSearchContextStatusbar(editor, searchIndexNode, searchWorkbench, globalStatusBarItem);
-      }
-    });
-    context.subscriptions.push(editorChangeSubscription);
 
   });
   context.subscriptions.push(openSearchWorkbenchCommand);
 
+
+  subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+      if (editor && editor.document.languageId === "json" && editor.document.fileName.endsWith(".cbs.json")) {
+        await handleSearchContextStatusbar(editor, currentSearchIndexNode, searchWorkbench, globalStatusBarItem);
+      }
+    })
+  );
 
 
   context.subscriptions.push(

@@ -16,7 +16,6 @@ export class JsonArray implements JsonNode {
     parent?: JsonNode | null;
     children: JsonNode[] = [];
 
-
     constructor(parent?: JsonNode | null) {
         this.parent = parent;
     }
@@ -24,8 +23,8 @@ export class JsonArray implements JsonNode {
 
 export class JsonProperty implements JsonNode {
     parent?: JsonNode | null;
-    key: string;  
-    value: any;  
+    key: string;
+    value: any;
 
     constructor(key: string, value: any, parent?: JsonNode | null) {
         this.key = key;
@@ -33,4 +32,3 @@ export class JsonProperty implements JsonNode {
         this.parent = parent;
     }
 }
-

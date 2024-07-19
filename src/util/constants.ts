@@ -106,5 +106,6 @@ export class Constants {
   public static QUERY_RESULT = "Couchbase Query Result";
   public static DATA_EXPORT_WEBVIEW = "dataExportWebview";
   public static DATA_MIGRATE_MDB_WEBVIEW = "dataMdbMigrateWebview";
+  public static DATA_MIGRATE_DYNAMODB_WEBVIEW = "dataDynamodbWebview"
   public static DATA_IMPORT_WEBVIEW = "dataImportWebview";
 }

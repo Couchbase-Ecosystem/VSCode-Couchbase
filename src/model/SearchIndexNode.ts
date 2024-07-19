@@ -4,14 +4,13 @@ import * as path from "path";
 
 export default class SearchIndexNode implements INode {
     constructor(
-        public readonly searchIndexName: string,
         public readonly bucketName: string,
         public readonly scopeName: string,
         public readonly indexName: string,
     ) { }
     public async getTreeItem(): Promise<vscode.TreeItem> {
         return {
-            label: `${this.searchIndexName}`,
+            label: `${this.indexName}`,
             collapsibleState: vscode.TreeItemCollapsibleState.None,
             contextValue: "searchIndex",
             command: {

@@ -20,6 +20,7 @@ import { getActiveConnection } from "../util/connections";
 import { CacheService } from "../../src/util/cacheService/cacheService";
 import { SearchDirectory } from "./SearchDirectory";
 import { CollectionDirectory } from "./CollectionDirectory";
+import { hasSearchService } from "../util/common";
 
 
 export class ScopeNode implements INode {
@@ -74,6 +75,7 @@ export class ScopeNode implements INode {
     const childrenDirectoriesList: INode[] = [];
 
     // Search Directory
+    if (hasSearchService(connection?.services)){
     childrenDirectoriesList.push(
         new SearchDirectory(
             this,
@@ -82,6 +84,7 @@ export class ScopeNode implements INode {
             this.scopeName
         )
     );
+  }
 
     // Collections Directory
     const collectionDirectory = new CollectionDirectory(

@@ -59,3 +59,10 @@ export const hasQueryService = (services: string[] | undefined) => {
     }
     return services.includes('n1ql');
 };
+
+export const hasSearchService = (services: string[] | undefined) => {
+    if (!services) {
+        return false;
+    }
+    return services.includes('fts');
+};

@@ -13,36 +13,45 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-import * as vscode from 'vscode';
-import { MemFS } from '../../../util/fileSystemProvider';
-import SearchIndexNode from '../../../model/SearchIndexNode';
+import * as vscode from "vscode";
+import { MemFS } from "../../../util/fileSystemProvider";
+import SearchIndexNode from "../../../model/SearchIndexNode";
 
-class SearchJsonDocumentContentProvider implements vscode.TextDocumentContentProvider {
+class SearchJsonDocumentContentProvider
+    implements vscode.TextDocumentContentProvider
+{
     provideTextDocumentContent(uri: vscode.Uri): string {
-        return '';
+        return "";
     }
 }
 
 export default class UntitledSearchJsonDocumentService {
     public searchJsonProvider = new SearchJsonDocumentContentProvider();
     private untitledCount: number = 1;
-    private searchJsonScheme: string = '.cbs.json';
+    private searchJsonScheme: string = ".cbs.json";
 
-    public disposable = vscode.workspace.registerTextDocumentContentProvider(this.searchJsonScheme, this.searchJsonProvider);
+    public disposable = vscode.workspace.registerTextDocumentContentProvider(
+        this.searchJsonScheme,
+        this.searchJsonProvider,
+    );
 
-    constructor() {
-    }
+    constructor() {}
 
-
-
-    public async openSearchJsonTextDocument(searchIndexNode: SearchIndexNode, memFs: MemFS): Promise<vscode.TextEditor> {
-        const uri = vscode.Uri.parse(`couchbase:/search-workbench-${searchIndexNode.searchIndexName}-${this.untitledCount}.cbs.json`);
+    public async openSearchJsonTextDocument(
+        searchIndexNode: SearchIndexNode,
+        memFs: MemFS,
+    ): Promise<vscode.TextEditor> {
+        const uri = vscode.Uri.parse(
+            `couchbase:/search-workbench-${searchIndexNode.indexName}-${this.untitledCount}.cbs.json`,
+        );
         this.untitledCount++;
         const defaultJsonContent = `{
-            "query": {
-              "query": "your_query_here"
-            },
-            "fields": ["*"]
+    "query": {
+        "query": "your_query_here"
+    },
+    "fields": [
+        "*"
+    ]
 }`;
         let documentContent = Buffer.from(defaultJsonContent);
         memFs.writeFile(uri, documentContent, {
@@ -50,22 +59,30 @@ export default class UntitledSearchJsonDocumentService {
             overwrite: true,
         });
 
-
         const document = await vscode.workspace.openTextDocument(uri);
         document.save();
         await vscode.window.showTextDocument(document, { preview: false });
-        return await vscode.window.showTextDocument(document, { preview: false });
+        return await vscode.window.showTextDocument(document, {
+            preview: false,
+        });
     }
 
-
-    public showTextDocument(document: vscode.TextDocument, column?: vscode.ViewColumn, preserveFocus?: boolean): Thenable<vscode.TextEditor> {
+    public showTextDocument(
+        document: vscode.TextDocument,
+        column?: vscode.ViewColumn,
+        preserveFocus?: boolean,
+    ): Thenable<vscode.TextEditor> {
         return vscode.window.showTextDocument(document, column, preserveFocus);
     }
 
-
-    public newQuery(searchIndexNode: SearchIndexNode, memFs: MemFS): Promise<vscode.TextEditor> {
+    public newQuery(
+        searchIndexNode: SearchIndexNode,
+        memFs: MemFS,
+    ): Promise<vscode.TextEditor> {
         return new Promise<vscode.TextEditor>((resolve, reject) => {
-            this.openSearchJsonTextDocument(searchIndexNode, memFs).then(resolve).catch(reject);
+            this.openSearchJsonTextDocument(searchIndexNode, memFs)
+                .then(resolve)
+                .catch(reject);
         });
     }
 }

@@ -47,18 +47,16 @@ export class SearchDirectory implements INode {
 
                 return []
             }
-            const searchIndexesManager = connection?.cluster?.searchIndexes();
-            const ftsIndexes = await searchIndexesManager?.getAllIndexes();
-            const bucketIndexes = ftsIndexes?.filter(index => index.sourceName === this.bucketName);
+            const searchIndexesManager = connection?.cluster?.bucket(this.bucketName).scope(this.scopeName).searchIndexes();
+            const bucketIndexes = await searchIndexesManager?.getAllIndexes();
             if (bucketIndexes === undefined) {
                 return [];
             }
             const searchIndexChildren: INode[] = bucketIndexes.map((searchIndex) =>
                 new SearchIndexNode(
-                    searchIndex.name,
                     this.bucketName,
                     this.scopeName,
-                    searchIndex.name
+                    `${this.bucketName}.${this.scopeName}.${searchIndex.name}`
                 )
 
                 
