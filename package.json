@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "2.0.5",
+  "version": "2.1.0",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -46,7 +46,8 @@
     "compile:views": "webpack --mode development",
     "watch:extension": "tsc -watch -p ./",
     "watch:views": "webpack --watch --mode development",
-    "test": "node ./out/test/runTest.js && jest",
+    "test": "node ./out/test/runTest.js",
+    "test:file": "node ./out/test/runTest.js",
     "format": "prettier 'src/**/*.ts' --write",
     "lint": "eslint src --ext ts --fix",
     "pretest": "npm run compile:extension"
@@ -55,21 +56,23 @@
     "@babel/parser": "^7.22.7",
     "@babel/preset-env": "^7.23.5",
     "@babel/preset-react": "^7.23.3",
+    "@electron/rebuild": "^3.6.0",
     "@types/glob": "^7.2.0",
     "@types/jest": "^29.5.12",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.2",
+    "@types/node": "^20.14.2",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
     "@types/uuid": "^9.0.6",
     "@types/vscode": "^1.63.1",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
-    "@vscode/test-electron": "^2.3.9",
+    "@vscode/test-electron": "^2.4.0",
     "babel-loader": "^9.1.3",
     "class-transformer": "^0.5.1",
     "cmake-js": "^6.3.2",
     "css-loader": "^6.10.0",
+    "electron": "^31.2.1",
     "eslint": "^8.56.0",
     "file-loader": "^6.2.0",
     "glob": "^7.2.0",
@@ -86,7 +89,7 @@
     "terser-webpack-plugin": "^5.3.10",
     "ts-jest": "^29.1.2",
     "ts-loader": "^9.5.1",
-    "typescript": "^5.4.3",
+    "typescript": "^5.4.5",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"
   },
@@ -116,6 +119,7 @@
     "dayjs": "^1.11.9",
     "decompress": "^4.2.1",
     "gitly": "^2.5.2",
+    "jsonc-parser": "^3.2.1",
     "monaco-editor": "^0.43.0",
     "mongodb": "^6.4.0",
     "prop-types": "^15.7.2",
@@ -131,7 +135,8 @@
     "react-tooltip": "^5.26.0",
     "shelljs": "^0.8.5",
     "stream-json": "^1.8.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "vscode-json-languageservice": "^5.3.11"
   },
   "activationEvents": [
     "onFileSystem:couchbase",
@@ -359,6 +364,25 @@
           "SQL++"
         ],
         "configuration": "./language/language-configuration.json"
+      },
+      {
+        "id": "json",
+        "extensions": [
+          ".cbs.json"
+        ],
+        "aliases": [
+          "SEARCH"
+        ],
+        "configurationDefaults": {
+          "[json]": {
+            "editor.quickSuggestions": {
+              "strings": false,
+              "comments": false,
+              "other": false
+            },
+            "editor.suggestOnTriggerCharacters": false
+          }
+        }
       }
     ],
     "grammars": [
@@ -437,6 +461,12 @@
         "icon": "images/create.svg"
       },
       {
+        "command": "vscode-couchbase.openSearchWorkbench",
+        "title": "New Search Workbench",
+        "category": "Couchbase",
+        "icon": "images/create.svg"
+      },
+      {
         "command": "vscode-couchbase.openQueryWorkbench",
         "title": "New Workbench",
         "category": "Couchbase",
@@ -456,6 +486,11 @@
       {
         "command": "vscode-couchbase.deleteClusterConnection",
         "title": "Delete Cluster Connection",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.deleteSearchIndex",
+        "title": "Delete Search Index",
         "category": "Couchbase"
       },
       {
@@ -549,6 +584,14 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.runSearch",
+        "title": "Run Search",
+        "category": "Couchbase",
+        "icon": "$(play)",
+        "tooltip": "Run Search",
+        "enablement": "vscode-couchbase.runSearchButtonEnabled"
+      },
+      {
         "command": "vscode-couchbase.runQuery",
         "title": "Run Query",
         "category": "Couchbase",
@@ -570,6 +613,12 @@
         "command": "vscode-couchbase.tools.mdbMigrate",
         "title": "MongoDB Migrate",
         "category": "Couchbase"
+      },
+      {
+        "title": "Search Context",
+        "command": "vscode-couchbase.searchContext",
+        "category": "Couchbase",
+        "icon": "$(group-by-ref-type)"
       },
       {
         "command": "vscode-couchbase.tools.dynamodbMigrate",
@@ -702,6 +751,12 @@
         "key": "ctrl+shift+e",
         "mac": "cmd+shift+e",
         "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/) && !isKVCluster"
+      },
+      {
+        "command": "vscode-couchbase.runSearch",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorLangId == json && resourceFilename =~ /\\.cbs\\.json$/ && !isKVCluster && isSearchEnabled"
       }
     ],
     "menus": {
@@ -713,11 +768,24 @@
           "group": "navigation@1"
         },
         {
+          "command": "vscode-couchbase.runSearch",
+          "category": "Couchbase",
+          "when": "editorLangId == json && resourceFilename =~ /\\.cbs\\.json$/  && !isKVCluster && isSearchEnabled",
+          "group": "navigation@1"
+        },
+        {
           "title": "Query Context",
           "command": "vscode-couchbase.queryContext",
           "category": "Couchbase",
           "group": "navigation@2",
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
+        },
+        {
+          "title": "Search Context",
+          "command": "vscode-couchbase.searchContext",
+          "category": "Couchbase",
+          "group": "navigation@2",
+          "when": "editorLangId == json && resourceFilename =~ /\\.cbs\\.json$/  && !isKVCluster"
         },
         {
           "title": "Show Favorite Queries",
@@ -767,6 +835,11 @@
           "command": "vscode-couchbase.runQuery",
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster",
           "group": "navigation@1"
+        },
+        {
+          "command": "vscode-couchbase.runSearch",
+          "when": "editorLangId == json && resourceFilename =~ /\\.cbs\\.json$/  && !isKVCluster && isSearchEnabled",
+          "group": "navigation@1"
         }
       ],
       "commandPalette": [
@@ -784,6 +857,14 @@
         },
         {
           "command": "vscode-couchbase.openQueryWorkbench",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.openSearchWorkbench",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.deleteSearchIndex",
           "when": "false"
         },
         {
@@ -867,6 +948,10 @@
         },
         {
           "command": "vscode-couchbase.queryContext",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.searchContext",
           "when": "false"
         },
         {
@@ -967,6 +1052,21 @@
           "command": "vscode-couchbase.openQueryWorkbench",
           "when": "view == couchbase && viewItem == active_connection && !isKVCluster",
           "group": "workbench@1"
+        },
+        {
+          "command": "vscode-couchbase.openSearchWorkbench",
+          "when": "view == couchbase && viewItem == active_connection && !isKVCluster && isSearchEnabled",
+          "group": "workbench@1"
+        },
+        {
+          "command": "vscode-couchbase.openSearchWorkbench",
+          "when": "view == couchbase && viewItem == searchIndex && !isKVCluster && isSearchEnabled",
+          "group": "workbench@1"
+        },
+        {
+          "command": "vscode-couchbase.deleteSearchIndex",
+          "when": "view == couchbase && viewItem == searchIndex && !isKVCluster && isSearchEnabled",
+          "group": "workbench@2"
         },
         {
           "submenu": "vscode-couchbase.toolsMenu",
@@ -1201,3 +1301,4 @@
     ]
   }
 }
+

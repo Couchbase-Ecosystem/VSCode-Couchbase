@@ -14,24 +14,35 @@
  * limitations under the License.
  */
 
-import * as path from "path";
-
-import { runTests } from "@vscode/test-electron";
+import * as path from 'path';
+import * as fs from 'fs';
+import { runTests } from '@vscode/test-electron';
 
 async function main() {
   try {
-    // The folder containing the Extension Manifest package.json
-    // Passed to `--extensionDevelopmentPath`
-    const extensionDevelopmentPath = path.resolve(__dirname, "../../");
+    const extensionDevelopmentPath = path.resolve(__dirname, '../');
+    const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
-    // The path to test runner
-    // Passed to --extensionTestsPath
-    const extensionTestsPath = path.resolve(__dirname, "./suite/index");
+    // Cleanup step
+    const userDataPath = path.resolve(__dirname, '../../.vscode-test/user-data');
+    if (fs.existsSync(userDataPath)) {
+      fs.rmdirSync(userDataPath, { recursive: true });
+    }
+
+    // Get the test file from command line arguments
+    const testFile = process.argv[2];
+    if (testFile) {
+      process.env.VSCODE_TEST_FILE = testFile;
+    }
 
     // Download VS Code, unzip it and run the integration test
-    await runTests({ extensionDevelopmentPath, extensionTestsPath });
-  } catch (err: any) {
-    console.error("Failed to run tests");
+    await runTests({ 
+      extensionDevelopmentPath, 
+      extensionTestsPath,
+      launchArgs: testFile ? ['--disable-extensions', '--extensionTestsPath=' + extensionTestsPath, '--testFile=' + testFile] : undefined
+    });
+  } catch (err) {
+    console.error('Failed to run tests', err);
     process.exit(1);
   }
 }

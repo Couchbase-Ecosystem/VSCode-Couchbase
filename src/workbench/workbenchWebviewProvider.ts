@@ -18,7 +18,8 @@ type IQueryStatusProps = {
 type IQueryResultProps = {
     queryResult: string;
     queryStatus: IQueryStatusProps;
-    plan: string | null
+    plan: string | null;
+    isSearch: boolean
 };
 export class WorkbenchWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
@@ -49,7 +50,7 @@ export class WorkbenchWebviewProvider implements vscode.WebviewViewProvider {
         this._view?.webview.postMessage({ command: "theme", isDarkTheme });
         this._view?.onDidChangeVisibility(() => {
             if (Memory.state.get<IQueryResultProps>(Constants.QUERY_RESULT)) {
-                this.sendQueryResult(JSON.stringify([{ "status": "Loading last executed result" }]), { queryStatus: QueryStatus.Running }, null);
+                this.sendQueryResult(JSON.stringify([{ "status": "Loading last executed result" }]), { queryStatus: QueryStatus.Running }, null,);
                 const previousResult = Memory.state.get<IQueryResultProps>(Constants.QUERY_RESULT);
                 if (previousResult) {
                     this.sendQueryResult(previousResult.queryResult, previousResult.queryStatus, previousResult.plan);
@@ -58,15 +59,16 @@ export class WorkbenchWebviewProvider implements vscode.WebviewViewProvider {
         });
     }
 
-    async sendQueryResult(queryResult: string, queryStatus: IQueryStatusProps, plan: string | null) {
+    async sendQueryResult(queryResult: string, queryStatus: IQueryStatusProps, plan: string | null, isSearch?: boolean) {
         const isDarkTheme: boolean = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark;
-        await this._view?.webview.postMessage({ command: "queryResult", result: queryResult, queryStatus: queryStatus, explainPlan: plan, isDarkTheme });
-        Memory.state.update(Constants.QUERY_RESULT, { queryResult, queryStatus, plan });
+        await this._view?.webview.postMessage({ command: "queryResult", result: queryResult, queryStatus: queryStatus, explainPlan: plan, isDarkTheme, isSearch:isSearch });
+        Memory.state.update(Constants.QUERY_RESULT, { queryResult, queryStatus, plan, isSearch });
     }
 
-    async setQueryResult(queryResult: string, queryStatus: IQueryStatusProps, plan: string | null) {
+    async setQueryResult(queryResult: string, queryStatus: any, plan: string | null, isSearch: boolean) {
         this._view?.show();
         this._queryResult = queryResult;
-        await this.sendQueryResult(queryResult, queryStatus, plan);
+        await this.sendQueryResult(queryResult, queryStatus, plan, isSearch);
     }
+
 }
