@@ -1,4 +1,4 @@
-import { HeadersData } from 'components/data-table/data-table.types';
+import { HeadersData, ROW_ID_FIELD } from 'components/data-table/data-table.types';
 import { uniqueId } from 'utils/unique-id/unique-id';
 
 type ArrayCellProps = {
@@ -9,7 +9,10 @@ type ArrayCellProps = {
 };
 
 export function ArrayCell({ value, cellTitle, first, headers }: ArrayCellProps) {
-  const headerCells = Object.keys(headers.innerKeys).sort();
+  const headerCells = Object.keys(headers.innerKeys)
+    .filter((key) => key !== ROW_ID_FIELD)
+    .sort();
+
   const renderRowCells = (propertyName: string, valueToRender: unknown) => {
     if (Array.isArray(valueToRender)) {
       if (!valueToRender.length) {
@@ -18,7 +21,7 @@ export function ArrayCell({ value, cellTitle, first, headers }: ArrayCellProps) 
 
       if (headers.innerKeys[propertyName].arrayInnerObjects) {
         return (
-          <table className="w-full" key={uniqueId()}>
+          <table className="w-full">
             {valueToRender.filter(Boolean).map((value, index) => (
               <ArrayCell
                 headers={headers.innerKeys[propertyName].arrayInnerObjects!}
