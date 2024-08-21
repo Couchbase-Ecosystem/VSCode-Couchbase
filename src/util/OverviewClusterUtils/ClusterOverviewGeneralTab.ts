@@ -45,7 +45,11 @@ export const getGeneralClusterDetails = (serverOverview: ServerOverview | undefi
     // Services
     details.push({
         key: Constants.SERVICES,
-        value: formatServices(getServices(serverOverview).join(', ').toString()) || "NA"
+        value: formatServices(
+            Array.from(new Set(getServices(serverOverview)))
+                .join(', ')
+                .toString()
+        ) || "NA"
     });
 
     // Nodes
@@ -68,7 +72,14 @@ export const getGeneralClusterDetails = (serverOverview: ServerOverview | undefi
 };
 
 export const getServices = (serverOverview: ServerOverview): string[] => {
-    return serverOverview.getNodes()[0].services;
+    const nodes = serverOverview.getNodes();
+    const allServices: string[] = [];
+
+    nodes.forEach(node => {
+        allServices.push(...node.services);
+    });
+
+    return allServices;
 };
 
 export const getGeneralQuotaDetails = (serverOverview: ServerOverview | undefined): IKeyValuePair[] => {
