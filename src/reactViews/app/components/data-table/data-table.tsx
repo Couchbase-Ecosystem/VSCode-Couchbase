@@ -165,6 +165,7 @@ export function DataTable({ data, dataFallback }: DataTableProps) {
       rowBuffer={20}
       headerHeight={19}
       rowHeight={15}
+      autoSizeColumns
       rowClass="border-b odd:bg-[#f6fafd]"
       mode="light"
       rowData={queryResult}
