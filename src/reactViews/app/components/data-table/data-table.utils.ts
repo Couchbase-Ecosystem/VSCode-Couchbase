@@ -1,4 +1,4 @@
-import { HeadersData } from './data-table.types';
+import { HeadersData, IdentifiedData, ROW_ID_FIELD } from './data-table.types';
 
 const CHARACTER_PADDING = 3;
 const BOOLEAN_WIDTH = 5;
@@ -36,7 +36,7 @@ export const getHeadersStructure = (data: unknown, headersData: HeadersData | nu
   if (Array.isArray(data)) {
     headersToUpdate.type = { isArray: true };
     data.forEach((item) => {
-      if (typeof item === 'object' && data) {
+      if (typeof item === 'object' && !Array.isArray(item) && data) {
         headersToUpdate.arrayInnerObjects = getHeadersStructure(item, headersToUpdate.arrayInnerObjects);
       } else {
         headersToUpdate.arrayInnerPrimitives = getHeadersStructure(item, headersToUpdate.arrayInnerPrimitives);
@@ -118,3 +118,38 @@ export const getHeadersStructureAndWidths = (data: unknown) => {
   const headersStructure = getHeadersStructure(data, null);
   return finalizeFieldWidths(headersStructure);
 };
+let counter = 0;
+export function getIdentifiedData<T extends object>(data: T[]): IdentifiedData<T>[] {
+  const result: IdentifiedData<T>[] = new Array(data.length);
+
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+
+    if (Array.isArray(item)) {
+      result[i] = getIdentifiedData(item) as IdentifiedData<T>;
+    } else if (item && typeof item === 'object') {
+      const newItem: any = {
+        [ROW_ID_FIELD]: counter++,
+      };
+
+      const keys = Object.keys(item);
+      for (let j = 0; j < keys.length; j++) {
+        const key = keys[j];
+        const value = item[key as keyof T];
+        if (Array.isArray(value)) {
+          newItem[key] = getIdentifiedData(value);
+        } else if (value && typeof value === 'object') {
+          [newItem[key]] = getIdentifiedData([value]);
+        } else {
+          newItem[key] = value;
+        }
+      }
+
+      result[i] = newItem;
+    } else {
+      // @ts-ignore
+      result[i] = item;
+    }
+  }
+  return result;
+}

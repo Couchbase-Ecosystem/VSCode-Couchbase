@@ -10,6 +10,7 @@ import { QueryStatsProps } from "custom/query-stats/query-stats.types";
 import { VisualExplainPlan } from "components/visual-explain-plan";
 import { Plan } from "types/plan";
 import { SupportedThemes } from "components/editor/editor.types";
+import { getIdentifiedData } from "components/data-table/data-table.utils";
 
 const container = document.getElementById("root");
 const root = createRoot(container);
@@ -44,6 +45,12 @@ export const App: React.FC = () => {
         break;
     }
   });
+
+  const tableValue = React.useMemo(() => {
+    const result = queryResult && queryResult.length < 1 ? [{ '': [] }] : queryResult;
+    return result ? getIdentifiedData(result) : result;
+  }, [queryResult]);
+
   return (
     <div className="h-screen">
       <QueryStats {...queryStatus} />
@@ -57,7 +64,7 @@ export const App: React.FC = () => {
           theme={theme}
           language="json"
         />}
-        {!isSearch && currentTab === QueryTabs.Table && <DataTable data={queryResult} dataFallback={[FALLBACK_MESSAGE]} />}
+        {!isSearch && currentTab === QueryTabs.Table && <DataTable data={tableValue} dataFallback={[FALLBACK_MESSAGE]} />}
         {!isSearch && currentTab === QueryTabs.PLAN && <VisualExplainPlan plan={explainPlan} hideControls={false} />}
       </div>
     </div>

@@ -6,10 +6,22 @@ import { ArrayCell } from 'components/data-table/array-cell';
 import { getHeadersStructureAndWidths } from 'components/data-table/data-table.utils';
 import { uniqueId } from 'utils/unique-id/unique-id';
 import './data-table.scss';
+import { ColDef, ValueGetterParams } from 'ag-grid-community';
+import { ROW_ID_FIELD } from './data-table.types';
 
 type DataTableProps = {
   data?: Record<string, unknown>[];
   dataFallback: Record<string, unknown>[];
+};
+
+interface Schema {
+  [key: string]: any;
+}
+
+const safelyAccessProperty = (obj: any, path: string): string => {
+  return path.split('.').reduce((acc, part) => {
+    return acc && acc[part] !== undefined ? acc[part] : '';
+  }, obj);
 };
 
 export function DataTable({ data, dataFallback }: DataTableProps) {
@@ -51,11 +63,28 @@ export function DataTable({ data, dataFallback }: DataTableProps) {
       } else {
         valueToRender = (
           <ul>
-            {cellValue.map((value, index) => (
-              <li title={`${cellTitle}[${index}]`} key={value}>
-                {value}
-              </li>
-            ))}
+            {cellValue.map((value, index) => {
+              let content;
+              if (Array.isArray(value)) {
+                content = (
+                  <ul>
+                    {value.map((innerValue) => (
+                      <li key={innerValue}>{innerValue === null ? 'null' : innerValue}</li>
+                    ))}
+                  </ul>
+                );
+              } else if (value === null) {
+                content = 'null';
+              } else {
+                content = String(value);
+              }
+
+              return (
+                <li title={`${cellTitle}[${index}]`} key={value}>
+                  {content}
+                </li>
+              );
+            })}
           </ul>
         );
       }
@@ -75,21 +104,56 @@ export function DataTable({ data, dataFallback }: DataTableProps) {
       </span>
     );
   };
+  const wrapColumnDefs = (columnDefs: ColDef[]): ColDef[] => {
+    return columnDefs.map((colDef) => ({
+      ...colDef,
+      valueGetter: (params: ValueGetterParams) => {
+        if (colDef.field) {
+          return safelyAccessProperty(params.data, colDef.field);
+        }
+        if (colDef.valueGetter) {
+          if (typeof colDef.valueGetter === 'function') {
+            return colDef.valueGetter(params);
+          }
+          return colDef.valueGetter;
+        }
+        return '';
+      },
+    }));
+  };
+  const getColumnsDefinitions = (objectSchemas: Schema[]): ColDef[] => {
+    // Combine all schemas into one
+    const combinedSchema: Schema = objectSchemas.reduce((acc: Schema, schema: Schema) => {
+      Object.keys(schema).forEach((key) => {
+        if (!acc[key]) {
+          acc[key] = schema[key];
+        }
+      });
+      return acc;
+    }, {});
 
-  const getColumnsDefinitions = (objectSchema: object) => {
-    return Object.keys(objectSchema)
+    // Generate column definitions from the combined schema
+    const rawColumnDefs: ColDef[] = Object.keys(combinedSchema)
+      .filter((key) => key !== ROW_ID_FIELD)
       .sort()
-      .map((key) => ({
-        field: key,
-        headerName: key,
-        cellRenderer,
-        headerClass: clsx('normal-case bg-gray-500 p-0 pl-1 text-xs font-normal text-[#555] bg-[#eceff2] data-table-header'),
-        cellClass: clsx('p-0 pl-1 justify-start mt-[-1px] text-xs !justify-start', headers[key].type.isString && 'max-w-[80ch]'),
-      }));
+      .map(
+        (key): ColDef => ({
+          valueFormatter: (params) => params.data[key],
+          field: key,
+          headerName: key,
+          cellRendererParams: { headers, identifiedData: data },
+          cellRenderer: cellRenderer,
+          headerClass: clsx('normal-case bg-gray-500 p-0 pl-1 text-xs font-normal text-[#555] bg-[#eceff2] data-table-header'),
+          cellClass: clsx('p-0 pl-1 justify-start mt-[-1px] text-xs !justify-start', headers[key]?.type.isString && 'max-w-[80ch]'),
+        })
+      );
+
+    return wrapColumnDefs(rawColumnDefs);
   };
 
   return (
     <DataGrid
+      getRowId={({ data }) => data[ROW_ID_FIELD]}
       enableCellTextSelection
       containerStyle={{
         '--ag-header-column-separator-display': 'block',
@@ -104,7 +168,7 @@ export function DataTable({ data, dataFallback }: DataTableProps) {
       rowClass="border-b odd:bg-[#f6fafd]"
       mode="light"
       rowData={queryResult}
-      columnDefs={getColumnsDefinitions(queryResult[0])}
+      columnDefs={getColumnsDefinitions(queryResult)}
       onFirstDataRendered={({ columnApi }) => columnApi.autoSizeAllColumns()}
       onGridSizeChanged={undefined}
     />
