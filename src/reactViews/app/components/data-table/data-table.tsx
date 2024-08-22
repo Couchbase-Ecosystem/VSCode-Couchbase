@@ -170,8 +170,6 @@ export function DataTable({ data, dataFallback }: DataTableProps) {
       mode="light"
       rowData={queryResult}
       columnDefs={getColumnsDefinitions(queryResult)}
-      onFirstDataRendered={({ columnApi }) => columnApi.autoSizeAllColumns()}
-      onGridSizeChanged={undefined}
     />
   );
 }
