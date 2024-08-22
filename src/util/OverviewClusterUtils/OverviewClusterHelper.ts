@@ -60,10 +60,11 @@ export function mbToGb(sizeInMb: number): string {
 
 export function formatServices(services: string): string {
   return services
-    .replace("backup", "Backup")
-    .replace("eventing", "Eventing")
-    .replace("fts", "Search")
-    .replace("index", "Index")
-    .replace("kv", "Data")
-    .replace("n1ql", "Query");
+    .replace(/backup/gi, "Backup")
+    .replace(/eventing/gi, "Eventing")
+    .replace(/fts/gi, "Search")
+    .replace(/index/gi, "Index")
+    .replace(/kv/gi, "Data")
+    .replace(/cbas/gi, "Analytics")
+    .replace(/n1ql/gi, "Query");
 }
