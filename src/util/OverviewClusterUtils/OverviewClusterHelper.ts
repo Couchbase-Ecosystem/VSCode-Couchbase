@@ -65,5 +65,6 @@ export function formatServices(services: string): string {
     .replace(/fts/gi, "Search")
     .replace(/index/gi, "Index")
     .replace(/kv/gi, "Data")
+    .replace(/cbas/gi, "Analytics")
     .replace(/n1ql/gi, "Query");
 }
