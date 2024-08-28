@@ -6,12 +6,14 @@ import { Bucket, BucketSettings } from "couchbase";
 import { QueryWorkbench } from "../../workbench/queryWorkbench";
 import {
     showQueryContextStatusbar,
+    showQueryContextStatusbarNotebook,
     showSearchContextStatusbar,
 } from "../../util/queryContextUtils";
 import { getActiveConnection } from "../../util/connections";
 import { SearchWorkbench } from "../../commands/fts/SearchWorkbench/searchWorkbench";
 import SearchIndexNode from "../../model/SearchIndexNode";
 import { Commands } from "../../commands/extensionCommands/commands";
+import { QueryKernel } from "../../notebook/controller";
 
 const fetchBucketNames = (
     bucketsSettings: BucketSettings[] | undefined,
@@ -33,6 +35,7 @@ const fetchBucketNames = (
 
 export async function fetchQueryContext(
     workbench: QueryWorkbench,
+    queryKernel: QueryKernel,
     context: vscode.ExtensionContext,
     globalStatusBarItem: any,
 ) {
@@ -47,9 +50,11 @@ export async function fetchQueryContext(
     try {
         // Fetch active editor
         const activeEditor = vscode.window.activeTextEditor;
-        if (!(activeEditor && activeEditor.document.languageId === "SQL++")) {
+        const activeNotebookEditor = vscode.window.activeNotebookEditor;
+        const isNotebook = !!activeNotebookEditor;
+        if (!activeNotebookEditor && !(activeEditor && activeEditor.document.languageId === "SQL++")) {
             vscode.window.showErrorMessage(
-                "Please ensure that the workbench is open/active",
+                "Please ensure that a SQL++ editor or a notebook is open and active"
             );
             return;
         }
@@ -96,14 +101,13 @@ export async function fetchQueryContext(
 
         const bucketNameSelected = selectedItem.label;
         if (bucketNameSelected === "Clear Context") {
-            workbench.editorToContext.delete(
-                activeEditor.document.uri.toString(),
-            );
-            showQueryContextStatusbar(
-                activeEditor,
-                workbench,
-                globalStatusBarItem,
-            );
+            if (isNotebook && activeNotebookEditor) {
+                queryKernel.notebookToContext.delete(activeNotebookEditor.notebook.uri.toString());
+                showQueryContextStatusbarNotebook(activeNotebookEditor, queryKernel, globalStatusBarItem);
+            } else if (activeEditor) {
+                workbench.editorToContext.delete(activeEditor.document.uri.toString());
+                showQueryContextStatusbar(activeEditor, workbench, globalStatusBarItem);
+            }
             return;
         }
         const scopes = await connection.cluster
@@ -128,11 +132,18 @@ export async function fetchQueryContext(
             vscode.window.showInformationMessage("No scope selected.");
             return;
         }
-        workbench.editorToContext.set(activeEditor.document.uri.toString(), {
+        const queryContext = {
             bucketName: bucketNameSelected,
             scopeName: scopeNameSelected.label,
-        });
-        showQueryContextStatusbar(activeEditor, workbench, globalStatusBarItem);
+        };
+        if (isNotebook && activeEditor) {
+            const notebookUri = activeNotebookEditor.notebook.uri.toString();
+            queryKernel.notebookToContext.set(notebookUri, queryContext);
+            showQueryContextStatusbarNotebook(activeNotebookEditor, queryKernel, globalStatusBarItem);
+        } else if (activeEditor) {
+            workbench.editorToContext.set(activeEditor.document.uri.toString(), queryContext);
+            showQueryContextStatusbar(activeEditor, workbench, globalStatusBarItem);
+        }
     } catch (err) {
         logger.error(`failed to open and set query context: ${err}`);
         logger.debug(err);
