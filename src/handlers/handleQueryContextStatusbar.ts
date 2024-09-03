@@ -1,12 +1,23 @@
 import * as vscode from 'vscode';
 import { QueryWorkbench } from '../workbench/queryWorkbench';
-import {  showQueryContextStatusbar } from '../util/queryContextUtils';
-export const handleQueryContextStatusbar = async (editor: vscode.TextEditor | undefined, workbench: QueryWorkbench, globalStatusBarItem: vscode.StatusBarItem) => {
-    if( editor && editor.document.languageId === "SQL++"){
-        // Case 1: Show Status bar
-        showQueryContextStatusbar(editor, workbench, globalStatusBarItem);
+import { showQueryContextStatusbar, showQueryContextStatusbarNotebook } from '../util/queryContextUtils';
+import { QueryKernel } from '../notebook/controller';
+
+export async function handleQueryContextStatusbar(
+    activeEditor: vscode.TextEditor | undefined,
+    activeNotebookEditor: vscode.NotebookEditor | undefined,
+    workbench: QueryWorkbench,
+    queryKernel: QueryKernel,
+    globalStatusBarItem: vscode.StatusBarItem
+) {
+    if (activeNotebookEditor) {
+
+        showQueryContextStatusbarNotebook(activeNotebookEditor, queryKernel, globalStatusBarItem)
+
+    } else if (activeEditor && activeEditor.document.languageId === "SQL++") {
+        showQueryContextStatusbar(activeEditor, workbench, globalStatusBarItem)
+
     } else {
-        // Case 2: Don't show status bar
         globalStatusBarItem.hide();
     }
-};
+}

@@ -104,6 +104,7 @@ export function activate(context: vscode.ExtensionContext) {
   const uriToCasMap = new Map<string, string>();
   const workbench = new QueryWorkbench();
   const searchWorkbench = new SearchWorkbench();
+  const queryKernel = new QueryKernel()
 
   let currentSearchIndexNode: SearchIndexNode;
   let currentSearchWorkbench: SearchWorkbench;
@@ -725,21 +726,33 @@ context.subscriptions.push(disposable);
     )
   );
 
+  // Query Context for workbench
   subscriptions.push(
     vscode.commands.registerCommand(Commands.queryContext, () => {
-      fetchQueryContext(workbench, context, globalStatusBarItem);
+      fetchQueryContext(workbench, queryKernel, context, globalStatusBarItem);
     })
   );
 
-  // subscription to make sure query context status bar is only visible on sqlpp files
+  // Subscription to handle changes in active workbench editor
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-      await handleQueryContextStatusbar(editor, workbench, globalStatusBarItem);
+      const activeNotebookEditor = vscode.window.activeNotebookEditor;
+      await handleQueryContextStatusbar(editor, activeNotebookEditor, workbench, queryKernel, globalStatusBarItem);
     })
   );
-  // // Handle initial view of context status bar
+
+  // Subscription to handle changes in active notebook editor
+  subscriptions.push(
+    vscode.window.onDidChangeActiveNotebookEditor(async (notebookEditor) => {
+      const activeEditor = vscode.window.activeTextEditor;
+      await handleQueryContextStatusbar(activeEditor, notebookEditor, workbench, queryKernel, globalStatusBarItem);
+    })
+  );
+
+  // Handle initial view of context status bar
   const activeEditor = vscode.window.activeTextEditor;
-  handleQueryContextStatusbar(activeEditor, workbench, globalStatusBarItem);
+  const activeNotebookEditor = vscode.window.activeNotebookEditor;
+  handleQueryContextStatusbar(activeEditor, activeNotebookEditor, workbench, queryKernel, globalStatusBarItem);
 
   subscriptions.push(
     vscode.commands.registerCommand(
@@ -859,7 +872,7 @@ context.subscriptions.push(disposable);
     vscode.workspace.registerNotebookSerializer(
       Constants.notebookType, new QueryContentSerializer(), { transientOutputs: true }
     ),
-    new QueryKernel()
+    queryKernel
   );
 
   context.subscriptions.push(
