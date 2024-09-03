@@ -5,9 +5,31 @@ import { Constants } from './constants';
 import { Commands } from '../commands/extensionCommands/commands';
 import { SearchWorkbench } from '../commands/fts/SearchWorkbench/searchWorkbench';
 import SearchIndexNode from '../model/SearchIndexNode';
+import { QueryKernel } from '../notebook/controller';
 
 export const showQueryContextStatusbar = async (editor: vscode.TextEditor, workbench: QueryWorkbench, globalStatusBarItem: vscode.StatusBarItem) => {
     let queryContext = workbench.editorToContext.get(editor.document.uri.toString());
+    if (!queryContext) {
+        globalStatusBarItem.text = `$(group-by-ref-type) No Query Context Set`;
+    } else {
+        let bucketName = queryContext.bucketName;
+        if (bucketName.length > 15) {
+            bucketName = `${bucketName.substring(0, 13)}...`;
+        }
+        let scopeName = queryContext.scopeName;
+        if (scopeName.length > 15) {
+            scopeName = `${scopeName.substring(0, 13)}...`;
+        }
+        globalStatusBarItem.text = `$(group-by-ref-type) ${bucketName} > ${scopeName}`;
+    }
+    globalStatusBarItem.command = Commands.queryContext;
+    globalStatusBarItem.tooltip = "Query Context";
+    globalStatusBarItem.show();
+};
+
+export const showQueryContextStatusbarNotebook = async (editor: vscode.NotebookEditor, queryKernel: QueryKernel, globalStatusBarItem: vscode.StatusBarItem) => {
+    const notebookUri = editor.notebook.uri.toString();
+    const queryContext = queryKernel.notebookToContext.get(notebookUri);
     if (!queryContext) {
         globalStatusBarItem.text = `$(group-by-ref-type) No Query Context Set`;
     } else {

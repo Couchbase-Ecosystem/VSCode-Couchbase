@@ -16,7 +16,8 @@
 
 import * as vscode from 'vscode';
 import { getActiveConnection } from '../util/connections';
-import { CouchbaseError } from 'couchbase';
+import { CouchbaseError, QueryOptions } from 'couchbase';
+import { IQueryContext } from '../types/IQueryContext';
 
 /**
  * // This is a typescript class for creating and handling the execution of a new Couchbase Query Notebook,
@@ -33,6 +34,7 @@ export class QueryKernel {
 
     private _executionOrder = 0;
     private readonly _controller: vscode.NotebookController;
+    public notebookToContext: Map<string, IQueryContext>;
 
     // Constructor used to create new QueryKernel objects
     constructor() {
@@ -44,6 +46,7 @@ export class QueryKernel {
         this._controller.supportedLanguages = this._supportedLanguages;
         this._controller.supportsExecutionOrder = true;
         this._controller.executeHandler = this._executeAll.bind(this);
+        this.notebookToContext = new Map<string, IQueryContext>();
     }
 
     // Method to release any resources being held, currently it just disposes the notebook controller
@@ -61,7 +64,22 @@ export class QueryKernel {
         const execution = this._controller.createNotebookCellExecution(cell);
         execution.executionOrder = ++this._executionOrder;
         execution.start(Date.now());
+        let queryOptions: QueryOptions
+        const activeTextEditor = vscode.window.activeNotebookEditor;
+        if (activeTextEditor) {
+            const notebookUri = activeTextEditor.notebook.uri.toString();
 
+            // Retrieve the query context using the notebook URI
+            const queryContext = this.notebookToContext.get(notebookUri);
+            const queryContextString = queryContext
+                ? `${queryContext.bucketName}.${queryContext.scopeName}`
+                : '';
+
+            queryOptions = {
+                metrics: true,
+                queryContext: queryContextString
+            };
+    
         try {
             const activeConnection = getActiveConnection();
             if (!activeConnection) {
@@ -69,13 +87,14 @@ export class QueryKernel {
                 throw Error('Connection Failed');
             };
             const result = await activeConnection.cluster?.query(
-                cell.document.getText()
+                cell.document.getText(), queryOptions
             );
             execution.replaceOutput([new vscode.NotebookCellOutput([
                 vscode.NotebookCellOutputItem.json(result?.rows)
             ])]);
 
             execution.end(true, Date.now());
+     
         } catch (err) {
             const errorArray = [];
             if (err instanceof CouchbaseError) {
@@ -99,5 +118,6 @@ export class QueryKernel {
             ])]);
         }
         execution.end(false, Date.now());
+    }
     }
 }
