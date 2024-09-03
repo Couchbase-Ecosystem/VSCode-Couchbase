@@ -729,30 +729,30 @@ context.subscriptions.push(disposable);
   // Query Context for workbench
   subscriptions.push(
     vscode.commands.registerCommand(Commands.queryContext, () => {
-      fetchQueryContext(workbench,queryKernel, context, globalStatusBarItem);
+      fetchQueryContext(workbench, queryKernel, context, globalStatusBarItem);
     })
   );
 
-// Subscription to handle changes in active workbench editor
+  // Subscription to handle changes in active workbench editor
   subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-        const activeNotebookEditor = vscode.window.activeNotebookEditor;
-        await handleQueryContextStatusbar(editor, activeNotebookEditor, workbench, queryKernel, globalStatusBarItem);
+      const activeNotebookEditor = vscode.window.activeNotebookEditor;
+      await handleQueryContextStatusbar(editor, activeNotebookEditor, workbench, queryKernel, globalStatusBarItem);
     })
-);
+  );
 
-// Subscription to handle changes in active notebook editor
-subscriptions.push(
+  // Subscription to handle changes in active notebook editor
+  subscriptions.push(
     vscode.window.onDidChangeActiveNotebookEditor(async (notebookEditor) => {
-        const activeEditor = vscode.window.activeTextEditor;
-        await handleQueryContextStatusbar(activeEditor, notebookEditor, workbench, queryKernel, globalStatusBarItem);
+      const activeEditor = vscode.window.activeTextEditor;
+      await handleQueryContextStatusbar(activeEditor, notebookEditor, workbench, queryKernel, globalStatusBarItem);
     })
-);
+  );
 
-// Handle initial view of context status bar
-const activeEditor = vscode.window.activeTextEditor;
-const activeNotebookEditor = vscode.window.activeNotebookEditor;
-handleQueryContextStatusbar(activeEditor, activeNotebookEditor, workbench, queryKernel, globalStatusBarItem);
+  // Handle initial view of context status bar
+  const activeEditor = vscode.window.activeTextEditor;
+  const activeNotebookEditor = vscode.window.activeNotebookEditor;
+  handleQueryContextStatusbar(activeEditor, activeNotebookEditor, workbench, queryKernel, globalStatusBarItem);
 
   subscriptions.push(
     vscode.commands.registerCommand(
