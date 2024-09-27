@@ -87,6 +87,8 @@ import { AutocompleteVisitor } from "./commands/fts/SearchWorkbench/contributor/
 import { CbsJsonHoverProvider } from "./commands/fts/SearchWorkbench/documentation/documentationProvider";
 import { deleteIndex } from "./util/ftsIndexUtils";
 import { JsonAttributeCompletionProvider } from "./commands/documents/contributor/autoCompleteContributor";
+import ConnectionEvents from "./util/events/connectionEvents";
+import { CBShell } from "./commands/cbshell/cbShell";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -226,6 +228,8 @@ context.subscriptions.push(disposable);
       workbenchWebviewProvider
     )
   );
+
+  CBShell.getInstance(context);
 
   const couchbaseIqWebviewProvider = new CouchbaseIqWebviewProvider(context, cacheService);
   subscriptions.push(
@@ -377,6 +381,7 @@ context.subscriptions.push(disposable);
         node.connection.cluster = undefined;
         setActiveConnection();
         clusterConnectionTreeProvider.refresh(node);
+        ConnectionEvents.emitConnectionRemoved();
         logger.info(`Connection to ${node.connection.connectionIdentifier} has been disconnection`);
       }
     )

@@ -6,6 +6,6 @@ export const config = {
     CBIMPORT_EXPORT_KEY: "cbimport_export",
     TOOLS_VERSION: "7.2",
     CBMIGRATE_VERSION: "2",
-    SHELL_VERSION: "1",
+    SHELL_VERSION: "1.0.0",
     CBIMPORT_EXPORT_VERSION: "7.6",
 };

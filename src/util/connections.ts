@@ -26,6 +26,7 @@ import { getServices } from "./OverviewClusterUtils/ClusterOverviewGeneralTab";
 import { CouchbaseRestAPI } from "./apis/CouchbaseRestAPI";
 import { hasQueryService, hasSearchService } from "./common";
 import { SecretService } from "./secretService";
+import ConnectionEvents from "./events/connectionEvents";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username } = connection;
@@ -134,7 +135,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
               const secretService = SecretService.getInstance();
               secretService.delete(`${Constants.extensionID}-${connectionId}`);
               currentPanel.dispose();
-              addConnection(clusterConnectionTreeProvider, message);
+              await addConnection(clusterConnectionTreeProvider, message);
               break;
             }
           }
@@ -199,6 +200,7 @@ export async function useConnection(connection: IConnection): Promise<boolean> {
         vscode.commands.executeCommand('setContext', 'isKVCluster', !hasQueryService(connection.services));
         vscode.commands.executeCommand('setContext', 'isSearchEnabled', hasSearchService(connection.services));
         status = true;
+        ConnectionEvents.emitConnectionChanged(connection);
         vscode.window.showInformationMessage("Connection established successfully!");
         logger.info(`Connection established successfully with ${connection.connectionIdentifier}`);
       }
@@ -229,6 +231,7 @@ export async function removeConnection(connection: IConnection) {
   const secretService = SecretService.getInstance();
   await secretService.delete(`${Constants.extensionID}-${connectionId}`);
 
+  ConnectionEvents.emitConnectionRemoved();
   const activeConnection = getActiveConnection();
   if (connection.connectionIdentifier === activeConnection?.connectionIdentifier) {
     setActiveConnection();
