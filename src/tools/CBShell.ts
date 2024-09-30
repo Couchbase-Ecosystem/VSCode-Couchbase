@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import ConnectionEvents from '../../util/events/connectionEvents';
-import { SecretService } from '../../util/secretService';
-import { Constants } from '../../util/constants';
-import { getConnectionId } from '../../util/connections';
-import { CBTools, Type } from '../../util/DependencyDownloaderUtils/CBTool';
+import ConnectionEvents from '../util/events/connectionEvents';
+import { SecretService } from '../util/secretService';
+import { Constants } from '../util/constants';
+import { getConnectionId } from '../util/connections';
+import { CBTools, Type } from '../util/DependencyDownloaderUtils/CBTool';
 
 
 export class CBShell {
@@ -44,12 +44,7 @@ export class CBShell {
             this.terminal.sendText(cmd.join(' '));
         });
 
-        ConnectionEvents.onConnectionRemoved(() => {
-            if (this.terminal) {
-                this.terminal.dispose();
-                this.terminal = undefined;
-            }
-        });
+        ConnectionEvents.onConnectionRemoved(() => this.dispose());
     }
 
     public static getInstance(context?: vscode.ExtensionContext): CBShell {
@@ -57,5 +52,12 @@ export class CBShell {
             CBShell.instance = new CBShell(context);
         }
         return CBShell.instance;
+    }
+
+    public dispose() {
+        if (this.terminal) {
+            this.terminal.dispose();
+            this.terminal = undefined;
+        }
     }
 }

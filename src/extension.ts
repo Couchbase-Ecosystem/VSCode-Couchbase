@@ -88,7 +88,7 @@ import { CbsJsonHoverProvider } from "./commands/fts/SearchWorkbench/documentati
 import { deleteIndex } from "./util/ftsIndexUtils";
 import { JsonAttributeCompletionProvider } from "./commands/documents/contributor/autoCompleteContributor";
 import ConnectionEvents from "./util/events/connectionEvents";
-import { CBShell } from "./commands/cbshell/cbShell";
+import { CBShell } from "./tools/CBShell";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -189,7 +189,6 @@ const disposable = vscode.window.onDidChangeTextEditorSelection(async (e) => {
 });
 
 context.subscriptions.push(disposable);
-
 
   const subscriptions = context.subscriptions;
   const cacheService = new CacheService();
@@ -946,4 +945,8 @@ context.subscriptions.push(disposable);
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() { 
+  
+  // Dispose the shell instance
+  CBShell.getInstance().dispose();
+}
