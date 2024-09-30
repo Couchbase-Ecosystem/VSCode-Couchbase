@@ -84,7 +84,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_SHELL,
                 this.getToolSpec(
-                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v0.75.1/cbsh-x86_64-apple-darwin.zip",
+                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v1.0.0/cbsh-x86_64-apple-darwin.zip",
                     this.TOOL_SHELL,
                     OSUtil.MACOS_64
                 )
@@ -117,7 +117,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_SHELL,
                 this.getToolSpec(
-                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v0.75.1/cbsh-aarch64-apple-darwin.zip",
+                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v1.0.0/cbsh-aarch64-apple-darwin.zip",
                     this.TOOL_SHELL,
                     OSUtil.MACOS_ARM
                 )
@@ -150,7 +150,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_SHELL,
                 this.getToolSpec(
-                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v0.75.1/cbsh-x86_64-pc-windows-msvc.zip",
+                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v1.0.0/cbsh-x86_64-pc-windows-msvc.zip",
                     this.TOOL_SHELL,
                     OSUtil.WINDOWS_64
                 )
@@ -183,7 +183,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_SHELL,
                 this.getToolSpec(
-                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v0.75.1/cbsh-x86_64-pc-windows-msvc.zip",
+                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v1.0.0/cbsh-x86_64-pc-windows-msvc.zip",
                     this.TOOL_SHELL,
                     OSUtil.WINDOWS_ARM
                 )
@@ -216,7 +216,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_SHELL,
                 this.getToolSpec(
-                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v0.75.1/cbsh-x86_64-unknown-linux-gnu.tar.gz",
+                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v1.0.0/cbsh-x86_64-unknown-linux-gnu.tar.gz",
                     this.TOOL_SHELL,
                     OSUtil.LINUX_64
                 )
@@ -249,7 +249,7 @@ class DependenciesDownloader {
             map.set(
                 this.TOOL_SHELL,
                 this.getToolSpec(
-                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v0.75.1/cbsh-aarch64-unknown-linux-gnu.tar.gz",
+                    "https://github.com/couchbaselabs/couchbase-shell/releases/download/v1.0.0/cbsh-aarch64-unknown-linux-gnu.tar.gz",
                     this.TOOL_SHELL,
                     OSUtil.LINUX_ARM
                 )
@@ -383,7 +383,7 @@ class DependenciesDownloader {
                 });
             });
             this.setToolActive(ToolStatus.AVAILABLE, targetDir, spec);
-            DependenciesUtil.setPropertyValue(configFolder, key, value)
+            DependenciesUtil.setPropertyValue(configFolder, key, value);
         } catch (e) {
             this.setToolActive(ToolStatus.NOT_AVAILABLE, "", spec);
             logger.error(e);
