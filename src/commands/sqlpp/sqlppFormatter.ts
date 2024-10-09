@@ -1,8 +1,15 @@
 import * as vscode from 'vscode';
+import { format } from 'sql-formatter';
 
 export const sqlppFormatter = (document: vscode.TextDocument): vscode.TextEdit[] => {
     const fullText = document.getText();
-    const formattedText = processText(fullText, 4);
+    
+    const formattedText = format(fullText, {
+        language: 'n1ql',
+        tabWidth: 4,
+        keywordCase: 'upper',
+    });
+
     const textEdit = new vscode.TextEdit(
         new vscode.Range(
             document.positionAt(0),
