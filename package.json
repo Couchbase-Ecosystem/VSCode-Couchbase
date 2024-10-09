@@ -134,6 +134,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "react-tooltip": "^5.26.0",
     "shelljs": "^0.8.5",
+    "sql-formatter": "^15.4.2",
     "stream-json": "^1.8.0",
     "uuid": "^9.0.1",
     "vscode-json-languageservice": "^5.3.11"
@@ -646,6 +647,15 @@
         }
       },
       {
+        "title": "Format Query",
+        "command": "vscode-couchbase.formatQuery",
+        "category": "Couchbase",
+        "icon": {
+          "light": "images/light/format-query.svg",
+          "dark": "images/dark/format-query.svg"
+        }
+      },
+      {
         "title": "Mark Favorite Query",
         "command": "vscode-couchbase.markFavoriteQuery",
         "category": "Couchbase",
@@ -790,6 +800,13 @@
         {
           "title": "Show Favorite Queries",
           "command": "vscode-couchbase.showFavoriteQueries",
+          "category": "Couchbase",
+          "group": "navigation@3",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
+        },
+        {
+          "title": "Format Query",
+          "command": "vscode-couchbase.formatQuery",
           "category": "Couchbase",
           "group": "navigation@3",
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
@@ -956,6 +973,10 @@
         },
         {
           "command": "vscode-couchbase.showFavoriteQueries",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.formatQuery",
           "when": "false"
         },
         {
