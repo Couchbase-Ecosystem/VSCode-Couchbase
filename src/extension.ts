@@ -888,7 +888,8 @@ context.subscriptions.push(disposable);
       );
       await workbench.runCouchbaseQuery(
         workbenchWebviewProvider,
-        queryHistoryTreeProvider
+        queryHistoryTreeProvider,
+        false
       );
       vscode.commands.executeCommand(
         "setContext",
@@ -902,6 +903,26 @@ context.subscriptions.push(disposable);
     "vscode-couchbase.runButtonEnabled",
     true
   ); // Required to enable run query button at the start
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(Commands.explainQuery, async () => {
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.runButtonEnabled",
+        undefined
+      );
+      await workbench.runCouchbaseQuery(
+        workbenchWebviewProvider,
+        queryHistoryTreeProvider,
+        true
+      );
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.runButtonEnabled",
+        true
+      );
+    })
+  );
 
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.runSearchQuery, async (searchIndexNode: SearchIndexNode) => {

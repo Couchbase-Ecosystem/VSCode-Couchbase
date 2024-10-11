@@ -43,6 +43,7 @@ export namespace Commands {
     export const loadMore: string = "vscode-couchbase.loadMore";
     export const showOutputConsole: string = "vscode-couchbase.showOutputConsole";
     export const runQuery: string = "vscode-couchbase.runQuery";
+    export const explainQuery: string = "vscode-couchbase.explainQuery";
     export const runSearchQuery: string = "vscode-couchbase.runSearch";
     export const queryWorkbench: string = "vscode-couchbase.couchbase-query-workbench";
     export const searchWorkbench: string = "vscode-couchbase.couchbase-search-workbench";

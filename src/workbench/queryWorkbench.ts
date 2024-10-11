@@ -37,7 +37,8 @@ export class QueryWorkbench {
 
     runCouchbaseQuery = async (
         workbenchWebviewProvider: WorkbenchWebviewProvider,
-        queryHistoryTreeProvider: QueryHistoryTreeProvider
+        queryHistoryTreeProvider: QueryHistoryTreeProvider,
+        isExplainQuery: boolean
     ) => {
         const connection = getActiveConnection();
         if (!connection) {
@@ -51,7 +52,11 @@ export class QueryWorkbench {
         if (activeTextEditor && activeTextEditor.document.languageId === "SQL++") {
             // Get the text content of the active text editor.
             activeTextEditor.document.save();
-            const query = activeTextEditor.selection.isEmpty ? activeTextEditor.document.getText() : activeTextEditor.document.getText(activeTextEditor.selection);
+            let query = activeTextEditor.selection.isEmpty ? activeTextEditor.document.getText() : activeTextEditor.document.getText(activeTextEditor.selection);
+            if (isExplainQuery) {
+                // Construct Explain Query
+                query = "EXPLAIN " + query;
+            }
             const queryContext = this.editorToContext.get(activeTextEditor.document.uri.toString());
             const queryContextString = queryContext && (`${queryContext?.bucketName}.${queryContext?.scopeName}`); // Query context string is of format bucketName.ScopeName
             const queryParameters = getAllNamedParameters();
