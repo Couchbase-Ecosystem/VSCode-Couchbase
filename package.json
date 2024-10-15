@@ -647,15 +647,6 @@
         }
       },
       {
-        "title": "Format Query",
-        "command": "vscode-couchbase.formatQuery",
-        "category": "Couchbase",
-        "icon": {
-          "light": "images/light/format-query.svg",
-          "dark": "images/dark/format-query.svg"
-        }
-      },
-      {
         "title": "Mark Favorite Query",
         "command": "vscode-couchbase.markFavoriteQuery",
         "category": "Couchbase",
@@ -800,13 +791,6 @@
         {
           "title": "Show Favorite Queries",
           "command": "vscode-couchbase.showFavoriteQueries",
-          "category": "Couchbase",
-          "group": "navigation@3",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
-        },
-        {
-          "title": "Format Query",
-          "command": "vscode-couchbase.formatQuery",
           "category": "Couchbase",
           "group": "navigation@3",
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
@@ -973,10 +957,6 @@
         },
         {
           "command": "vscode-couchbase.showFavoriteQueries",
-          "when": "false"
-        },
-        {
-          "command": "vscode-couchbase.formatQuery",
           "when": "false"
         },
         {

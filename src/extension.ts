@@ -769,15 +769,6 @@ context.subscriptions.push(disposable);
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      Commands.formatQuery,
-      () => {
-        vscode.commands.executeCommand('editor.action.formatDocument')
-      }
-    )
-  );
-
-  subscriptions.push(
-    vscode.commands.registerCommand(
       Commands.markFavoriteQuery,
       async () => {
         await markFavoriteQuery(context);

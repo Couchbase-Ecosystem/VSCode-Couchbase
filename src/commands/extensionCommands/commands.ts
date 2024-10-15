@@ -50,7 +50,6 @@ export namespace Commands {
     export const queryContext: string = "vscode-couchbase.queryContext";
     export const searchContext: string = "vscode-couchbase.searchContext";
     export const showFavoriteQueries: string = "vscode-couchbase.showFavoriteQueries";
-    export const formatQuery: string = "vscode-couchbase.formatQuery";
     export const markFavoriteQuery: string = "vscode-couchbase.markFavoriteQuery";
     export const showNamedParameters: string = "vscode-couchbase.showNamedParameters";
     export const refreshNamedParameters: string = "vscode-couchbase.refreshNamedParameters";
