@@ -608,7 +608,7 @@
           "dark": "images/dark/explain-query.svg"
         },
         "tooltip": "Explain Query",
-        "enablement": "vscode-couchbase.explainButtonEnabled"
+        "enablement": "vscode-couchbase.runButtonEnabled"
       },
       {
         "command": "vscode-couchbase.getClusterOverview",
