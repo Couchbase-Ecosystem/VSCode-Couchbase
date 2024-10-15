@@ -134,6 +134,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "react-tooltip": "^5.26.0",
     "shelljs": "^0.8.5",
+    "sql-formatter": "^15.4.2",
     "stream-json": "^1.8.0",
     "uuid": "^9.0.1",
     "vscode-json-languageservice": "^5.3.11"
