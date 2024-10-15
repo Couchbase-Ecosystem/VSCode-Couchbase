@@ -606,7 +606,9 @@
         "icon": {
           "light": "images/light/explain-query.svg",
           "dark": "images/dark/explain-query.svg"
-        }
+        },
+        "tooltip": "Explain Query",
+        "enablement": "vscode-couchbase.explainButtonEnabled"
       },
       {
         "command": "vscode-couchbase.getClusterOverview",
@@ -852,6 +854,11 @@
           "group": "navigation@1"
         },
         {
+          "command": "vscode-couchbase.explainQuery",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster",
+          "group": "navigation@2"
+        },
+        {
           "command": "vscode-couchbase.runSearch",
           "when": "editorLangId == json && resourceFilename =~ /\\.cbs\\.json$/  && !isKVCluster && isSearchEnabled",
           "group": "navigation@1"
@@ -971,10 +978,6 @@
         },
         {
           "command": "vscode-couchbase.showFavoriteQueries",
-          "when": "false"
-        },
-        {
-          "command": "vscode-couchbase.explainQuery",
           "when": "false"
         },
         {

@@ -886,6 +886,11 @@ context.subscriptions.push(disposable);
         "vscode-couchbase.runButtonEnabled",
         undefined
       );
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.explainButtonEnabled",
+        undefined
+      );
       await workbench.runCouchbaseQuery(
         workbenchWebviewProvider,
         queryHistoryTreeProvider,
@@ -896,19 +901,36 @@ context.subscriptions.push(disposable);
         "vscode-couchbase.runButtonEnabled",
         true
       );
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.explainButtonEnabled",
+        true
+      );
     })
   );
   vscode.commands.executeCommand(
     "setContext",
     "vscode-couchbase.runButtonEnabled",
     true
-  ); // Required to enable run query button at the start
+  );
+
+  vscode.commands.executeCommand(
+    "setContext",
+    "vscode-couchbase.explainButtonEnabled",
+    true
+  );
+  // Required to enable run query & explain button at the start
 
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.explainQuery, async () => {
       vscode.commands.executeCommand(
         "setContext",
         "vscode-couchbase.runButtonEnabled",
+        undefined
+      );
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.explainButtonEnabled",
         undefined
       );
       await workbench.runCouchbaseQuery(
@@ -919,6 +941,11 @@ context.subscriptions.push(disposable);
       vscode.commands.executeCommand(
         "setContext",
         "vscode-couchbase.runButtonEnabled",
+        true
+      );
+      vscode.commands.executeCommand(
+        "setContext",
+        "vscode-couchbase.explainButtonEnabled",
         true
       );
     })
