@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -601,6 +601,17 @@
         "enablement": "vscode-couchbase.runButtonEnabled"
       },
       {
+        "command": "vscode-couchbase.explainQuery",
+        "title": "Explain Query",
+        "category": "Couchbase",
+        "icon": {
+          "light": "images/light/explain-query.svg",
+          "dark": "images/dark/explain-query.svg"
+        },
+        "tooltip": "Explain Query",
+        "enablement": "vscode-couchbase.runButtonEnabled"
+      },
+      {
         "command": "vscode-couchbase.getClusterOverview",
         "title": "Cluster Overview",
         "category": "Couchbase"
@@ -769,6 +780,12 @@
           "group": "navigation@1"
         },
         {
+          "command": "vscode-couchbase.explainQuery",
+          "category": "Couchbase",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster",
+          "group": "navigation@2"
+        },
+        {
           "command": "vscode-couchbase.runSearch",
           "category": "Couchbase",
           "when": "editorLangId == json && resourceFilename =~ /\\.cbs\\.json$/  && !isKVCluster && isSearchEnabled",
@@ -836,6 +853,11 @@
           "command": "vscode-couchbase.runQuery",
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster",
           "group": "navigation@1"
+        },
+        {
+          "command": "vscode-couchbase.explainQuery",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster",
+          "group": "navigation@2"
         },
         {
           "command": "vscode-couchbase.runSearch",
