@@ -163,6 +163,34 @@ export const getClusterConnectingFormView = (message: any) => {
                     display: flex;
                     align-items: center;
                 }
+                .advanced-settings {
+                    margin-top: 20px;
+                }
+
+                .advanced-settings summary {
+                    cursor: pointer;
+                    font-weight: bold;
+                    margin-bottom: 10px;
+                }
+
+                .troubleshooting-message {
+                    margin-bottom: 15px;
+                }
+
+                .bucket-input {
+                    margin-bottom: 10px;
+                }
+
+                #testConnectionButton {
+                    margin-top: 10px;
+                }
+
+                #testConnectionResults {
+                    margin-top: 15px;
+                    border: 1px solid var(--vscode-input-border);
+                    padding: 10px;
+                    display: none;
+                }
             </style>
         </head>
         <body>
@@ -188,6 +216,21 @@ export const getClusterConnectingFormView = (message: any) => {
                     <label for="connectionIndetifier">Name</label><br>
                     <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Name of your connection" value=${message?.connectionIdentifier ?? ""}>
                     <span id="connectionIdentifierErr" class="error-message"></span><br/><br/>
+                    <div class="advanced-settings">
+                    <details>
+                        <summary>Advanced Settings</summary>
+                        <div class="troubleshooting-message">
+                            <p>If you can't successfully connect to your cluster, try informing an existing bucket in the field below and click on <strong>Test Connection</strong>. It will run the <strong>SDK Doctor</strong>, a utility that tries to identify potential issues.</p>
+                        </div>
+                        <div class="bucket-input">
+                            <label for="bucketName">Bucket Name:</label><br>
+                            <input type="text" id="bucketName" name="bucketName" placeholder="Inform any existing bucket in your cluster that your credentials have access to">
+                        </div>
+                        <button class="redButton" id="testConnectionButton" onclick="testConnection()">Test Connection</button>
+                        <div id="testConnectionResults"></div>
+                    </details>
+                    <br/>
+                </div>
                     <div class="button-group">
                         <button id="connectButton" class="redButton" onClick="validateRequest() && postRequestToConnect()">Connect</button>
                         <button type="secondary" id="cancelButton" onClick="cancelRequest()"> Cancel </button>
