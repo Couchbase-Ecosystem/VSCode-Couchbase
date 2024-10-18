@@ -224,7 +224,7 @@ export const getClusterConnectingFormView = (message: any) => {
                         </div>
                         <div class="bucket-input">
                             <label for="bucketName">Bucket Name:</label><br>
-                            <input type="text" id="bucketName" name="bucketName" placeholder="Inform any existing bucket in your cluster that your credentials have access to">
+                            <input type="text" id="bucketName" name="bucketName" placeholder="Inform any existing bucket in your cluster">
                         </div>
                         <button class="redButton" id="testConnectionButton" onclick="testConnection()">Test Connection</button>
                         <div id="testConnectionResults"></div>

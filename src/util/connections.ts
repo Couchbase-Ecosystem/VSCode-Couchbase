@@ -163,10 +163,11 @@ async function handleConnectionError(err: any) {
   if (err instanceof AuthenticationFailureError) {
     answer = await vscode.window.showErrorMessage(`
     Authentication Failed: Please check your credentials and try again \n
+    or inform a Bucket on Advanced Settings to inspect your connection \n
     If you're still having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
   }
   else {
-    answer = await vscode.window.showErrorMessage(`Could not establish a connection \n ${err} \n If you're having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
+    answer = await vscode.window.showErrorMessage(`Could not establish a connection \n ${err} \n Inform a Bucket on Advanced Settings to inspect your connection \n If you're having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
   }
 
   if (answer === "Troubleshoot Link") {
