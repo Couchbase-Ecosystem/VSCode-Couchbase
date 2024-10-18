@@ -395,6 +395,38 @@ export const getClusterConnectingFormView = (message: any) => {
                     command: 'cancel'
                 })
             };
+
+            function testConnection() {
+                const vscode = acquireVsCodeApi();
+                const bucketName = document.getElementById('bucketName').value;
+                const url = document.getElementById('url').value;
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const isSecure = document.getElementById('secureCheck').checked;
+                vscode.postMessage({
+                    command: 'testConnection',
+                    bucketName: bucketName,
+                    url: url,
+                    username: username,
+                    password: password,
+                    isSecure: isSecure
+                });
+                // Show a loading message
+                const resultsDiv = document.getElementById('testConnectionResults');
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = 'Testing connection...';
+            }
+
+            // Listen for messages from the extension
+            window.addEventListener('message', event => {
+                const message = event.data;
+                switch (message.command) {
+                    case 'testConnectionResult':
+                        const resultsDiv = document.getElementById('testConnectionResults');
+                        resultsDiv.innerHTML = message.result;
+                        break;
+                }
+            });
         </script>
     </body>
     
