@@ -248,7 +248,7 @@ export const getClusterConnectingFormView = (message: any) => {
                     <span id="connectionIdentifierErr" class="error-message"></span><br /><br />
                     <div class="advanced-settings">
                         <details>
-                            <summary>Advanced Settings</summary>
+                            <summary>Troubleshooting</summary>
                             <div class="troubleshooting-message">
                                 <p>If you can't successfully connect to your cluster, try informing an existing bucket in
                                     the field below and click on <strong>Test Connection</strong>. It will run the
@@ -406,7 +406,7 @@ export const getClusterConnectingFormView = (message: any) => {
                 vscode.postMessage({
                     command: 'testConnection',
                     bucketName: bucketName,
-                    url: url,
+                    connectionUrl: url,
                     username: username,
                     password: password,
                     isSecure: isSecure

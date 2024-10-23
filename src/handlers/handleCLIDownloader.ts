@@ -21,6 +21,7 @@ class DependenciesDownloader {
     private readonly TOOL_IMPORT_EXPORT = "import_export";
     private readonly ALL_TOOLS = "all_tools";
     private readonly TOOL_MDB_MIGRATE = "cb_migrate";
+    private readonly SDK_DOCTOR = "sdkdoctor";
 
     private getToolInstallPath(toolKey: string): string {
         if (toolKey === this.TOOL_SHELL) {
@@ -31,7 +32,10 @@ class DependenciesDownloader {
             return "cbmigrate";
         } else if (toolKey === this.ALL_TOOLS) {
             return "cbtools";
-        } else {
+        } else if(toolKey === this.SDK_DOCTOR) {
+            return "sdkdoctor";
+        }
+         else {
             throw new Error("Not Implemented yet");
         }
     }
@@ -39,6 +43,7 @@ class DependenciesDownloader {
     private getToolsMap(toolKey: string, os: string): Map<CBToolsType, string> {
         const suffix = os.includes("mac") || os.includes("linux") ? "" : ".exe";
         const pathPrefix = "bin" + path.sep;
+        console.log(toolKey);
 
         const map = new Map<CBToolsType, string>();
 
@@ -64,6 +69,11 @@ class DependenciesDownloader {
                 CBToolsType.MCTIMINGS,
                 path.join(pathPrefix, "mctimings" + suffix)
             );
+        } else if (toolKey === this.SDK_DOCTOR) {
+            map.set(
+                CBToolsType.SDK_DOCTOR,
+                path.join(pathPrefix, "sdkdoctor" + suffix)
+            );
         } else {
             throw new Error("Not implemented yet");
         }
@@ -80,6 +90,36 @@ class DependenciesDownloader {
     }
     public getDownloadList(os: string): Map<string, ToolSpec> {
         const map = new Map<string, ToolSpec>();
+        if (os === OSUtil.MACOS_64 || os === OSUtil.MACOS_ARM) {
+            map.set(
+                this.SDK_DOCTOR,
+                this.getToolSpec(
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/sdkdoctor/1.0.8-sdk-doctor-macos.zip",
+                    this.SDK_DOCTOR,
+                    os
+                )
+            );
+        } else if (os === OSUtil.WINDOWS_64 || os === OSUtil.WINDOWS_ARM) {
+            map.set(
+                this.SDK_DOCTOR,
+                this.getToolSpec(
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/sdkdoctor/1.0.8-sdk-doctor-windows.zip",
+                    this.SDK_DOCTOR,
+                    os
+                )
+            );
+        } else if (os === OSUtil.LINUX_64 || os === OSUtil.LINUX_ARM) {
+            map.set(
+                this.SDK_DOCTOR,
+                this.getToolSpec(
+                    "https://intellij-plugin-dependencies.s3.us-east-2.amazonaws.com/sdkdoctor/1.0.8-sdk-doctor-linux.zip",
+                    this.SDK_DOCTOR,
+                    os
+                )
+            );
+        } else {
+            throw new Error("OS not supported.");
+        }
         if (os === OSUtil.MACOS_64) {
             map.set(
                 this.TOOL_SHELL,
@@ -283,7 +323,7 @@ class DependenciesDownloader {
     ) {
         logger.info("Cleaning up older tools versions if update required");
         const shell: ToolSpec | undefined = downloads.get(this.TOOL_SHELL);
-        if (shell == undefined) {
+        if (shell === undefined) {
             return;
         }
         // Checks if CB shell is installed and requires update by comparing current version of tool with version config value
@@ -307,7 +347,7 @@ class DependenciesDownloader {
 
         }
         const cbimport_export: ToolSpec | undefined = downloads.get(this.TOOL_IMPORT_EXPORT);
-        if (cbimport_export == undefined) {
+        if (cbimport_export === undefined) {
             return;
         }
         // Checks if CB Import/Export is installed and requires update by comparing current version of tool with version config value
@@ -347,6 +387,7 @@ class DependenciesDownloader {
         this.manageShellInstallation(downloads, toolsPath, extensionPath);
         this.manageCbMigrateInstallation(downloads, toolsPath, extensionPath);
         this.manageDataImportExportInstallation(downloads, toolsPath, extensionPath);
+        this.manageSdkDoctorInstallation(downloads, toolsPath, extensionPath); 
     };
 
     private setToolActive(
@@ -521,6 +562,39 @@ class DependenciesDownloader {
         } else {
             logger.info("CB Import/Export is already installed");
             this.setToolActive(ToolStatus.AVAILABLE, cbImportDir, cbImport);
+        }
+    }
+
+    public manageSdkDoctorInstallation(
+        downloads: Map<string, ToolSpec>,
+        toolsPath: string,
+        extensionPath: string
+    ): void {
+        const sdkDoctor = downloads.get(this.SDK_DOCTOR);
+        if (sdkDoctor === undefined) {
+            return;
+        }
+        const sdkDoctorPath = path.join(toolsPath, sdkDoctor.getInstallationPath());
+        const sdkDoctorTool = CBTools.getTool(CBToolsType.SDK_DOCTOR);
+        const sdkDoctorStatus = sdkDoctorTool.status;
+        const sdkDoctorDownloadsMap = downloads.get(this.SDK_DOCTOR);
+        if (sdkDoctorDownloadsMap === undefined) {
+            return;
+        }
+        if (
+            sdkDoctorStatus === ToolStatus.NOT_AVAILABLE &&
+            !this.isInstalled(
+                toolsPath,
+                sdkDoctorDownloadsMap,
+                CBToolsType.SDK_DOCTOR
+            )
+        ) {
+            logger.info("Downloading SDK Doctor.");
+            sdkDoctorTool.status = ToolStatus.DOWNLOADING;
+            this.downloadAndUnzip(sdkDoctorPath, sdkDoctor, extensionPath, DependenciesUtil.SDK_DOCTOR_KEY, DependenciesUtil.SDK_DOCTOR_VERSION);
+        } else {
+            logger.debug("SDK Doctor is already installed");
+            this.setToolActive(ToolStatus.AVAILABLE, sdkDoctorPath, sdkDoctor);
         }
     }
 
