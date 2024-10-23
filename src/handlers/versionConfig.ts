@@ -9,5 +9,5 @@ export const config = {
     SHELL_VERSION: "1.0.0",
     CBIMPORT_EXPORT_VERSION: "7.6",
     SDK_DOCTOR_VERSION: "1.0.8",
-    SDK_DOCTOR_KEY: "sdkdoctor",
+    SDK_DOCTOR_KEY: "sdk-doctor",
 };

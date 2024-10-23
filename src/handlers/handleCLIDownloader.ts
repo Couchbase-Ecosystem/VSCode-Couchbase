@@ -21,7 +21,7 @@ class DependenciesDownloader {
     private readonly TOOL_IMPORT_EXPORT = "import_export";
     private readonly ALL_TOOLS = "all_tools";
     private readonly TOOL_MDB_MIGRATE = "cb_migrate";
-    private readonly SDK_DOCTOR = "sdkdoctor";
+    private readonly SDK_DOCTOR = "sdk-doctor";
 
     private getToolInstallPath(toolKey: string): string {
         if (toolKey === this.TOOL_SHELL) {
@@ -33,7 +33,7 @@ class DependenciesDownloader {
         } else if (toolKey === this.ALL_TOOLS) {
             return "cbtools";
         } else if(toolKey === this.SDK_DOCTOR) {
-            return "sdkdoctor";
+            return "sdk-doctor";
         }
          else {
             throw new Error("Not Implemented yet");
@@ -70,10 +70,7 @@ class DependenciesDownloader {
                 path.join(pathPrefix, "mctimings" + suffix)
             );
         } else if (toolKey === this.SDK_DOCTOR) {
-            map.set(
-                CBToolsType.SDK_DOCTOR,
-                path.join(pathPrefix, "sdkdoctor" + suffix)
-            );
+            map.set(CBToolsType.SDK_DOCTOR, 'sdk-doctor'+ suffix);
         } else {
             throw new Error("Not implemented yet");
         }

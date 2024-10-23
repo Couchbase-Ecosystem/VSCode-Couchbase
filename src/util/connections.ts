@@ -27,6 +27,7 @@ import { CouchbaseRestAPI } from "./apis/CouchbaseRestAPI";
 import { hasQueryService, hasSearchService } from "./common";
 import { SecretService } from "./secretService";
 import ConnectionEvents from "./events/connectionEvents";
+import { SdkDoctorRunner } from "../tools/SDKDocterRunner";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username } = connection;
@@ -149,6 +150,27 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
 
       case 'cancel':
         currentPanel.dispose();
+        break;
+
+      case 'testConnection':
+        const { connectionUrl, username, password, bucketName, isSecure } = message;
+        const results: string[] = [];
+
+        await SdkDoctorRunner.run(
+            connectionUrl,
+            isSecure,
+            bucketName,
+            username,
+            password,
+            (line) => {
+                results.push(line);
+            }
+        );
+
+        currentPanel.webview.postMessage({
+            command: 'testConnectionResult',
+            result: results.join('\n')
+        });
         break;
 
       default:
