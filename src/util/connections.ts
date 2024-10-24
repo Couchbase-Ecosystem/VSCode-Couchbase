@@ -154,6 +154,22 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
 
       case 'testConnection':
         const { connectionUrl, username, password, bucketName, isSecure } = message;
+        if(bucketName === "") {
+        try {
+          await connect(connectionUrl, { username: username, password: password, configProfile: 'wanDevelopment' });
+          currentPanel.webview.postMessage({
+            command: 'testConnectionResult',
+            result: 'Connection was successfull!'
+        });
+        }
+        catch (err) {
+          currentPanel.webview.postMessage({
+            command: 'testConnectionResult',
+            result: '[ERRO]: Connection Failed ' + err
+        });
+        }
+        return;
+      }
         const results: string[] = [];
 
         await SdkDoctorRunner.run(
@@ -185,11 +201,11 @@ async function handleConnectionError(err: any) {
   if (err instanceof AuthenticationFailureError) {
     answer = await vscode.window.showErrorMessage(`
     Authentication Failed: Please check your credentials and try again \n
-    or inform a Bucket on Advanced Settings to inspect your connection \n
-    If you're still having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
+    or inform a Bucket on Troubleshooting to inspect your connection \n
+    or check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
   }
   else {
-    answer = await vscode.window.showErrorMessage(`Could not establish a connection \n ${err} \n Inform a Bucket on Advanced Settings to inspect your connection \n If you're having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
+    answer = await vscode.window.showErrorMessage(`Could not establish a connection \n ${err} \n Inform a Bucket on Troubleshooting to inspect your connection \n or check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
   }
 
   if (answer === "Troubleshoot Link") {

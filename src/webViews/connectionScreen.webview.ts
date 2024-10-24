@@ -222,7 +222,7 @@ export const getClusterConnectingFormView = (message: any) => {
                 color: var(--vscode-terminal-foreground);
                 font-family: var(--vscode-editor-font-family);
                 font-size: var(--vscode-editor-font-size);
-                height: 200px;
+                max-height: 200px;
                 overflow-y: auto;
                 white-space: pre-wrap;
                 word-break: break-all;
