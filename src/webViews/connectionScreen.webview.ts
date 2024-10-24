@@ -15,6 +15,7 @@
  */
 
 export const getClusterConnectingFormView = (message: any) => {
+    // @ts-ignore
     return /*HTML*/`
     <!DOCTYPE html>
     <html>
@@ -217,6 +218,23 @@ export const getClusterConnectingFormView = (message: any) => {
                 border: 1px solid var(--vscode-input-border);
                 padding: 10px;
                 display: none;
+                background-color: var(--vscode-terminal-background);
+                color: var(--vscode-terminal-foreground);
+                font-family: var(--vscode-editor-font-family);
+                font-size: var(--vscode-editor-font-size);
+                height: 200px;
+                overflow-y: auto;
+                white-space: pre-wrap;
+                word-break: break-all;
+            }
+            .warning {
+                color: #f0ad4e;
+                font-weight: bold;
+            }
+
+            .error {
+                color: #d9534f;
+                font-weight: bold;
             }
         </style>
     </head>
@@ -298,6 +316,7 @@ export const getClusterConnectingFormView = (message: any) => {
         <script>
             const url = document.querySelector("#url");
             const urlErr = document.querySelector("#urlErr");
+            const vscode = acquireVsCodeApi();
     
             url.onfocus = function () {
                 url.style.border = "none";
@@ -371,7 +390,6 @@ export const getClusterConnectingFormView = (message: any) => {
             function postRequestToConnect() {
                 document.getElementById("connectButton").disabled = 'true';
                 document.getElementById("connectButton").style.backgroundColor = 'grey';
-                const vscode = acquireVsCodeApi();
                 let url = document.getElementById('url').value;
                 let username = document.getElementById('username').value;
                 let password = document.getElementById('password').value;
@@ -390,14 +408,12 @@ export const getClusterConnectingFormView = (message: any) => {
                 })
             };
             function cancelRequest() {
-                const vscode = acquireVsCodeApi();
                 vscode.postMessage({
                     command: 'cancel'
                 })
             };
 
             function testConnection() {
-                const vscode = acquireVsCodeApi();
                 const bucketName = document.getElementById('bucketName').value;
                 const url = document.getElementById('url').value;
                 const username = document.getElementById('username').value;
@@ -417,16 +433,43 @@ export const getClusterConnectingFormView = (message: any) => {
                 resultsDiv.innerHTML = 'Testing connection...';
             }
 
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/</g, "&lt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+            
             // Listen for messages from the extension
-            window.addEventListener('message', event => {
-                const message = event.data;
-                switch (message.command) {
-                    case 'testConnectionResult':
-                        const resultsDiv = document.getElementById('testConnectionResults');
-                        resultsDiv.innerHTML = message.result;
-                        break;
-                }
-            });
+            window.addEventListener('message', function (event) {
+                    let message = event.data;
+                    switch (message.command) {
+                        case 'testConnectionResult':
+                            let resultsDiv = document.getElementById('testConnectionResults');
+                            resultsDiv.style.display = 'block';
+
+                            // Process the output
+                            let lines = message.result.split('\\n');
+                            let formattedResult = '';
+
+                            lines.forEach(function (line) {
+                                let escapedLine = escapeHtml(line);
+                                if (line.includes('[WARN]') || line.includes('WARN')) {
+                                    formattedResult += '<span class="warning">' + escapedLine + '</span><br>';
+                                } else if (line.includes('[ERRO]') || line.includes('ERRO')) {
+                                    formattedResult += '<span class="error">' + escapedLine + '</span><br>';
+                                } else {
+                                    formattedResult += escapedLine + '<br>';
+                                }
+                            });
+
+                            // Set the formatted HTML
+                            resultsDiv.innerHTML = formattedResult;
+                            break;
+                    }
+                });
         </script>
     </body>
     
