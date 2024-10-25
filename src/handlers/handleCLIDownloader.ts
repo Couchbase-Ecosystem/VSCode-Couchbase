@@ -87,6 +87,7 @@ class DependenciesDownloader {
     }
     public getDownloadList(os: string): Map<string, ToolSpec> {
         const map = new Map<string, ToolSpec>();
+        // SDK Doctor Download configuration
         if (os === OSUtil.MACOS_64 || os === OSUtil.MACOS_ARM) {
             map.set(
                 this.SDK_DOCTOR,
@@ -117,6 +118,7 @@ class DependenciesDownloader {
         } else {
             throw new Error("OS not supported.");
         }
+        // CB Tools Download configuration
         if (os === OSUtil.MACOS_64) {
             map.set(
                 this.TOOL_SHELL,
