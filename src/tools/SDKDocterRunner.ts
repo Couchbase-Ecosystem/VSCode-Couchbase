@@ -24,7 +24,6 @@ export class SdkDoctorRunner {
                 '-u', username,
                 '-p', password
             ];
-            console.log(sdkDoctorExecutable, args);
 
             const process = childProcess.spawn(sdkDoctorExecutable, args);
 
