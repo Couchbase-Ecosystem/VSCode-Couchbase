@@ -18,6 +18,9 @@ class DependenciesUtil {
     public static readonly CBIMPORT_EXPORT_VERSION =
         config.CBIMPORT_EXPORT_VERSION;
 
+    public static readonly SDK_DOCTOR_VERSION = config.SDK_DOCTOR_VERSION;
+    public static readonly SDK_DOCTOR_KEY = config.SDK_DOCTOR_KEY;
+
     public static createVersioningFile(directoryPath: string): void {
         const filePath = path.join(
             directoryPath,
