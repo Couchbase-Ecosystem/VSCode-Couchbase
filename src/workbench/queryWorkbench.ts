@@ -86,7 +86,7 @@ export class QueryWorkbench {
                     numDocs: result?.meta.metrics?.resultCount.toString() + " docs",
                     size: resultSize ? (resultSize > 1000 ? (resultSize / 1000).toFixed(2) + " KB" : resultSize + " Bytes") : ""
                 };
-                const explainPlan = JSON.stringify(result?.meta.profile.executionTimings);
+                const explainPlan = JSON.stringify(result?.meta.profile?.executionTimings);
                 workbenchWebviewProvider.setQueryResult(
                     JSON.stringify(result?.rows),
                     queryStatusProps,
