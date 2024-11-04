@@ -43,7 +43,6 @@ class DependenciesDownloader {
     private getToolsMap(toolKey: string, os: string): Map<CBToolsType, string> {
         const suffix = os.includes("mac") || os.includes("linux") ? "" : ".exe";
         const pathPrefix = "bin" + path.sep;
-        console.log(toolKey);
 
         const map = new Map<CBToolsType, string>();
 

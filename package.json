@@ -638,6 +638,11 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.tools.huggingFaceMigrate",
+        "title": "Hugging Face Migrate",
+        "category": "Couchbase"
+      },
+      {
         "command": "vscode-couchbase.tools.dataImport",
         "title": "Data Import",
         "category": "Couchbase"
@@ -1018,6 +1023,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.tools.huggingFaceMigrate",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.tools.dataImport",
           "when": "false"
         },
@@ -1220,6 +1229,10 @@
         },
         {
           "command": "vscode-couchbase.tools.dynamodbMigrate",
+          "group": "tertiary"
+        },
+        {
+          "command": "vscode-couchbase.tools.huggingFaceMigrate",
           "group": "tertiary"
         },
         {
