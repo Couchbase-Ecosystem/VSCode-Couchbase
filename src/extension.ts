@@ -89,6 +89,7 @@ import { deleteIndex } from "./util/ftsIndexUtils";
 import { JsonAttributeCompletionProvider } from "./commands/documents/contributor/autoCompleteContributor";
 import ConnectionEvents from "./util/events/connectionEvents";
 import { CBShell } from "./tools/CBShell";
+import { huggingFaceMigrate } from "./pages/Tools/HuggingFaceMigrate/huggingFaceMigrate";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -720,6 +721,15 @@ context.subscriptions.push(disposable);
       }
     )
   );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.huggingFaceMigrate,
+      async () => {
+        await huggingFaceMigrate(context);
+      }
+    )
+  )
 
   subscriptions.push(
     vscode.commands.registerCommand(
