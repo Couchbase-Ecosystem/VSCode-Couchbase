@@ -726,7 +726,7 @@ context.subscriptions.push(disposable);
     vscode.commands.registerCommand(
       Commands.huggingFaceMigrate,
       async () => {
-        await huggingFaceMigrate(context);
+        await huggingFaceMigrate();
       }
     )
   )
