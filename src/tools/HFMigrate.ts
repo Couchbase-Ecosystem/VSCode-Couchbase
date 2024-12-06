@@ -3,15 +3,32 @@ import { getActiveConnection, getConnectionId } from "../util/connections";
 import { Constants } from "../util/constants";
 import * as vscode from "vscode";
 import { SecretService } from "../util/secretService";
+import { exec } from "child_process";
 
 export class HuggingFaceToCouchbase {
-    static async listConfigs(repositoryPath: string): Promise<void> {
+    static async runCommand(command: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+            exec(command, (error, stdout, stderr) => {
+                if (error) {
+                    console.error("Error executing command:", error);
+                    reject(stderr || error.message);
+                } else {
+                    resolve(stdout); // Return the output of the command
+                }
+            });
+        });
+    }
+    static async listConfigs(
+        repositoryPath: string
+    ): Promise<string | undefined> {
         const connection = getActiveConnection();
         if (!connection) {
             return undefined;
         }
         const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
+        const password = await secretService.get(
+            `${Constants.extensionID}-${getConnectionId(connection)}`
+        );
         if (!password) {
             return undefined;
         }
@@ -22,28 +39,28 @@ export class HuggingFaceToCouchbase {
             cmd.push("list-configs");
             cmd.push("--path");
             cmd.push(repositoryPath);
-            cmd.push("; \n");
 
-            const terminal: vscode.Terminal =
-                vscode.window.createTerminal("HFToCb");
-            const text = cmd.join(" ");
-            terminal.sendText(text);
-            terminal.show();
+            const command = cmd.join(" ");
+            const result = await this.runCommand(command); // Run the command and capture the output
+            return result; // Return the output
         } catch (error) {
-            console.error(
-                "An error occurred while trying to list the configs"
-            );
+            console.error("An error occurred while trying to list the configs");
             console.error(error);
+            return undefined;
         }
     }
 
-    static async listSplits(repositoryPath: string): Promise<void> {
+    static async listSplits(
+        repositoryPath: string
+    ): Promise<string | undefined> {
         const connection = getActiveConnection();
         if (!connection) {
             return undefined;
         }
         const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
+        const password = await secretService.get(
+            `${Constants.extensionID}-${getConnectionId(connection)}`
+        );
         if (!password) {
             return undefined;
         }
@@ -54,28 +71,28 @@ export class HuggingFaceToCouchbase {
             cmd.push("list-splits");
             cmd.push("--path");
             cmd.push(repositoryPath);
-            cmd.push("; \n");
 
-            const terminal: vscode.Terminal =
-                vscode.window.createTerminal("HFToCb");
-            const text = cmd.join(" ");
-            terminal.sendText(text);
-            terminal.show();
+            const command = cmd.join(" ");
+            const result = await this.runCommand(command); // Run the command and capture the output
+            return result; // Return the output
         } catch (error) {
-            console.error(
-                "An error occurred while trying to list the splits"
-            );
+            console.error("An error occurred while trying to list the splits");
             console.error(error);
+            return undefined;
         }
     }
 
-    static async listFields(repositoryPath: string): Promise<void> {
+    static async listFields(
+        repositoryPath: string
+    ): Promise<string | undefined> {
         const connection = getActiveConnection();
         if (!connection) {
             return undefined;
         }
         const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
+        const password = await secretService.get(
+            `${Constants.extensionID}-${getConnectionId(connection)}`
+        );
         if (!password) {
             return undefined;
         }
@@ -86,18 +103,14 @@ export class HuggingFaceToCouchbase {
             cmd.push("list-fields");
             cmd.push("--path");
             cmd.push(repositoryPath);
-            cmd.push("; \n");
 
-            const terminal: vscode.Terminal =
-                vscode.window.createTerminal("HFToCb");
-            const text = cmd.join(" ");
-            terminal.sendText(text);
-            terminal.show();
+            const command = cmd.join(" ");
+            const result = await this.runCommand(command); // Run the command and capture the output
+            return result; // Return the output
         } catch (error) {
-            console.error(
-                "An error occurred while trying to list the fields"
-            );
+            console.error("An error occurred while trying to list the fields");
             console.error(error);
+            return undefined;
         }
     }
 
@@ -114,7 +127,9 @@ export class HuggingFaceToCouchbase {
         }
 
         const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
+        const password = await secretService.get(
+            `${Constants.extensionID}-${getConnectionId(connection)}`
+        );
         if (!password) {
             return undefined;
         }
