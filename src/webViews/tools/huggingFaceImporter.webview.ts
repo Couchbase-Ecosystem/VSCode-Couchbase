@@ -404,25 +404,9 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         event.preventDefault();
         document.getElementById("validation-error").innerHTML = "";
         document.getElementById("validation-error-connect").innerHTML = "";
-
-        const dataMethod = $('input[name="dataMethod"]:checked').val();
-        let repoLink = '';
-        let filePaths = '';
-
-        if (dataMethod === 'repo') {
-            repoLink = document.getElementById("repoLink").value;
-            if (!repoLink) {
-                document.getElementById("validation-error-connect").innerHTML = "Please enter a repo link.";
-                return;
-            }
-        } else if (dataMethod === 'path') {
-            filePaths = document.getElementById("filePaths").value;
-            if (!filePaths) {
-                document.getElementById("validation-error-connect").innerHTML = "Please enter file paths.";
-                return;
-            }
-        } else {
-            document.getElementById("validation-error-connect").innerHTML = "Please select a data source method.";
+        repoLink = document.getElementById("repoLink").value;
+        if (!repoLink) {
+            document.getElementById("validation-error-connect").innerHTML = "Please enter a repo link.";
             return;
         }
 
@@ -431,10 +415,8 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         $('#splits').prop('disabled', true);
 
         vscode.postMessage({
-            command: "loadConfigs",
-            dataMethod: dataMethod,
-            repoLink: repoLink,
-            filePaths: filePaths,
+            command: "vscode-couchbase.tools.huggingFaceMigrate.listConfig",
+            repositoryPath: repoLink,
         });
     }
 
@@ -446,6 +428,35 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         const message = event.data; // The JSON data our extension sent
 
         switch (message.command) {
+            case "vscode-couchbase.tools.huggingFaceMigrate.configsInfo":
+                const configs = message.configs;
+                const configsDropdown = document.getElementById("configs");
+
+                // Clear existing options in the configs dropdown
+                configsDropdown.innerHTML = "";
+
+                // Add placeholder option
+                const placeholderOption = document.createElement("option");
+                placeholderOption.value = "";
+                placeholderOption.text = "Select a config";
+                placeholderOption.disabled = true;
+                placeholderOption.selected = true;
+                configsDropdown.appendChild(placeholderOption);
+
+                // Add config options
+                configs.forEach((config) => {
+                    const option = document.createElement("option");
+                    option.value = config;
+                    option.text = config;
+                    configsDropdown.appendChild(option);
+                });
+
+                configsDropdown.removeAttribute("disabled");
+                $('#configContainer').show();
+
+                $('#configs').on('change', onConfigChange);
+
+                break;
             case "loadConfigsResponse":
                 const configsData = message.configs;
                 const configsDropdown = document.getElementById("configs");
