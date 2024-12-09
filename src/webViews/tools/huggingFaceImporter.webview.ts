@@ -272,12 +272,6 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 margin-bottom: 15px;
             }
 
-            /* Consistent color scheme */
-            body {
-                background-color: #f4f4f9;
-                color: #333;
-            }
-
             /* Feedback message styles */
             .validation-error {
                 color: #ff0000;
