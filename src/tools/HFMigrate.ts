@@ -39,6 +39,7 @@ export class HuggingFaceToCouchbase {
             cmd.push("list-configs");
             cmd.push("--path");
             cmd.push(repositoryPath);
+            cmd.push('--json-output');
 
             const command = cmd.join(" ");
             const result = await this.runCommand(command); // Run the command and capture the output

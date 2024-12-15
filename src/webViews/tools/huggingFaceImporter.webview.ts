@@ -417,7 +417,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         $('#splits').prop('disabled', true);
 
         vscode.postMessage({
-            command: "vscode-couchbase.tools.huggingFaceMigrate.listConfig",
+            command: "vscode-couchbase.tools.huggingFaceMigrate.listConfigs",
             repositoryPath: repoLink,
         });
     }
@@ -431,7 +431,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
 
         switch (message.command) {
             case "vscode-couchbase.tools.huggingFaceMigrate.configsInfo":
-                const configs = message.configs;
+                let configs = JSON.parse(message.configs);
                 const configsDropdown = document.getElementById("configs");
 
                 // Clear existing options in the configs dropdown
@@ -444,6 +444,12 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 placeholderOption.disabled = true;
                 placeholderOption.selected = true;
                 configsDropdown.appendChild(placeholderOption);
+
+                // Validate configs
+                if (!configs || !Array.isArray(configs)) {
+                    console.error("Invalid configs received:", configs);
+                    return; // Exit the function if configs is not valid
+                }
 
                 // Add config options
                 configs.forEach((config) => {
