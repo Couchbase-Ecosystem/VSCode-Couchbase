@@ -43,7 +43,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 padding: 30px;
                 border: 1px solid var(--vscode-settings-sashBorder);
                 background-color: var(--vscode-sideBar-background);
-                color: var(--vscode-sideBar-foreground)
+                color: var(--vscode-sideBar-foreground);
                 border-radius: 5px;
             }
             
@@ -306,16 +306,15 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             </div>
             <br>
             <div class="form-row" id="repoInputContainer" style="display:none;">
-                <label for="repoLink">Repo Link:</label>
-                <input type="text" id="repoLink" name="repoLink" placeholder="e.g., username/dataset_name">
-            </div>
-            <div id="pathInputContainer" style="display:none;">
-                <label for="filePaths">File Paths (comma-separated):</label>
-                <input type="text" id="filePaths" name="filePaths" placeholder="e.g., /path/to/file1,/path/to/file2">
-            </div>
-            <br>
-            <div class="validation-error" id="validation-error-connect"></div>
+            <label for="repoLink">Repo Link:</label>
+            <input type="text" id="repoLink" name="repoLink" placeholder="e.g., username/dataset_name">
             <input type="submit" value="Load Configs" onclick="onLoadConfigsClick(event)" class="redButton">
+        </div>
+        <div id="pathInputContainer" style="display:none;">
+            <label for="filePaths">File Paths (comma-separated):</label>
+            <input type="text" id="filePaths" name="filePaths" placeholder="e.g., /path/to/file1,/path/to/file2">
+        </div>
+            <div class="validation-error" id="validation-error-connect"></div>
             <div id="configContainer" style="display:none;">
                 <div class="separator-container">
                     <span class="separator-text">Configuration</span>
@@ -365,19 +364,23 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script>
     const vscode = acquireVsCodeApi();
-    window.onload = function () {
-        $('.js-select2').select2({ width: '100%' });
-    };
 
     $(document).ready(function () {
+        // Initialize Select2 on all dropdowns
+        $('.js-select2').select2({ width: '100%' });
+
+        // Event listener for dataMethod radio buttons
         $('input[name="dataMethod"]').change(function () {
             if ($('#useRepo').is(':checked')) {
-                $('#repoInputContainer').show();
-                $('#pathInputContainer').hide();
-            } else {
-                $('#repoInputContainer').hide();
-                $('#pathInputContainer').show();
+                $('#repoInputContainer').show(); // Show repo input
+                $('#pathInputContainer').hide(); // Hide path input
+                $('#repoLink').val(''); // Clear repo link input
+            } else if ($('#usePath').is(':checked')) {
+                $('#repoInputContainer').hide(); // Hide repo input
+                $('#pathInputContainer').show(); // Show path input
+                $('#filePaths').val(''); // Clear file paths input
             }
+
             // Hide config and splits until the configs are loaded
             $('#configContainer').hide();
             $('#configs').val(null).trigger('change');
@@ -386,19 +389,24 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             $('#splits').prop('disabled', true);
         });
 
-        // Initialize Select2 on all dropdowns
-        $(".js-select2").select2();
-
         // Initially hide both input containers
         $('#repoInputContainer').hide();
         $('#pathInputContainer').hide();
     });
 
+    // Rest of your JavaScript code stays the same
     function onLoadConfigsClick(event) {
         event.preventDefault();
         document.getElementById("validation-error").innerHTML = "";
         document.getElementById("validation-error-connect").innerHTML = "";
-        repoLink = document.getElementById("repoLink").value;
+
+        // Ensure the Repo option is selected
+        if (!$('#useRepo').is(':checked')) {
+            document.getElementById("validation-error-connect").innerHTML = "Please select the 'Repo' option to load configs.";
+            return;
+        }
+
+        const repoLink = document.getElementById("repoLink").value;
         if (!repoLink) {
             document.getElementById("validation-error-connect").innerHTML = "Please enter a repo link.";
             return;
@@ -564,7 +572,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             command: "startMigration",
             data: formData,
         });
-    } 
+    }
     </script>
     </html>
     `;
