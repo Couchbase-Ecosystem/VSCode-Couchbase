@@ -151,6 +151,26 @@ export const huggingFaceMigrate = async () => {
           }
           break;
 
+          case "vscode-couchbase.tools.huggingFaceMigrate.listScopes":
+            try {
+              const scopes = await getScopes(message.bucketId, connection);
+              if (scopes === undefined) {
+                vscode.window.showErrorMessage("Scopes are undefined");
+                break;
+              }
+              currentPanel.webview.postMessage({
+                command: "vscode-couchbase.tools.huggingFaceMigrate.scopesInfo",
+                scopes: scopes,
+              });
+            } catch (error) {
+              logger.error("Error fetching scopes: " + error);
+              currentPanel.webview.postMessage({
+                command: "vscode-couchbase.tools.huggingFaceMigrate.error",
+                error: "Failed to fetch scopes: " + error,
+              });
+            }
+            break;
+
         case "vscode-couchbase.tools.huggingFaceMigrate.export":
           try {
             const formData = message.data;
@@ -180,26 +200,6 @@ export const huggingFaceMigrate = async () => {
             currentPanel.webview.postMessage({
               command: "vscode-couchbase.tools.huggingFaceMigrate.error",
               error: "Failed to export data: " + error,
-            });
-          }
-          break;
-
-        case "vscode-couchbase.tools.huggingFaceMigrate.getCbScopes":
-          try {
-            const scopes = await getScopes(message.bucketId, connection);
-            if (scopes === undefined) {
-              vscode.window.showErrorMessage("Scopes are undefined");
-              break;
-            }
-            currentPanel.webview.postMessage({
-              command: "vscode-couchbase.tools.huggingFaceMigrate.scopesInfo",
-              scopes: scopes,
-            });
-          } catch (error) {
-            logger.error("Error fetching scopes: " + error);
-            currentPanel.webview.postMessage({
-              command: "vscode-couchbase.tools.huggingFaceMigrate.error",
-              error: "Failed to fetch scopes: " + error,
             });
           }
           break;

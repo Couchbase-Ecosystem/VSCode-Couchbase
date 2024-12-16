@@ -346,15 +346,16 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 }).join('')}
             </select>
             <br>
-            <label for="cbScopes" class="tooltip">Scope:
-                <span class="tooltiptext">Choose a target scope for the migration process.</span>
+            <label for="cbScope" class="tooltip">Scope:
+                    <span class="tooltiptext">Choose a target scope for the migration process.</span>
             </label>
-            <input type="text" id="cbScope" name="cbScope" placeholder="Enter scope name">
+            <select name="cbScope" id="cbScope" class="js-select2" disabled width="100%"></select>
+            
             <br>
             <label for="cbCollection" class="tooltip">Collection:
-                <span class="tooltiptext">Specify the collection name for the data.</span>
+                    <span class="tooltiptext">Specify the collection name for the data.</span>
             </label>
-            <input type="text" id="cbCollection" name="cbCollection" placeholder="Enter collection name">
+            <select name="cbCollection" id="cbCollection" class="js-select2" disabled width="100%"></select>
             <br>
             <div class="validation-error" id="validation-error"></div>
             <input type="submit" value="Migrate" onclick="submitForm(event)" class="redButton">
@@ -423,7 +424,10 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
     }
 
     function onBucketClick(bucketId) {
-        // You can implement any additional logic when a bucket is selected
+        vscode.postMessage({
+            command: "vscode-couchbase.tools.huggingFaceMigrate.listScopes",
+            bucketId,
+        });
     }
 
     window.addEventListener("message", (event) => {
@@ -497,6 +501,41 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
 
                 splitsDropdown.removeAttribute("disabled");
                 break;
+            case "vscode-couchbase.tools.huggingFaceMigrate.scopesInfo":
+                const scopes = message.scopes;
+                const scopesDropdown = document.getElementById("cbScope");
+
+                // Clear existing options in the scopes dropdown
+                scopesDropdown.innerHTML = "";
+
+                // Validate scopes
+                if (!scopes || !Array.isArray(scopes)) {
+                    console.error("Invalid scopes received:", scopes);
+                    return; // Exit the function if scopes is not valid
+                }
+
+                // Add placeholder option
+                const scopePlaceholder = document.createElement("option");
+                scopePlaceholder.value = "";
+                scopePlaceholder.text = "Select a scope";
+                scopePlaceholder.disabled = true;
+                scopePlaceholder.selected = true;
+                scopesDropdown.appendChild(scopePlaceholder);
+
+                // Add scope options
+                scopes.forEach((scope) => {
+                    const option = document.createElement("option");
+                    option.value = scope.name;
+                    option.text = scope.name;
+                    scopesDropdown.appendChild(option);
+                });
+
+                scopesDropdown.removeAttribute("disabled");
+
+                $('#cbScope').on('change', function () {
+                    onScopeChange(scopes);
+                });
+                break;
             case "loadConfigsError":
                 const error = message.error;
                 document.getElementById("validation-error-connect").innerHTML = error;
@@ -521,6 +560,46 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             repositoryPath: repoLink,
             config: selectedConfig,
         });
+    }
+
+    function onScopeChange(scopes) {
+        const selectedScope = document.getElementById("cbScope").value;
+        const collectionsDropdown = document.getElementById("cbCollection");
+
+        // Clear existing options in the collections dropdown
+        collectionsDropdown.innerHTML = "";
+
+        if (!selectedScope) {
+            return; // Exit if no scope is selected
+        }
+
+        // Find the collections for the selected scope
+        const selectedScopeData = scopes.find((scope) => scope.name === selectedScope);
+        if (!selectedScopeData || !selectedScopeData.collections) {
+            console.error("No collections found for the selected scope:", selectedScope);
+            return;
+        }
+
+        const collections = selectedScopeData.collections;
+
+        // Add placeholder option
+        const collectionsPlaceholder = document.createElement("option");
+        collectionsPlaceholder.value = "";
+        collectionsPlaceholder.text = "Select a collection";
+        collectionsPlaceholder.disabled = true;
+        collectionsPlaceholder.selected = true;
+        collectionsDropdown.appendChild(collectionsPlaceholder);
+
+        // Add collection options
+        collections.forEach((collection) => {
+            const option = document.createElement("option");
+            option.value = collection.name;
+            option.text = collection.name;
+            collectionsDropdown.appendChild(option);
+        });
+
+        // Enable the collections dropdown
+        collectionsDropdown.removeAttribute("disabled");
     }
 
     function submitForm(event) {
