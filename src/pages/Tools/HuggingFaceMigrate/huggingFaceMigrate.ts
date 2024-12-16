@@ -158,11 +158,12 @@ export const huggingFaceMigrate = async () => {
             if (validationError === "") {
               // No validation errors, proceed with export
               await HuggingFaceToCouchbase.export(
-                formData.connectionString,
-                formData.database,
-                formData.collections,
+                formData.repoLink,
+                formData.config,
+                formData.split,
                 formData.bucket,
-                formData.cbScope
+                formData.scope,
+                formData.collection
               );
               currentPanel.webview.postMessage({
                 command: "vscode-couchbase.tools.huggingFaceMigrate.exportSuccess",

@@ -120,11 +120,12 @@ export class HuggingFaceToCouchbase {
     }
 
     static async export(
-        datasetPath: string,
-        idField: string,
-        cbBucket: string,
-        cbScope: string,
-        cbCollection: string
+        repoLink: string,
+        config: string,
+        split: string,
+        bucket: string,
+        scope: string,
+        collection: string
     ): Promise<void> {
         const connection = getActiveConnection();
         if (!connection) {
@@ -142,12 +143,14 @@ export class HuggingFaceToCouchbase {
             // Build Command
             const cmd: string[] = [];
             cmd.push(CBTools.getTool(Type.CB_MIGRATE).path);
-            cmd.push("hf_to_cb_dataset_migrator");
+            cmd.push("hugging-face");
             cmd.push("migrate");
             cmd.push("--path");
-            cmd.push(datasetPath);
-            cmd.push("--id-fields");
-            cmd.push(idField);
+            cmd.push(repoLink);
+            cmd.push("--name");
+            cmd.push(config);
+            cmd.push("--split");
+            cmd.push(split);
             cmd.push("--cb-url");
             cmd.push(connection.url);
             cmd.push("--cb-username");
@@ -155,11 +158,11 @@ export class HuggingFaceToCouchbase {
             cmd.push("--cb-password");
             cmd.push("'" + password + "'");
             cmd.push("--cb-bucket");
-            cmd.push(cbBucket);
+            cmd.push(bucket);
             cmd.push("--cb-scope");
-            cmd.push(cbScope);
+            cmd.push(scope);
             cmd.push("--cb-collection");
-            cmd.push(cbCollection);
+            cmd.push(collection);
             cmd.push("; \n");
 
             // Run Command

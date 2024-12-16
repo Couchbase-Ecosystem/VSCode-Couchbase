@@ -544,9 +544,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         const collection = document.getElementById("cbCollection").value;
 
         const formData = {
-            dataMethod,
             repoLink,
-            filePaths,
             config,
             split,
             bucket,
@@ -555,7 +553,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         };
 
         vscode.postMessage({
-            command: "startMigration",
+            command: "vscode-couchbase.tools.huggingFaceMigrate.export",
             data: formData,
         });
     }
