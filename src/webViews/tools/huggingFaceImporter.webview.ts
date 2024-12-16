@@ -279,6 +279,25 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 padding: 5px;
                 display: none; /* Initially hidden */
             }
+
+            .spinner {
+                border: 4px solid rgba(0, 0, 0, 0.1);
+                border-top: 4px solid #007bff;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                animation: spin 1s linear infinite;
+                margin: 0 auto;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
           </style>
     </head>
 
@@ -310,6 +329,10 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             <input type="text" id="repoLink" name="repoLink" placeholder="e.g., username/dataset_name">
             <input type="submit" value="Load Configs" onclick="onLoadConfigsClick(event)" class="redButton">
         </div>
+        <div id="loader" style="display: none; text-align: center; margin: 20px 0;">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
         <div id="pathInputContainer" style="display:none;">
             <label for="filePaths">File Paths (comma-separated):</label>
             <input type="text" id="filePaths" name="filePaths" placeholder="e.g., /path/to/file1,/path/to/file2">
@@ -328,10 +351,12 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 <label for="splits" class="tooltip">Split:
                     <span class="tooltiptext">Select a data split (e.g., train, test, validation).</span>
                 </label>
+                <span id="splitLoader" style="display: none; font-size: 12px; color: grey; margin-left: 2px;">Loading...</span>
                 <select name="splits" id="splits" class="js-select2" disabled width="100%"></select>
                 <label for="fields" class="tooltip">Id Field:
                     <span class="tooltiptext">Select a field from the dataset.</span>
                 </label>
+                <span id="fieldLoader" style="display: none; font-size: 12px; color: grey; margin-left: 2px;">Loading...</span>
                 <select name="fields" id="fields" class="js-select2" disabled width="100%"></select>
             </div>
             <div class="separator-container">
@@ -399,6 +424,30 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         $('#pathInputContainer').hide();
     });
 
+    function showLoader() {
+        document.getElementById("loader").style.display = "block";
+    }
+
+    function hideLoader() {
+        document.getElementById("loader").style.display = "none";
+    }
+
+    function showSplitLoader() {
+    document.getElementById("splitLoader").style.display = "inline";
+    }
+
+    function hideSplitLoader() {
+        document.getElementById("splitLoader").style.display = "none";
+    }
+
+    function showFieldLoader() {
+        document.getElementById("fieldLoader").style.display = "inline";
+    }
+
+    function hideFieldLoader() {
+        document.getElementById("fieldLoader").style.display = "none";
+    }
+
     // Rest of your JavaScript code stays the same
     function onLoadConfigsClick(event) {
         event.preventDefault();
@@ -421,6 +470,9 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         $('#configs').prop('disabled', true);
         $('#splits').prop('disabled', true);
 
+        // Show the loader
+        showLoader();
+
         vscode.postMessage({
             command: "vscode-couchbase.tools.huggingFaceMigrate.listConfigs",
             repositoryPath: repoLink,
@@ -439,6 +491,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
 
         switch (message.command) {
             case "vscode-couchbase.tools.huggingFaceMigrate.configsInfo":
+                hideLoader(); // Hide the loader
                 let configs = JSON.parse(message.configs);
                 const configsDropdown = document.getElementById("configs");
 
@@ -475,6 +528,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 break;
 
             case "vscode-couchbase.tools.huggingFaceMigrate.splitsInfo":
+                hideSplitLoader(); // Hide the loader
                 const splitsData = JSON.parse(message.splits);
                 const splitsDropdown = document.getElementById("splits");
 
@@ -541,37 +595,38 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                     onScopeChange(scopes);
                 });
                 break;
-                case "vscode-couchbase.tools.huggingFaceMigrate.fieldsInfo":
-            const fieldsData = JSON.parse(message.fields);
-            const fieldsDropdown = document.getElementById("fields");
+            case "vscode-couchbase.tools.huggingFaceMigrate.fieldsInfo":
+                hideFieldLoader(); // Hide the loader
+                const fieldsData = JSON.parse(message.fields);
+                const fieldsDropdown = document.getElementById("fields");
 
-            // Clear existing options in the fields dropdown
-            fieldsDropdown.innerHTML = "";
+                // Clear existing options in the fields dropdown
+                fieldsDropdown.innerHTML = "";
 
-            // Validate fields
-            if (!fieldsData || !Array.isArray(fieldsData)) {
-                console.error("Invalid fields received:", fieldsData);
-                return; // Exit the function if fields are not valid
-            }
+                // Validate fields
+                if (!fieldsData || !Array.isArray(fieldsData)) {
+                    console.error("Invalid fields received:", fieldsData);
+                    return; // Exit the function if fields are not valid
+                }
 
-            // Add placeholder option
-            const fieldsPlaceholder = document.createElement("option");
-            fieldsPlaceholder.value = "";
-            fieldsPlaceholder.text = "Select a field";
-            fieldsPlaceholder.disabled = true;
-            fieldsPlaceholder.selected = true;
-            fieldsDropdown.appendChild(fieldsPlaceholder);
+                // Add placeholder option
+                const fieldsPlaceholder = document.createElement("option");
+                fieldsPlaceholder.value = "";
+                fieldsPlaceholder.text = "Select a field";
+                fieldsPlaceholder.disabled = true;
+                fieldsPlaceholder.selected = true;
+                fieldsDropdown.appendChild(fieldsPlaceholder);
 
-            // Add field options
-            fieldsData.forEach((field) => {
-                const option = document.createElement("option");
-                option.value = field;
-                option.text = field;
-                fieldsDropdown.appendChild(option);
-            });
+                // Add field options
+                fieldsData.forEach((field) => {
+                    const option = document.createElement("option");
+                    option.value = field;
+                    option.text = field;
+                    fieldsDropdown.appendChild(option);
+                });
 
-            // Enable the fields dropdown
-            fieldsDropdown.removeAttribute("disabled");
+                // Enable the fields dropdown
+                fieldsDropdown.removeAttribute("disabled");
             break;
             case "loadConfigsError":
                 const error = message.error;
@@ -585,6 +640,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
     });
 
     function onConfigChange() {
+        showSplitLoader(); // Show the loader
         const selectedConfig = document.getElementById("configs").value;
 
         // Disable splits until data is loaded
@@ -601,6 +657,10 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
 
     function onSplitChange() {
         const selectedSplit = document.getElementById("splits").value;
+        if(!selectedSplit) {
+            return;
+        }
+        showFieldLoader(); // Show the loader
 
         // Disable fields until data is loaded
         $('#fields').prop('disabled', true);
