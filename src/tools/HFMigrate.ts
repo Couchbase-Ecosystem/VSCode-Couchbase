@@ -88,7 +88,9 @@ export class HuggingFaceToCouchbase {
     }
 
     static async listFields(
-        repositoryPath: string
+        repositoryPath: string,
+        config: string,
+        split: string
     ): Promise<string | undefined> {
         const connection = getActiveConnection();
         if (!connection) {
@@ -108,7 +110,11 @@ export class HuggingFaceToCouchbase {
             cmd.push("list-fields");
             cmd.push("--path");
             cmd.push(repositoryPath);
-
+            cmd.push('--name');
+            cmd.push(config);
+            cmd.push('--split');
+            cmd.push(split);
+            cmd.push('--json-output');
             const command = cmd.join(" ");
             const result = await this.runCommand(command); // Run the command and capture the output
             return result; // Return the output
@@ -123,6 +129,7 @@ export class HuggingFaceToCouchbase {
         repoLink: string,
         config: string,
         split: string,
+        idField: string,
         bucket: string,
         scope: string,
         collection: string
@@ -147,6 +154,8 @@ export class HuggingFaceToCouchbase {
             cmd.push("migrate");
             cmd.push("--path");
             cmd.push(repoLink);
+            cmd.push("--id-fields");
+            cmd.push(idField);
             cmd.push("--name");
             cmd.push(config);
             cmd.push("--split");

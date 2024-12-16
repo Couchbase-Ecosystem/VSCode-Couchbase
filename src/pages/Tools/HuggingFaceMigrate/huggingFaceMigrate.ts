@@ -135,7 +135,9 @@ export const huggingFaceMigrate = async () => {
         case "vscode-couchbase.tools.huggingFaceMigrate.listFields":
           try {
             const fields = await HuggingFaceToCouchbase.listFields(
-              message.repositoryPath
+              message.repositoryPath,
+              message.config,
+              message.split
             );
             currentPanel.webview.postMessage({
               command:
@@ -181,6 +183,7 @@ export const huggingFaceMigrate = async () => {
                 formData.repoLink,
                 formData.config,
                 formData.split,
+                formData.idField,
                 formData.bucket,
                 formData.scope,
                 formData.collection

@@ -329,6 +329,10 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                     <span class="tooltiptext">Select a data split (e.g., train, test, validation).</span>
                 </label>
                 <select name="splits" id="splits" class="js-select2" disabled width="100%"></select>
+                <label for="fields" class="tooltip">Id Field:
+                    <span class="tooltiptext">Select a field from the dataset.</span>
+                </label>
+                <select name="fields" id="fields" class="js-select2" disabled width="100%"></select>
             </div>
             <div class="separator-container">
                 <span class="separator-text">Target</span>
@@ -500,6 +504,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 });
 
                 splitsDropdown.removeAttribute("disabled");
+                $('#splits').on('change', onSplitChange);
                 break;
             case "vscode-couchbase.tools.huggingFaceMigrate.scopesInfo":
                 const scopes = message.scopes;
@@ -536,6 +541,38 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                     onScopeChange(scopes);
                 });
                 break;
+                case "vscode-couchbase.tools.huggingFaceMigrate.fieldsInfo":
+            const fieldsData = JSON.parse(message.fields);
+            const fieldsDropdown = document.getElementById("fields");
+
+            // Clear existing options in the fields dropdown
+            fieldsDropdown.innerHTML = "";
+
+            // Validate fields
+            if (!fieldsData || !Array.isArray(fieldsData)) {
+                console.error("Invalid fields received:", fieldsData);
+                return; // Exit the function if fields are not valid
+            }
+
+            // Add placeholder option
+            const fieldsPlaceholder = document.createElement("option");
+            fieldsPlaceholder.value = "";
+            fieldsPlaceholder.text = "Select a field";
+            fieldsPlaceholder.disabled = true;
+            fieldsPlaceholder.selected = true;
+            fieldsDropdown.appendChild(fieldsPlaceholder);
+
+            // Add field options
+            fieldsData.forEach((field) => {
+                const option = document.createElement("option");
+                option.value = field;
+                option.text = field;
+                fieldsDropdown.appendChild(option);
+            });
+
+            // Enable the fields dropdown
+            fieldsDropdown.removeAttribute("disabled");
+            break;
             case "loadConfigsError":
                 const error = message.error;
                 document.getElementById("validation-error-connect").innerHTML = error;
@@ -559,6 +596,25 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             command: "vscode-couchbase.tools.huggingFaceMigrate.listSplits",
             repositoryPath: repoLink,
             config: selectedConfig,
+        });
+    }
+
+    function onSplitChange() {
+        const selectedSplit = document.getElementById("splits").value;
+
+        // Disable fields until data is loaded
+        $('#fields').prop('disabled', true);
+        $('#fields').val(null).trigger('change');
+
+        const repoLink = document.getElementById("repoLink").value;
+        const selectedConfig = document.getElementById("configs").value;
+
+        // Send a message to fetch fields for the selected split
+        vscode.postMessage({
+            command: "vscode-couchbase.tools.huggingFaceMigrate.listFields",
+            repositoryPath: repoLink,
+            config: selectedConfig,
+            split: selectedSplit,
         });
     }
 
@@ -618,6 +674,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
 
         const config = document.getElementById("configs").value;
         const split = document.getElementById("splits").value;
+        const idField = document.getElementById("fields").value;
         const bucket = document.getElementById("bucket").value;
         const scope = document.getElementById("cbScope").value;
         const collection = document.getElementById("cbCollection").value;
@@ -626,6 +683,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             repoLink,
             config,
             split,
+            idField,
             bucket,
             scope,
             collection,
