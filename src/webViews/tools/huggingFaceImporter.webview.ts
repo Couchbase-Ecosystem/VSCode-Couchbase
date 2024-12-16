@@ -465,41 +465,19 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 $('#configs').on('change', onConfigChange);
 
                 break;
-            case "loadConfigsResponse":
-                const configsData = message.configs;
-                const configsDropdown = document.getElementById("configs");
 
-                // Clear existing options in the configs dropdown
-                configsDropdown.innerHTML = "";
-
-                // Add placeholder option
-                const placeholderOption = document.createElement("option");
-                placeholderOption.value = "";
-                placeholderOption.text = "Select a config";
-                placeholderOption.disabled = true;
-                placeholderOption.selected = true;
-                configsDropdown.appendChild(placeholderOption);
-
-                // Add config options
-                configsData.forEach((config) => {
-                    const option = document.createElement("option");
-                    option.value = config;
-                    option.text = config;
-                    configsDropdown.appendChild(option);
-                });
-
-                configsDropdown.removeAttribute("disabled");
-                $('#configContainer').show();
-
-                $('#configs').on('change', onConfigChange);
-
-                break;
-            case "loadSplitsResponse":
-                const splitsData = message.splits;
+            case "vscode-couchbase.tools.huggingFaceMigrate.splitsInfo":
+                const splitsData = JSON.parse(message.splits);
                 const splitsDropdown = document.getElementById("splits");
 
                 // Clear existing options in the splits dropdown
                 splitsDropdown.innerHTML = "";
+
+                // Validate splits
+                if (!splitsData || !Array.isArray(splitsData)) {
+                    console.error("Invalid splits received:", splitsData);
+                    return; // Exit the function if configs is not valid
+                }
 
                 // Add placeholder option
                 const splitPlaceholder = document.createElement("option");
@@ -537,8 +515,10 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         $('#splits').prop('disabled', true);
         $('#splits').val(null).trigger('change');
 
+        const repoLink = document.getElementById("repoLink").value;
         vscode.postMessage({
-            command: "loadSplits",
+            command: "vscode-couchbase.tools.huggingFaceMigrate.listSplits",
+            repositoryPath: repoLink,
             config: selectedConfig,
         });
     }

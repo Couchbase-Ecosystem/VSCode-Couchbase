@@ -52,7 +52,8 @@ export class HuggingFaceToCouchbase {
     }
 
     static async listSplits(
-        repositoryPath: string
+        repositoryPath: string,
+        config: string
     ): Promise<string | undefined> {
         const connection = getActiveConnection();
         if (!connection) {
@@ -72,9 +73,12 @@ export class HuggingFaceToCouchbase {
             cmd.push("list-splits");
             cmd.push("--path");
             cmd.push(repositoryPath);
+            cmd.push('--name');
+            cmd.push(config);
+            cmd.push('--json-output')
 
             const command = cmd.join(" ");
-            const result = await this.runCommand(command); // Run the command and capture the output
+            const result = await this.runCommand(command);
             return result; // Return the output
         } catch (error) {
             console.error("An error occurred while trying to list the splits");

@@ -115,7 +115,8 @@ export const huggingFaceMigrate = async () => {
         case "vscode-couchbase.tools.huggingFaceMigrate.listSplits":
           try {
             const splits = await HuggingFaceToCouchbase.listSplits(
-              message.repositoryPath
+              message.repositoryPath,
+              message.config
             );
             currentPanel.webview.postMessage({
               command:
