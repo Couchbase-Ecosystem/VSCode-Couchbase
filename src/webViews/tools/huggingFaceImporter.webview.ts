@@ -339,10 +339,10 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 <span id="splitLoader" style="display: none; font-size: 12px; color: grey; margin-left: 2px;">Loading...</span>
                 <select name="splits" id="splits" class="js-select2" disabled width="100%"></select>
                 <label for="fields" class="tooltip">Id Field:
-                    <span class="tooltiptext">Select a field from the dataset.</span>
+                    <span class="tooltiptext">Select one or more fields from the dataset.</span>
                 </label>
                 <span id="fieldLoader" style="display: none; font-size: 12px; color: grey; margin-left: 2px;">Loading...</span>
-                <select name="fields" id="fields" class="js-select2" disabled width="100%"></select>
+                <select name="fields" id="fields" class="js-select2" multiple="multiple" disabled width="100%"></select>
             </div>
             <div class="separator-container">
                 <span class="separator-text">Target</span>
@@ -567,9 +567,8 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 // Add placeholder option
                 const fieldsPlaceholder = document.createElement("option");
                 fieldsPlaceholder.value = "";
-                fieldsPlaceholder.text = "Select a field";
+                fieldsPlaceholder.text = "Select one or more fields";
                 fieldsPlaceholder.disabled = true;
-                fieldsPlaceholder.selected = true;
                 fieldsDropdown.appendChild(fieldsPlaceholder);
 
                 // Add field options
@@ -582,6 +581,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
 
                 // Enable the fields dropdown
                 fieldsDropdown.removeAttribute("disabled");
+                $('#fields').select2({ width: '100%' }); // Reinitialize Select2 for multi-select
             break;
             case "loadConfigsError":
                 const error = message.error;
@@ -598,11 +598,17 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         showSplitLoader(); // Show the loader
         const selectedConfig = document.getElementById("configs").value;
 
+        // Reset the "Id Fields" dropdown
+        $('#fields').val(null).trigger('change'); // Clear selected values
+        $('#fields').prop('disabled', true); // Disable the dropdown
+        $('#fields').html(''); // Clear existing options
+
+        const repoLink = document.getElementById("repoLink").value;
+
         // Disable splits until data is loaded
         $('#splits').prop('disabled', true);
         $('#splits').val(null).trigger('change');
 
-        const repoLink = document.getElementById("repoLink").value;
         vscode.postMessage({
             command: "vscode-couchbase.tools.huggingFaceMigrate.listSplits",
             repositoryPath: repoLink,
@@ -612,14 +618,15 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
 
     function onSplitChange() {
         const selectedSplit = document.getElementById("splits").value;
-        if(!selectedSplit) {
+        if (!selectedSplit) {
             return;
         }
         showFieldLoader(); // Show the loader
 
-        // Disable fields until data is loaded
-        $('#fields').prop('disabled', true);
-        $('#fields').val(null).trigger('change');
+        // Reset the "Id Fields" dropdown
+        $('#fields').val(null).trigger('change'); // Clear selected values
+        $('#fields').prop('disabled', true); // Disable the dropdown
+        $('#fields').html(''); // Clear existing options
 
         const repoLink = document.getElementById("repoLink").value;
         const selectedConfig = document.getElementById("configs").value;
@@ -680,7 +687,10 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         const repoLink = document.getElementById("repoLink").value;
         const config = document.getElementById("configs").value;
         const split = document.getElementById("splits").value;
-        const idField = document.getElementById("fields").value;
+
+        // Get selected values from the "Id Fields" dropdown as a comma-separated string
+        const idField = $('#fields').val()?.join(',') || '';
+
         const bucket = document.getElementById("bucket").value;
         const scope = document.getElementById("cbScope").value;
         const collection = document.getElementById("cbCollection").value;

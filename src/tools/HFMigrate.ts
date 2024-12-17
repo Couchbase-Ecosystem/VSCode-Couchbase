@@ -155,7 +155,7 @@ export class HuggingFaceToCouchbase {
             cmd.push("--path");
             cmd.push(repoLink);
             cmd.push("--id-fields");
-            cmd.push(idField);
+            cmd.push(`'${idField}'`);
             cmd.push("--name");
             cmd.push(config);
             cmd.push("--split");
