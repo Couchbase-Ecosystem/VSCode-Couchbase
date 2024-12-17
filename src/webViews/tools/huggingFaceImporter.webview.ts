@@ -1,5 +1,5 @@
 export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<string> => {
-    return /*html*/`
+    return /*html*/ `
     <!DOCTYPE html>
     <html lang="en">
        <head>
@@ -313,18 +313,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 <div class="separator"></div>
             </div>
             <br>
-            <div style="display: flex; align-items: center;">
-                <div class="radio-group">
-                    <input type="radio" id="useRepo" name="dataMethod" value="repo">
-                    <label for="useRepo" class="form-label-align">Repo</label>
-                </div>
-                <div class="radio-group">
-                    <input type="radio" id="usePath" name="dataMethod" value="path">
-                    <label for="usePath" class="form-label-align">Path</label>
-                </div>
-            </div>
-            <br>
-            <div class="form-row" id="repoInputContainer" style="display:none;">
+            <div class="form-row" id="repoInputContainer">
             <label for="repoLink">Repo Link:</label>
             <input type="text" id="repoLink" name="repoLink" placeholder="e.g., username/dataset_name">
             <input type="submit" value="Load Configs" onclick="onLoadConfigsClick(event)" class="redButton">
@@ -332,10 +321,6 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         <div id="loader" style="display: none; text-align: center; margin: 20px 0;">
             <div class="spinner"></div>
             <p>Loading...</p>
-        </div>
-        <div id="pathInputContainer" style="display:none;">
-            <label for="filePaths">File Paths (comma-separated):</label>
-            <input type="text" id="filePaths" name="filePaths" placeholder="e.g., /path/to/file1,/path/to/file2">
         </div>
             <div class="validation-error" id="validation-error-connect"></div>
             <div id="configContainer" style="display:none;">
@@ -368,11 +353,13 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             </label>
             <select name="bucket" id="bucket" onchange="onBucketClick(value)" class="js-select2">
                 <option value="" disabled selected>Select a bucket</option>
-                ${buckets.map((bucketName) => {
-                return `
+                ${buckets
+                    .map((bucketName) => {
+                        return `
                 <option value="${bucketName}">${bucketName}</option>
                 `;
-                }).join('')}
+                    })
+                    .join("")}
             </select>
             <br>
             <label for="cbScope" class="tooltip">Scope:
@@ -398,30 +385,6 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
     $(document).ready(function () {
         // Initialize Select2 on all dropdowns
         $('.js-select2').select2({ width: '100%' });
-
-        // Event listener for dataMethod radio buttons
-        $('input[name="dataMethod"]').change(function () {
-            if ($('#useRepo').is(':checked')) {
-                $('#repoInputContainer').show(); // Show repo input
-                $('#pathInputContainer').hide(); // Hide path input
-                $('#repoLink').val(''); // Clear repo link input
-            } else if ($('#usePath').is(':checked')) {
-                $('#repoInputContainer').hide(); // Hide repo input
-                $('#pathInputContainer').show(); // Show path input
-                $('#filePaths').val(''); // Clear file paths input
-            }
-
-            // Hide config and splits until the configs are loaded
-            $('#configContainer').hide();
-            $('#configs').val(null).trigger('change');
-            $('#splits').val(null).trigger('change');
-            $('#configs').prop('disabled', true);
-            $('#splits').prop('disabled', true);
-        });
-
-        // Initially hide both input containers
-        $('#repoInputContainer').hide();
-        $('#pathInputContainer').hide();
     });
 
     function showLoader() {
@@ -433,7 +396,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
     }
 
     function showSplitLoader() {
-    document.getElementById("splitLoader").style.display = "inline";
+        document.getElementById("splitLoader").style.display = "inline";
     }
 
     function hideSplitLoader() {
@@ -448,18 +411,10 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         document.getElementById("fieldLoader").style.display = "none";
     }
 
-    // Rest of your JavaScript code stays the same
     function onLoadConfigsClick(event) {
         event.preventDefault();
         document.getElementById("validation-error").innerHTML = "";
         document.getElementById("validation-error-connect").innerHTML = "";
-
-        // Ensure the Repo option is selected
-        if (!$('#useRepo').is(':checked')) {
-            document.getElementById("validation-error-connect").innerHTML = "Please select the 'Repo' option to load configs.";
-            return;
-        }
-
         const repoLink = document.getElementById("repoLink").value;
         if (!repoLink) {
             document.getElementById("validation-error-connect").innerHTML = "Please enter a repo link.";
@@ -722,16 +677,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         event.preventDefault(); // Prevent the form from submitting in the traditional way
         document.getElementById("validation-error").innerHTML = "";
 
-        const dataMethod = $('input[name="dataMethod"]:checked').val();
-        let repoLink = '';
-        let filePaths = '';
-
-        if (dataMethod === 'repo') {
-            repoLink = document.getElementById("repoLink").value;
-        } else if (dataMethod === 'path') {
-            filePaths = document.getElementById("filePaths").value;
-        }
-
+        const repoLink = document.getElementById("repoLink").value;
         const config = document.getElementById("configs").value;
         const split = document.getElementById("splits").value;
         const idField = document.getElementById("fields").value;
