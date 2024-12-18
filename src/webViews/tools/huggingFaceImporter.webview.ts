@@ -277,7 +277,6 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 color: #ff0000;
                 font-size: 14px;
                 padding: 5px;
-                display: none; /* Initially hidden */
             }
 
             .spinner {
@@ -313,14 +312,29 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 <div class="separator"></div>
             </div>
             <br>
-            <div class="form-row" id="repoInputContainer">
+            <div style="display: flex; align-items: center;">
+                <div class="radio-group">
+                    <input type="radio" id="useRepo" name="dataMethod" value="repo">
+                    <label for="useRepo" class="form-label-align">Repo</label>
+                </div>
+                <div class="radio-group">
+                    <input type="radio" id="usePath" name="dataMethod" value="path">
+                    <label for="usePath" class="form-label-align">Path</label>
+                </div>
+            </div>
+            <br>
             <label for="repoLink">Repo Link:</label>
             <input type="text" id="repoLink" name="repoLink" placeholder="e.g., username/dataset_name">
+            <div class="form-row" id="repoInputContainer" style="display:none;">
             <input type="submit" value="Load Configs" onclick="onLoadConfigsClick(event)" class="redButton">
         </div>
         <div id="loader" style="display: none; text-align: center; margin: 20px 0;">
             <div class="spinner"></div>
             <p>Loading...</p>
+        </div>
+        <div id="pathInputContainer" style="display:none;">
+            <label for="filePaths">File Paths (comma-separated):</label>
+            <input type="text" id="filePaths" name="filePaths" placeholder="e.g., /path/to/file1,/path/to/file2">
         </div>
             <div class="validation-error" id="validation-error-connect"></div>
             <div id="configContainer" style="display:none;">
@@ -338,9 +352,10 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
                 </label>
                 <span id="splitLoader" style="display: none; font-size: 12px; color: grey; margin-left: 2px;">Loading...</span>
                 <select name="splits" id="splits" class="js-select2" disabled width="100%"></select>
-                <label for="fields" class="tooltip">Id Field:
-                    <span class="tooltiptext">Select one or more fields from the dataset.</span>
+                <label for="fields" class="tooltip">Document ID (optional):
+                    <span class="tooltiptext">Comma-separated list of field names to use as document ID</span>
                 </label>
+                <p>If the user does not provide a document ID, A UUID will be automatically generated and used as the ID. </p>
                 <span id="fieldLoader" style="display: none; font-size: 12px; color: grey; margin-left: 2px;">Loading...</span>
                 <select name="fields" id="fields" class="js-select2" multiple="multiple" disabled width="100%"></select>
             </div>
@@ -385,6 +400,27 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
     $(document).ready(function () {
         // Initialize Select2 on all dropdowns
         $('.js-select2').select2({ width: '100%' });
+        // Event listener for dataMethod radio buttons
+        $('input[name="dataMethod"]').change(function () {
+            if ($('#useRepo').is(':checked')) {
+                $('#repoInputContainer').show(); // Show repo input
+                $('#pathInputContainer').hide(); // Hide path input
+                $('#repoLink').val(''); // Clear repo link input
+            } else if ($('#usePath').is(':checked')) {
+                $('#repoInputContainer').hide(); // Hide repo input
+                $('#pathInputContainer').show(); // Show path input
+                $('#filePaths').val(''); // Clear file paths input
+            }
+            // Hide config and splits until the configs are loaded
+            $('#configContainer').hide();
+            $('#configs').val(null).trigger('change');
+            $('#splits').val(null).trigger('change');
+            $('#configs').prop('disabled', true);
+            $('#splits').prop('disabled', true);
+        });
+        // Initially hide both input containers
+        $('#repoInputContainer').hide();
+        $('#pathInputContainer').hide();
     });
 
     function showLoader() {
@@ -415,7 +451,20 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         event.preventDefault();
         document.getElementById("validation-error").innerHTML = "";
         document.getElementById("validation-error-connect").innerHTML = "";
-        const repoLink = document.getElementById("repoLink").value;
+
+        // Ensure the Repo option is selected
+        if (!$('#useRepo').is(':checked')) {
+            document.getElementById("validation-error-connect").innerHTML = "Please select the 'Repo' option to load configs.";
+            return;
+        }
+        const dataMethod = $('input[name="dataMethod"]:checked').val();
+        let repoLink = '';
+        let filePaths = '';
+        if (dataMethod === 'repo') {
+            repoLink = document.getElementById("repoLink").value;
+        } else if (dataMethod === 'path') {
+            filePaths = document.getElementById("filePaths").value;
+        }
         if (!repoLink) {
             document.getElementById("validation-error-connect").innerHTML = "Please enter a repo link.";
             return;
@@ -685,25 +734,54 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         document.getElementById("validation-error").innerHTML = "";
 
         const repoLink = document.getElementById("repoLink").value;
-        const config = document.getElementById("configs").value;
-        const split = document.getElementById("splits").value;
-
-        // Get selected values from the "Id Fields" dropdown as a comma-separated string
-        const idField = $('#fields').val()?.join(',') || '';
-
         const bucket = document.getElementById("bucket").value;
         const scope = document.getElementById("cbScope").value;
         const collection = document.getElementById("cbCollection").value;
 
-        const formData = {
-            repoLink,
+// Determine the data method (repo or path)
+const dataMethod = $('input[name="dataMethod"]:checked').val();
+    let formData = {
+        repoLink,
+        bucket,
+        scope,
+        collection,
+    };
+
+    if (dataMethod === 'repo') {
+        // Handle "Repo" method
+        const config = document.getElementById("configs").value?.trim() || '';
+        const split = document.getElementById("splits").value?.trim() || '';
+        const idField = $('#fields').val()?.join(',') || ''; // Get selected values as a comma-separated string
+
+        // Validate "Repo" specific fields
+        if (!config || !split) {
+            document.getElementById("validation-error").innerHTML = "Please fill in all required fields.";
+            return;
+        }
+
+        // Add "Repo" specific fields to formData
+        formData = {
+            ...formData,
             config,
             split,
             idField,
-            bucket,
-            scope,
-            collection,
         };
+    } else if (dataMethod === 'path') {
+        // Handle "Path" method
+        const filePaths = document.getElementById("filePaths").value?.trim() || '';
+
+        // Validate "Path" specific fields
+        if (!filePaths) {
+            document.getElementById("validation-error").innerHTML = "Please fill in all required fields.";
+            return;
+        }
+
+        // Add "Path" specific fields to formData
+        formData = {
+            ...formData,
+            filePaths,
+        };
+    };
 
         vscode.postMessage({
             command: "vscode-couchbase.tools.huggingFaceMigrate.export",

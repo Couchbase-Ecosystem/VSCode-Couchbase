@@ -20,13 +20,6 @@ export const getScopes = async (bucketId: string, connection: IConnection) => {
     .getAllScopes();
   return scopes;
 };
-
-// Validate form data for Hugging Face migration
-const validateFormData = (formData: any): string => {
-  const errors = [];
-  return "";
-};
-
 export interface IDataMigrateWebviewState {
   webviewPanel: vscode.WebviewPanel;
 }
@@ -176,11 +169,9 @@ export const huggingFaceMigrate = async () => {
         case "vscode-couchbase.tools.huggingFaceMigrate.export":
           try {
             const formData = message.data;
-            const validationError = validateFormData(formData);
-            if (validationError === "") {
-              // No validation errors, proceed with export
               await HuggingFaceToCouchbase.export(
                 formData.repoLink,
+                formData.filePaths,
                 formData.config,
                 formData.split,
                 formData.idField,
@@ -191,13 +182,7 @@ export const huggingFaceMigrate = async () => {
               currentPanel.webview.postMessage({
                 command: "vscode-couchbase.tools.huggingFaceMigrate.exportSuccess",
               });
-            } else {
-              currentPanel.webview.postMessage({
-                command:
-                  "vscode-couchbase.tools.huggingFaceMigrate.formValidationError",
-                error: validationError,
-              });
-            }
+            
           } catch (error) {
             logger.error("Error during export: " + error);
             currentPanel.webview.postMessage({

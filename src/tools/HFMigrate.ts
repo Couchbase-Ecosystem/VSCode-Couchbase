@@ -127,6 +127,7 @@ export class HuggingFaceToCouchbase {
 
     static async export(
         repoLink: string,
+        filePaths: string,
         config: string,
         split: string,
         idField: string,
@@ -154,12 +155,22 @@ export class HuggingFaceToCouchbase {
             cmd.push("migrate");
             cmd.push("--path");
             cmd.push(repoLink);
-            cmd.push("--id-fields");
-            cmd.push(`'${idField}'`);
-            cmd.push("--name");
-            cmd.push(config);
-            cmd.push("--split");
-            cmd.push(split);
+            if(idField) {
+                cmd.push("--id-fields");
+                cmd.push(`'${idField}'`);
+            }
+            if(filePaths) {
+                cmd.push("--data-files");
+                cmd.push(`'${filePaths}'`);
+            }
+            if(config) {
+                cmd.push("--name");
+                cmd.push(config);
+            }
+            if(split) {
+                cmd.push("--split");
+                cmd.push(split);
+            }
             cmd.push("--cb-url");
             cmd.push(connection.url);
             cmd.push("--cb-username");
