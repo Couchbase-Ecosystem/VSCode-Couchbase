@@ -15,20 +15,29 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { IConnection } from "./IConnection";
-import { INode } from "./INode";
-import { IndexDirectory } from "./IndexDirectory";
+import { INode } from "../types/INode";
+import { getActiveConnection } from "../util/connections";
+import { CacheService } from "../../src/util/cacheService/cacheService";
+import { SearchDirectory } from "./SearchDirectory";
 import { CollectionDirectory } from "./CollectionDirectory";
+import { hasSearchService } from "../util/common";
+
 
 export class ScopeNode implements INode {
   constructor(
     public readonly parentNode: INode,
-    public readonly connection: IConnection,
     public readonly scopeName: string,
     public readonly bucketName: string,
     public readonly collections: any[],
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
-  ) { }
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public cacheService: CacheService 
+  ) {
+    vscode.workspace.fs.createDirectory(
+        vscode.Uri.parse(
+          `couchbase:/${bucketName}/${scopeName}/Search`
+        )
+      );
+}
 
   public getTreeItem(): vscode.TreeItem {
     return {
@@ -57,29 +66,38 @@ export class ScopeNode implements INode {
    * @returns Two Directory one contains Index definitions and other contains Collections
    * */
   public async getChildren(): Promise<INode[]> {
-    const scopeItem: any[] = []; // Declare scope Item which contains two directories
-    // Index directory to contains list of indexes
-    const indexItem = new IndexDirectory(
-      this,
-      this.connection,
-      "Indexes",
-      this.bucketName,
-      this.scopeName,
-      [],
-      vscode.TreeItemCollapsibleState.None
+
+    const connection = getActiveConnection();
+    if (!connection) {
+      return [];
+    }
+
+    const childrenDirectoriesList: INode[] = [];
+
+    // Search Directory
+    if (hasSearchService(connection?.services)){
+    childrenDirectoriesList.push(
+        new SearchDirectory(
+            this,
+            "Search",
+            this.bucketName,
+            this.scopeName
+        )
     );
-    // Collection Directory to contains Collections
-    const collectionItem = new CollectionDirectory(
-      this,
-      this.connection,
-      "Collections",
-      this.bucketName,
-      this.scopeName,
-      this.collections,
-      vscode.TreeItemCollapsibleState.None
+  }
+
+    // Collections Directory
+    const collectionDirectory = new CollectionDirectory(
+        this,
+        this.scopeName,
+        this.bucketName,
+        this.collections,
+        vscode.TreeItemCollapsibleState.Collapsed,
+        this.cacheService
     );
-    scopeItem.push(indexItem);
-    scopeItem.push(collectionItem);
-    return scopeItem;
+    childrenDirectoriesList.push(collectionDirectory);
+
+    return childrenDirectoriesList;
+
   }
 }

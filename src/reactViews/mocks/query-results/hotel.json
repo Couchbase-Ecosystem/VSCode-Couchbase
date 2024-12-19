@@ -1,0 +1,214 @@
+[
+    {
+        "hotel": {
+            "title": "Goleta",
+            "name": "Bacara Resort & Spa",
+            "address": "8301 Hollister Ave",
+            "directions": null,
+            "phone": null,
+            "tollfree": null,
+            "email": null,
+            "fax": null,
+            "url": "http://www.bacararesort.com/",
+            "checkin": "12PM",
+            "checkout": "4PM",
+            "price": "$300-$1000+",
+            "geo": {
+                "lat": 34.43429,
+                "lon": -119.92137,
+                "accuracy": "ROOFTOP"
+            },
+            "type": "hotel",
+            "id": 10180,
+            "country": "United States",
+            "city": "Santa Barbara",
+            "state": "California",
+            "reviews": [
+                {
+                    "content": "Jane and Joyce make every effort to see to your personal needs and comfort. The rooms take one back in time to the original styles and designs of the 1800's. A real connection to local residents, the 905 is a regular tour stop and the oldest hotel in the French Quarter. My wife and I prefer to stay in the first floor rooms where there is a sitting room with TV, bedroom, bath and kitchen. The kitchen has a stove and refrigerator, sink, coffeemaker, etc. Plus there is a streetside private entrance (very good security system) and a covered balcony area with seating so you can watch passersby. Quaint, cozy, and most of all: ORIGINAL. No plastic remods. Feels like my great Grandmother's place. While there are more luxurious places to stay, if you want the real flavor and eclectic style of N.O. you have to stay here. It just FEELS like New Orleans. The location is one block towards the river from Bourbon Street and smack dab in the middle of everything. Royal street is one of the nicest residential streets in the Quarter and you can walk back to your room and get some peace and quiet whenever you like. The French Quarter is always busy so we bring a small fan to turn on to make some white noise so we can sleep more soundly. Works great. You might not need it at the 905 but it's a necessity it if you stay on or near Bourbon Street, which is very loud all the time. Parking tips: You can park right in front to unload and it's only a couple blocks to the secure riverfront parking area. Plus there are several public parking lots nearby. My strategy is to get there early, unload, and drive around for a while near the hotel. It's not too hard to find a parking place but be careful about where it is. Stay away from corner spots since streets are narrow and delivery trucks don't have the room to turn and they will hit your car. Take note of the signs. Tuesday and Thursday they clean the streets and you can't park in many areas when they do or they will tow your car. Once you find a spot don't move it since everything is walking distance. If you find a good spot and get a ticket it will cost $20, which is cheaper than the daily rate at most parking garages. Even if you don't get a ticket make sure to go online to N.O. traffic ticket site to check your license number for violations. Some local kids think it's funny to take your ticket and throw it away since the fine doubles every month it's not paid. You don't know you got a ticket but your fine is getting bigger. We've been coming to the French Quarter for years and have stayed at many of the local hotels. The 905 Royal is our favorite.",
+                    "ratings": {
+                        "Service": 5,
+                        "Cleanliness": 5,
+                        "Overall": 5,
+                        "Value": 5,
+                        "Sleep Quality": 5,
+                        "Rooms": 5,
+                        "Location": 5
+                    },
+                    "author": "Delmer Cole",
+                    "date": "2013-12-05 09:27:07 +0300"
+                },
+                {
+                    "content": "I stayed there with a friend for a girls trip around St. Patricks Day. This was my third time to NOLA, my first at Chateau Lemoyne. The location is excellent....very easy walking distance to everything, without the chaos of staying right on Bourbon Street. Even though its a Holiday Inn, it still has the historical feel and look of NOLA. The pool looked nice too, even though we never used it. The staff was friendly and helpful. Chateau Lemoyne would be hard to top, considering the price.",
+                    "ratings": {
+                        "Service": 4,
+                        "Cleanliness": 5,
+                        "Overall": 4,
+                        "Value": 4,
+                        "Sleep Quality": 5,
+                        "Rooms": 4,
+                        "Location": 5
+                    },
+                    "author": "Orval Lebsack",
+                    "date": "2013-10-26 15:01:39 +0300"
+                },
+                {
+                    "content": "This hotel is a safe bet for a value stay in French Quarter. Close enough to all sites and action but just out of the real loud & noisy streets. Check in is quick and friendly and room ( king side balcony) while dated was good size and clean. Small balcony with table & chairs is a nice option for evening drink & passing sites below. Down side is no mimi bar fridge ( they are available upon request on a first come basis apparently, so book one when you make initial reservation if necessary) Bathroom is adequate with ok shower pressure and housekeeping is quick and efficient. TIP; forget paying high price for conducted local tours, just take the red trams to end of line and back and then next day the green tram to cross town garden district and zoo and museums. cost for each ride $2.00 each way!! fantastic. Tip: If you stay during hot weather make sure you top up on ice early as later guests can \"run the machine dry\" for short time. Overall experience met expectations and would recommend for value stay.",
+                    "ratings": {
+                        "Service": 4,
+                        "Cleanliness": 4,
+                        "Overall": 4,
+                        "Value": 4,
+                        "Sleep Quality": 3,
+                        "Rooms": 3,
+                        "Location": 4
+                    },
+                    "author": "Hildegard Larkin",
+                    "date": "2012-01-01 18:48:30 +0300"
+                },
+                {
+                    "content": "The Chateau Le Moyne Holiday Inn is in a perfect location in the French Quarter, a block away from the craziness on Bourbon St. We got a fantastic deal on Priceline and were expecting a standard room for the price. The pleasant hotel clerk upgraded our room much to our delight, without us asking and the concierge also went above an beyond to assist us with information and suggestions for places to dine and possessed an \"can do\" attitude. Nice pool area to cool off in during the midday NOLA heat. It is definitely a three star establishment, not super luxurious but the beds were comfy and the location superb! If you can get a deal on Priceline, etc, it's a great value.",
+                    "ratings": {
+                        "Service": 5,
+                        "Cleanliness": 4,
+                        "Overall": 4,
+                        "Value": 4,
+                        "Sleep Quality": 4,
+                        "Rooms": 3,
+                        "Location": 5
+                    },
+                    "author": "Uriah Rohan",
+                    "date": "2014-08-04 15:17:49 +0300"
+                }
+            ],
+            "public_likes": [
+                "Arnoldo Towne",
+                "Olaf Turcotte",
+                "Ruben Volkman",
+                "Adella Aufderhar",
+                "Elwyn Franecki"
+            ],
+            "vacancy": true,
+            "description": "Located on 78 acres of oceanfront property, this resort is an upscale experience that caters to luxury travelers. There are 354 guest rooms in 19 separate villas, each in a Spanish style. Property amenities include saline infinity pools, a private beach, clay tennis courts, a 42,000 foot spa and fitness center, and nature trails through the adjoining wetland and forest. The onsite Miro restaurant provides great views of the coast with excellent food and service. With all that said, you pay for the experience, and this resort is not for the budget traveler.  In addition to quoted rates there is a $25 per day resort fee that includes a bottle of wine in your room, two bottles of water, access to fitness center and spa, and internet access.",
+            "alias": null,
+            "pets_ok": false,
+            "free_breakfast": true,
+            "free_internet": false,
+            "free_parking": false
+        }
+    },
+    {
+        "hotel": {
+            "title": "Half Moon Bay",
+            "name": "Pacific Victorian Bed and Breakfast",
+            "address": "325 Alameda Avenue",
+            "directions": null,
+            "phone": null,
+            "tollfree": "+1-888-929-0906",
+            "email": null,
+            "fax": null,
+            "url": "http://pacificvictorian.com/",
+            "checkin": "3PM to 6PM",
+            "checkout": "12PM",
+            "price": "Rooms:$150 - $195",
+            "geo": {
+                "lat": 37.49214,
+                "lon": -122.456987,
+                "accuracy": "RANGE_INTERPOLATED"
+            },
+            "type": "hotel",
+            "id": 10904,
+            "country": "United States",
+            "city": "Half Moon Bay",
+            "state": "California",
+            "reviews": [
+                {
+                    "content": "The Standard is painfully hip being in the heart of the Meatpacking District. Staff are friendly and helpful, and were good problem-solvers for us when our baggage went missing. Expect to pay for what you get: beautiful floor-to-ceiling views, comfy beds, good service, and top-of-the-line design elements in your room. Would recommend The Standard to those looking for \"something special\" and who are willing to pay top dollar.",
+                    "ratings": {
+                        "Service": 4,
+                        "Cleanliness": 5,
+                        "Overall": 4,
+                        "Value": 3,
+                        "Sleep Quality": 5,
+                        "Rooms": 4,
+                        "Location": 5
+                    },
+                    "author": "Randi Jakubowski",
+                    "date": "2014-05-26 01:50:56 +0300"
+                },
+                {
+                    "content": "I usually stay at the Ganesvoort, but I thought I'd give the Standard a try. The basic hotel room was small, and the shower had no door. The closet was also small. As opposed to a few other reviews, I found the staff to be friendly enough. The floor below the top floor lounge was noisy. The bass of the speakers reverberated through the ceiling. This wouldnt have been so bad, but they dont even let you in to the bar! (They say guests are allowed in before 9 pm, but who the $@!#% wants to go to a bar in the Meatpacking District before 9 pm?? What a joke.) Another thing that's odd: the hotel straddles the High Line, but it has no access to the High Line. You have to walk south a few blocks to get to it. Odd. There's nothing wrong with the hotel itself, really. But at the Ganesvoort they let you up to their popular bar and pool if you stay at the hotel. Most hotels try to make their guests feel \"exclusive\". The Standard manages to do the opposite. Next time, I'll probably just return to the Ganesvoort....",
+                    "ratings": {
+                        "Service": 3,
+                        "Cleanliness": 4,
+                        "Overall": 2,
+                        "Value": 1,
+                        "Sleep Quality": 2,
+                        "Rooms": 2,
+                        "Location": 5
+                    },
+                    "author": "Jaiden Abernathy",
+                    "date": "2012-11-29 02:59:29 +0300"
+                },
+                {
+                    "content": "As part of our 50th anniversary celebration, we stayed for two nights at the Standard. From the moment we arrived we found everybody (bellhops, reception) to be friendly warm and professional. We were upgraded to a corner room on the 15th floor with the most spectacular views thru floor to ceiling windows. Bed was very comfortable and to wake up and have the views was fabulous. Went to Top of the Standard and had drinks and more incredible views. The beautiful and friendly servers added to the experience. Even the loo had views. Allin all, for a special treat, this is a very special place in a very happening area!",
+                    "ratings": {
+                        "Service": 5,
+                        "Cleanliness": 5,
+                        "Overall": 5,
+                        "Value": 2,
+                        "Sleep Quality": 5,
+                        "Rooms": 5,
+                        "Location": 5
+                    },
+                    "author": "Cheyanne Langworth",
+                    "date": "2012-01-17 07:37:49 +0300"
+                },
+                {
+                    "content": "The Standard Hotel's location is perfect. But when you sleep in the rooms yu hear the people in the hallway and when they bang the doors, it's really noisy. The service is bad, the stuff is unfriendly- as if friendlyness is not cool or so... The Standard Grill is a nightmare- bad, bad service, it was like a comedy we were just waiting to the tv show host to jump out. Food was good, but that didn't help anymore.",
+                    "ratings": {
+                        "Service": 1,
+                        "Cleanliness": 4,
+                        "Overall": 3,
+                        "Value": 4,
+                        "Sleep Quality": 1,
+                        "Rooms": 3,
+                        "Location": 5
+                    },
+                    "author": "Milo Runolfsdottir I",
+                    "date": "2015-11-26 11:37:32 +0300"
+                },
+                {
+                    "content": "We just recently stayed at the Standard for a quick get-away to NYC. We arrived a little early but were able to check in and they even upgraded us (without our even asking). The room was amazing - views of the Hudson River and down to the Statue of Liberty. The room had a wrap-around banquette across from the bed which was a nice touch. The TV was mounted to the floor right in front of the windows which was odd since it blocked part of the view. The bath was split on either side of the room as you walked in, with the shower/bath tub on one side (with a great louvered window to see the view) and the sink and toilet on the other side. I understand set up design-wise but it wasn't all that practical since the sink area was very small and the shower area had no door so water ran onto the carpet. We went to the lounge at the top of the hotel for a drink and snacks before the theatre (love the elevator art installation). It was retro-fun with a wonderful view (take your sunglasses). It was nice but a little chaotic - it felt like they didn't have the seating plan down yet. It is set up like a lounge so the tables were jumbled and and the wait staff kept pushing us to one side or the other trying to decide what table we were sitting at. Service was anything but invisible which was distracting. The menu was limited but nice. We had never stayed in the Meatpacking district before so weren't sure what to expect. We were really interested in seeing the HIgh Line and this was a great way to experience it. The park is beautiful - they did a phenomenal job on the design and details. The whole area was packed with shops and restaurants and had a really good energy. Access to subway and taxis was good so we could get around the city easily.",
+                    "ratings": {
+                        "Overall": 4
+                    },
+                    "author": "Dr. Kristian Hand",
+                    "date": "2012-11-01 13:42:14 +0300"
+                },
+                {
+                    "content": "The Standard Hotel is a modern & unique hotel. The staff is very courteous and friendly. The room was small but comfortable. I didn't like the glass wall between the shower & bed. I prefer privacy when showering. The location of the hotel was convenient to subways and I felt safe in the neighborhood.",
+                    "ratings": {
+                        "Service": 5,
+                        "Cleanliness": 5,
+                        "Overall": 5,
+                        "Value": 4,
+                        "Sleep Quality": 5,
+                        "Rooms": 4,
+                        "Location": 4
+                    },
+                    "author": "Brandt Willms",
+                    "date": "2013-02-26 08:28:21 +0300"
+                }
+            ],
+            "public_likes": [],
+            "vacancy": false,
+            "description": "An elegantly decorated Victorian style Inn 1½ blocks from the beach.",
+            "alias": null,
+            "pets_ok": false,
+            "free_breakfast": true,
+            "free_internet": true,
+            "free_parking": false
+        }
+    }
+]

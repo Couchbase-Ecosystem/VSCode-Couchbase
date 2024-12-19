@@ -16,21 +16,30 @@
 import * as vscode from "vscode";
 import * as path from "path";
 
-import { IConnection } from "./IConnection";
-import { INode } from "./INode";
+import { IConnection } from "../types/IConnection";
+import { INode } from "../types/INode";
 import { BucketNode } from "./BucketNode";
 import { BucketSettings } from "couchbase";
 import { getActiveConnection } from "../util/connections";
 import InformationNode from "./InformationNode";
-import { logger } from "../logging/logger";
+import { logger } from "../logger/logger";
+import { CacheService } from "../../src/util/cacheService/cacheService"
+import { Constants } from "../util/constants";
 
 export class ClusterConnectionNode implements INode {
   constructor(
     public readonly id: string,
-    public readonly connection: IConnection
-  ) {}
+    public readonly connection: IConnection,
+    public cacheService: CacheService
+  ) {
+    this._onDidChangeTreeData = new vscode.EventEmitter();
+    this.onDidChangeTreeData = this._onDidChangeTreeData.event;
+  }
 
   public isActive: Boolean = false;
+
+  private _onDidChangeTreeData: vscode.EventEmitter<any>;
+  public readonly onDidChangeTreeData: vscode.Event<any>;
 
   public getTreeItem(): vscode.TreeItem {
     const activeConnection = getActiveConnection();
@@ -43,7 +52,7 @@ export class ClusterConnectionNode implements INode {
       iconPath: {
         light: path.join(__filename, "..", "..", "images", this.isActive ? "" : "light", "cb-logo-icon.svg"),
         dark: path.join(__filename, "..", "..", "images", this.isActive ? "" : "dark", "cb-logo-icon.svg"),
-      }
+      },
     };
   }
 
@@ -55,18 +64,23 @@ export class ClusterConnectionNode implements INode {
     // only support CB 7.0 for now
     let isScopesandCollections = true;
     try {
-      let buckets = await this.connection.cluster?.buckets().getAllBuckets();
+      const activeConnection = getActiveConnection();
+      if (!activeConnection) {
+        return nodes;
+      }
+      let buckets = await activeConnection.cluster?.buckets().getAllBuckets();
       buckets?.forEach((bucket: BucketSettings) => {
         nodes.push(
           new BucketNode(
             this,
-            this.connection,
             bucket.name,
             isScopesandCollections,
-            vscode.TreeItemCollapsibleState.None
+            vscode.TreeItemCollapsibleState.None,
+            this.cacheService
           )
         );
       });
+      this.cacheService.refreshCacheOnTimeout(Constants.BUCKET_CACHE_EXPIRY_DURATION, Constants.COLLECTION_CACHE_EXPIRY_DURATION, false);
     } catch (err: any) {
       logger.error("Failed to load Buckets");
       logger.debug(err);

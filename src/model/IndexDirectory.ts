@@ -14,26 +14,25 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
-import * as path from "path";
-import * as keytar from "keytar";
-import { IConnection } from "./IConnection";
-import { INode } from "./INode";
+import { IConnection } from "../types/IConnection";
+import { INode } from "../types/INode";
 import IndexNode from "./IndexNode";
-import axios from "axios";
-import { Constants } from "../util/constants";
-import { getConnectionId } from "../util/connections";
+import { getActiveConnection } from "../util/connections";
 import InformationNode from "./InformationNode";
-import { logger } from "../logging/logger";
+import { logger } from "../logger/logger";
+import { getIndexDefinition } from "../util/indexUtils";
+import { CacheService } from "../util/cacheService/cacheService";
 
 export class IndexDirectory implements INode {
     constructor(
         public readonly parentNode: INode,
-        public readonly connection: IConnection,
         public readonly itemName: string,
         public readonly bucketName: string,
         public readonly scopeName: string,
+        public readonly collection: string,
         public readonly indexes: any[],
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        public cacheService: CacheService
     ) {
         vscode.workspace.fs.createDirectory(
             vscode.Uri.parse(
@@ -47,22 +46,6 @@ export class IndexDirectory implements INode {
             label: `${this.itemName}`,
             collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
             contextValue: "indexDirectory",
-            iconPath: {
-                light: path.join(
-                    __filename,
-                    "..",
-                    "..",
-                    "images/light",
-                    "scope-item.svg"
-                ),
-                dark: path.join(
-                    __filename,
-                    "..",
-                    "..",
-                    "images/dark",
-                    "scope-item.svg"
-                ),
-            },
         };
     }
     /*
@@ -72,64 +55,32 @@ export class IndexDirectory implements INode {
     public async getChildren(): Promise<INode[]> {
         let indexesList: INode[] = [];
         let result;
-        // Check if the connection is capella, if it does, use the Couchbase SDK to query indexes from the database.
-        if (this.connection.url.endsWith(Constants.capellaUrlPostfix)) {
-            try {
-                //TODO: Change it to not include IndexNode with undefined scope once the issues with undefined scope and collections fixed
-                result = await this.connection.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName });
-                if (result === undefined) { return []; }
-                for (const query of result) {
-                    if (query.scopeName === this.scopeName || this.scopeName === "_default") {
-                        const indexNode = new IndexNode(
-                            this,
-                            this.connection,
-                            this.scopeName,
-                            this.bucketName,
-                            `${query.name.substring(1)}_${(query.collectionName ?? "")}`,
-                            JSON.stringify(query, null, 2),
-                            vscode.TreeItemCollapsibleState.None
-                        );
-                        indexesList.push(indexNode);
-                    }
-
-                }
-            } catch (err) {
-                logger.error("Failed to load Indexes");
-                logger.debug(err);
+        try {
+            const connection = getActiveConnection();
+            //TODO: Change it to not include IndexNode with undefined scope once the issues with undefined scope and collections fixed
+            if (!connection){
+                return [];
             }
-        }
-        // If the connection is local, use http call to request index status
-        else {
-            try {
-                const password = await keytar.getPassword(Constants.extensionID, getConnectionId(this.connection));
-                if (!password) {
-                    return [];
+            result = await connection?.cluster?.queryIndexes().getAllIndexes(this.bucketName, { scopeName: this.scopeName, collectionName: this.collection });
+            if (result === undefined) { return []; }
+            this.cacheService.updateCollectionIndexCache(connection,this.bucketName,this.scopeName,this.collection, result);
+            for (const query of result) {
+                if (query.scopeName === this.scopeName || this.scopeName === "_default") {
+                    const indexNode = new IndexNode(
+                        this,
+                        this.scopeName,
+                        this.bucketName,
+                        `${query.name[0] === '#' ? query.name.substring(1) : query.name}${(query.collectionName ? ("_" + query.collectionName) : "")}`,
+                        getIndexDefinition(query),
+                        vscode.TreeItemCollapsibleState.None
+                    );
+                    indexesList.push(indexNode);
                 }
-                const requestURL = `http://${this.connection.username}:${password}@127.0.0.1:9102/getIndexStatus\?bucket\=${this.bucketName}\&scope\=${this.scopeName}`;
-                result = await axios.get(requestURL);
-                if (result.data.status) {
-                    for (const query of result.data.status) {
-                        if (query.scope === this.scopeName) {
-                            const indexNode = new IndexNode(
-                                this,
-                                this.connection,
-                                this.scopeName,
-                                this.bucketName,
-                                `${query.indexName.substring(1)}_${query.collection}`,
-                                query.definition,
-                                vscode.TreeItemCollapsibleState.None
-                            );
-                            indexesList.push(indexNode);
-                        }
-                    }
-                }
-            } catch (err) {
-                logger.error("Failed to load Indexes");
-                logger.debug(err);
-            };
-        }
-        if (indexesList.length === 0) {
-            indexesList.push(new InformationNode("No Indexes found"));
+
+            }
+        } catch (err) {
+            logger.error("Failed to load Indexes");
+            logger.debug(err);
         }
         return indexesList;
     };

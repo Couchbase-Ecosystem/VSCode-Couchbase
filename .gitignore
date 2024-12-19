@@ -23,3 +23,4 @@ dist
 node_modules
 *.vsix
 build/
+src/config.json

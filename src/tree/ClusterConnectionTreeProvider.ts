@@ -14,23 +14,24 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
-import { INode } from "../model/INode";
+import { INode } from "../types/INode";
 import { ClusterConnectionNode } from "../model/ClusterConnectionNode";
 import { getConnections } from "../util/connections";
+import { CacheService } from "../util/cacheService/cacheService";
 
-export default class ClusterConnectionTreeProvider
-  implements vscode.TreeDataProvider<INode>
-{
-  constructor(private context: vscode.ExtensionContext) {}
-  private _onDidChangeTreeData: vscode.EventEmitter<
-    INode | undefined | null | void
-  > = new vscode.EventEmitter<INode | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<INode | undefined | null | void> =
-    this._onDidChangeTreeData.event;
+export default class ClusterConnectionTreeProvider implements vscode.TreeDataProvider<INode> {
+  private treeView: vscode.TreeView<INode> | undefined;
+  constructor(private context: vscode.ExtensionContext, public cacheService: CacheService) {
+    this.initializeTreeView();
+  }
+
+  private _onDidChangeTreeData: vscode.EventEmitter<INode | undefined | null | void> = new vscode.EventEmitter<INode | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<INode | undefined | null | void> = this._onDidChangeTreeData.event;
 
   getTreeItem(element: INode): vscode.TreeItem | Thenable<vscode.TreeItem> {
     return element.getTreeItem();
   }
+
   getChildren(element?: INode): vscode.ProviderResult<INode[]> {
     if (!element) {
       return this.getConnections();
@@ -40,6 +41,15 @@ export default class ClusterConnectionTreeProvider
 
   public refresh(element?: INode): void {
     this._onDidChangeTreeData.fire(element);
+  }
+
+  private initializeTreeView(): void {
+    this.treeView = vscode.window.createTreeView("couchbase", { treeDataProvider: this });
+
+
+    this.treeView.onDidExpandElement(event => {
+      this.refresh(event.element);
+    });
   }
 
   private async getConnections(): Promise<ClusterConnectionNode[]> {
@@ -52,7 +62,7 @@ export default class ClusterConnectionTreeProvider
         if (!indetifer) {
           indetifer = id;
         }
-        connectionNodes.push(new ClusterConnectionNode(indetifer, connection));
+        connectionNodes.push(new ClusterConnectionNode(indetifer, connection, this.cacheService));
       }
     }
     return connectionNodes;

@@ -1,0 +1,62 @@
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none; /* Change to 'block' when the modal is open */
+    z-index: 1000;
+  }
+  
+  .modal-content-area {
+    width: 70%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    color: black;
+    padding: 20px;
+    border-radius: 5px;
+  }
+
+  .modal-header {
+    font-size: 20px; 
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px; 
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+    gap: 10px;
+  }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .terms-checkbox {
+    input[type="checkbox"] {
+      margin-left: 0px;
+    }
+  }
+  
+  button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    :hover {
+      background-color: var(--vscode-button-hoverBackground);
+    }
+  }
+  

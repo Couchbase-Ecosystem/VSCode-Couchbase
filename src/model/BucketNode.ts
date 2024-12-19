@@ -15,20 +15,22 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { IConnection } from "./IConnection";
-import { INode } from "./INode";
+import { IConnection } from "../types/IConnection";
+import { INode } from "../types/INode";
 import { ScopeNode } from "./ScopeNode";
 import { ScopeSpec } from "couchbase";
 import InformationNode from "./InformationNode";
-import { logger } from "../logging/logger";
+import { logger } from "../logger/logger";
+import { getActiveConnection } from "../util/connections";
+import { CacheService } from "../../src/util/cacheService/cacheService"
 
 export class BucketNode implements INode {
   constructor(
     public readonly parentNode: INode,
-    public readonly connection: IConnection,
     public readonly bucketName: string,
     public readonly isScopesandCollections: boolean,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public cacheService: CacheService
   ) { }
 
   public getTreeItem(): vscode.TreeItem {
@@ -59,7 +61,11 @@ export class BucketNode implements INode {
     const nodes: INode[] = [];
     if (this.isScopesandCollections) {
       try {
-        let scopes = await this.connection.cluster
+        const activeConnection = getActiveConnection();
+        if (!activeConnection) {
+          return nodes;
+        };
+        let scopes = await activeConnection.cluster
           ?.bucket(this.bucketName)
           .collections()
           .getAllScopes();
@@ -67,11 +73,11 @@ export class BucketNode implements INode {
           nodes.push(
             new ScopeNode(
               this,
-              this.connection,
               scope.name,
               this.bucketName,
               scope.collections,
-              vscode.TreeItemCollapsibleState.None
+              vscode.TreeItemCollapsibleState.None,
+              this.cacheService
             )
           );
         });

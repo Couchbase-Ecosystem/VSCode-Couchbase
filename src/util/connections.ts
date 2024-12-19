@@ -14,15 +14,20 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
-import * as keytar from "keytar";
 import * as path from "path";
 import { Constants } from "./constants";
 import { Global, Memory } from "./util";
-import { IConnection } from "../model/IConnection";
-import { AuthenticationFailureError, Cluster } from "couchbase";
+import { IConnection } from "../types/IConnection";
+import { AuthenticationFailureError, connect } from "couchbase";
 import { getClusterConnectingFormView } from "../webViews/connectionScreen.webview";
 import ClusterConnectionTreeProvider from "../tree/ClusterConnectionTreeProvider";
-import { logger } from "../logging/logger";
+import { logger } from "../logger/logger";
+import { getServices } from "./OverviewClusterUtils/ClusterOverviewGeneralTab";
+import { CouchbaseRestAPI } from "./apis/CouchbaseRestAPI";
+import { hasQueryService, hasSearchService } from "./common";
+import { SecretService } from "./secretService";
+import ConnectionEvents from "./events/connectionEvents";
+import { SdkDoctorRunner } from "../tools/SDKDocterRunner";
 
 export function getConnectionId(connection: IConnection) {
   const { url, username } = connection;
@@ -34,11 +39,11 @@ export function getConnections() {
 }
 
 export function getActiveConnection(): IConnection | undefined {
-  return Memory.state.get<IConnection>("activeConnection");
+  return Memory.state.get<IConnection>(Constants.ACTIVE_CONNECTION);
 }
 
 export function setActiveConnection(connection?: IConnection) {
-  Memory.state.update("activeConnection", connection);
+  Memory.state.update(Constants.ACTIVE_CONNECTION, connection);
 }
 
 export function getPreviousConnection(): IConnection | undefined {
@@ -50,7 +55,7 @@ export function setPreviousConnection(connection: IConnection) {
 }
 
 async function saveConnection(connection: IConnection): Promise<string> {
-  const { url, username, connectionIdentifier } = connection;
+  const { url, username, connectionIdentifier, isSecure } = connection;
   let connections = getConnections();
   if (!connections) {
     connections = {};
@@ -59,13 +64,15 @@ async function saveConnection(connection: IConnection): Promise<string> {
   connections[id] = {
     url,
     username,
-    connectionIdentifier
+    connectionIdentifier,
+    isSecure
   };
+  const secretService = SecretService.getInstance();
   const password =
     connection.password ||
-    (await keytar.getPassword(Constants.extensionID, id));
+    (await secretService.get(`${Constants.extensionID}-${id}`));
   if (password) {
-    await keytar.setPassword(Constants.extensionID, id, password);
+    secretService.store(`${Constants.extensionID}-${id}`, password);
   }
   await Global.state.update(Constants.connectionKeys, connections);
   return id;
@@ -86,6 +93,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
     {
       enableScripts: true,
       enableForms: true,
+      retainContextWhenHidden: true,
     }
   );
   currentPanel.iconPath = vscode.Uri.file(path.join(__filename, "..", "..", "images", "cb-logo-icon.svg"));
@@ -94,7 +102,7 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
     switch (message.command) {
       case 'submit':
         const url = message.isSecure ? (Constants.prefixSecureURL + message.url) : (Constants.prefixURL + message.url);
-        const connection: IConnection = { url, username: message.username, password: message.password, connectionIdentifier: message.connectionIdentifier };
+        const connection: IConnection = { url, username: message.username, password: message.password, connectionIdentifier: message.connectionIdentifier, isSecure: message.isSecure };
         const connections = getConnections();
         const connectionId = getConnectionId(connection);
         if (connections && connections[connectionId]) {
@@ -125,20 +133,60 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
             if (connectionStatus === false) {
               delete connections[connectionId];
               Global.state.update(Constants.connectionKeys, connections);
-              await keytar.deletePassword(Constants.extensionID, connectionId);
+              const secretService = SecretService.getInstance();
+              secretService.delete(`${Constants.extensionID}-${connectionId}`);
               currentPanel.dispose();
-              addConnection(clusterConnectionTreeProvider, message);
+              await addConnection(clusterConnectionTreeProvider, message);
               break;
             }
           }
         }
         clusterConnectionTreeProvider.refresh();
         currentPanel.dispose();
+        // Do a full cache for the first time user creates connection
+        clusterConnectionTreeProvider.cacheService.fullCache(true);
         logger.info(`Successfully saved a new connection with the name ${connection.connectionIdentifier}`);
         break;
 
       case 'cancel':
         currentPanel.dispose();
+        break;
+
+      case 'testConnection':
+        const { connectionUrl, username, password, bucketName, isSecure } = message;
+        if(bucketName === "") {
+        try {
+          await connect(connectionUrl, { username: username, password: password, configProfile: 'wanDevelopment' });
+          currentPanel.webview.postMessage({
+            command: 'testConnectionResult',
+            result: 'Connection was successfull!'
+        });
+        }
+        catch (err) {
+          currentPanel.webview.postMessage({
+            command: 'testConnectionResult',
+            result: '[ERRO]: Connection Failed ' + err
+        });
+        }
+        return;
+      }
+        const results: string[] = [];
+
+        await SdkDoctorRunner.run(
+            connectionUrl,
+            isSecure,
+            bucketName,
+            username,
+            password,
+            (line) => {
+                results.push(line);
+            }
+        );
+
+        currentPanel.webview.postMessage({
+            command: 'testConnectionResult',
+            result: results.join('\n')
+        });
         break;
 
       default:
@@ -153,10 +201,11 @@ async function handleConnectionError(err: any) {
   if (err instanceof AuthenticationFailureError) {
     answer = await vscode.window.showErrorMessage(`
     Authentication Failed: Please check your credentials and try again \n
-    If you're still having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
+    or inform a Bucket on Troubleshooting to inspect your connection \n
+    or check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
   }
   else {
-    answer = await vscode.window.showErrorMessage(`Could not establish a connection \n ${err} \n If you're having difficulty, please check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
+    answer = await vscode.window.showErrorMessage(`Could not establish a connection \n ${err} \n Inform a Bucket on Troubleshooting to inspect your connection \n or check out this helpful troubleshooting link`, { modal: true }, "Troubleshoot Link");
   }
 
   if (answer === "Troubleshoot Link") {
@@ -167,7 +216,8 @@ async function handleConnectionError(err: any) {
 export async function useConnection(connection: IConnection): Promise<boolean> {
   const id = getConnectionId(connection);
   let status = false;
-  const password = await keytar.getPassword(Constants.extensionID, id);
+  const secretService = SecretService.getInstance();
+  const password = await secretService.get(`${Constants.extensionID}-${id}`);
   if (!password) {
     return status;
   }
@@ -179,9 +229,17 @@ export async function useConnection(connection: IConnection): Promise<boolean> {
     options, async (progress) => {
       progress.report({ message: "Trying to connect..." });
       try {
-        connection.cluster = await Cluster.connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
+        connection.cluster = await connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
         setActiveConnection(connection);
+        // Set Services
+        const couchbaseRestAPI = new CouchbaseRestAPI(connection);
+        const serviceOverview = await couchbaseRestAPI.getOverview();
+        connection.services = getServices(serviceOverview!);
+        // Set the isKVCluster context
+        vscode.commands.executeCommand('setContext', 'isKVCluster', !hasQueryService(connection.services));
+        vscode.commands.executeCommand('setContext', 'isSearchEnabled', hasSearchService(connection.services));
         status = true;
+        ConnectionEvents.emitConnectionChanged(connection);
         vscode.window.showInformationMessage("Connection established successfully!");
         logger.info(`Connection established successfully with ${connection.connectionIdentifier}`);
       }
@@ -209,8 +267,10 @@ export async function removeConnection(connection: IConnection) {
 
   delete connections[connectionId];
   Global.state.update(Constants.connectionKeys, connections);
-  await keytar.deletePassword(Constants.extensionID, connectionId);
+  const secretService = SecretService.getInstance();
+  await secretService.delete(`${Constants.extensionID}-${connectionId}`);
 
+  ConnectionEvents.emitConnectionRemoved();
   const activeConnection = getActiveConnection();
   if (connection.connectionIdentifier === activeConnection?.connectionIdentifier) {
     setActiveConnection();

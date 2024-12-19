@@ -1,0 +1,7 @@
+div.editor-wrapper > div.monaco-editor {
+  @apply rounded;
+}
+
+div.editor-wrapper > div.monaco-editor > div.overflow-guard {
+  @apply rounded;
+}

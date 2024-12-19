@@ -15,10 +15,14 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import { INode } from "./INode";
+import { INode } from "../types/INode";
 
 export default class InformationNode implements INode {
-    constructor(public readonly message: string, public readonly tooltip?: string) { }
+    constructor(
+        public readonly message: string,
+        public readonly tooltip: string | undefined = undefined,
+        public readonly commandDetails: vscode.Command | undefined = undefined
+    ) { }
 
     public async getTreeItem(): Promise<vscode.TreeItem> {
         return {
@@ -34,14 +38,9 @@ export default class InformationNode implements INode {
                     "images/light",
                     "info-icon.svg"
                 ),
-                dark: path.join(
-                    __filename,
-                    "..",
-                    "..",
-                    "images/dark",
-                    "info-icon.svg"
-                ),
+                dark: path.join(__filename, "..", "..", "images/dark", "info-icon.svg"),
             },
+            command: this.commandDetails,
         };
     }
 

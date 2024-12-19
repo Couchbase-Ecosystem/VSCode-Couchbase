@@ -1,3 +1,19 @@
+/*
+ *     Copyright 2011-2020 Couchbase, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
 import { IBucketSettings } from "couchbase";
 
 // Function to convert camel case to normal
@@ -9,7 +25,7 @@ const camelToNormal = (camel: string) =>
 * information about a "bucket" (the metadata information 
 * is passed to the function as an object result of type IBucket).
 */
-export function getBucketMetaData(result: IBucketSettings) {
+export const getBucketMetaDataView = (result: IBucketSettings) => {
    return `
   <!DOCTYPE html>
   <html lang="en">
@@ -115,14 +131,14 @@ export function getBucketMetaData(result: IBucketSettings) {
         </table>
      </body>
   </html>`;
-}
+};
 
 /**
  * function getDocumentMetaData returns a JSON view of Document Metadata
  * @param which contains document metadata 
  * @returns HTML Web view
  */
-export function getDocumentMetaData(result: any): string {
+export const getDocumentMetaDataView = (result: any) => {
    function buildJSON(data: any): string {
       return JSON.stringify(data, null, 2);
    }
@@ -145,4 +161,4 @@ export function getDocumentMetaData(result: any): string {
        </body>
      </html>
    `;
-}
+};

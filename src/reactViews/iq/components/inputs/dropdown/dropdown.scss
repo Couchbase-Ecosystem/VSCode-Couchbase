@@ -1,0 +1,83 @@
+.dropdown {
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+
+  // Trigger button
+  .dropdown-trigger {
+    background-color: #f8f8f8;
+    color: black;
+    padding: 0.5em 1em;
+    border: none;
+    border-radius: 5px 0 0 5px;
+    cursor: pointer;
+    align-items: center;
+    display: flex;
+
+    span {
+      flex-grow: 1;
+      display: inline-block;
+    }
+
+    // Caret icon
+    .caret-icon {
+      margin-left: auto;
+      margin-left: 0.5em;
+      transition: transform 0.2s ease-in-out;
+
+      &::before {
+        content: "\25BC"; // Down arrow
+        font-size: 0.8em;
+      }
+
+    }
+
+    // Open state
+    &.open {
+      .caret-icon::before {
+        transform: rotate(180deg); // Rotate up
+      }
+    }
+
+    :hover {
+      background-color: #f8f8f8 !important;
+    }
+  }
+}
+
+.menu {
+  position: absolute;
+
+  list-style-type: none;
+  margin: 5px 0;
+  padding: 0;
+
+  border: 1px solid grey;
+  width: 150px;
+  z-index: 5;
+}
+
+.menu > li {
+  margin: 0;
+
+  background-color: white;
+}
+
+.menu > li:hover {
+  background-color: lightgray;
+}
+
+.menu > li > button {
+  width: 100%;
+  height: 100%;
+  text-align: left;
+
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 5px;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+}

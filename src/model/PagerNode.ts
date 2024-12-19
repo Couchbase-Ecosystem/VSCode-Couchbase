@@ -14,8 +14,9 @@
  *   limitations under the License.
  */
 import * as vscode from "vscode";
+import * as path from "path";
 import CollectionNode from "./CollectionNode";
-import { INode } from "./INode";
+import { INode } from "../types/INode";
 
 export class PagerNode implements INode {
 
@@ -26,6 +27,22 @@ export class PagerNode implements INode {
   public getTreeItem(): vscode.TreeItem {
     return {
       label: `Load more`,
+      iconPath: {
+        light: path.join(
+          __filename,
+          "..",
+          "..",
+          "images/light",
+          "load-more.svg"
+        ),
+        dark: path.join(
+          __filename,
+          "..",
+          "..",
+          "images/dark",
+          "load-more.svg"
+        ),
+      },
       collapsibleState: vscode.TreeItemCollapsibleState.None,
       command: {
         command: "vscode-couchbase.loadMore",

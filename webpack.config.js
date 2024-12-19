@@ -19,21 +19,28 @@
 "use strict";
 
 const path = require("path");
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const { ModuleFederationPlugin } = require("webpack").container;
+const TerserPlugin = require('terser-webpack-plugin');
+
 
 /**@type {import('webpack').Configuration}*/
 const extensionConfig = {
   target: "node", // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
   mode: "none", // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
   entry: {
-    extension: "./src/extension.ts", // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
-  },
+     "extension": "./src/extension.ts"
+  }, // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
     path: path.resolve(__dirname, "dist"),
     filename: "[name].js",
     libraryTarget: "commonjs2",
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+    splitChunks: {
+      chunks: 'all',
+    },
   },
   devtool: "source-map",
   externals: {
@@ -73,13 +80,35 @@ const reactConfig = {
     reactBuild: "./src/reactViews/app/index",
   },
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, "dist/workbench"),
     filename: "[name].js",
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+    splitChunks: {
+      chunks: 'all',
+    },
   },
   devtool: "source-map",
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
     extensions: [".ts", ".tsx", ".js"],
+    alias: {
+      'components': path.resolve(__dirname, 'src/reactViews/app/components'),
+      'utils': path.resolve(__dirname, 'src/reactViews/app/utils'),
+      'constants': path.resolve(__dirname, 'src/reactViews/app/constants'),
+      'sync': path.resolve(__dirname, 'src/reactViews/app/sync'),
+      'hooks': path.resolve(__dirname, 'src/reactViews/app/hooks'),
+      'error': path.resolve(__dirname, 'src/reactViews/app/error'),
+      'custom': path.resolve(__dirname, 'src/reactViews/app/custom'),
+      'types': path.resolve(__dirname, 'src/reactViews/app/types'),
+      'assets': path.resolve(__dirname, 'src/reactViews/app/assets'),
+    },
+    fallback: {
+      "path": false,
+      "fs": false
+    }
   },
   module: {
     rules: [
@@ -92,6 +121,18 @@ const reactConfig = {
             options: {
               configFile: "src/reactViews/app/tsconfig.json",
             },
+
+          },
+        ],
+      },
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: "file-loader", // You can also use "url-loader" if you prefer
+            options: {
+              name: "[name].[ext]", // Output file name and extension
+            },
           },
         ],
       },
@@ -99,27 +140,90 @@ const reactConfig = {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],
       },
+      {
+        test: /\.scss$/, // Regular SCSS files (without CSS modules)
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
     ],
   },
-  plugins: [
-    new ModuleFederationPlugin({
-      name: "host",
-      filename: "remoteEntry.js",
-      runtime: false,
-      remotes: {
-        sharedComponents:
-          "sharedComponents@http://localhost:5001/remoteEntry.js",
-      },
-      shared: {
-        react: {
-          requiredVersion: "^18.2.0",
-        },
-        "react-dom": {
-          requiredVersion: "^18.2.0",
-        },
-      },
-    }),
-  ],
 };
 
-module.exports = [extensionConfig, reactConfig];
+const iqReactConfig = {
+  target: "web",
+  entry: {
+    reactBuild: "./src/reactViews/iq/index",
+  },
+  output: {
+    path: path.resolve(__dirname, "dist/iq"),
+    filename: "[name].js",
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+    splitChunks: {
+      chunks: 'all',
+    },
+  },
+  devtool: "source-map",
+  resolve: {
+    // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
+    extensions: [".ts", ".tsx", ".js", ".jsx"],
+    alias: {
+      'components': path.resolve(__dirname, 'src/reactViews/iq/components'),
+      'pages': path.resolve(__dirname, 'src/reactViews/iq/pages'),
+      'chatscope': path.resolve(__dirname,'src/reactViews/iq/chatscope'),
+      'utils': path.resolve(__dirname,'src/reactViews/iq/utils'),
+      'types': path.resolve(__dirname, 'src/reactViews/iq/types'),
+      'assets': path.resolve(__dirname, 'src/reactViews/iq/assets')
+    },
+    fallback: {
+      "path": false,
+      "fs": false
+    }
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              configFile: "src/reactViews/iq/tsconfig.json",
+            },
+
+          },
+        ],
+      },
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+        },
+      },
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: "file-loader", // You can also use "url-loader" if you prefer
+            options: {
+              name: "[name].[ext]", // Output file name and extension
+            },
+          },
+        ],
+      }, 
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.scss$/, // Regular SCSS files (without CSS modules)
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+    ],
+  },
+};
+
+module.exports = [extensionConfig, reactConfig, iqReactConfig];
