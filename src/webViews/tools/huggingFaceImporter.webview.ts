@@ -314,7 +314,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             <br>
             <div style="display: flex; align-items: center;">
                 <div class="radio-group">
-                    <input type="radio" id="useRepo" name="dataMethod" value="repo">
+                    <input type="radio" id="useRepo" name="dataMethod" value="repo" checked>
                     <label for="useRepo" class="form-label-align">Repo</label>
                 </div>
                 <div class="radio-group">
@@ -335,6 +335,14 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         <div id="pathInputContainer" style="display:none;">
             <label for="filePaths">File Paths (comma-separated):</label>
             <input type="text" id="filePaths" name="filePaths" placeholder="e.g., /path/to/file1,/path/to/file2">
+        </div>
+        <br>
+            <div class="checkbox-row">
+                <div class="checkbox-container tooltip">
+                    <input type="checkbox" id="trust-remote-code" name="trust-remote-code" checked>
+                    <label for="trust-remote-code">Trust Remote Code</label>
+                    <span class="tooltiptext">Check to enable Trust remote code flag.</span>
+                </div>
         </div>
             <div class="validation-error" id="validation-error-connect"></div>
             <div id="configContainer" style="display:none;">
@@ -451,6 +459,8 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         event.preventDefault();
         document.getElementById("validation-error").innerHTML = "";
         document.getElementById("validation-error-connect").innerHTML = "";
+        const trustRemoteCodeElement = document.getElementById("trust-remote-code");
+        const trustRemoteCode = trustRemoteCodeElement.checked;
 
         // Ensure the Repo option is selected
         if (!$('#useRepo').is(':checked')) {
@@ -480,6 +490,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         vscode.postMessage({
             command: "vscode-couchbase.tools.huggingFaceMigrate.listConfigs",
             repositoryPath: repoLink,
+            trustRemoteCode: trustRemoteCode,
         });
     }
 
@@ -653,6 +664,8 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         $('#fields').html(''); // Clear existing options
 
         const repoLink = document.getElementById("repoLink").value;
+        const trustRemoteCodeElement = document.getElementById("trust-remote-code");
+        const trustRemoteCode = trustRemoteCodeElement.checked;
 
         // Disable splits until data is loaded
         $('#splits').prop('disabled', true);
@@ -661,6 +674,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         vscode.postMessage({
             command: "vscode-couchbase.tools.huggingFaceMigrate.listSplits",
             repositoryPath: repoLink,
+            trustRemoteCode: trustRemoteCode,
             config: selectedConfig,
         });
     }
@@ -678,12 +692,15 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         $('#fields').html(''); // Clear existing options
 
         const repoLink = document.getElementById("repoLink").value;
+        const trustRemoteCodeElement = document.getElementById("trust-remote-code")
+        const trustRemoteCode = trustRemoteCodeElement.checked;
         const selectedConfig = document.getElementById("configs").value;
 
         // Send a message to fetch fields for the selected split
         vscode.postMessage({
             command: "vscode-couchbase.tools.huggingFaceMigrate.listFields",
             repositoryPath: repoLink,
+            trustRemoteCode: trustRemoteCode,
             config: selectedConfig,
             split: selectedSplit,
         });
@@ -734,6 +751,8 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
         document.getElementById("validation-error").innerHTML = "";
 
         const repoLink = document.getElementById("repoLink").value;
+        const trustRemoteCodeCheckBox = document.getElementById("trust-remote-code");
+        const trustRemoteCode = trustRemoteCodeCheckBox.checked;
         const bucket = document.getElementById("bucket").value;
         const scope = document.getElementById("cbScope").value;
         const collection = document.getElementById("cbCollection").value;
@@ -742,6 +761,7 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
 const dataMethod = $('input[name="dataMethod"]:checked').val();
     let formData = {
         repoLink,
+        trustRemoteCode,
         bucket,
         scope,
         collection,
