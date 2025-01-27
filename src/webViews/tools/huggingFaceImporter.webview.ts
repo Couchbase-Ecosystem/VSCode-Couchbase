@@ -325,7 +325,15 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             <br>
             <label for="repoLink">Repo Link:</label>
             <input type="text" id="repoLink" name="repoLink" placeholder="e.g., username/dataset_name">
+            <div id="trust-code-container" class="checkbox-row">
+                <div class="checkbox-container tooltip">
+                    <input type="checkbox" id="trust-remote-code" name="trust-remote-code">
+                    <label for="trust-remote-code">Trust Remote Code</label>
+                    <span class="tooltiptext">Check to enable Trust remote code flag.</span>
+                </div>
+            </div>
             <div class="form-row" id="repoInputContainer" style="display:none;">
+            <br>
             <input type="submit" value="Load Configs" onclick="onLoadConfigsClick(event)" class="redButton">
         </div>
         <div id="loader" style="display: none; text-align: center; margin: 20px 0;">
@@ -337,13 +345,6 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             <input type="text" id="filePaths" name="filePaths" placeholder="e.g., /path/to/file1,/path/to/file2">
         </div>
         <br>
-            <div class="checkbox-row">
-                <div class="checkbox-container tooltip">
-                    <input type="checkbox" id="trust-remote-code" name="trust-remote-code" checked>
-                    <label for="trust-remote-code">Trust Remote Code</label>
-                    <span class="tooltiptext">Check to enable Trust remote code flag.</span>
-                </div>
-        </div>
             <div class="validation-error" id="validation-error-connect"></div>
             <div id="configContainer" style="display:none;">
                 <div class="separator-container">
@@ -408,16 +409,24 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
     $(document).ready(function () {
         // Initialize Select2 on all dropdowns
         $('.js-select2').select2({ width: '100%' });
+        // Show repo input container by default since repo radio is checked by default
+        $('#repoInputContainer').show();
+        $('#pathInputContainer').hide();
+
+        $('#trust-code-container').insertBefore('#repoInputContainer');
         // Event listener for dataMethod radio buttons
         $('input[name="dataMethod"]').change(function () {
             if ($('#useRepo').is(':checked')) {
                 $('#repoInputContainer').show(); // Show repo input
                 $('#pathInputContainer').hide(); // Hide path input
                 $('#repoLink').val(''); // Clear repo link input
+                $('#trust-code-container').insertBefore('#repoInputContainer');
             } else if ($('#usePath').is(':checked')) {
                 $('#repoInputContainer').hide(); // Hide repo input
                 $('#pathInputContainer').show(); // Show path input
                 $('#filePaths').val(''); // Clear file paths input
+                $('#trust-code-container').insertAfter('#pathInputContainer');
+
             }
             // Hide config and splits until the configs are loaded
             $('#configContainer').hide();
@@ -426,9 +435,6 @@ export const huggingFaceMigrateWebView = async (buckets: string[]): Promise<stri
             $('#configs').prop('disabled', true);
             $('#splits').prop('disabled', true);
         });
-        // Initially hide both input containers
-        $('#repoInputContainer').hide();
-        $('#pathInputContainer').hide();
     });
 
     function showLoader() {
