@@ -19,7 +19,8 @@ export class HuggingFaceToCouchbase {
         });
     }
     static async listConfigs(
-        repositoryPath: string
+        repositoryPath: string,
+        trustRemoteCode: string
     ): Promise<string | undefined> {
         const connection = getActiveConnection();
         if (!connection) {
@@ -40,6 +41,10 @@ export class HuggingFaceToCouchbase {
             cmd.push("--path");
             cmd.push(repositoryPath);
             cmd.push('--json-output');
+            if (trustRemoteCode) {
+                cmd.push("--trust-remote-code");
+            }
+
 
             const command = cmd.join(" ");
             const result = await this.runCommand(command); // Run the command and capture the output
@@ -53,6 +58,7 @@ export class HuggingFaceToCouchbase {
 
     static async listSplits(
         repositoryPath: string,
+        trustRemoteCode: string,
         config: string
     ): Promise<string | undefined> {
         const connection = getActiveConnection();
@@ -75,7 +81,10 @@ export class HuggingFaceToCouchbase {
             cmd.push(repositoryPath);
             cmd.push('--name');
             cmd.push(config);
-            cmd.push('--json-output')
+            cmd.push('--json-output');
+            if (trustRemoteCode) {
+                cmd.push("--trust-remote-code");
+            }
 
             const command = cmd.join(" ");
             const result = await this.runCommand(command);
@@ -89,6 +98,7 @@ export class HuggingFaceToCouchbase {
 
     static async listFields(
         repositoryPath: string,
+        trustRemoteCode: string,
         config: string,
         split: string
     ): Promise<string | undefined> {
@@ -115,6 +125,9 @@ export class HuggingFaceToCouchbase {
             cmd.push('--split');
             cmd.push(split);
             cmd.push('--json-output');
+            if (trustRemoteCode) {
+                cmd.push("--trust-remote-code");
+            }
             const command = cmd.join(" ");
             const result = await this.runCommand(command); // Run the command and capture the output
             return result; // Return the output
@@ -127,6 +140,7 @@ export class HuggingFaceToCouchbase {
 
     static async export(
         repoLink: string,
+        trustRemoteCode: string,
         filePaths: string,
         config: string,
         split: string,
@@ -170,6 +184,9 @@ export class HuggingFaceToCouchbase {
             if(split) {
                 cmd.push("--split");
                 cmd.push(split);
+            }
+            if (trustRemoteCode) {
+                cmd.push("--trust-remote-code");
             }
             cmd.push("--cb-url");
             cmd.push(connection.url);

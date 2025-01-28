@@ -89,7 +89,8 @@ export const huggingFaceMigrate = async () => {
         case "vscode-couchbase.tools.huggingFaceMigrate.listConfigs":
           try {
             const configs = await HuggingFaceToCouchbase.listConfigs(
-              message.repositoryPath
+              message.repositoryPath,
+              message.trustRemoteCode
             );
             currentPanel.webview.postMessage({
               command:
@@ -109,6 +110,7 @@ export const huggingFaceMigrate = async () => {
           try {
             const splits = await HuggingFaceToCouchbase.listSplits(
               message.repositoryPath,
+              message.trustRemoteCode,
               message.config
             );
             currentPanel.webview.postMessage({
@@ -129,6 +131,7 @@ export const huggingFaceMigrate = async () => {
           try {
             const fields = await HuggingFaceToCouchbase.listFields(
               message.repositoryPath,
+              message.trustRemoteCode,
               message.config,
               message.split
             );
@@ -171,6 +174,7 @@ export const huggingFaceMigrate = async () => {
             const formData = message.data;
               await HuggingFaceToCouchbase.export(
                 formData.repoLink,
+                formData.trustRemoteCode,
                 formData.filePaths,
                 formData.config,
                 formData.split,
