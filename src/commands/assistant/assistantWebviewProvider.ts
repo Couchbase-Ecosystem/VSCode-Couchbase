@@ -25,7 +25,7 @@ import { CacheService } from "../../util/cacheService/cacheService";
 import { applyQuery } from "../queryHistory/applyQuery";
 import { allMessagesType } from "./chat/types";
 
-export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
+export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
     public _context: vscode.ExtensionContext;
     public cacheService: CacheService;
@@ -50,7 +50,7 @@ export class CouchbaseIqWebviewProvider implements vscode.WebviewViewProvider {
             path.join(
                 this._context.extensionPath,
                 "dist",
-                "iq",
+                "assistant",
                 "reactBuild.js"
             )
         );

@@ -90,6 +90,7 @@ import { JsonAttributeCompletionProvider } from "./commands/documents/contributo
 import ConnectionEvents from "./util/events/connectionEvents";
 import { CBShell } from "./tools/CBShell";
 import { huggingFaceMigrate } from "./pages/Tools/HuggingFaceMigrate/huggingFaceMigrate";
+import { CouchbaseAssistantWebviewProvider } from "./commands/assistant/assistantWebviewProvider";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -232,10 +233,11 @@ context.subscriptions.push(disposable);
   CBShell.getInstance(context);
 
   const couchbaseIqWebviewProvider = new CouchbaseIqWebviewProvider(context, cacheService);
+  const couchbaseAssistantWebviewProvider = new CouchbaseAssistantWebviewProvider(context, cacheService);
   subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       Commands.couchbaseIqViewsCommand,
-      couchbaseIqWebviewProvider,
+      couchbaseAssistantWebviewProvider,
       {
         webviewOptions: {
           retainContextWhenHidden: true,

@@ -68,6 +68,7 @@ const AssistantChat = ({ setIsLoading }) => {
   const [runningConversation, setRunningConversation] = useState<
     string | undefined
   >(undefined);
+  console.log("Assistant Chat", showFeedbackModal, feedbackModalData);
 
   useEffect(() => {
     setIsLoading(false);

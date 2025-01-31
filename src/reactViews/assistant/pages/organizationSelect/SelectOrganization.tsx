@@ -1,5 +1,5 @@
 import Dropdown from "./../../components/inputs/dropdown/Dropdown";
-import IqChat from "./../../pages/chatscreen/IqChat";
+import AssistantChat from "../chatscreen/assistantChat";
 import { useEffect, useState } from "react";
 import "./SelectOrganization.scss";
 
@@ -31,7 +31,7 @@ const SelectOrganizationPage = ({
         },
       });
       // At the end, we shift to next page that is main iq chat
-      setShowPage(<IqChat org={selectedOrg} setIsLoading={setIsLoading} />);
+      setShowPage(<AssistantChat setIsLoading={setIsLoading} />);
     }
   };
 
