@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./IqChat.scss";
-import { MainContainer } from "./../../chatscope/src/components/MainContainer/MainContainer";
-import { ChatContainer } from "./../../chatscope/src/components/ChatContainer/ChatContainer";
-import MessageList from "./../../chatscope/src/components/MessageList/MessageList";
-import { Message } from "./../../chatscope/src/components/Message/Message";
-import { MessageInput } from "./../../chatscope/src/components/MessageInput/MessageInput";
-import { TypingIndicator } from "./../../chatscope/src/components/TypingIndicator/TypingIndicator";
+import { MainContainer } from "../../chatscope/src/components/MainContainer/MainContainer";
+import { ChatContainer } from "../../chatscope/src/components/ChatContainer/ChatContainer";
+import MessageList from "../../chatscope/src/components/MessageList/MessageList";
+import { Message } from "../../chatscope/src/components/Message/Message";
+import { MessageInput } from "../../chatscope/src/components/MessageInput/MessageInput";
+import { TypingIndicator } from "../../chatscope/src/components/TypingIndicator/TypingIndicator";
 import { v4 as uuid } from "uuid";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -17,17 +17,14 @@ import {
 import {
   ActionBar,
   IActionBarButton,
-} from "./../../chatscope/src/components/ActionBar/ActionBar";
-import { ChatAction, availableActions } from "./../../utils/ChatAction";
-import { SendFeedback } from "./../../components/chatActions/SendFeedback";
-import ThumbsUp from "../../assets/icons/ThumbsUp";
-import ThumbsDown from "../../assets/icons/ThumbsDown";
-import { ModalWithCancelButton } from "./../../components/modals/ModalWithCancelButton";
+} from "../../chatscope/src/components/ActionBar/ActionBar";
+import { ChatAction, availableActions } from "../../utils/ChatAction";
+import { ModalWithCancelButton } from "../../components/modals/ModalWithCancelButton";
 import { ConversationHeader } from "../../chatscope/src/components/ConversationHeader/ConversationHeader";
-import { parseErrorMessages } from "./../../utils/ErrorMessages";
-import { CopyButton } from "./../../assets/icons/CopyButton";
-import { applyCodeQuery, handleCodeCopy } from "./../../utils/utils";
-import { SendToWorkbench } from "./../../assets/icons/SendToWorkbench";
+import { parseErrorMessages } from "../../utils/ErrorMessages";
+import { CopyButton } from "../../assets/icons/CopyButton";
+import { applyCodeQuery, handleCodeCopy } from "../../utils/utils";
+import { SendToWorkbench } from "../../assets/icons/SendToWorkbench";
 import { Tooltip } from "react-tooltip";
 
 export type userMessage = {
@@ -43,7 +40,7 @@ export type iqMessages = {
   chatId: string;
 };
 
-const IqChat = ({ org, setIsLoading }) => {
+const AssistantChat = ({ setIsLoading }) => {
   const [messages, setMessages] = useState<iqMessages>({
     userChats: [
       {
@@ -88,127 +85,6 @@ const IqChat = ({ org, setIsLoading }) => {
       },
     });
   }, []);
-
-  const handleMessageLike = (index: number, qaId: string) => {
-    const originalReply = messages.userChats[index].message;
-    const originalQuestion =
-      index - 1 > 0 ? messages.userChats[index - 1].message : "";
-    const newMessage: userMessage = {
-      message:
-        "Glad you liked the result. Would you like to give more feedback",
-      sender: "feedback",
-      msgDate: (Date.now() / 1000).toFixed(0),
-      qaId: qaId,
-      feedbackSent: false,
-    };
-
-    const messagesCopy = [...messages.userChats];
-    messagesCopy[index].feedbackSent = true;
-
-    const updatedMessages = [...messagesCopy, newMessage];
-    setMessages({
-      chatId: messages.chatId,
-      userChats: updatedMessages,
-    });
-
-    setActions([
-      ChatAction(
-        "Send Feedback",
-        setShowFeedbackModal,
-        setFeedbackModalData,
-        index,
-        qaId
-      ),
-    ]);
-    // send info to lambda
-    tsvscode.postMessage({
-      command: "vscode-couchbase.iq.sendFeedbackPerMessageEmote",
-      value: {
-        type: "like",
-        question: originalQuestion,
-        reply: originalReply,
-        msgDate: newMessage.msgDate,
-        additionalFeedback: "",
-        qaId: qaId,
-        chatId: messages.chatId,
-        orgId: org.data.id,
-        userChats: updatedMessages,
-      },
-    });
-  };
-
-  const handleMessageDislike = (index: number, qaId: string) => {
-    const originalReply = messages.userChats[index].message;
-    const originalQuestion =
-      index - 1 > 0 ? messages.userChats[index - 1].message : "";
-    const newMessage: userMessage = {
-      message:
-        "Oh! We are very sorry. Can you please give us additional info via feedback",
-      sender: "feedback",
-      msgDate: (Date.now() / 1000).toFixed(0),
-      qaId: qaId,
-      feedbackSent: false,
-    };
-
-    const messagesCopy = [...messages.userChats];
-    messagesCopy[index].feedbackSent = true;
-
-    const updatedMessages = [...messagesCopy, newMessage];
-    setMessages({
-      chatId: messages.chatId,
-      userChats: updatedMessages,
-    });
-
-    // set actions to feedback
-    setActions([
-      ChatAction(
-        "Send Feedback",
-        setShowFeedbackModal,
-        setFeedbackModalData,
-        index,
-        qaId
-      ),
-    ]);
-
-    // send info to lambda
-    tsvscode.postMessage({
-      command: "vscode-couchbase.iq.sendFeedbackPerMessageEmote",
-      value: {
-        type: "dislike",
-        question: originalQuestion,
-        reply: originalReply,
-        msgDate: newMessage.msgDate,
-        additionalFeedback: "",
-        qaId: qaId,
-        chatId: messages.chatId,
-        userChats: updatedMessages,
-      },
-    });
-  };
-
-  const handleFeedbackSubmit = (feedbackText) => {
-    if (feedbackText.trim() === "") {
-      return;
-    }
-    const index = feedbackModalData.msgIndex;
-    const qaId = feedbackModalData.qaId;
-    const originalReply = messages.userChats[index].message;
-    const originalQuestion =
-      index - 1 > 0 ? messages.userChats[index - 1].message : "";
-
-    tsvscode.postMessage({
-      command: "vscode-couchbase.iq.sendFeedbackPerMessageEmote",
-      value: {
-        type: null,
-        question: originalQuestion,
-        reply: originalReply,
-        msgDate: (Date.now() / 1000).toFixed(0),
-        additionalFeedback: feedbackText,
-        qaId: qaId,
-        chatId: messages.chatId,
-      },
-    });
-  };
 
   const SyntaxHighlight = ({ language, value }) => {
     if (language === "sql") {
@@ -409,7 +285,6 @@ const IqChat = ({ org, setIsLoading }) => {
         command: "vscode-couchbase.iq.sendMessageToIQ",
         value: {
           newMessage: newMessage.message,
-          orgId: org.data.id,
           userChats: updatedMessages,
           chatId: messages.chatId,
           qaId: newMessage.qaId,
@@ -512,36 +387,6 @@ const IqChat = ({ org, setIsLoading }) => {
                       position: "normal",
                     }}
                   >
-                    {hasFooter ? (
-                      <Message.Footer className="messageFooter">
-                        {message.feedbackSent !== true ? (
-                          <>
-                            <button
-                              className="likeButton iconButton"
-                              onClick={() =>
-                                handleMessageLike(index, message.qaId)
-                              }
-                            >
-                              <ThumbsUp />
-                            </button>
-                            <button
-                              className="dislikeButton iconButton"
-                              onClick={() =>
-                                handleMessageDislike(index, message.qaId)
-                              }
-                            >
-                              <ThumbsDown />
-                            </button>
-                          </>
-                        ) : (
-                          <div className="feedbackSentFooter">
-                            Thanks for voting!
-                          </div>
-                        )}
-                      </Message.Footer>
-                    ) : (
-                      ""
-                    )}
                   </Message>
                 );
               } else {
@@ -587,11 +432,7 @@ const IqChat = ({ org, setIsLoading }) => {
         </ChatContainer>
 
         {/* Modals Area, Please put all the modals here and control them using states */}
-        <SendFeedback
-          isOpen={showFeedbackModal}
-          onClose={() => setShowFeedbackModal(false)}
-          onSubmit={(text) => handleFeedbackSubmit(text)}
-        />
+        
 
         <ModalWithCancelButton
           isOpen={showNewChatModal}
@@ -606,4 +447,4 @@ const IqChat = ({ org, setIsLoading }) => {
   );
 };
 
-export default IqChat;
+export default AssistantChat;
