@@ -80,10 +80,11 @@ export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProv
 
         this._view.webview.onDidReceiveMessage(async (message) => {
             switch (message.command) {
-                case "vscode-couchbase.iq.sendMessageToIQ": {
+                case "vscode-couchbase.assistant.askAssistant": {
                     const result = await assistantChat(
                         message.value,
                         this.allMessages,
+                        this.cacheService
                     );
                     if (result.error !== undefined) {
                         let errorMsg = "";
@@ -120,13 +121,13 @@ export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProv
                             });
                         }
                     } else {
-                        this._view?.webview.postMessage({
-                            command: "vscode-couchbase.iq.getMessageFromIQ",
+                        this._view?.webview.postMessage({                        
+                            command: "vscode-couchbase.assistant.reply",
                             content: result.content,
                             isDarkTheme:
                                 vscode.window.activeColorTheme.kind ===
                                 vscode.ColorThemeKind.Dark,
-                        });
+                        });  
                     }
                     break;
                 }

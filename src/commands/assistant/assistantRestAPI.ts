@@ -1,21 +1,24 @@
 import axios from "axios";
 import * as vscode from "vscode";
 import { logger } from "../../logger/logger";
-import { Global, Memory } from "../../util/util";
+import { AssistantResponse } from "./chat/types";
 
 export class AssistantRestAPI {
     // Capella Prod domain
-    private static ASSISTANT_URL_DOMAIN = "http://127.0.0.1:8000";
+    private static ASSISTANT_URL_DOMAIN = "https://iq-fastapi.onrender.com";
 
     public static askAssistant = async (
-        messageBody: any
-    ): Promise<any> => {
-        let result:any = {
+        messageBody: string
+    ): Promise<AssistantResponse> => {
+        let result: AssistantResponse = {
             content: "",
             error: undefined,
             status: "",
+            thread_id: "",
+            tool_args: null
         };
         try {
+            console.log("messageBody: " + messageBody);
             const content = await axios.post(
                 `${this.ASSISTANT_URL_DOMAIN}/chat_postman`,
                 messageBody,
@@ -27,16 +30,18 @@ export class AssistantRestAPI {
                 }
             );
 
-            if (
-                content.data.choices === undefined ||
-                content.data.choices.length === 0
-            ) {
-                result.status = "NoLogout";
-                result.error = content.data.error;
+            console.log(content.data);
+            
+            if (content.data) {
+                result.content = content.data.content || "";
+                result.thread_id = content.data.thread_id || "";
+                result.tool_args = content.data.tool_args || null;
+                result.status = content.status.toString();
                 return result;
             }
-            result.content = content.data.choices[0].message.content;
-            result.status = content.status.toString();
+
+            result.status = "NoLogout";
+            result.error = "Invalid response format";
         } catch (error: any) {
             try {
                 if (error.response && error.response.status === 401) {
@@ -65,10 +70,23 @@ export class AssistantRestAPI {
                 }
             } catch (e) {
                 result.status = "400";
-                result.error = "Error while processing iQ message";
+                result.error = "Error while processing iQ message: " + e;
             }
         }
         return result;
+    };
+
+    public static restartAssistant = async (messageBody: string): Promise<any> => {
+        const response = await axios.post(`${this.ASSISTANT_URL_DOMAIN}/restart_postman`,
+            messageBody,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Connection: "keep-alive",
+                },
+            }
+        );
+        return response.data;
     };
 
 }

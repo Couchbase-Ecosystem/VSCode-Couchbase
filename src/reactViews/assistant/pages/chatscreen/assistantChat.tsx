@@ -30,7 +30,7 @@ import { Tooltip } from "react-tooltip";
 export type userMessage = {
   message: string;
   sender: string;
-  qaId: string;
+  threadId: string;
   feedbackSent: boolean;
   msgDate?: string;
 };
@@ -48,7 +48,7 @@ const AssistantChat = ({ setIsLoading }) => {
           "Greetings, I am Capella iQ! Feel free to inquire about anything related to Couchbase.",
         sender: "assistant",
         msgDate: (Date.now() / 1000).toFixed(0),
-        qaId: "firstMessage",
+        threadId: "firstMessage",
         feedbackSent: false,
       },
     ],
@@ -62,13 +62,13 @@ const AssistantChat = ({ setIsLoading }) => {
   const [isChatCompleted, setIsChatCompleted] = useState(false);
   const [feedbackModalData, setFeedbackModalData] = useState({
     msgIndex: -1,
-    qaId: "",
+    threadId: "",
   });
   const [actions, setActions] = useState<IActionBarButton[]>([]);
   const [runningConversation, setRunningConversation] = useState<
     string | undefined
   >(undefined);
-  console.log("Assistant Chat", showFeedbackModal, feedbackModalData);
+  console.log(showFeedbackModal, feedbackModalData);
 
   useEffect(() => {
     setIsLoading(false);
@@ -158,7 +158,7 @@ const AssistantChat = ({ setIsLoading }) => {
             "Greetings, I am Capella iQ! Feel free to inquire about anything related to Couchbase.",
           sender: "assistant",
           msgDate: (Date.now() / 1000).toFixed(0),
-          qaId: "firstMessage",
+          threadId: "firstMessage",
           feedbackSent: false,
         },
       ],
@@ -194,7 +194,7 @@ const AssistantChat = ({ setIsLoading }) => {
   window.addEventListener("message", (event) => {
     const message = event.data;
     switch (message.command) {
-      case "vscode-couchbase.iq.getMessageFromIQ": {
+      case "vscode-couchbase.assistant.reply": {
         if (message.isDarkTheme) {
           setCodeTheme(nightOwl);
         } else {
@@ -206,7 +206,7 @@ const AssistantChat = ({ setIsLoading }) => {
           sender: "assistant",
           feedbackSent: false,
           msgDate: message.msgDate,
-          qaId: message.qaId,
+          threadId: message.threadId,
         };
         setRunningConversation(undefined);
         const updatedMessages = [...messages.userChats, newMessage];
@@ -270,7 +270,7 @@ const AssistantChat = ({ setIsLoading }) => {
       message,
       sender: "user",
       msgDate: (Date.now() / 1000).toFixed(0),
-      qaId: uuid(),
+      threadId: uuid(),
       feedbackSent: false,
     };
 
@@ -283,19 +283,19 @@ const AssistantChat = ({ setIsLoading }) => {
     try {
       // Send message to CB iQ
       tsvscode.postMessage({
-        command: "vscode-couchbase.iq.sendMessageToIQ",
+        command: "vscode-couchbase.assistant.askAssistant",
         value: {
           newMessage: newMessage.message,
           userChats: updatedMessages,
           chatId: messages.chatId,
-          qaId: newMessage.qaId,
+          threadId: newMessage.threadId,
         },
       });
 
-      setRunningConversation(newMessage.qaId);
+      setRunningConversation(newMessage.threadId);
 
       setTimeout(() => {
-        if (runningConversation === newMessage.qaId) {
+        if (runningConversation === newMessage.threadId) {
           onChatCompleted(
             "The chat has timed out. Please ask again with a new conversation"
           );
