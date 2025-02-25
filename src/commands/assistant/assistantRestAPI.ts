@@ -18,7 +18,6 @@ export class AssistantRestAPI {
             tool_args: null
         };
         try {
-            console.log("messageBody: " + messageBody);
             const content = await axios.post(
                 `${this.ASSISTANT_URL_DOMAIN}/chat_postman`,
                 messageBody,
@@ -29,8 +28,6 @@ export class AssistantRestAPI {
                     },
                 }
             );
-
-            console.log(content.data);
             
             if (content.data) {
                 result.content = content.data.content || "";
