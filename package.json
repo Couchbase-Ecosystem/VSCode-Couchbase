@@ -760,6 +760,12 @@
         "title": "Show Workbench settings",
         "category": "Couchbase",
         "icon": "$(gear)"
+      },
+      {
+        "command": "vscode-couchbase.workbench.setQueryTimeout",
+        "title": "Set query timeout",
+        "category": "Couchbase",
+        "icon": "$(clock)"
       }
     ],
     "keybindings": [
@@ -1048,6 +1054,10 @@
         },
         {
           "command": "vscode-couchbase.workbench.showSettings",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.workbench.setQueryTimeout",
           "when": "false"
         }
       ],
