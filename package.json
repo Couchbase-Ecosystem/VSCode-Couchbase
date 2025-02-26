@@ -613,10 +613,10 @@
       },
       {
         "command": "vscode-couchbase.workbench.setQueryTimeout",
-        "title": "Set query timeout",
+        "title": "Set Query Timeout",
         "category": "Couchbase",
         "icon": "$(clock)",
-        "tooltip": "Set query timeout",
+        "tooltip": "Set Query Timeout",
         "enablement": "vscode-couchbase.runButtonEnabled"
       },
       {

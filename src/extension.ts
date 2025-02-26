@@ -90,6 +90,7 @@ import { JsonAttributeCompletionProvider } from "./commands/documents/contributo
 import ConnectionEvents from "./util/events/connectionEvents";
 import { CBShell } from "./tools/CBShell";
 import { huggingFaceMigrate } from "./pages/Tools/HuggingFaceMigrate/huggingFaceMigrate";
+import { setQueryTimeout } from "./commands/queryTimeout/setQueryTimeout";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -782,6 +783,15 @@ context.subscriptions.push(disposable);
       Commands.markFavoriteQuery,
       async () => {
         await markFavoriteQuery(context);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.setQueryTimeout,
+      async () => {
+        await setQueryTimeout(context);
       }
     )
   );

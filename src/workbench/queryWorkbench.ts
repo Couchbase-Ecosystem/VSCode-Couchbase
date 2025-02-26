@@ -21,7 +21,7 @@ import { WorkbenchWebviewProvider } from './workbenchWebviewProvider';
 import { MemFS } from '../util/fileSystemProvider';
 import { CouchbaseError, QueryOptions, QueryProfileMode, QueryStatus } from "couchbase";
 import { saveQuery } from '../util/queryHistory';
-import { getUUID } from '../util/util';
+import { getUUID, Memory } from '../util/util';
 import { QueryHistoryTreeProvider } from '../tree/QueryHistoryTreeProvider';
 import { IQueryContext } from '../types/IQueryContext';
 import { getAllNamedParameters } from '../util/namedParameters';
@@ -65,7 +65,8 @@ export class QueryWorkbench {
                 profile: QueryProfileMode.Timings,
                 metrics: true,
                 queryContext: queryContextString,
-                parameters: queryParameters
+                parameters: queryParameters,
+                timeout: Memory.state.get("queryTimeout") || 600,
             };
             try {
                 // Reveal the webview when the extension is activated
