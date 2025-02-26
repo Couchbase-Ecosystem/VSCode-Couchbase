@@ -106,7 +106,13 @@ export class QueryWorkbench {
                 if (err instanceof CouchbaseError) {
                     const { first_error_code, first_error_message, statement } =
                         err.cause as any;
-                    if (
+                        if(err.message === "ambiguous timeout") {
+                            errorArray.push({
+                                code: 1080,
+                                msg: `Query Timeout: Timeout ${Memory.state.get('queryTimeout')}s exceeded`,
+                                query: query,
+                            });
+                        } else if (
                         first_error_code !== undefined ||
                         first_error_message !== undefined ||
                         statement !== undefined
