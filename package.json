@@ -616,8 +616,7 @@
         "title": "Set Query Timeout",
         "category": "Couchbase",
         "icon": "$(clock)",
-        "tooltip": "Set Query Timeout",
-        "enablement": "vscode-couchbase.runButtonEnabled"
+        "tooltip": "Set Query Timeout"
       },
       {
         "command": "vscode-couchbase.getClusterOverview",
@@ -809,8 +808,7 @@
           "command": "vscode-couchbase.queryContext",
           "category": "Couchbase",
           "group": "navigation@2",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster",
-          "enablement": "vscode-couchbase.runButtonEnabled"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
         },
         {
           "title": "Search Context",
@@ -845,8 +843,7 @@
           "command": "vscode-couchbase.showNamedParameters",
           "category": "Couchbase",
           "group": "navigation@3",
-          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/) && !isKVCluster",
-          "enablement": "vscode-couchbase.runButtonEnabled"
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/) && !isKVCluster"
         },
         {
           "title": "Refresh Cluster Overview",
