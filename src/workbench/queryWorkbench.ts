@@ -21,7 +21,7 @@ import { WorkbenchWebviewProvider } from './workbenchWebviewProvider';
 import { MemFS } from '../util/fileSystemProvider';
 import { CouchbaseError, QueryOptions, QueryProfileMode, QueryStatus } from "couchbase";
 import { saveQuery } from '../util/queryHistory';
-import { getUUID } from '../util/util';
+import { getUUID, Memory } from '../util/util';
 import { QueryHistoryTreeProvider } from '../tree/QueryHistoryTreeProvider';
 import { IQueryContext } from '../types/IQueryContext';
 import { getAllNamedParameters } from '../util/namedParameters';
@@ -65,7 +65,8 @@ export class QueryWorkbench {
                 profile: QueryProfileMode.Timings,
                 metrics: true,
                 queryContext: queryContextString,
-                parameters: queryParameters
+                parameters: queryParameters,
+                timeout: Memory.state.get("queryTimeout") || 600,
             };
             try {
                 // Reveal the webview when the extension is activated
@@ -105,7 +106,13 @@ export class QueryWorkbench {
                 if (err instanceof CouchbaseError) {
                     const { first_error_code, first_error_message, statement } =
                         err.cause as any;
-                    if (
+                        if(err.message === "ambiguous timeout") {
+                            errorArray.push({
+                                code: 1080,
+                                msg: `Query Timeout: Timeout ${Memory.state.get('queryTimeout')}s exceeded`,
+                                query: query,
+                            });
+                        } else if (
                         first_error_code !== undefined ||
                         first_error_message !== undefined ||
                         statement !== undefined
