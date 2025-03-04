@@ -100,16 +100,16 @@ export class QueryWorkbench {
             try {
                 const response = await connection?.cluster?.query(separatedQuery, queryOptions).then(
                     (response: any) => response,
-                    (error: any) => (typeof error === 'object' && 'response' in error ? error.response : {})
+                    (error: any) => (typeof error === 'object' && 'response' in error ? error.response : {
+                        meta: {
+                            status: "fatal"
+                        }
+                    })
                 );
-
-                const statementType = String(response.controls?.stmtType || '');
-
-
-                queryResponses = [...queryResponses, { batchQuery: separatedQuery, batchQueryResult: response.rows || 'No results' }];
+                queryResponses = [...queryResponses, { batchQuery: separatedQuery, batchQueryResult: response?.rows || 'No results' }];
 
                 // stop executing batch queries if one of them failed
-                if (Object.keys(response).length === 0 || response.meta.status !== 'success') {
+                if (response.meta.status !== 'success') {
                     break;
                 }
             } catch (error: any) {
