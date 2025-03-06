@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "engines": {
     "vscode": "^1.63.1"
   },
