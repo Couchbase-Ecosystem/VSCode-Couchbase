@@ -106,6 +106,9 @@ export class QueryWorkbench {
                         }
                     })
                 );
+                if (separatedQuery.includes('CREATE SCOPE') || separatedQuery.includes('CREATE COLLECTION')) {
+                    await new Promise((resolve) => setTimeout(resolve, 2000));
+                }
                 queryResponses = [...queryResponses, { batchQuery: separatedQuery, batchQueryResult: response?.rows || 'No results' }];
 
                 // stop executing batch queries if one of them failed
