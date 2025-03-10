@@ -1,5 +1,6 @@
 import { logger } from "../../../logger/logger";
 import {  ISchemaCache, CacheService } from "../../../util/cacheService/cacheService";
+import { getActiveConnection } from "../../../util/connections";
 import { IAdditionalContext, collectionIntentType } from "./types";
 
 const schemaPatternStringify = (schemaPattern: any, indentLevel: number = 0) => {
@@ -25,6 +26,7 @@ const schemaStringify = (schema: ISchemaCache): any[] => {
 };
 
 
+// INFO: Indexes are not being sent to the assistant right now
 
 export const collectionIntentHandler = async (jsonObject: any, cacheService: CacheService) => {
 
@@ -33,7 +35,11 @@ export const collectionIntentHandler = async (jsonObject: any, cacheService: Cac
     console.log("collections", collections);
 
     if (collections.length === 0) { // No Collections found, returning
-        return;
+        return ["No collections found, Please don't use GetSchemaTool if you don't want to send collections"];
+    }
+
+    if (!getActiveConnection()){
+        return ["No active connection found, Please don't use GetSchemaTool now as there is no active connection"];
     }
     logger.info("getting collections data intent for " + collections);
     let collectionIntent: collectionIntentType[] = [];
@@ -41,18 +47,13 @@ export const collectionIntentHandler = async (jsonObject: any, cacheService: Cac
         const splitCollections = collection.split(".");
         if (splitCollections.length === 3) { // bucket.scope.collection format
             const [bucket, scope, col] = splitCollections;
-            console.log("bucket", bucket);
-            console.log("scope", scope);
-            console.log("col", col);
-
-            console.log(JSON.stringify(cacheService.getAllBucketsData()));
             const collectionData = await cacheService.getCollectionWithBucketAndScopeName(bucket, scope, col);
             const schema = collectionData?.schema || undefined;
             if (schema !== undefined) {
                 const stringifiedIntent: collectionIntentType = {
                     schemas: JSON.stringify(schema),
                     collection: `${bucket}.${scope}.${col}`,
-                    indexes: JSON.stringify(collectionData?.indexes || "")
+                    // indexes: JSON.stringify(collectionData?.indexes || "")
                 };
                 collectionIntent.push(stringifiedIntent);
             }
@@ -65,7 +66,7 @@ export const collectionIntentHandler = async (jsonObject: any, cacheService: Cac
                 const stringifiedIntent = {
                     schemas: JSON.stringify(schema),
                     collection: `${collectionData?.bucketName}.${scope}.${col}`,
-                    indexes: JSON.stringify(collectionData?.indexes || "")
+                    // indexes: JSON.stringify(collectionData?.indexes || "")
                 };
                 collectionIntent.push(stringifiedIntent);
             }
@@ -76,12 +77,15 @@ export const collectionIntentHandler = async (jsonObject: any, cacheService: Cac
             if (schema !== undefined) {
                 const stringifiedIntent = {
                     schemas: JSON.stringify(schema),
-                    indexes: JSON.stringify(collectionData?.indexes || ""),
+                    // indexes: JSON.stringify(collectionData?.indexes || ""),
                     collection: `${collectionData?.bucketName}.${collectionData?.scopeName}.${col}`
                 };
                 collectionIntent.push(stringifiedIntent);
             }
         }
+    }
+    if (collectionIntent.length === 0) {
+        return ["No Collection Schema found, Please don't use GetSchemaTool if you don't want to send correct collections"];
     }
     return collectionIntent;
 };

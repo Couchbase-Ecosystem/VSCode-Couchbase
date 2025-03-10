@@ -1,15 +1,15 @@
-export type assistantThreadType = {
-    threadId: string,
+export type assistantRunType = {
+    runId: string,
     question: string,
     answer: string,
 };
 
 export type assistantChatType = {
-    threadChat: Array<assistantThreadType>,
+    runChat: Array<assistantRunType>,
 };
 
 export type allMessagesType = {
-    sessionId: string,
+    threadId: string,
     chats: assistantChatType[],
 };
 
@@ -17,7 +17,8 @@ export type AssistantResponse = {
     content: string;
     error?: string;
     status: string;
-    thread_id: string;
+    threadId: string;
+    runId: string;
     tool_args: string | null;
 };
 

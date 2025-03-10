@@ -24,6 +24,7 @@ import { Constants } from "../../util/constants";
 import { CacheService } from "../../util/cacheService/cacheService";
 import { applyQuery } from "../queryHistory/applyQuery";
 import { allMessagesType } from "./chat/types";
+import { logger } from "../../logger/logger";
 
 export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
@@ -98,35 +99,36 @@ export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProv
                             errorMsg =
                                 "Internal Error: Please try again later or check settings on couchbase cloud";
                         }
-                        if (result.status.length > 3) {
+                        if (result && result.status && result.status.length > 3) {
                             // No 4xx or 5xx error
                             console.log("chat completed");
 
                             this._view?.webview.postMessage({
-                                command: "vscode-couchbase.iq.chatCompleted",
+                                command: "vscode-couchbase.assistant.chatCompleted",
                                 error: errorMsg,
                             });
                         } else if (result.status === "401") {
                             console.log("Got forced logout");
 
                             this._view?.webview.postMessage({
-                                command: "vscode-couchbase.iq.forcedLogout",
+                                command: "vscode-couchbase.assistant.chatCompleted",
                                 error: errorMsg,
                             });
                         } else {
                             // TODO: Handle If some other error is received
                             this._view?.webview.postMessage({
-                                command: "vscode-couchbase.iq.forcedLogout",
+                                command: "vscode-couchbase.assistant.chatCompleted",
                                 error: errorMsg,
+                                isDarkTheme:  vscode.window.activeColorTheme.kind ===
+                                vscode.ColorThemeKind.Dark,
                             });
                         }
                     } else {
+
+                        // Error Case
                         this._view?.webview.postMessage({                        
                             command: "vscode-couchbase.assistant.reply",
-                            content: result.content,
-                            isDarkTheme:
-                                vscode.window.activeColorTheme.kind ===
-                                vscode.ColorThemeKind.Dark,
+                            message: result.content,
                         });  
                     }
                     break;

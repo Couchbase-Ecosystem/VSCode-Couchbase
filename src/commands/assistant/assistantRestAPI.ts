@@ -5,7 +5,7 @@ import { AssistantResponse } from "./chat/types";
 
 export class AssistantRestAPI {
     // Capella Prod domain
-    private static ASSISTANT_URL_DOMAIN = "https://iq-fastapi.onrender.com";
+    private static ASSISTANT_URL_DOMAIN = "http://127.0.0.1:8000";
 
     public static askAssistant = async (
         messageBody: string
@@ -14,7 +14,8 @@ export class AssistantRestAPI {
             content: "",
             error: undefined,
             status: "",
-            thread_id: "",
+            threadId: "",
+            runId: "",
             tool_args: null
         };
         try {
@@ -31,7 +32,8 @@ export class AssistantRestAPI {
             
             if (content.data) {
                 result.content = content.data.content || "";
-                result.thread_id = content.data.thread_id || "";
+                result.threadId = content.data.thread_id || "";
+                result.runId = content.data.run_id || "";
                 result.tool_args = content.data.tool_args || null;
                 result.status = content.status.toString();
                 return result;
