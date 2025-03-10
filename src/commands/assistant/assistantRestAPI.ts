@@ -5,7 +5,7 @@ import { AssistantResponse } from "./chat/types";
 
 export class AssistantRestAPI {
     // Capella Prod domain
-    private static ASSISTANT_URL_DOMAIN = "http://127.0.0.1:8000";
+    private static ASSISTANT_URL_DOMAIN = "https://iq-fastapi.onrender.com"; //"http://127.0.0.1:8000";
 
     public static askAssistant = async (
         messageBody: string
