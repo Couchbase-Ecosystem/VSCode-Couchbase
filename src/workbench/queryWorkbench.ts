@@ -162,7 +162,7 @@ export class QueryWorkbench {
                 metrics: true,
                 queryContext: queryContextString,
                 parameters: queryParameters,
-                timeout: Memory.state.get("queryTimeout") || 600,
+                timeout: (Number(Memory.state.get("queryTimeout")) || 600) * 1000,
             };
             try {
                 // Reveal the webview when the extension is activated
