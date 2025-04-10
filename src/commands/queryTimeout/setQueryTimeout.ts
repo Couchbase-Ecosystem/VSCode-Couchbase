@@ -16,7 +16,7 @@ export async function setQueryTimeout(context: vscode.ExtensionContext) {
     });
 
     if (!timeout) {
-        vscode.window.showWarningMessage('No timeout provided');
+        vscode.window.showInformationMessage('No timeout provided');
         return;
     }
 
