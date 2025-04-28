@@ -152,7 +152,7 @@
       {
         "id": "couchbase.copilot",
         "name": "Couchbase",
-        "description": "Ask anything about Couchbase, from writing queries to questions about your cluster.",
+        "description": "Ask anything related to Couchbase, to get up-to-date information.",
         "isSticky": true,
         "commands": [
           {

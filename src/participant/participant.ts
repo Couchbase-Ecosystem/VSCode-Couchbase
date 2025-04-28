@@ -24,11 +24,10 @@ export default class ParticipantController {
       Constants.CHAT_PARTICIPANT_ID,
       this.chatHandler.bind(this)
     );
-    this._participant.iconPath = vscode.Uri.joinPath(
-      vscode.Uri.parse(context.extensionPath),
-      'images',
-      'couchbase.png'
-    );
+    this._participant.iconPath = {
+      light: vscode.Uri.joinPath(context.extensionUri, 'images', 'couchbase.png'),
+      dark: vscode.Uri.joinPath(context.extensionUri, 'images', 'couchbase.png')
+    };
     logger.info('Chat participant created');
     return this._participant;
   }
@@ -48,9 +47,6 @@ export default class ParticipantController {
   ): Promise<any> {
     const [request, , stream] = args;
     try {
-      Global.state.update(
-        Constants.COPILOT_HAS_BEEN_SHOWN_WELCOME_MESSAGE, false
-      );
       const hasBeenShownWelcomeMessageAlready = !!Global.state.get(
         Constants.COPILOT_HAS_BEEN_SHOWN_WELCOME_MESSAGE
       );
@@ -68,7 +64,7 @@ export default class ParticipantController {
             await Global.state?.update(Constants.COPILOT_HAS_BEEN_SHOWN_WELCOME_MESSAGE, true);
             stream.markdown(
               vscode.l10n.t(`Welcome to Couchbase Participant!\n\n
-  Interact with your Couchbase clusters and generate Couchbase-related code more efficiently with intelligent AI-powered feature, available today in the Couchbase extension.\n\n`)
+  Interact with your Couchbase clusters and ask questions related to Couchbase , available today in the Couchbase extension.\n\n`)
             );
             return true;
           }
