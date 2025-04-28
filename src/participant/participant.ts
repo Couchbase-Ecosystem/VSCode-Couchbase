@@ -1,9 +1,11 @@
 import * as vscode from 'vscode';
 import { logger } from '../logger/logger';
 import { Constants } from '../util/constants';
-import { Memory, Global } from '../util/util';
+import { Global } from '../util/util';
 import axios from 'axios';
 import { ChatMetadataStore } from './chatMetadata';
+import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 
 
 export default class ParticipantController {
@@ -46,6 +48,9 @@ export default class ParticipantController {
   ): Promise<any> {
     const [request, , stream] = args;
     try {
+      Global.state.update(
+        Constants.COPILOT_HAS_BEEN_SHOWN_WELCOME_MESSAGE, false
+      );
       const hasBeenShownWelcomeMessageAlready = !!Global.state.get(
         Constants.COPILOT_HAS_BEEN_SHOWN_WELCOME_MESSAGE
       );
@@ -168,7 +173,7 @@ export default class ParticipantController {
       this._chatMetadataStore.getChatMetadata(chatId) ?? {};
 
     if (!docsChatbotConversationId) {
-      docsChatbotConversationId = "conversation._id";
+      docsChatbotConversationId = uuidv4();
       this._chatMetadataStore.setChatMetadata(chatId, {
         docsChatbotConversationId,
       });
@@ -182,12 +187,13 @@ export default class ParticipantController {
       runId: "",
       tool_args: null
     };
+    const hashedMachineId = crypto.createHash('sha256').update(vscode.env.machineId).digest('hex');
     const messageBody = JSON.stringify({
       "data": {
         messages: prompt,
         thread_id: chatId,
         run_id: "vscode_run_" + Date.now().toString(36),
-        user_id: vscode.env.machineId
+        user_id: hashedMachineId
       }
     });
     const content = await axios.post(
