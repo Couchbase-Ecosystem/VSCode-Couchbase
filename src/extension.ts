@@ -89,6 +89,7 @@ import { deleteIndex } from "./util/ftsIndexUtils";
 import { JsonAttributeCompletionProvider } from "./commands/documents/contributor/autoCompleteContributor";
 import ConnectionEvents from "./util/events/connectionEvents";
 import { CBShell } from "./tools/CBShell";
+import ParticipantController from "./participant/participant";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -192,6 +193,8 @@ context.subscriptions.push(disposable);
 
   const subscriptions = context.subscriptions;
   const cacheService = new CacheService();
+  const participant = new ParticipantController();
+  participant.createParticipant(context);
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context,
     cacheService
