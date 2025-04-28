@@ -89,6 +89,8 @@ import { deleteIndex } from "./util/ftsIndexUtils";
 import { JsonAttributeCompletionProvider } from "./commands/documents/contributor/autoCompleteContributor";
 import ConnectionEvents from "./util/events/connectionEvents";
 import { CBShell } from "./tools/CBShell";
+import { huggingFaceMigrate } from "./pages/Tools/HuggingFaceMigrate/huggingFaceMigrate";
+import { setQueryTimeout } from "./commands/queryTimeout/setQueryTimeout";
 import ParticipantController from "./participant/participant";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -726,6 +728,15 @@ context.subscriptions.push(disposable);
 
   subscriptions.push(
     vscode.commands.registerCommand(
+      Commands.huggingFaceMigrate,
+      async () => {
+        await huggingFaceMigrate();
+      }
+    )
+  )
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
       Commands.dataImport,
       async () => {
         await new DataImport().dataImport(context);
@@ -775,6 +786,15 @@ context.subscriptions.push(disposable);
       Commands.markFavoriteQuery,
       async () => {
         await markFavoriteQuery(context);
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.setQueryTimeout,
+      async () => {
+        await setQueryTimeout(context);
       }
     )
   );

@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "2.1.8",
+  "version": "2.2.3",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -628,6 +628,13 @@
         "enablement": "vscode-couchbase.runButtonEnabled"
       },
       {
+        "command": "vscode-couchbase.workbench.setQueryTimeout",
+        "title": "Set Query Timeout",
+        "category": "Couchbase",
+        "icon": "$(clock)",
+        "tooltip": "Set Query Timeout"
+      },
+      {
         "command": "vscode-couchbase.getClusterOverview",
         "title": "Cluster Overview",
         "category": "Couchbase"
@@ -651,6 +658,11 @@
       {
         "command": "vscode-couchbase.tools.dynamodbMigrate",
         "title": "DynamoDB Migrate",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.tools.huggingFaceMigrate",
+        "title": "Hugging Face Migrate",
         "category": "Couchbase"
       },
       {
@@ -822,17 +834,24 @@
           "when": "editorLangId == json && resourceFilename =~ /\\.cbs\\.json$/  && !isKVCluster"
         },
         {
+          "title": "Set query timeout",
+          "command": "vscode-couchbase.workbench.setQueryTimeout",
+          "category": "Couchbase",
+          "group": "navigation@4",
+          "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
+        },
+        {
           "title": "Show Favorite Queries",
           "command": "vscode-couchbase.showFavoriteQueries",
           "category": "Couchbase",
-          "group": "navigation@3",
+          "group": "navigation@6",
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
         },
         {
           "title": "Mark Favorite Query",
           "command": "vscode-couchbase.markFavoriteQuery",
           "category": "Couchbase",
-          "group": "navigation@4",
+          "group": "navigation@5",
           "when": "(editorLangId == sqlpp || resourceFilename =~ /.sqlpp$/ || editorLangId == n1ql || resourceFilename =~ /.n1ql$/)  && !isKVCluster"
         },
         {
@@ -1034,6 +1053,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.tools.huggingFaceMigrate",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.tools.dataImport",
           "when": "false"
         },
@@ -1055,6 +1078,10 @@
         },
         {
           "command": "vscode-couchbase.workbench.showSettings",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.workbench.setQueryTimeout",
           "when": "false"
         }
       ],
@@ -1236,6 +1263,10 @@
         },
         {
           "command": "vscode-couchbase.tools.dynamodbMigrate",
+          "group": "tertiary"
+        },
+        {
+          "command": "vscode-couchbase.tools.huggingFaceMigrate",
           "group": "tertiary"
         },
         {
