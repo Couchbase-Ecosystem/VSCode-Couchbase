@@ -32,7 +32,6 @@ export const collectionIntentHandler = async (jsonObject: any, cacheService: Cac
 
     const collections: string[] = jsonObject?.collections || [];
 
-    console.log("collections", collections);
 
     if (collections.length === 0) { // No Collections found, returning
         return ["No collections found, Please don't use GetSchemaTool if you don't want to send collections"];

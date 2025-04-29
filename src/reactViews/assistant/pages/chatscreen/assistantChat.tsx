@@ -45,7 +45,7 @@ const AssistantChat = ({ setIsLoading }) => {
     userChats: [
       {
         message:
-          "Greetings, I am Capella iQ! Feel free to inquire about anything related to Couchbase.",
+          "Greetings, I am Couchbase Assistant! Feel free to inquire about anything related to Couchbase.",
         sender: "assistant",
         msgDate: (Date.now() / 1000).toFixed(0),
         feedbackSent: false,
@@ -155,7 +155,7 @@ const AssistantChat = ({ setIsLoading }) => {
       userChats: [
         {
           message:
-            "Greetings, I am Capella iQ! Feel free to inquire about anything related to Couchbase.",
+            "Greetings, I am Couchbase Assistant! Feel free to inquire about anything related to Couchbase.",
           sender: "assistant",
           msgDate: (Date.now() / 1000).toFixed(0),
           runId: "firstMessage",
@@ -274,10 +274,6 @@ const AssistantChat = ({ setIsLoading }) => {
       feedbackSent: false,
     };
 
-    console.log("Message Received: " + newMessage.message);
-    console.log("Run ID: " + newMessage.runId);
-    console.log("Chat ID: " + messages.chatId);
-
     const updatedMessages = [...messages.userChats, newMessage];
     setMessages({
       chatId: messages.chatId,
@@ -285,7 +281,7 @@ const AssistantChat = ({ setIsLoading }) => {
     });
     setIsTyping(true);
     try {
-      const runId = uuid();
+      const runId = "vscode_assistant_run_" + uuid();
       // Send message to CB iQ
       tsvscode.postMessage({
         command: "vscode-couchbase.assistant.askAssistant",
@@ -325,7 +321,7 @@ const AssistantChat = ({ setIsLoading }) => {
             actionbar={
               isTyping ? (
                 <TypingIndicator
-                  content="iQ is typing"
+                  content="Assistant is typing"
                   className="typingIndicator"
                 />
               ) : actions.length > 0 ? (

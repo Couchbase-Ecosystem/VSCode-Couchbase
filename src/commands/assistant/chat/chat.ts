@@ -5,12 +5,15 @@ import { CacheService } from "../../../util/cacheService/cacheService";
 import * as vscode from "vscode";
 import { logger } from "../../../logger/logger";
 import { availableCollections } from "./utils";
+import { Global } from "../../../util/util";
+import { Constants } from "../../../util/constants";
+import crypto from 'crypto';
 
 export const assistantChat = async (iqPayload: any, allMessages: allMessagesType[], cacheService: CacheService): Promise<any> => {
     const newMessage: string = iqPayload.newMessage, runId: string = iqPayload.runId, threadId: string = iqPayload.chatId;
 
     const userId = vscode.env.machineId;
-
+    const hashedMachineId = crypto.createHash('sha256').update(userId).digest('hex');
     let previousMessages: allMessagesType | undefined;
 
     const messageIndex = allMessages.findIndex(message => message.threadId === threadId);
@@ -34,8 +37,8 @@ export const assistantChat = async (iqPayload: any, allMessages: allMessagesType
         threadId: threadId,
         runId: runId,
         role: "user",
-        userId: userId,
-    }, "collection_names": availableCollectionNames});
+        userId: hashedMachineId,
+    }, "collection_names": [availableCollectionNames]});
 
     try {
 
@@ -59,13 +62,14 @@ export const assistantChat = async (iqPayload: any, allMessages: allMessagesType
             const toolArgs = JSON.parse(response.tool_args);
 
             const collectionIntent = await collectionIntentHandler(toolArgs, cacheService);
+            const collections = collectionIntent.map(item => JSON.stringify(item))
 
             const messageBody = JSON.stringify({
                 "data": {
-                    collections: collectionIntent,
+                    collections: collections,
                     threadId: threadId,
                     runId: runId,
-                    userId: userId,
+                    userId: hashedMachineId,
                     role: "user",
                 }
             });
@@ -102,3 +106,35 @@ export const assistantChat = async (iqPayload: any, allMessages: allMessagesType
         };
     }
 };
+
+
+export const ensureTermsAccepted = async(): Promise<boolean> => {
+    const hasBeenShownWelcomeMessageAlready = !!Global.state.get(
+        Constants.ASSISTANT_HAS_BEEN_SHOWN_WELCOME_MESSAGE
+    );
+
+    if (!hasBeenShownWelcomeMessageAlready) {
+        const selection = await vscode.window.showInformationMessage(
+            vscode.l10n.t('Welcome to Couchbase Participant! To use this feature, you must accept our terms and conditions.'),
+            { modal: true },
+            vscode.l10n.t('Accept & Continue'),
+            vscode.l10n.t('View Terms'),
+        );
+        if (selection === vscode.l10n.t('Accept & Continue')) {
+            await Global.state?.update(Constants.ASSISTANT_HAS_BEEN_SHOWN_WELCOME_MESSAGE, true);
+            return true;
+        }
+        else if (selection === vscode.l10n.t('View Terms')) {
+            vscode.env.openExternal(vscode.Uri.parse('https://www.couchbase.com/privacy-policy/'));
+            vscode.env.openExternal(vscode.Uri.parse('https://www.couchbase.com/terms-of-use/'));
+
+            return await ensureTermsAccepted();
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
+
+
+}

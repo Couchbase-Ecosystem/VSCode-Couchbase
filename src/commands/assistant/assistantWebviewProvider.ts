@@ -17,7 +17,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { getIQWebviewContent } from "../../webViews/iq/couchbaseIq.webview";
-import { assistantChat } from "./chat/chat";
+import { assistantChat, ensureTermsAccepted } from "./chat/chat";
 
 import { Memory, getUUID } from "../../util/util";
 import { Constants } from "../../util/constants";
@@ -82,12 +82,22 @@ export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProv
         this._view.webview.onDidReceiveMessage(async (message) => {
             switch (message.command) {
                 case "vscode-couchbase.assistant.askAssistant": {
+                    const termsAccepted = await ensureTermsAccepted();
+                    
+                    if (!termsAccepted) {
+                        // If terms not accepted, send an error back
+                        this._view?.webview.postMessage({
+                            command: "vscode-couchbase.assistant.chatCompleted",
+                            error: "You must accept the terms to use Couchbase Assistant Chat Feature.",
+                        });
+                        break;
+                    }
                     const result = await assistantChat(
                         message.value,
                         this.allMessages,
                         this.cacheService
                     );
-                    if (result.error !== undefined) {
+                    if (result.error !== undefined && result.error !== null) {
                         let errorMsg = "";
                         try {
                             if (typeof result.error !== "string") {
@@ -124,8 +134,7 @@ export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProv
                             });
                         }
                     } else {
-
-                        // Error Case
+                        // No Error Case
                         this._view?.webview.postMessage({                        
                             command: "vscode-couchbase.assistant.reply",
                             message: result.content,
