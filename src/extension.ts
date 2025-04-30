@@ -92,6 +92,7 @@ import { CBShell } from "./tools/CBShell";
 import { huggingFaceMigrate } from "./pages/Tools/HuggingFaceMigrate/huggingFaceMigrate";
 import { setQueryTimeout } from "./commands/queryTimeout/setQueryTimeout";
 import { CouchbaseAssistantWebviewProvider } from "./commands/assistant/assistantWebviewProvider";
+import ParticipantController from "./participant/participant";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -195,6 +196,8 @@ context.subscriptions.push(disposable);
 
   const subscriptions = context.subscriptions;
   const cacheService = new CacheService();
+  const participant = new ParticipantController(cacheService);
+  participant.createParticipant(context);
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context,
     cacheService

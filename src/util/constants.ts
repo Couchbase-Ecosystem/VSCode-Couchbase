@@ -110,4 +110,6 @@ export class Constants {
   public static DATA_MIGRATE_HUGGING_FACE_WEBVIEW = "dataHuggingFaceWebview";
   public static DATA_IMPORT_WEBVIEW = "dataImportWebview";
   public static ASSISTANT_HAS_BEEN_SHOWN_WELCOME_MESSAGE = "assistantHasBeenShownWelcomeMessage"
+  public static CHAT_PARTICIPANT_ID = "couchbase.copilot";
+  public static COPILOT_HAS_BEEN_SHOWN_WELCOME_MESSAGE = "COPILOT_HAS_BEEN_SHOWN_WELCOME_MESSAGE";
 }
