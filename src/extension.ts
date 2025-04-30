@@ -91,6 +91,7 @@ import ConnectionEvents from "./util/events/connectionEvents";
 import { CBShell } from "./tools/CBShell";
 import { huggingFaceMigrate } from "./pages/Tools/HuggingFaceMigrate/huggingFaceMigrate";
 import { setQueryTimeout } from "./commands/queryTimeout/setQueryTimeout";
+import { CouchbaseAssistantWebviewProvider } from "./commands/assistant/assistantWebviewProvider";
 import ParticipantController from "./participant/participant";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -234,19 +235,45 @@ context.subscriptions.push(disposable);
   );
 
   CBShell.getInstance(context);
-
+  
   const couchbaseIqWebviewProvider = new CouchbaseIqWebviewProvider(context, cacheService);
-  subscriptions.push(
-    vscode.window.registerWebviewViewProvider(
-      Commands.couchbaseIqViewsCommand,
-      couchbaseIqWebviewProvider,
-      {
-        webviewOptions: {
-          retainContextWhenHidden: true,
-        },
-      }
-    )
-  );
+  const couchbaseAssistantWebviewProvider = new CouchbaseAssistantWebviewProvider(context, cacheService);
+
+  
+  const config = vscode.workspace.getConfiguration('couchbase');
+  const interfaceMode = config.get<string>('ChatInterface', 'cb-assistant');  // Set default to 'cb-assistant'
+  
+  if (interfaceMode === 'iQ') {
+    subscriptions.push(
+      vscode.window.registerWebviewViewProvider(
+        Commands.couchbaseIqViewsCommand,
+        couchbaseIqWebviewProvider,
+        {
+          webviewOptions: {
+            retainContextWhenHidden: true,
+          },
+        }
+      )
+    );
+    
+    vscode.commands.executeCommand('setContext', 'couchbase.showIQView', true);
+    vscode.commands.executeCommand('setContext', 'couchbase.showAssistantView', false);
+  } else {
+    subscriptions.push(
+      vscode.window.registerWebviewViewProvider(
+        Commands.couchbaseAssistantViewsCommand,
+        couchbaseAssistantWebviewProvider,
+        {
+          webviewOptions: {
+            retainContextWhenHidden: true,
+          },
+        }
+      )
+    );
+    
+    vscode.commands.executeCommand('setContext', 'couchbase.showIQView', false);
+    vscode.commands.executeCommand('setContext', 'couchbase.showAssistantView', true);
+  }
 
   subscriptions.push(
     vscode.commands.registerCommand(
@@ -271,6 +298,15 @@ context.subscriptions.push(disposable);
       Commands.showIqSettings,
       () => {
         vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.iq");
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.showAssistantSettings,
+      () => {
+        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.assistant");
       }
     )
   );
@@ -984,6 +1020,21 @@ context.subscriptions.push(disposable);
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.ddlExport, async () => {
       ddlExport();
+    })
+  );
+  
+  subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration(async (event) => {
+      if (event.affectsConfiguration('couchbase.ChatInterface')) {
+        const reload = await vscode.window.showInformationMessage(
+          `You've changed the Chat interface mode. You need to reload VS Code to apply this change.`,
+          'Reload Now'
+        );
+        
+        if (reload === 'Reload Now') {
+          await vscode.commands.executeCommand('workbench.action.reloadWindow');
+        }
+      }
     })
   );
 

@@ -28,7 +28,7 @@ const getIntentOrResponse = async (userRequest: string, jwtToken: string, orgId:
       “collections”: <Array Of Strings with the identified Collections>,
       “files”: <Array Of Strings with the identified files>, 
       “func”: <Array Of Strings with the identified functions or methods>,
-      “actions”: <array of actions recognised according to the values of actionOptions>
+      “actions”: <array of actions recognized according to the values of actionOptions>
     }
     If any additional information is needed, respond in the JSON format listed above.
     Do not add any non-json text to your response with JSON.

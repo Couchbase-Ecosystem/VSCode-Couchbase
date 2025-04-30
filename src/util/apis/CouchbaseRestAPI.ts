@@ -20,7 +20,7 @@ import { IConnection } from "../../types/IConnection";
 import { logger } from "../../logger/logger";
 import { plainToClass } from 'class-transformer';
 import { ServerOverview } from "./ServerOverview";
-import { getServerURL } from "./NSLookup";
+import { getFTSNodes, getServerURL } from "./NSLookup";
 import https from 'https';
 import { BucketOverview } from "./BucketOverview";
 import { SecretService } from "../secretService";
@@ -137,7 +137,7 @@ export class CouchbaseRestAPI {
         if (!password) {
             return undefined;
         }
-        let url = (await getServerURL(this.connection.url))[0];
+        let url = getFTSNodes()[0];
         url = (this.connection.isSecure ? `https://${url}:18094` : `http://${url}:8094`);
         url += `/api/index/${indexName}/query`;
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -162,7 +162,7 @@ export class CouchbaseRestAPI {
         if (!password) {
             return undefined;
         }
-        let url = (await getServerURL(this.connection.url))[0];
+        let url = getFTSNodes()[0]
         url = (this.connection.isSecure ? `https://${url}:18094` : `http://${url}:8094`);
         url += `/api/index/${indexName}`;
 
