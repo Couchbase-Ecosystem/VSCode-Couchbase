@@ -7,16 +7,21 @@ import { ChatMetadataStore } from './chatMetadata';
 import { v4 as uuid } from "uuid";
 import crypto from 'crypto';
 import { ChatResultFeedbackKind } from 'vscode';
+import { assistantChat } from '../commands/assistant/chat/chat';
+import { CacheService } from '../util/cacheService/cacheService';
+import { allMessagesType } from '../commands/assistant/chat/types';
 
 
 export default class ParticipantController {
   _participant?: vscode.ChatParticipant;
   _chatMetadataStore: ChatMetadataStore;
   private static ASSISTANT_URL_DOMAIN = "https://iq-fastapi.staging.cbdevx.com";
+  private cacheService: CacheService;
 
 
-  constructor() {
+  constructor(cacheService: CacheService) {
     this._chatMetadataStore = new ChatMetadataStore();
+    this.cacheService = cacheService;
   }
 
 
@@ -102,7 +107,7 @@ export default class ParticipantController {
         case 'docs':
           return await this.handleDocsRequest(...args);
         default:
-          return await this.handleDocsRequest(...args);
+          return await this.handleGenericRequest(...args);
       }
     } catch (error) {
       throw error;
@@ -147,6 +152,100 @@ export default class ParticipantController {
     });
   }
 
+  async handleGenericRequest(
+    ...args: [
+      vscode.ChatRequest,
+      vscode.ChatContext,
+      vscode.ChatResponseStream,
+      vscode.CancellationToken
+    ]
+  ): Promise<any> {
+    const [request, context, stream, token] = args;
+    const chatId = ChatMetadataStore.getChatIdFromHistoryOrNewChatId(
+      context.history
+    );
+    let docsResult: {
+      content?: string;
+      docsChatbotMessageId?: string;
+    } = {};
+    try {
+
+      docsResult = await this._handleGenericAssistantRequest({
+        request,
+        chatId,
+        stream,
+      });
+
+      if (docsResult.content) {
+        stream.markdown(docsResult.content);
+      }
+    } catch (error) {
+      logger.error('Error handling docs request');
+      throw error;
+    }
+
+    return ChatMetadataStore.docsRequestChatResult({
+      chatId,
+      docsChatbotMessageId: docsResult.docsChatbotMessageId
+    });
+  }
+
+  async _handleGenericAssistantRequest({
+    request,
+    chatId,
+    stream,
+  }: {
+    request: vscode.ChatRequest;
+    chatId: string;
+    stream: vscode.ChatResponseStream;
+  }
+
+  ): Promise<any> {
+    const prompt = request.prompt;
+    stream.push(
+      new vscode.ChatResponseProgressPart('Fetching from Couchbase Resources...')
+    );
+    let { docsChatbotConversationId } =
+      this._chatMetadataStore.getChatMetadata(chatId) ?? {};
+
+    if (!docsChatbotConversationId) {
+      docsChatbotConversationId = uuid();
+      this._chatMetadataStore.setChatMetadata(chatId, {
+        docsChatbotConversationId,
+      });
+    }
+    let result: any = {
+      content: "",
+      error: undefined,
+      status: "",
+      threadId: "",
+      runId: "",
+      tool_args: null
+    };
+    const allMessages:allMessagesType[] = [];
+    const payload = {
+      newMessage: prompt,
+      runId: "vscode_copilot_run_" + uuid(),
+      chatId: chatId,
+    };
+    const response = await assistantChat(payload, allMessages, this.cacheService);
+    if (response) {
+      result.content = response.content || "";
+      result.threadId = response.thread_id || "";
+      result.runId = response.run_id || "";
+      result.tool_args = response.tool_args || null;
+      result.status = response.status ? response.status.toString() : "Success";
+      this._chatMetadataStore.setChatMetadata(chatId, {
+        docsChatbotConversationId: chatId,
+        lastRunId: result.runId
+      });
+      return result;
+    }
+    return undefined;
+  }
+
+
+
 
 
   async _handleDocsRequestWithChatbot({
@@ -172,7 +271,6 @@ export default class ParticipantController {
       this._chatMetadataStore.setChatMetadata(chatId, {
         docsChatbotConversationId,
       });
-      logger.info('Docs chatbot created for chatId');
     }
     let result: any = {
       content: "",
@@ -186,10 +284,10 @@ export default class ParticipantController {
     const messageBody = JSON.stringify({
       "data": {
         messages: prompt,
-        rag_config : {
-          "version_profile":"latest",
-          "document_source":"documentation"
-      },
+        rag_config: {
+          "version_profile": "latest",
+          "document_source": "documentation"
+        },
         thread_id: chatId,
         run_id: "vscode_copilot_run_" + uuid(),
         user_id: hashedMachineId
@@ -210,7 +308,7 @@ export default class ParticipantController {
       result.threadId = content.data.thread_id || "";
       result.runId = content.data.run_id || "";
       result.tool_args = content.data.tool_args || null;
-      result.status = content.status.toString();
+      result.status = content.status ? content.status.toString() : "Success";
       this._chatMetadataStore.setChatMetadata(chatId, {
         docsChatbotConversationId: chatId,
         lastRunId: result.runId
@@ -228,9 +326,9 @@ export default class ParticipantController {
       const metadata = this._chatMetadataStore.getChatMetadata(chatId);
       const hashedMachineId = crypto.createHash('sha256').update(vscode.env.machineId).digest('hex');
       const unhelpfulReason =
-      'unhelpfulReason' in review
-        ? (review.unhelpfulReason as string)
-        : undefined;
+        'unhelpfulReason' in review
+          ? (review.unhelpfulReason as string)
+          : undefined;
       const messageBody = JSON.stringify({
         "data": {
           thread_id: metadata?.docsChatbotConversationId || chatId,

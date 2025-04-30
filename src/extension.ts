@@ -196,7 +196,7 @@ context.subscriptions.push(disposable);
 
   const subscriptions = context.subscriptions;
   const cacheService = new CacheService();
-  const participant = new ParticipantController();
+  const participant = new ParticipantController(cacheService);
   participant.createParticipant(context);
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context,
