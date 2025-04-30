@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -763,6 +763,12 @@
         "icon": "$(gear)"
       },
       {
+        "command": "vscode-couchbase.assistant.showSettings",
+        "title": "Show assistant settings",
+        "category": "Couchbase",
+        "icon": "$(gear)"
+      },
+      {
         "command": "vscode-couchbase.workbench.showSettings",
         "title": "Show Workbench settings",
         "category": "Couchbase",
@@ -1061,6 +1067,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.assistant.showSettings",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.workbench.showSettings",
           "when": "false"
         },
@@ -1222,17 +1232,27 @@
         },
         {
           "command": "vscode-couchbase.iq.newChat",
-          "when": "view == couchbase-iq && isIqNewChatButtonBVisible",
+          "when": "view == couchbase-iq && isIqNewChatButtonBVisible && couchbase.showIQView",
           "group": "navigation@1"
         },
         {
           "command": "vscode-couchbase.iq.logout",
-          "when": "view == couchbase-iq && isIqLogoutButtonBVisible",
+          "when": "view == couchbase-iq && isIqLogoutButtonBVisible && couchbase.showIQView",
           "group": "navigation@3"
         },
         {
           "command": "vscode-couchbase.iq.showSettings",
-          "when": "view == couchbase-iq",
+          "when": "view == couchbase-iq && couchbase.showIQView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "vscode-couchbase.iq.newChat",
+          "when": "view == couchbase-assistant && isIqNewChatButtonBVisible && couchbase.showAssistantView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "vscode-couchbase.assistant.showSettings",
+          "when": "view == couchbase-assistant && couchbase.showAssistantView",
           "group": "navigation@2"
         }
       ],
@@ -1299,7 +1319,14 @@
         {
           "id": "couchbase-iq",
           "name": "Capella iQ (Beta)",
-          "type": "webview"
+          "type": "webview",
+          "when": "couchbase.showIQView"
+        },
+        {
+          "id": "couchbase-assistant",
+          "name": "Couchbase Assistant",
+          "type": "webview",
+          "when": "couchbase.showAssistantView"
         },
         {
           "id": "query-history",
@@ -1309,12 +1336,24 @@
       "couchbase-workbench-panel": [
         {
           "id": "vscode-couchbase.couchbase-query-workbench",
-          "name": "Couchbase",
+          "name": "Couchbase", 
           "type": "webview"
         }
       ]
     },
     "configuration": [
+      {
+        "id": "couchbase-chat",
+        "title": "Couchbase Chat",
+        "properties": {
+          "couchbase.ChatInterface": {
+            "type": "string",
+            "enum": ["cb-assistant", "iQ"],
+            "default": "cb-assistant",
+            "markdownDescription": "Choose which interface to use. 'Assistant' for the Couchbase Assistant (default) or 'iQ' for the Capella iQ interface."
+          }
+        }
+      },
       {
         "id": "couchbase-iq",
         "title": "iQ",

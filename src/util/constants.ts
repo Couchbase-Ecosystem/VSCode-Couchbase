@@ -109,4 +109,5 @@ export class Constants {
   public static DATA_MIGRATE_DYNAMODB_WEBVIEW = "dataDynamodbWebview";
   public static DATA_MIGRATE_HUGGING_FACE_WEBVIEW = "dataHuggingFaceWebview";
   public static DATA_IMPORT_WEBVIEW = "dataImportWebview";
+  public static ASSISTANT_HAS_BEEN_SHOWN_WELCOME_MESSAGE = "assistantHasBeenShownWelcomeMessage"
 }

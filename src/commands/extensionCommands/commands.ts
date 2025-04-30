@@ -73,8 +73,10 @@ export namespace Commands {
     export const dataImport: string = "vscode-couchbase.tools.dataImport";
     export const ddlExport: string = "vscode-couchbase.tools.DDLExport";
     export const couchbaseIqViewsCommand: string = "couchbase-iq";
+    export const couchbaseAssistantViewsCommand: string = "couchbase-assistant";
     export const logoutIq: string = "vscode-couchbase.iq.logout";
     export const showIqSettings: string = "vscode-couchbase.iq.showSettings";
+    export const showAssistantSettings: string = "vscode-couchbase.assistant.showSettings";
     export const showWorkbenchSettings: string = "vscode-couchbase.workbench.showSettings";
     export const newIqChat: string = "vscode-couchbase.iq.newChat";
     export const setQueryTimeout: string = "vscode-couchbase.workbench.setQueryTimeout";
