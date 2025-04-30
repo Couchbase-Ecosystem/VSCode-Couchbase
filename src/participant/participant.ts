@@ -4,8 +4,9 @@ import { Constants } from '../util/constants';
 import { Global } from '../util/util';
 import axios from 'axios';
 import { ChatMetadataStore } from './chatMetadata';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from "uuid";
 import crypto from 'crypto';
+import { ChatResultFeedbackKind } from 'vscode';
 
 
 export default class ParticipantController {
@@ -29,6 +30,7 @@ export default class ParticipantController {
       dark: vscode.Uri.joinPath(context.extensionUri, 'images', 'couchbase.png')
     };
     logger.info('Chat participant created');
+    this._participant.onDidReceiveFeedback(this.handleFeedback.bind(this));
     return this._participant;
   }
 
@@ -95,13 +97,10 @@ export default class ParticipantController {
 
       switch (request.command) {
         case 'query':
-        // TODO: Handle query request
+        // TODO: Handle query request: By adding query promt template
         // return await this.handleQueryRequest(...args);
         case 'docs':
           return await this.handleDocsRequest(...args);
-        case 'schema':
-        // TODO: Handle schema request
-        // return await this.handleSchemaRequest(...args);
         default:
           return await this.handleDocsRequest(...args);
       }
@@ -169,7 +168,7 @@ export default class ParticipantController {
       this._chatMetadataStore.getChatMetadata(chatId) ?? {};
 
     if (!docsChatbotConversationId) {
-      docsChatbotConversationId = uuidv4();
+      docsChatbotConversationId = uuid();
       this._chatMetadataStore.setChatMetadata(chatId, {
         docsChatbotConversationId,
       });
@@ -187,8 +186,12 @@ export default class ParticipantController {
     const messageBody = JSON.stringify({
       "data": {
         messages: prompt,
+        rag_config : {
+          "version_profile":"latest",
+          "document_source":"documentation"
+      },
         thread_id: chatId,
-        run_id: "vscode_run_" + Date.now().toString(36),
+        run_id: "vscode_copilot_run_" + uuid(),
         user_id: hashedMachineId
       }
     });
@@ -202,16 +205,54 @@ export default class ParticipantController {
         },
       }
     );
-
     if (content.data) {
       result.content = content.data.content || "";
       result.threadId = content.data.thread_id || "";
       result.runId = content.data.run_id || "";
       result.tool_args = content.data.tool_args || null;
       result.status = content.status.toString();
+      this._chatMetadataStore.setChatMetadata(chatId, {
+        docsChatbotConversationId: chatId,
+        lastRunId: result.runId
+      });
       return result;
     }
     return undefined;
+  }
+
+  async handleFeedback(
+    review: vscode.ChatResultFeedback
+  ): Promise<void> {
+    try {
+      const chatId = review.result.metadata?.chatId;
+      const metadata = this._chatMetadataStore.getChatMetadata(chatId);
+      const hashedMachineId = crypto.createHash('sha256').update(vscode.env.machineId).digest('hex');
+      const unhelpfulReason =
+      'unhelpfulReason' in review
+        ? (review.unhelpfulReason as string)
+        : undefined;
+      const messageBody = JSON.stringify({
+        "data": {
+          thread_id: metadata?.docsChatbotConversationId || chatId,
+          run_id: metadata?.lastRunId,
+          user_id: hashedMachineId,
+          is_upvote: review.kind === ChatResultFeedbackKind.Helpful,
+          feedback_text: unhelpfulReason
+        }
+      });
+      await axios.post(
+        `${ParticipantController.ASSISTANT_URL_DOMAIN}/docs/feedback`,
+        messageBody,
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      
+    } catch (error) {
+      logger.error(`Error sending feedback: ${error}`);
+    }
   }
 
 }
