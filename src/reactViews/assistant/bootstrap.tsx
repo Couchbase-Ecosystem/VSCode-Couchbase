@@ -12,7 +12,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [showPage, setShowPage] = React.useState(<></>);
   const [errorMessage, setErrorMessage] = React.useState(<></>);
-  console.log(errorMessage, isLoading);
+  console.log("Error message: %s, Loading state: %s", errorMessage, isLoading);
 
   const messageHandler = (event) => {
     const message = event.data;
