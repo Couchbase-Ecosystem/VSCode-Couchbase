@@ -306,7 +306,7 @@ context.subscriptions.push(disposable);
     vscode.commands.registerCommand(
       Commands.showAssistantSettings,
       () => {
-        vscode.commands.executeCommand('workbench.action.openSettings', 'couchbase.ChatInterface');
+        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.ChatInterface");
       }
     )
   );
