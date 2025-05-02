@@ -789,6 +789,11 @@
         "title": "Show Workbench settings",
         "category": "Couchbase",
         "icon": "$(gear)"
+      },
+      {
+        "command": "vscode-couchbase.settings.showChatInterface",
+        "title": "Change Chat Interface (Assistant/iQ)",
+        "category": "Couchbase"
       }
     ],
     "keybindings": [
@@ -1361,12 +1366,18 @@
       {
         "id": "couchbase-chat",
         "title": "Couchbase Chat",
+        "order": 1,
         "properties": {
           "couchbase.ChatInterface": {
             "type": "string",
             "enum": ["cb-assistant", "iQ"],
+            "enumDescriptions": [
+              "Use the Couchbase Assistant interface (default)",
+              "Use the Capella iQ interface"
+            ],
             "default": "cb-assistant",
-            "markdownDescription": "Choose which interface to use. 'Assistant' for the Couchbase Assistant (default) or 'iQ' for the Capella iQ interface."
+            "markdownDescription": "Choose which interface to use. 'cb-assistant' for the Couchbase Assistant (default) or 'iQ' for the Capella iQ interface.",
+            "scope": "application"
           }
         }
       },

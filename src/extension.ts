@@ -297,7 +297,7 @@ context.subscriptions.push(disposable);
     vscode.commands.registerCommand(
       Commands.showIqSettings,
       () => {
-        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.iq");
+        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase");
       }
     )
   );
@@ -306,7 +306,7 @@ context.subscriptions.push(disposable);
     vscode.commands.registerCommand(
       Commands.showAssistantSettings,
       () => {
-        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.assistant");
+        vscode.commands.executeCommand('workbench.action.openSettings', 'couchbase.ChatInterface');
       }
     )
   );
@@ -316,6 +316,15 @@ context.subscriptions.push(disposable);
       Commands.showWorkbenchSettings,
       () => {
         vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.workbench");
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.showChatInterfaceSettings,
+      () => {
+        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.ChatInterface");
       }
     )
   );
