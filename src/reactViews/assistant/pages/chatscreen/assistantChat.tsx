@@ -273,7 +273,10 @@ const AssistantChat = ({ setIsLoading }) => {
       runId: uuid(),
       feedbackSent: false,
     };
-
+    // TODO: Remove this after testing in next release
+    console.log("Message Received: " + newMessage.message);
+    console.log("Run ID: " + newMessage.runId);
+    console.log("Chat ID: " + messages.chatId);
     const updatedMessages = [...messages.userChats, newMessage];
     setMessages({
       chatId: messages.chatId,
