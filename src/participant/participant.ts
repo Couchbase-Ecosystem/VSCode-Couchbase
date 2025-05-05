@@ -231,14 +231,17 @@ export default class ParticipantController {
     const response = await assistantChat(payload, allMessages, this.cacheService);
     if (response) {
       result.content = response.content || "";
-      result.threadId = response.thread_id || "";
-      result.runId = response.run_id || "";
+      result.threadId = response.threadId || "";
+      result.runId = response.runId || "";
       result.tool_args = response.tool_args || null;
       result.status = response.status ? response.status.toString() : "Success";
       this._chatMetadataStore.setChatMetadata(chatId, {
         docsChatbotConversationId: chatId,
         lastRunId: result.runId
       });
+      // TODO: Remove this after testing in next release
+      console.log("Thread ID: ", result.threadId);
+      console.log("Run ID: ", result.runId);
       return result;
     }
     return undefined;
@@ -313,6 +316,9 @@ export default class ParticipantController {
         docsChatbotConversationId: chatId,
         lastRunId: result.runId
       });
+      // TODO: Remove this after testing in next release
+      console.log("Thread ID: ", result.threadId);
+      console.log("Run ID: ", result.runId);
       return result;
     }
     return undefined;
@@ -335,7 +341,8 @@ export default class ParticipantController {
           run_id: metadata?.lastRunId,
           user_id: hashedMachineId,
           is_upvote: review.kind === ChatResultFeedbackKind.Helpful,
-          feedback_text: unhelpfulReason
+          feedback_text: unhelpfulReason,
+          sender: "vscode_copilot"
         }
       });
       await axios.post(
