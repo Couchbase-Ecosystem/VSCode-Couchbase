@@ -78,6 +78,7 @@ export namespace Commands {
     export const showIqSettings: string = "vscode-couchbase.iq.showSettings";
     export const showAssistantSettings: string = "vscode-couchbase.assistant.showSettings";
     export const showWorkbenchSettings: string = "vscode-couchbase.workbench.showSettings";
+    export const showChatInterfaceSettings: string = "vscode-couchbase.settings.showChatInterface";
     export const newIqChat: string = "vscode-couchbase.iq.newChat";
     export const setQueryTimeout: string = "vscode-couchbase.workbench.setQueryTimeout";
 }
