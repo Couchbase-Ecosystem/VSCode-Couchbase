@@ -70,14 +70,15 @@ export const ChatAction = (
       };
     }
     case "Send Feedback": {
-      const [setShowFeedbackModal, setFeedbackModalData, index, qaId] = args;
+      const [setShowFeedbackModal, setFeedbackModalData, index, runId, isUpvote] = args;
       return {
         name: "Send Feedback",
         onclick: () => {
           setShowFeedbackModal(true);
           setFeedbackModalData({
             msgIndex: index,
-            qaId: qaId,
+            runId: runId,
+            isUpvote: isUpvote
           });
         },
       };
