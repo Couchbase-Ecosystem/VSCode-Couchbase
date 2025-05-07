@@ -25,6 +25,8 @@ import { CacheService } from "../../util/cacheService/cacheService";
 import { applyQuery } from "../queryHistory/applyQuery";
 import { allMessagesType } from "./chat/types";
 import { logger } from "../../logger/logger";
+import { AssistantRestAPI } from "./assistantRestAPI";
+import crypto from 'crypto';
 
 export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProvider {
     public _view?: vscode.WebviewView;
@@ -138,7 +140,32 @@ export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProv
                         this._view?.webview.postMessage({                        
                             command: "vscode-couchbase.assistant.reply",
                             message: result.content,
+                            runId: result.runId,
+                            msgDate: (Date.now() / 1000).toFixed(0),
+                            isDarkTheme: vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark,
                         });  
+                    }
+                    break;
+                }
+                case "vscode-couchbase.assistant.sendFeedback": {
+                    try {
+                        const { messageBody, updatedMessages } = message.value;
+                        // Find the chat in allMessages and update it with the new messages
+                        const parsedBody = JSON.parse(messageBody);
+                        const threadId = parsedBody.data.thread_id;
+                        const messageIndex = this.allMessages.findIndex(msg => msg.threadId === threadId);
+                        
+                        if (messageIndex !== -1) {
+                            this.allMessages[messageIndex].chats = updatedMessages;
+                        }
+                        const hashedMachineId = crypto.createHash('sha256').update(vscode.env.machineId).digest('hex');
+                        parsedBody.data.user_id = hashedMachineId;
+                        // Send feedback to the API
+                        // TODO: Remove this after testing in next release
+                        console.log("Sending feedback to feedback API: ", parsedBody);
+                        await AssistantRestAPI.sendFeedback(JSON.stringify(parsedBody));
+                    } catch (error) {
+                        logger.error(`Error handling feedback: ${error}`);
                     }
                     break;
                 }

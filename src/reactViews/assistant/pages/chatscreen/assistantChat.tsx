@@ -26,6 +26,10 @@ import { CopyButton } from "../../assets/icons/CopyButton";
 import { applyCodeQuery, handleCodeCopy } from "../../utils/utils";
 import { SendToWorkbench } from "../../assets/icons/SendToWorkbench";
 import { Tooltip } from "react-tooltip";
+import ThumbsUp from "../../assets/icons/ThumbsUp";
+import ThumbsDown from "../../assets/icons/ThumbsDown";
+import { SendFeedback } from "../../components/chatActions/SendFeedback";
+
 
 export type userMessage = {
   message: string;
@@ -63,6 +67,7 @@ const AssistantChat = ({ setIsLoading }) => {
   const [feedbackModalData, setFeedbackModalData] = useState({
     msgIndex: -1,
     runId: "firstMessage",
+    isUpvote: null as boolean | null
   });
   const [actions, setActions] = useState<IActionBarButton[]>([]);
   const [runningConversation, setRunningConversation] = useState<
@@ -240,7 +245,7 @@ const AssistantChat = ({ setIsLoading }) => {
                   0,
                   "firstMessage"
                 )
-              ); // TODO: Right now Gives feedback to just the first message
+              ); // Gives feedback to the first message
             } else {
               actionsForBar.push(ChatAction(action));
             }
@@ -308,6 +313,175 @@ const AssistantChat = ({ setIsLoading }) => {
     } catch (error) {
       console.error("Error processing message:", error);
     }
+  };
+
+  const handleMessageLike = (index: number, runId: string) => {
+    
+    
+    const newMessage: userMessage = {
+      message:
+        "Glad you liked the result. Would you like to give more feedback?",
+      sender: "feedback",
+      msgDate: (Date.now() / 1000).toFixed(0),
+      runId: runId,
+      feedbackSent: false,
+    };
+
+    const messagesCopy = [...messages.userChats];
+    messagesCopy[index].feedbackSent = true;
+
+    const updatedMessages = [...messagesCopy, newMessage];
+    setMessages({
+      chatId: messages.chatId,
+      userChats: updatedMessages,
+    });
+
+    // Add Send Feedback button to the action bar
+    setActions([
+      ChatAction(
+        "Send Feedback",
+        setShowFeedbackModal,
+        setFeedbackModalData,
+        index,
+        runId,
+        true // isUpvote: true for like
+      ),
+    ]);
+
+    // Let the extension handle the user ID generation and feedback sending
+    const messageBody = JSON.stringify({
+      "data": {
+        thread_id: messages.chatId,
+        run_id: runId,
+        is_upvote: true,
+        feedback_text: "",
+        sender: "vscode_assistant"
+      }
+    });
+
+    tsvscode.postMessage({
+      command: "vscode-couchbase.assistant.sendFeedback",
+      value: {
+        messageBody,
+        updatedMessages,
+      },
+    });
+
+    setFeedbackModalData({
+      msgIndex: index,
+      runId: runId,
+      isUpvote: true
+    });
+  };
+
+  const handleMessageDislike = (index: number, runId: string) => {
+    
+    
+    const newMessage: userMessage = {
+      message:
+        "Oh! We are very sorry. Can you please give us additional info via feedback?",
+      sender: "feedback",
+      msgDate: (Date.now() / 1000).toFixed(0),
+      runId: runId,
+      feedbackSent: false,
+    };
+
+    const messagesCopy = [...messages.userChats];
+    messagesCopy[index].feedbackSent = true;
+
+    const updatedMessages = [...messagesCopy, newMessage];
+    setMessages({
+      chatId: messages.chatId,
+      userChats: updatedMessages,
+    });
+
+    // Add Send Feedback button to the action bar
+    setActions([
+      ChatAction(
+        "Send Feedback",
+        setShowFeedbackModal,
+        setFeedbackModalData,
+        index,
+        runId,
+        false // isUpvote: false for dislike
+      ),
+    ]);
+
+    // Let the extension handle the user ID generation and feedback sending
+    const messageBody = JSON.stringify({
+      "data": {
+        thread_id: messages.chatId,
+        run_id: runId,
+        is_upvote: false,
+        feedback_text: "",
+        sender: "vscode_assistant"
+      }
+    });
+
+    tsvscode.postMessage({
+      command: "vscode-couchbase.assistant.sendFeedback",
+      value: {
+        messageBody,
+        updatedMessages,
+      },
+    });
+
+    setFeedbackModalData({
+      msgIndex: index,
+      runId: runId,
+      isUpvote: false
+    });
+  };
+
+  const handleFeedbackSubmit = (feedbackText: string) => {
+    
+    if (feedbackText.trim() === "") {
+      return;
+    }
+    
+    let runId = feedbackModalData.runId;
+    let isUpvote = feedbackModalData.isUpvote;
+    
+    // Let the extension handle the user ID generation and feedback sending
+    const messageBody = JSON.stringify({
+      "data": {
+        thread_id: messages.chatId,
+        run_id: runId,
+        is_upvote: isUpvote, // Maintain the original like/dislike value
+        feedback_text: feedbackText,
+        sender: "vscode_assistant"
+      }
+    });
+
+    // Add a confirmation message
+    const confirmationMessage: userMessage = {
+      message: "Thanks for the feedback! We appreciate your input to help improve the assistant.",
+      sender: "feedback",
+      msgDate: (Date.now() / 1000).toFixed(0),
+      runId: runId,
+      feedbackSent: false,
+    };
+
+    // Update messages with the confirmation
+    const updatedMessages = [...messages.userChats, confirmationMessage];
+    setMessages({
+      chatId: messages.chatId,
+      userChats: updatedMessages,
+    });
+
+    tsvscode.postMessage({
+      command: "vscode-couchbase.assistant.sendFeedback",
+      value: {
+        messageBody,
+        updatedMessages,
+      },
+    });
+    
+    // Clear the actions after feedback submission
+    setActions([]);
+    
+    // Close the feedback modal
+    setShowFeedbackModal(false);
   };
 
   return (
@@ -392,6 +566,36 @@ const AssistantChat = ({ setIsLoading }) => {
                       position: "normal",
                     }}
                   >
+                    {hasFooter ? (
+                      <Message.Footer className="messageFooter">
+                        {message.feedbackSent !== true ? (
+                          <>
+                            <button
+                              className="likeButton iconButton"
+                              onClick={() =>
+                                handleMessageLike(index, message.runId)
+                              }
+                            >
+                              <ThumbsUp />
+                            </button>
+                            <button
+                              className="dislikeButton iconButton"
+                              onClick={() =>
+                                handleMessageDislike(index, message.runId)
+                              }
+                            >
+                              <ThumbsDown />
+                            </button>
+                          </>
+                        ) : (
+                          <div className="feedbackSentFooter">
+                            Thanks for voting!
+                          </div>
+                        )}
+                      </Message.Footer>
+                    ) : (
+                      ""
+                    )}
                   </Message>
                 );
               } else {
@@ -437,7 +641,11 @@ const AssistantChat = ({ setIsLoading }) => {
         </ChatContainer>
 
         {/* Modals Area, Please put all the modals here and control them using states */}
-        
+        <SendFeedback
+          isOpen={showFeedbackModal}
+          onClose={() => setShowFeedbackModal(false)}
+          onSubmit={(text) => handleFeedbackSubmit(text)}
+        />
 
         <ModalWithCancelButton
           isOpen={showNewChatModal}

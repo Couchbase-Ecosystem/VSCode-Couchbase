@@ -31,6 +31,8 @@ export class AssistantRestAPI {
             );
             
             if (content.data) {
+                // TODO: Remove this after testing in next release
+                console.log("Assistant response from API call: ", content.data);
                 result.content = content.data.content || "";
                 result.threadId = content.data.thread_id || "";
                 result.runId = content.data.run_id || "";
@@ -86,6 +88,26 @@ export class AssistantRestAPI {
             }
         );
         return response.data;
+    };
+
+    public static sendFeedback = async (messageBody: string): Promise<any> => {
+        try {
+            const response = await axios.post(
+                `${this.ASSISTANT_URL_DOMAIN}/docs/feedback`,
+                messageBody,
+                {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+            // TODO: Remove this after testing in next release
+            console.log("Feedback response: ", response);
+            return response.data;
+        } catch (error) {
+            logger.error(`Error sending feedback: ${error}`);
+            return { error: error };
+        }
     };
 
 }
