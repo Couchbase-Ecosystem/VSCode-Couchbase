@@ -2,10 +2,11 @@ import axios from "axios";
 import * as vscode from "vscode";
 import { logger } from "../../logger/logger";
 import { AssistantResponse } from "./chat/types";
+import { Constants } from "../../util/constants";
 
 export class AssistantRestAPI {
-    // Capella Prod domain
-    private static ASSISTANT_URL_DOMAIN = "https://iq-fastapi.staging.cbdevx.com";
+    // iQ-fastapi Prod domain
+    private static ASSISTANT_URL_DOMAIN = Constants.IQ_FAST_API_URL;
 
     public static askAssistant = async (
         messageBody: string
