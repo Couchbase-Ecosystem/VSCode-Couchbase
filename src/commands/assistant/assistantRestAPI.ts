@@ -4,8 +4,8 @@ import { logger } from "../../logger/logger";
 import { AssistantResponse } from "./chat/types";
 
 export class AssistantRestAPI {
-    // Capella Prod domain
-    private static ASSISTANT_URL_DOMAIN = "https://iq-fastapi.staging.cbdevx.com";
+    // iQ-fastapi Prod domain
+    private static ASSISTANT_URL_DOMAIN = "https://iq-fastapi.prod.cbdevx.com";
 
     public static askAssistant = async (
         messageBody: string

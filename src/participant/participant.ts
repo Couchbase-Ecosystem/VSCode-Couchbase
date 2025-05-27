@@ -15,7 +15,7 @@ import { allMessagesType } from '../commands/assistant/chat/types';
 export default class ParticipantController {
   _participant?: vscode.ChatParticipant;
   _chatMetadataStore: ChatMetadataStore;
-  private static ASSISTANT_URL_DOMAIN = "https://iq-fastapi.staging.cbdevx.com";
+  private static ASSISTANT_URL_DOMAIN = "https://iq-fastapi.prod.cbdevx.com";
   private cacheService: CacheService;
 
 
