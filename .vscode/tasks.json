@@ -5,10 +5,10 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"script": "watch",
+			"script": "dev_watch",
 			"problemMatcher": [
-                "$ts-webpack-watch",
-                "$tslint-webpack-watch"
+                "$tsc-watch",
+                "$eslint-stylish"
 			],
 			"isBackground": true,
 			"presentation": {
