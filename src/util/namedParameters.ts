@@ -6,13 +6,25 @@ import path from 'path';
 export function getUsersNamedParameters(): IKeyValuePair[] {
     try {
         let config = vscode.workspace.getConfiguration('couchbase');
-        let userNamedParametersObject = config.get<{ [key: string]: string }>('workbench.userNamedParameters');
+        let userNamedParametersObject = config.get<{ [key: string]: any }>('workbench.userNamedParameters');
         if (!userNamedParametersObject) {
             return [];
         }
         let userNamedParameters: IKeyValuePair[] = Object.entries(
             userNamedParametersObject
-        ).map(([key, value]) => ({ key, value }));
+        ).map(([key, value]) => {
+            // Non string returned as is
+            if (typeof value !== 'string') {
+                return { key, value };
+            }
+            try {
+                const parsedValue = JSON.parse(value);
+                return { key, value: parsedValue };
+            } catch (e) {
+                // Default to returning the string value if JSON parsing fails
+                return { key, value };
+            }
+        });
         return userNamedParameters;
     } catch (error) {
         console.log("Error reading userNamedParameters from config:", error);
