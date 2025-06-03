@@ -112,5 +112,5 @@ export class Constants {
   public static ASSISTANT_HAS_BEEN_SHOWN_WELCOME_MESSAGE = "assistantHasBeenShownWelcomeMessage"
   public static CHAT_PARTICIPANT_ID = "couchbase.copilot";
   public static COPILOT_HAS_BEEN_SHOWN_WELCOME_MESSAGE = "COPILOT_HAS_BEEN_SHOWN_WELCOME_MESSAGE";
-  public static IQ_FAST_API_URL = "https://iq-fastapi.onrender.com";
+  public static IQ_FAST_API_URL = "http://localhost:8000";
 }

@@ -1,5 +1,10 @@
 export const parseErrorMessages = (error: any) => {
-    const parsedError = JSON.parse(error);
+    let parsedError;
+    try {
+        parsedError = JSON.parse(error);
+    } catch (e) {
+        return error;
+    }
     if(!parsedError.code) {
         return error;
     }
@@ -9,4 +14,5 @@ export const parseErrorMessages = (error: any) => {
         default:
             return parsedError.message || parsedError || error;
     }
+    
 };

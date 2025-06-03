@@ -1,9 +1,8 @@
-import { allMessagesType, collectionIntentType } from "./types";
+import { allMessagesType } from "./types";
 import { AssistantRestAPI } from "../assistantRestAPI";
 import { collectionIntentHandler } from "./collectionSchemaIntent";
 import { CacheService } from "../../../util/cacheService/cacheService";
 import * as vscode from "vscode";
-import { logger } from "../../../logger/logger";
 import { availableCollections } from "./utils";
 import { Global } from "../../../util/util";
 import { Constants } from "../../../util/constants";
@@ -38,7 +37,7 @@ export const assistantChat = async (iqPayload: any, allMessages: allMessagesType
         runId: runId,
         role: "user",
         userId: hashedMachineId,
-    }, "collection_names": [availableCollectionNames]});
+    }, "collection_names": availableCollectionNames});
 
     try {
 
@@ -64,7 +63,6 @@ export const assistantChat = async (iqPayload: any, allMessages: allMessagesType
         while (response.tool_args && cnt > 0) {
             // TODO: Handle human in the loop
             const toolArgs =response.tool_args;
-            console.log("toolArgs", toolArgs);
 
             const collectionIntent = await collectionIntentHandler(toolArgs, cacheService);
             const collections = collectionIntent.map(item => JSON.stringify(item));
@@ -76,7 +74,8 @@ export const assistantChat = async (iqPayload: any, allMessages: allMessagesType
                     runId: runId,
                     userId: hashedMachineId,
                     role: "user",
-                }
+                },
+                
             });
             const restartAssistantResponse = await AssistantRestAPI.restartAssistant(messageBody);
         
