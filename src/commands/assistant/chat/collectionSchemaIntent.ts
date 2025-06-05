@@ -6,7 +6,7 @@ import { IAdditionalContext, collectionIntentType } from "./types";
 const schemaPatternStringify = (schemaPattern: any, indentLevel: number = 0) => {
     let result = '';
     const indent = '-'.repeat(indentLevel * 2);
-    for (let [key, value] of schemaPattern.schemaNode) {
+    for (let [key, value] of Object.entries(schemaPattern)) {
         if (typeof (value) === 'string') {
             result += `${indent}${key}: ${value}\n`;
         } else {
@@ -16,8 +16,7 @@ const schemaPatternStringify = (schemaPattern: any, indentLevel: number = 0) => 
     return result;
 };
 
-// Note: We are not beautifying the schema right now, keeping the code here if it's required in the future
-const schemaStringify = (schema: ISchemaCache): any[] => {
+const schemaStringify = (schema: ISchemaCache): string[] => {
     const res = [];
     for (let schemaPattern of schema.patterns) {
         res.push(schemaPatternStringify(schemaPattern));
@@ -30,15 +29,15 @@ const schemaStringify = (schema: ISchemaCache): any[] => {
 
 export const collectionIntentHandler = async (jsonObject: any, cacheService: CacheService) => {
 
-    const collections: string[] = jsonObject?.collections || [];
+    const collections: string[] = jsonObject?.message?.collections || [];
 
 
     if (collections.length === 0) { // No Collections found, returning
-        return ["No collections found, Please don't use GetSchemaTool if you don't want to send collections"];
+        return ["No collections found, Please don't use get_schema tool if you don't want to send collections"];
     }
 
     if (!getActiveConnection()){
-        return ["No active connection found, Please don't use GetSchemaTool now as there is no active connection"];
+        return ["No active connection found, Please don't use get_schema tool now as there is no active connection"];
     }
     logger.info("getting collections data intent for " + collections);
     let collectionIntent: collectionIntentType[] = [];
@@ -50,7 +49,7 @@ export const collectionIntentHandler = async (jsonObject: any, cacheService: Cac
             const schema = collectionData?.schema || undefined;
             if (schema !== undefined) {
                 const stringifiedIntent: collectionIntentType = {
-                    schemas: JSON.stringify(schema),
+                    schemas: schemaStringify(schema).join("\n"),
                     collection: `${bucket}.${scope}.${col}`,
                     // indexes: JSON.stringify(collectionData?.indexes || "")
                 };
@@ -63,7 +62,7 @@ export const collectionIntentHandler = async (jsonObject: any, cacheService: Cac
             const schema = collectionData?.schema || undefined;
             if (schema !== undefined) {
                 const stringifiedIntent = {
-                    schemas: JSON.stringify(schema),
+                    schemas: schemaStringify(schema).join("\n"),
                     collection: `${collectionData?.bucketName}.${scope}.${col}`,
                     // indexes: JSON.stringify(collectionData?.indexes || "")
                 };
@@ -75,7 +74,7 @@ export const collectionIntentHandler = async (jsonObject: any, cacheService: Cac
             const schema = collectionData?.schema || undefined;
             if (schema !== undefined) {
                 const stringifiedIntent = {
-                    schemas: JSON.stringify(schema),
+                    schemas: schemaStringify(schema).join("\n"),
                     // indexes: JSON.stringify(collectionData?.indexes || ""),
                     collection: `${collectionData?.bucketName}.${collectionData?.scopeName}.${col}`
                 };

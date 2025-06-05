@@ -21,6 +21,8 @@
 const path = require("path");
 const TerserPlugin = require('terser-webpack-plugin');
 
+// Check if we're in development mode
+const isDevelopment = process.env.NODE_ENV === 'development' || process.argv.includes('--mode=development');
 
 /**@type {import('webpack').Configuration}*/
 const extensionConfig = {
@@ -36,8 +38,8 @@ const extensionConfig = {
     libraryTarget: "commonjs2",
   },
   optimization: {
-    minimize: true,
-    minimizer: [new TerserPlugin()],
+    minimize: !isDevelopment,
+    minimizer: !isDevelopment ? [new TerserPlugin()] : [],
     splitChunks: {
       chunks: 'all',
     },
@@ -84,8 +86,8 @@ const reactConfig = {
     filename: "[name].js",
   },
   optimization: {
-    minimize: true,
-    minimizer: [new TerserPlugin()],
+    minimize: !isDevelopment,
+    minimizer: !isDevelopment ? [new TerserPlugin()] : [],
     splitChunks: {
       chunks: 'all',
     },
@@ -158,8 +160,8 @@ const iqReactConfig = {
     filename: "[name].js",
   },
   optimization: {
-    minimize: true,
-    minimizer: [new TerserPlugin()],
+    minimize: !isDevelopment,
+    minimizer: !isDevelopment ? [new TerserPlugin()] : [],
     splitChunks: {
       chunks: 'all',
     },
@@ -236,8 +238,8 @@ const assistantReactConfig = {
     filename: "[name].js",
   },
   optimization: {
-    minimize: true,
-    minimizer: [new TerserPlugin()],
+    minimize: !isDevelopment,
+    minimizer: !isDevelopment ? [new TerserPlugin()] : [],
     splitChunks: {
       chunks: 'all',
     },

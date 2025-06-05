@@ -188,11 +188,12 @@ const AssistantChat = ({ setIsLoading }) => {
     setActions([]);
     setIsChatCompleted(true);
     try {
-      const formattedError = parseErrorMessages(JSON.parse(error));
+      const formattedError = parseErrorMessages(error);
+      console.log("formattedError", formattedError);
       setErrorMessage(formattedError);
-    } catch {
+    } catch (error){
       // Adding if error is not JSON type or it failed to parse
-      setErrorMessage(error);
+      setErrorMessage(error.message);
     }
   };
 
@@ -260,7 +261,10 @@ const AssistantChat = ({ setIsLoading }) => {
       }
       case "vscode-couchbase.assistant.chatCompleted": {
         // The chat has ran into some errors and can no longer be continued.
-        onChatCompleted(message.error);
+        console.log("Chat Completed: " + message.error);
+        setTimeout(() => {
+          onChatCompleted(message.error);
+        }, 3000);
         break;
       }
     }

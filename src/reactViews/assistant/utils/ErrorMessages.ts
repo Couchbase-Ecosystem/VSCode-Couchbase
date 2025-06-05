@@ -1,11 +1,18 @@
 export const parseErrorMessages = (error: any) => {
-    if(!error.code) {
+    let parsedError;
+    try {
+        parsedError = JSON.parse(error);
+    } catch (e) {
         return error;
     }
-    switch(error.code){
+    if(!parsedError.code) {
+        return error;
+    }
+    switch(parsedError.code){
         case "context_length_exceeded":
             return "The total length of chat has exceeded the limit";
         default:
-            return error.message || error;
+            return parsedError.message || parsedError || error;
     }
+    
 };

@@ -556,6 +556,28 @@ export class CacheService {
         return allCollectionList;
     };
 
+    public getAllCollectionsSerialized = async (): Promise<string> => {
+        if (this.cacheStatus === false) {
+            return "";
+        }
+        let result = "";
+        for await (let [_, bucketCache] of this.bucketsData) {
+            let bucketContent = "";
+            for await (let [_, scopeCache] of bucketCache.scopes) {
+                if (scopeCache.name !== "_system" && scopeCache.collections.size > 0) {
+                    bucketContent += `  - ${scopeCache.name}\n`;
+                    for await (let [_, collectionCache] of scopeCache.collections) {
+                        bucketContent += `    -- ${collectionCache.name}\n`;
+                    }
+                }
+            }
+            if (bucketContent) {
+                result += `${bucketCache.name}\n${bucketContent}`;
+            }
+        }
+        return result;
+    };
+
     private serializeSchema(schema: ISchemaCache): string {
         // Convert nested Maps to plain objects for JSON
         const patternsJson = JSON.stringify(schema.patterns);
