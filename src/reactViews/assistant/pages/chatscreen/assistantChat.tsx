@@ -59,6 +59,7 @@ const AssistantChat = ({ setIsLoading }) => {
     chatId: uuid(),
   });
   const [isTyping, setIsTyping] = useState(false);
+  const [inputValue, setInputValue] = useState("");
   const [codeTheme, setCodeTheme] = useState(oneLight);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showNewChatModal, setShowNewChatModal] = useState(false);
@@ -613,10 +614,14 @@ const AssistantChat = ({ setIsLoading }) => {
               // onPaste={(event) => {
               //   handlePaste(event);
               // }}
-              attachButton={false}
-              sendButton={true}
+              value={inputValue}
+              onChange={setInputValue}
+              sendButton
               placeholder="Type a message..."
-              onSend={(msg) => handleSendRequest(msg)}
+              onSend={(msg) => {
+                handleSendRequest(msg);
+                setInputValue("");
+              }}
               className="chatscope-message-input"
             />
           ) : (
