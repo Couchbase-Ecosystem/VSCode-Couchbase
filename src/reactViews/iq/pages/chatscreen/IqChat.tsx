@@ -58,6 +58,7 @@ const IqChat = ({ org, setIsLoading }) => {
     chatId: uuid(),
   });
   const [isTyping, setIsTyping] = useState(false);
+  const [inputValue, setInputValue] = useState("");
   const [codeTheme, setCodeTheme] = useState(oneLight);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showNewChatModal, setShowNewChatModal] = useState(false);
@@ -256,22 +257,6 @@ const IqChat = ({ org, setIsLoading }) => {
       </div>
     );
   };
-
-  // Keeping the handle paste function here if some paste issue arises later
-  // const handlePaste = (event) => {
-  //   // Prevent the original paste action
-  //   event.preventDefault();
-  //   const text = event.clipboardData.getData("text/plain");
-  //   const selection = window.getSelection();
-
-  //   if (selection.rangeCount) {
-  //     selection.deleteFromDocument();
-  //     selection.getRangeAt(0).insertNode(document.createTextNode(text));
-  //   }
-
-  //   const inputEvent = new Event("input", { bubbles: true });
-  //   event.target.dispatchEvent(inputEvent);
-  // };
 
   const openNewChat = () => {
     setMessages({
@@ -556,15 +541,17 @@ const IqChat = ({ org, setIsLoading }) => {
           </MessageList>
           {!isChatCompleted ? (
             <MessageInput
-              // onPaste={(event) => {
-              //   handlePaste(event);
-              // }}
-              attachButton={false}
-              sendButton={true}
-              placeholder="Type a message..."
-              onSend={(msg) => handleSendRequest(msg)}
-              className="chatscope-message-input"
-            />
+                  value={inputValue}
+                  onChange={setInputValue}
+                  attachButton={false}
+                  sendButton={true}
+                  placeholder="Type a message..."
+                  onSend={(msg) => {
+                      handleSendRequest(msg);
+                      setInputValue("");
+                  }}
+                  className="chatscope-message-input"
+              />
           ) : (
             <ConversationHeader>
               <ConversationHeader.Content>

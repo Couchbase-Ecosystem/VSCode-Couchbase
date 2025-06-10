@@ -59,6 +59,7 @@ const AssistantChat = ({ setIsLoading }) => {
     chatId: uuid(),
   });
   const [isTyping, setIsTyping] = useState(false);
+  const [inputValue, setInputValue] = useState("");
   const [codeTheme, setCodeTheme] = useState(oneLight);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showNewChatModal, setShowNewChatModal] = useState(false);
@@ -138,22 +139,6 @@ const AssistantChat = ({ setIsLoading }) => {
       </div>
     );
   };
-
-  // Keeping the handle paste function here if some paste issue arises later
-  // const handlePaste = (event) => {
-  //   // Prevent the original paste action
-  //   event.preventDefault();
-  //   const text = event.clipboardData.getData("text/plain");
-  //   const selection = window.getSelection();
-
-  //   if (selection.rangeCount) {
-  //     selection.deleteFromDocument();
-  //     selection.getRangeAt(0).insertNode(document.createTextNode(text));
-  //   }
-
-  //   const inputEvent = new Event("input", { bubbles: true });
-  //   event.target.dispatchEvent(inputEvent);
-  // };
 
   const openNewChat = () => {
     setMessages({
@@ -610,13 +595,14 @@ const AssistantChat = ({ setIsLoading }) => {
           </MessageList>
           {!isChatCompleted ? (
             <MessageInput
-              // onPaste={(event) => {
-              //   handlePaste(event);
-              // }}
-              attachButton={false}
-              sendButton={true}
+              value={inputValue}
+              onChange={setInputValue}
+              sendButton
               placeholder="Type a message..."
-              onSend={(msg) => handleSendRequest(msg)}
+              onSend={(msg) => {
+                handleSendRequest(msg);
+                setInputValue("");
+              }}
               className="chatscope-message-input"
             />
           ) : (
