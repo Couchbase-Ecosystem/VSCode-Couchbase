@@ -34,7 +34,7 @@ export const getDocumentMetaData = async (node: DocumentNode, context: vscode.Ex
         if (hasQueryService(connection.services)) {
             try {
                 result = await connection.cluster?.query(
-                    `SELECT META(b).* FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id =  \"${node.documentName}\"`
+                    `SELECT META(b) as meta, XATTRS(b) as xattrs FROM \`${node.bucketName}\`.\`${node.scopeName}\`.\`${node.collectionName}\` b WHERE META(b).id = "${node.documentName}"`
                 );
                 result = result?.rows;
             } catch {

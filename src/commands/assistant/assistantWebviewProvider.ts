@@ -102,7 +102,10 @@ export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProv
                     if (result.error !== undefined && result.error !== null) {
                         let errorMsg = "";
                         try {
-                            if (typeof result.error !== "string") {
+                            if(result.error.message !== undefined){
+                                errorMsg = result.error.message;
+                            }
+                            else if (typeof result.error !== "string") {
                                 errorMsg = JSON.stringify(result.error);
                             } else {
                                 errorMsg = result.error;
@@ -119,7 +122,7 @@ export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProv
                                 command: "vscode-couchbase.assistant.chatCompleted",
                                 error: errorMsg,
                             });
-                        } else if (result.status === "401") {
+                        } else if (result && result.status && result.status === "401") {
                             console.log("Got forced logout");
 
                             this._view?.webview.postMessage({
