@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./IqChat.scss";
 import { MainContainer } from "./../../chatscope/src/components/MainContainer/MainContainer";
@@ -72,6 +72,17 @@ const IqChat = ({ org, setIsLoading }) => {
   const [runningConversation, setRunningConversation] = useState<
     string | undefined
   >(undefined);
+  const messageListRef = useRef<any>(null);
+
+  useEffect(() => {
+      const msgListInstance: any = messageListRef.current;
+      if (
+          msgListInstance &&
+          typeof msgListInstance.scrollToBottom === "function"
+      ) {
+          msgListInstance.scrollToBottom();
+      }
+  }, [messages.userChats]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -423,6 +434,7 @@ const IqChat = ({ org, setIsLoading }) => {
             className={`chatscope-message-list ${
               isTyping || actions.length > 0 ? "hasActionbar" : ""
             }`}
+            ref={messageListRef}
             scrollBehavior="auto"
             autoScrollToBottom={true}
             autoScrollToBottomOnMount={true}
