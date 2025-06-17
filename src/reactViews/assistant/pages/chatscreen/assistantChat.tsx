@@ -607,6 +607,10 @@ const AssistantChat = ({ setIsLoading }) => {
                 handleSendRequest(msg);
                 setInputValue("");
               }}
+              onPaste={(event) => {
+                event.preventDefault();
+                setInputValue(event.clipboardData.getData("text"));
+               }}
               className="chatscope-message-input"
             />
           ) : (
