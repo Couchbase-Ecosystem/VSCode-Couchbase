@@ -74,11 +74,11 @@ const AssistantChat = ({ setIsLoading }) => {
   const [runningConversation, setRunningConversation] = useState<
     string | undefined
   >(undefined);
-  const messageListRef = useRef<any>(null);
+  const messageListRef = useRef<{ scrollToBottom: () => void } | null>(null);
   console.log(showFeedbackModal, feedbackModalData);
 
   useEffect(() => {
-      const msgListInstance: any = messageListRef.current;
+      const msgListInstance = messageListRef.current;
       if (
           msgListInstance &&
           typeof msgListInstance.scrollToBottom === "function"

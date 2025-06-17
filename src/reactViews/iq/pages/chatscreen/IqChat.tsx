@@ -72,10 +72,10 @@ const IqChat = ({ org, setIsLoading }) => {
   const [runningConversation, setRunningConversation] = useState<
     string | undefined
   >(undefined);
-  const messageListRef = useRef<any>(null);
+  const messageListRef = useRef<{ scrollToBottom: () => void } | null>(null);
 
   useEffect(() => {
-      const msgListInstance: any = messageListRef.current;
+      const msgListInstance = messageListRef.current;
       if (
           msgListInstance &&
           typeof msgListInstance.scrollToBottom === "function"
