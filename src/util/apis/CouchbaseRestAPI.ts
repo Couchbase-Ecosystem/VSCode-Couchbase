@@ -45,7 +45,8 @@ export class CouchbaseRestAPI {
         let content = await axios.get(url, {
             method: "GET",
             headers: {
-                Authorization: `Basic ${btoa(`${username}:${password}`)}`
+                Authorization: `Basic ${btoa(`${username}:${password}`)}`,
+                'Connection': 'keep-alive'
             },
             httpsAgent: new https.Agent({
                 rejectUnauthorized: false,
