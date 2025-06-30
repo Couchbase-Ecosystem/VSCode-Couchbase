@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "2.2.4",
+  "version": "2.2.8",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -106,7 +106,7 @@
     "@types/stream-json": "^1.7.5",
     "ag-grid-community": "^29.3.5",
     "ag-grid-react": "^29.3.5",
-    "axios": "^1.4.0",
+    "axios": "^1.10.0",
     "classnames": "^2.2.6",
     "clsx": "^2.0.0",
     "couchbase": "^4.3.0",
@@ -1344,7 +1344,13 @@
             "type": "object",
             "additionalProperties": {
               "type": "string",
-              "value": ["string", "number", "boolean", "object", "array"]
+              "value": [
+                "string",
+                "number",
+                "boolean",
+                "object",
+                "array"
+              ]
             },
             "title": "User Named Parameters",
             "default": {},
