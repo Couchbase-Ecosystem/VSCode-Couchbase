@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 import axios from "axios";
+import { fetch, Agent } from 'undici';
 import { Constants } from "../constants";
 import { getConnectionId } from "../connections";
 import { IConnection } from "../../types/IConnection";
@@ -42,22 +43,23 @@ export class CouchbaseRestAPI {
         url += "/pools/nodes";
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-        let content = await axios.get(url, {
+        let response = await fetch(url, {
             method: "GET",
             headers: {
-                Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-                'Connection': 'keep-alive'
+                Authorization: `Basic ${btoa(`${username}:${password}`)}`
             },
-            httpsAgent: new https.Agent({
-                rejectUnauthorized: false,
+            dispatcher: new Agent({
+                connect: {
+                    rejectUnauthorized: false
+                }
             })
         });
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
-        let status: string = content.status.toString();
+        let status: string = response.status.toString();
         if (!(status.length === 3 && status.charAt(0) === '2')) {
             logger.error(`Failed to fetch overview data, url:${url}, status:${status}`);
         }
-        let serverOverview = plainToClass(ServerOverview, (content.data));
+        let serverOverview = plainToClass(ServerOverview, await response.json());
         return serverOverview;
     }
 
