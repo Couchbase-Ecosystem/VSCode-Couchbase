@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 import axios from "axios";
-import { fetch, Agent } from 'undici';
+import fetch from 'node-fetch';
 import { Constants } from "../constants";
 import { getConnectionId } from "../connections";
 import { IConnection } from "../../types/IConnection";
@@ -48,10 +48,8 @@ export class CouchbaseRestAPI {
             headers: {
                 Authorization: `Basic ${btoa(`${username}:${password}`)}`
             },
-            dispatcher: new Agent({
-                connect: {
-                    rejectUnauthorized: false
-                }
+            agent: new https.Agent({
+                rejectUnauthorized: false,
             })
         });
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
