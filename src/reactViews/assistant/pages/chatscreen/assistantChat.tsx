@@ -616,9 +616,9 @@ const AssistantChat = ({ setIsLoading }) => {
                     .replace(/&nbsp;/g, " ") // Replace &nbsp; with spaces
                     .replace(/&lt;/g, "<") // Replace HTML entities
                     .replace(/&gt;/g, ">")
-                    .replace(/&amp;/g, "&")
                     .replace(/&quot;/g, '"')
                     .replace(/&#39;/g, "'")
+                    .replace(/&amp;/g, "&") // Unescape ampersand last
                     .replace(/\r?\n/g, "\n"); // Normalize line breaks
                 handleSendRequest(cleanText);
                 setInputValue("");
