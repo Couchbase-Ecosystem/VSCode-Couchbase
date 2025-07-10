@@ -1,9 +1,8 @@
-import { allMessagesType, collectionIntentType } from "./types";
+import { allMessagesType } from "./types";
 import { AssistantRestAPI } from "../assistantRestAPI";
 import { collectionIntentHandler } from "./collectionSchemaIntent";
 import { CacheService } from "../../../util/cacheService/cacheService";
 import * as vscode from "vscode";
-import { logger } from "../../../logger/logger";
 import { availableCollections } from "./utils";
 import { Global } from "../../../util/util";
 import { Constants } from "../../../util/constants";
@@ -30,7 +29,7 @@ export const assistantChat = async (iqPayload: any, allMessages: allMessagesType
 
     const availableCollectionNames = await availableCollections(cacheService);
 
-    const content = "This is the beginning of a new message from Human. Within 5 iterations, you must reply back to the human with a valid response. Don't drag the conversation with excessive tool calls. \n ----------------- \n " + newMessage;
+    const content = newMessage;
 
     const messageBody = JSON.stringify({"data":{   
         content: content,
@@ -38,17 +37,21 @@ export const assistantChat = async (iqPayload: any, allMessages: allMessagesType
         runId: runId,
         role: "user",
         userId: hashedMachineId,
-    }, "collection_names": [availableCollectionNames]});
+    }, "collection_names": availableCollectionNames});
 
     try {
 
         let response = await AssistantRestAPI.askAssistant(messageBody);
-        if(response && response.content && response.content.length > 0) {
-            return response;
-        }
+        // if(response && response.content && response.content.length > 0) {
+        //     return response;
+        // }
 
         // Check if response exists and has tool_args before entering the loop
         if (!response || !response.tool_args) {
+
+            if(response && response.content && response.content.length > 0) {
+                return response;
+            }
             // Return a valid response object with an error message
             return {
                 content: "",
@@ -59,10 +62,10 @@ export const assistantChat = async (iqPayload: any, allMessages: allMessagesType
         let cnt = 5;
         while (response.tool_args && cnt > 0) {
             // TODO: Handle human in the loop
-            const toolArgs = JSON.parse(response.tool_args);
+            const toolArgs =response.tool_args;
 
             const collectionIntent = await collectionIntentHandler(toolArgs, cacheService);
-            const collections = collectionIntent.map(item => JSON.stringify(item))
+            const collections = collectionIntent.map(item => JSON.stringify(item));
 
             const messageBody = JSON.stringify({
                 "data": {
@@ -71,26 +74,28 @@ export const assistantChat = async (iqPayload: any, allMessages: allMessagesType
                     runId: runId,
                     userId: hashedMachineId,
                     role: "user",
-                }
+                },
+                
             });
             const restartAssistantResponse = await AssistantRestAPI.restartAssistant(messageBody);
         
-            // Check if the response has content
-            if (restartAssistantResponse && restartAssistantResponse.content && restartAssistantResponse.content.length > 0) {
-                return restartAssistantResponse;
-            }
-
             // Update response for next iteration
             response = restartAssistantResponse;
 
             // If there are no more tool_args, break the loop
             if (!response.tool_args) {
+                if (restartAssistantResponse && restartAssistantResponse.content && restartAssistantResponse.content.length > 0) {
+                    return restartAssistantResponse;
+                }
                 break;
             }
 
             cnt--;
-            // If cnt reaches 0, break the loop to ensure it stops
+            // If cnt reaches 0, break the loop to ensure it stops. Check if the response has content.
             if (cnt === 0) {
+                if (restartAssistantResponse && restartAssistantResponse.content && restartAssistantResponse.content.length > 0) {
+                    return restartAssistantResponse;
+                }
                 console.log("Loop stopped due to cnt reaching 0");
                 break;
             }

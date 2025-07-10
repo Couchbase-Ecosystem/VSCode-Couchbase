@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./IqChat.scss";
 import { MainContainer } from "./../../chatscope/src/components/MainContainer/MainContainer";
@@ -72,6 +72,17 @@ const IqChat = ({ org, setIsLoading }) => {
   const [runningConversation, setRunningConversation] = useState<
     string | undefined
   >(undefined);
+  const messageListRef = useRef<{ scrollToBottom: () => void } | null>(null);
+
+  useEffect(() => {
+      const msgListInstance = messageListRef.current;
+      if (
+          msgListInstance &&
+          typeof msgListInstance.scrollToBottom === "function"
+      ) {
+          msgListInstance.scrollToBottom();
+      }
+  }, [messages.userChats]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -423,6 +434,7 @@ const IqChat = ({ org, setIsLoading }) => {
             className={`chatscope-message-list ${
               isTyping || actions.length > 0 ? "hasActionbar" : ""
             }`}
+            ref={messageListRef}
             scrollBehavior="auto"
             autoScrollToBottom={true}
             autoScrollToBottomOnMount={true}
@@ -541,17 +553,31 @@ const IqChat = ({ org, setIsLoading }) => {
           </MessageList>
           {!isChatCompleted ? (
             <MessageInput
-                  value={inputValue}
-                  onChange={setInputValue}
-                  attachButton={false}
-                  sendButton={true}
-                  placeholder="Type a message..."
-                  onSend={(msg) => {
-                      handleSendRequest(msg);
-                      setInputValue("");
-                  }}
-                  className="chatscope-message-input"
-              />
+              value={inputValue}
+              onChange={setInputValue}
+              sendButton
+              placeholder="Type a message..."
+              onSend={() => {
+                const cleanText = inputValue
+                    .replace(/<br\s*\/?>/gi, "\n") // Replace <br> tags with newlines
+                    .replace(/&nbsp;/g, " ") // Replace &nbsp; with spaces
+                    .replace(/&lt;/g, "<") // Replace HTML entities
+                    .replace(/&gt;/g, ">")
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'")
+                    .replace(/&amp;/g, "&") // Unescape &amp; last
+                    .replace(/\r?\n/g, "\n"); // Normalize line breaks
+                handleSendRequest(cleanText);
+                setInputValue("");
+              }}
+              onPaste={(event) => {
+                event.preventDefault();
+                  setInputValue(
+                      event.clipboardData.getData("text")
+                  );
+               }}
+              className="chatscope-message-input"
+            />
           ) : (
             <ConversationHeader>
               <ConversationHeader.Content>

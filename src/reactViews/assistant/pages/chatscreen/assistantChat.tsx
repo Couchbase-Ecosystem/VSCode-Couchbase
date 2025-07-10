@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./IqChat.scss";
 import { MainContainer } from "../../chatscope/src/components/MainContainer/MainContainer";
@@ -29,7 +29,6 @@ import { Tooltip } from "react-tooltip";
 import ThumbsUp from "../../assets/icons/ThumbsUp";
 import ThumbsDown from "../../assets/icons/ThumbsDown";
 import { SendFeedback } from "../../components/chatActions/SendFeedback";
-
 
 export type userMessage = {
   message: string;
@@ -74,7 +73,18 @@ const AssistantChat = ({ setIsLoading }) => {
   const [runningConversation, setRunningConversation] = useState<
     string | undefined
   >(undefined);
+  const messageListRef = useRef<{ scrollToBottom: () => void } | null>(null);
   console.log(showFeedbackModal, feedbackModalData);
+
+  useEffect(() => {
+      const msgListInstance = messageListRef.current;
+      if (
+          msgListInstance &&
+          typeof msgListInstance.scrollToBottom === "function"
+      ) {
+          msgListInstance.scrollToBottom();
+      }
+  }, [messages.userChats]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -173,11 +183,12 @@ const AssistantChat = ({ setIsLoading }) => {
     setActions([]);
     setIsChatCompleted(true);
     try {
-      const formattedError = parseErrorMessages(JSON.parse(error));
+      const formattedError = parseErrorMessages(error);
+      console.log("formattedError", formattedError);
       setErrorMessage(formattedError);
-    } catch {
+    } catch (error){
       // Adding if error is not JSON type or it failed to parse
-      setErrorMessage(error);
+      setErrorMessage(error.message);
     }
   };
 
@@ -245,7 +256,10 @@ const AssistantChat = ({ setIsLoading }) => {
       }
       case "vscode-couchbase.assistant.chatCompleted": {
         // The chat has ran into some errors and can no longer be continued.
-        onChatCompleted(message.error);
+        console.log("Chat Completed: " + message.error);
+        setTimeout(() => {
+          onChatCompleted(message.error);
+        }, 3000);
         break;
       }
     }
@@ -263,10 +277,6 @@ const AssistantChat = ({ setIsLoading }) => {
       runId: uuid(),
       feedbackSent: false,
     };
-    // TODO: Remove this after testing in next release
-    console.log("Message Received: " + newMessage.message);
-    console.log("Run ID: " + newMessage.runId);
-    console.log("Chat ID: " + messages.chatId);
     const updatedMessages = [...messages.userChats, newMessage];
     setMessages({
       chatId: messages.chatId,
@@ -478,6 +488,7 @@ const AssistantChat = ({ setIsLoading }) => {
               isTyping || actions.length > 0 ? "hasActionbar" : ""
             }`}
             scrollBehavior="auto"
+            ref={messageListRef}
             autoScrollToBottom={true}
             autoScrollToBottomOnMount={true}
             actionbar={
@@ -599,10 +610,25 @@ const AssistantChat = ({ setIsLoading }) => {
               onChange={setInputValue}
               sendButton
               placeholder="Type a message..."
-              onSend={(msg) => {
-                handleSendRequest(msg);
+              onSend={() => {
+                const cleanText = inputValue
+                    .replace(/<br\s*\/?>/gi, "\n") // Replace <br> tags with newlines
+                    .replace(/&nbsp;/g, " ") // Replace &nbsp; with spaces
+                    .replace(/&lt;/g, "<") // Replace HTML entities
+                    .replace(/&gt;/g, ">")
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'")
+                    .replace(/&amp;/g, "&") // Unescape ampersand last
+                    .replace(/\r?\n/g, "\n"); // Normalize line breaks
+                handleSendRequest(cleanText);
                 setInputValue("");
               }}
+              onPaste={(event) => {
+                event.preventDefault();
+                  setInputValue(
+                      event.clipboardData.getData("text")
+                  );
+               }}
               className="chatscope-message-input"
             />
           ) : (
