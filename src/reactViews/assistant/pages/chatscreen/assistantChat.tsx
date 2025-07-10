@@ -30,7 +30,6 @@ import ThumbsUp from "../../assets/icons/ThumbsUp";
 import ThumbsDown from "../../assets/icons/ThumbsDown";
 import { SendFeedback } from "../../components/chatActions/SendFeedback";
 
-
 export type userMessage = {
   message: string;
   sender: string;
@@ -611,10 +610,25 @@ const AssistantChat = ({ setIsLoading }) => {
               onChange={setInputValue}
               sendButton
               placeholder="Type a message..."
-              onSend={(msg) => {
-                handleSendRequest(msg);
+              onSend={() => {
+                const cleanText = inputValue
+                    .replace(/<br\s*\/?>/gi, "\n") // Replace <br> tags with newlines
+                    .replace(/&nbsp;/g, " ") // Replace &nbsp; with spaces
+                    .replace(/&lt;/g, "<") // Replace HTML entities
+                    .replace(/&gt;/g, ">")
+                    .replace(/&amp;/g, "&")
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'")
+                    .replace(/\r?\n/g, "\n"); // Normalize line breaks
+                handleSendRequest(cleanText);
                 setInputValue("");
               }}
+              onPaste={(event) => {
+                event.preventDefault();
+                  setInputValue(
+                      event.clipboardData.getData("text")
+                  );
+               }}
               className="chatscope-message-input"
             />
           ) : (

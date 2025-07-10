@@ -553,17 +553,31 @@ const IqChat = ({ org, setIsLoading }) => {
           </MessageList>
           {!isChatCompleted ? (
             <MessageInput
-                  value={inputValue}
-                  onChange={setInputValue}
-                  attachButton={false}
-                  sendButton={true}
-                  placeholder="Type a message..."
-                  onSend={(msg) => {
-                      handleSendRequest(msg);
-                      setInputValue("");
-                  }}
-                  className="chatscope-message-input"
-              />
+              value={inputValue}
+              onChange={setInputValue}
+              sendButton
+              placeholder="Type a message..."
+              onSend={() => {
+                const cleanText = inputValue
+                    .replace(/<br\s*\/?>/gi, "\n") // Replace <br> tags with newlines
+                    .replace(/&nbsp;/g, " ") // Replace &nbsp; with spaces
+                    .replace(/&lt;/g, "<") // Replace HTML entities
+                    .replace(/&gt;/g, ">")
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'")
+                    .replace(/&amp;/g, "&") // Unescape &amp; last
+                    .replace(/\r?\n/g, "\n"); // Normalize line breaks
+                handleSendRequest(cleanText);
+                setInputValue("");
+              }}
+              onPaste={(event) => {
+                event.preventDefault();
+                  setInputValue(
+                      event.clipboardData.getData("text")
+                  );
+               }}
+              className="chatscope-message-input"
+            />
           ) : (
             <ConversationHeader>
               <ConversationHeader.Content>
