@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import "./IqChat.scss";
 import { MainContainer } from "../../chatscope/src/components/MainContainer/MainContainer";
@@ -74,7 +74,18 @@ const AssistantChat = ({ setIsLoading }) => {
   const [runningConversation, setRunningConversation] = useState<
     string | undefined
   >(undefined);
+  const messageListRef = useRef<{ scrollToBottom: () => void } | null>(null);
   console.log(showFeedbackModal, feedbackModalData);
+
+  useEffect(() => {
+      const msgListInstance = messageListRef.current;
+      if (
+          msgListInstance &&
+          typeof msgListInstance.scrollToBottom === "function"
+      ) {
+          msgListInstance.scrollToBottom();
+      }
+  }, [messages.userChats]);
 
   useEffect(() => {
     setIsLoading(false);
@@ -267,10 +278,6 @@ const AssistantChat = ({ setIsLoading }) => {
       runId: uuid(),
       feedbackSent: false,
     };
-    // TODO: Remove this after testing in next release
-    console.log("Message Received: " + newMessage.message);
-    console.log("Run ID: " + newMessage.runId);
-    console.log("Chat ID: " + messages.chatId);
     const updatedMessages = [...messages.userChats, newMessage];
     setMessages({
       chatId: messages.chatId,
@@ -482,6 +489,7 @@ const AssistantChat = ({ setIsLoading }) => {
               isTyping || actions.length > 0 ? "hasActionbar" : ""
             }`}
             scrollBehavior="auto"
+            ref={messageListRef}
             autoScrollToBottom={true}
             autoScrollToBottomOnMount={true}
             actionbar={
