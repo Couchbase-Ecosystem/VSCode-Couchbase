@@ -72,7 +72,10 @@ const IqChat = ({ org, setIsLoading }) => {
   const [runningConversation, setRunningConversation] = useState<
     string | undefined
   >(undefined);
-  const messageListRef = useRef<{ scrollToBottom: () => void } | null>(null);
+  interface MessageListHandle {
+    scrollToBottom: (scrollBehavior?: string) => void;
+  }
+  const messageListRef = useRef<MessageListHandle | null>(null);
 
   useEffect(() => {
       const msgListInstance = messageListRef.current;
@@ -434,7 +437,7 @@ const IqChat = ({ org, setIsLoading }) => {
             className={`chatscope-message-list ${
               isTyping || actions.length > 0 ? "hasActionbar" : ""
             }`}
-            ref={messageListRef}
+            ref={messageListRef as any}
             scrollBehavior="auto"
             autoScrollToBottom={true}
             autoScrollToBottomOnMount={true}

@@ -30,6 +30,10 @@ import ThumbsUp from "../../assets/icons/ThumbsUp";
 import ThumbsDown from "../../assets/icons/ThumbsDown";
 import { SendFeedback } from "../../components/chatActions/SendFeedback";
 
+interface MessageListHandle {
+  scrollToBottom: (scrollBehavior?: string) => void;
+}
+
 export type userMessage = {
   message: string;
   sender: string;
@@ -73,7 +77,7 @@ const AssistantChat = ({ setIsLoading }) => {
   const [runningConversation, setRunningConversation] = useState<
     string | undefined
   >(undefined);
-  const messageListRef = useRef<{ scrollToBottom: () => void } | null>(null);
+  const messageListRef = useRef<MessageListHandle | null>(null);
   console.log(showFeedbackModal, feedbackModalData);
 
   useEffect(() => {
@@ -488,7 +492,7 @@ const AssistantChat = ({ setIsLoading }) => {
               isTyping || actions.length > 0 ? "hasActionbar" : ""
             }`}
             scrollBehavior="auto"
-            ref={messageListRef}
+            ref={messageListRef as any}
             autoScrollToBottom={true}
             autoScrollToBottomOnMount={true}
             actionbar={
