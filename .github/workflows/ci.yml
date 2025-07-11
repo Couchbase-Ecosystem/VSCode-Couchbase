@@ -78,6 +78,8 @@ jobs:
           echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.9-linux-x86_64/bin:$PATH" >> $GITHUB_ENV
       - name: general
         run: npm i && npm run rebuild
+        env:
+          CMAKE_ARGS: "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
       - run: npx vsce package --pre-release --target ${{ env.target }}
       - uses: actions/upload-artifact@v4
         with:
