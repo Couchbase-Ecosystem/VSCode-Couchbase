@@ -107,7 +107,11 @@ export default class ParticipantController {
         case 'docs':
           return await this.handleDocsRequest(...args);
         default:
-          return await this.handleGenericRequest(...args);
+          // Handle generic requests
+          // This is where you can handle other commands or requests
+          // For now, we are always calling the docs endpoint
+          return await this.handleDocsRequest(...args);
+          // return await this.handleGenericRequest(...args);
       }
     } catch (error) {
       throw error;
