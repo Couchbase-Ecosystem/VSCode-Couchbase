@@ -28,9 +28,7 @@ const schemaStringify = (schema: ISchemaCache): string[] => {
 // INFO: Indexes are not being sent to the assistant right now
 
 export const collectionIntentHandler = async (jsonObject: any, cacheService: CacheService) => {
-
-    const collections: string[] = jsonObject?.message?.collections || [];
-
+    const collections: string[] = jsonObject?.collections || [];
 
     if (collections.length === 0) { // No Collections found, returning
         return ["No collections found, Please don't use get_schema tool if you don't want to send collections"];

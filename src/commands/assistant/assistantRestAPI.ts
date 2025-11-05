@@ -17,12 +17,15 @@ export class AssistantRestAPI {
             status: "",
             threadId: "",
             runId: "",
+            metadata: {},
             tool_args: null
         };
+        console.log("Assistant URL Domain: ", this.ASSISTANT_URL_DOMAIN);
+        console.log("Message Body: ", messageBody);
         try {
             const content = await axios.post(
                 `${this.ASSISTANT_URL_DOMAIN}/chat_postman`,
-                messageBody,
+                JSON.parse(messageBody),
                 {
                     headers: {
                         "Content-Type": "application/json",

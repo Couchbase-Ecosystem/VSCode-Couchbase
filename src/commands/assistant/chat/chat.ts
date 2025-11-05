@@ -81,9 +81,10 @@ export const assistantChat = async (iqPayload: any, allMessages: allMessagesType
         
             // Update response for next iteration
             response = restartAssistantResponse;
+            console.log("assistant response: ", response);
 
-            // If there are no more tool_args, break the loop
-            if (!response.tool_args) {
+            // If there are no more collections field in tool_args, break the loop
+            if (!response.tool_args.collections) {
                 if (restartAssistantResponse && restartAssistantResponse.content && restartAssistantResponse.content.length > 0) {
                     return restartAssistantResponse;
                 }

@@ -14,12 +14,13 @@ export type allMessagesType = {
 };
 
 export type AssistantResponse = {
+    metadata: any;
     content: string;
     error?: string;
     status: string;
     threadId: string;
     runId: string;
-    tool_args: string | null;
+    tool_args: any | null;
 };
 
 export type collectionIntentType = {
