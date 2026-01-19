@@ -4,7 +4,7 @@
   "description": "",
   "version": "2.3.3",
   "engines": {
-    "vscode": "^1.63.1"
+    "vscode": "^1.95.0"
   },
   "categories": [
     "Other"
@@ -68,7 +68,7 @@
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
     "@types/uuid": "^9.0.6",
-    "@types/vscode": "^1.63.1",
+    "@types/vscode": "^1.108.1",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
     "@vscode/test-electron": "^2.4.0",
@@ -1361,11 +1361,17 @@
       "couchbase-workbench-panel": [
         {
           "id": "vscode-couchbase.couchbase-query-workbench",
-          "name": "Couchbase", 
+          "name": "Couchbase",
           "type": "webview"
         }
       ]
     },
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "couchbaseMcpProvider",
+        "label": "Couchbase MCP Server Provider"
+      }
+    ],
     "configuration": [
       {
         "id": "couchbase-chat",
