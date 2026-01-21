@@ -93,6 +93,7 @@ import { huggingFaceMigrate } from "./pages/Tools/HuggingFaceMigrate/huggingFace
 import { setQueryTimeout } from "./commands/queryTimeout/setQueryTimeout";
 import { CouchbaseAssistantWebviewProvider } from "./commands/assistant/assistantWebviewProvider";
 import ParticipantController from "./participant/participant";
+import { CouchbaseMcpProvider } from "./commands/mcp/couchbaseMcpProvider";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -202,6 +203,13 @@ context.subscriptions.push(disposable);
     context,
     cacheService
   );
+
+  // Register MCP Server Definition Provider
+  const couchbaseMcpProvider = new CouchbaseMcpProvider();
+  subscriptions.push(
+    vscode.lm.registerMcpServerDefinitionProvider('couchbaseMcpProvider', couchbaseMcpProvider)
+  );
+  subscriptions.push(couchbaseMcpProvider);
 
   // Update secret service with context at startup of extension.
   const secretService = SecretService.getInstance(context);
