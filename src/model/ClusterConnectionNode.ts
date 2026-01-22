@@ -50,8 +50,8 @@ export class ClusterConnectionNode implements INode {
       collapsibleState: vscode.TreeItemCollapsibleState.Expanded,
       contextValue: this.isActive ? "active_connection" : "connection",
       iconPath: {
-        light: path.join(__filename, "..", "..", "images", this.isActive ? "" : "light", "cb-logo-icon.svg"),
-        dark: path.join(__filename, "..", "..", "images", this.isActive ? "" : "dark", "cb-logo-icon.svg"),
+        light: vscode.Uri.file(path.join(__filename, "..", "..", "images", "light", "cb-logo-icon.svg")),
+        dark: vscode.Uri.file(path.join(__filename, "..", "..", "images", "dark", "cb-logo-icon.svg")),
       },
     };
   }

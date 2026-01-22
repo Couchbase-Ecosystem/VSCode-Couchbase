@@ -31,14 +31,14 @@ export default class InformationNode implements INode {
             contextValue: "info-icon",
             tooltip: `${this.tooltip ?? ""}`,
             iconPath: {
-                light: path.join(
+                light: vscode.Uri.file(path.join(
                     __filename,
                     "..",
                     "..",
                     "images/light",
                     "info-icon.svg"
-                ),
-                dark: path.join(__filename, "..", "..", "images/dark", "info-icon.svg"),
+                )),
+                dark: vscode.Uri.file(path.join(__filename, "..", "..", "images/dark", "info-icon.svg")),
             },
             command: this.commandDetails,
         };
