@@ -32,6 +32,10 @@ export class SecretService implements SecretStorage {
         return this.context.secrets.delete(key);
     }
     
+    keys(): Thenable<string[]> {
+        return this.context.secrets.keys() as Thenable<string[]>;
+    }
+    
     get onDidChange(): Event<SecretStorageChangeEvent> {
         return this._onDidChange.event;
     }
