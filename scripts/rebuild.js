@@ -6,7 +6,7 @@ async function rebuildBinding() {
     return new Promise((resolve, reject) => {
         let child = spawn(
             path.resolve('./node_modules/.bin/cmake-js'),
-            ['rebuild', '-d', 'node_modules/couchbase', '-r', 'electron', '-v', '19.1.8'],
+            ['rebuild', '-d', 'node_modules/couchbase', '-r', 'electron', '-v', '19.1.8', '-CDCMAKE_POLICY_VERSION_MINIMUM=3.5'],
             { shell: true, stdio: 'inherit' }
         );
 
