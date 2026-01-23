@@ -35,12 +35,14 @@ async function lookupCapellaServers(serverURL: string): Promise<string[]> {
 }
 
 
-export function getServerURL(url: string): Promise<string[]> | string[] {
-    if (url.includes('cloud.couchbase.com')) {
-        return lookupCapellaServers(url);
-    } else {
-        return [url.replace('couchbases://', '').replace('couchbase://', '')];
+export async function getServerURL(url: string): Promise<string[]> {
+    // Always try Capella server lookup first (handles both cloud.couchbase.com and private link endpoints)
+    const servers = await lookupCapellaServers(url);
+    if (servers.length > 0) {
+        return servers;
     }
+    // Fallback to original URL if lookup fails or returns no results
+    return [url.replace('couchbases://', '').replace('couchbase://', '')];
 }
 
 export function getFTSNodes(): string[] {
