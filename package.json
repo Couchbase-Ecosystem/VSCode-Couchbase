@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "engines": {
     "vscode": "^1.63.1"
   },
@@ -34,9 +34,9 @@
   "scripts": {
     "vscode:prepublish": "npm run package",
     "package": "npm run compile && webpack --devtool hidden-source-map",
-    "rebuild": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -v 25.9.7 && node scripts/copy_binding.js",
-    "rebuild:xcompile": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -t ${TARGET} -v 19.1.8  -CDCMAKE_CXX_COMPILER=/usr/bin/g++ -CDCMAKE_C_COMPILER=/usr/bin/gcc && node scripts/copy_binding.js",
-    "rebuild:cmake": "cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8",
+    "rebuild": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -v 25.9.7 -CDCMAKE_POLICY_VERSION_MINIMUM=3.5 && node scripts/copy_binding.js",
+    "rebuild:xcompile": "node scripts/fix_openssl.js && cmake-js rebuild -d node_modules/couchbase -r electron -t ${TARGET} -v 19.1.8 -CDCMAKE_POLICY_VERSION_MINIMUM=3.5 -CDCMAKE_CXX_COMPILER=/usr/bin/g++ -CDCMAKE_C_COMPILER=/usr/bin/gcc && node scripts/copy_binding.js",
+    "rebuild:cmake": "cmake-js rebuild -d node_modules/couchbase -r electron -v 19.1.8 -CDCMAKE_POLICY_VERSION_MINIMUM=3.5",
     "build:v3": "cd ../couchbase-cloud/cmd/cp-ui-v3; npm run build",
     "postbuild:v3": "cp -r ../couchbase-cloud/cmd/cp-ui-v3/dist/styles.css ./src/reactViews/app/styles.css && cp -r ../couchbase-cloud/cmd/cp-ui-v3/dist/types ./src/reactViews/app/",
     "compile-capella-v3": "npm run build:v3 && npm run postbuild:v3 && node scripts/fix_sharedComponent.js && npm-run-all compile:*",
