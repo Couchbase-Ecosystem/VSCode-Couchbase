@@ -12,15 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-latest
-            platform: win32
-            arch: x64
-          #- os: windows-latest
-          #  platform: win32
-          #  arch: ia32
-          #- os: windows-latest
-          #  platform: win32
-          #  arch: arm64
           - os: ubuntu-22.04
             platform: linux
             arch: x64
@@ -51,10 +42,6 @@ jobs:
           cache: 'npm'
       - run: echo '${{ secrets.CONFIG_JSON }}' > ${{ github.workspace }}/src/config.json
       - uses: ilammy/setup-nasm@v1
-      - name: windows-specific
-        shell: pwsh
-        if: matrix.platform == 'win32'
-        run: choco install openssl.light --version=1.1.1 && choco install cmake --global && npm install --global cmake-js node-gyp && echo CMAKE_JS_LIB - $CMAKE_JS_LIB
       - name: mac-specific
         shell: bash
         if: matrix.platform == 'darwin'
