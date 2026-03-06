@@ -60,6 +60,7 @@ export class MCPController {
   private getActiveConnection: () => IConnection | undefined;
   private mcpConnectionManager: MCPConnectionManager;
   private serverInfo?: MCPServerInfo;
+  private didChangeEmitter = new vscode.EventEmitter<void>();
 
   constructor({ context, onActiveConnectionChanged, getActiveConnection }: MCPControllerConfig) {
     this.context = context;
@@ -78,6 +79,19 @@ export class MCPController {
   public async activate(): Promise<void> {
     try {
       await this.migrateOldConfigToNewConfig(this.getMCPAutoStartConfig<unknown>());
+
+      this.context.subscriptions.push(
+        vscode.lm.registerMcpServerDefinitionProvider('couchbase', {
+          onDidChangeMcpServerDefinitions: this.didChangeEmitter.event,
+          provideMcpServerDefinitions: () => {
+            const config = this.getServerConfig();
+            return config ? [config] : [];
+          },
+          resolveMcpServerDefinition: (server: vscode.McpServerDefinition) => {
+            return server;
+          },
+        })
+      );
 
       // Auto-start if configured
       if (this.getMCPAutoStartConfig() === 'autoStartEnabled') {
@@ -204,6 +218,7 @@ export class MCPController {
       }
 
       await this.startServerInVSCode();
+      this.didChangeEmitter.fire();
 
       vscode.window.showInformationMessage('Couchbase MCP server started successfully');
       logger.info('Couchbase MCP server started successfully');
@@ -228,6 +243,7 @@ export class MCPController {
         await this.mcpConnectionManager.disconnect();
       }
       this.serverInfo = undefined;
+      this.didChangeEmitter.fire();
 
       vscode.window.showInformationMessage('Couchbase MCP server stopped');
       logger.info('Couchbase MCP server stopped successfully');
@@ -500,6 +516,7 @@ export class MCPController {
         try {
           await this.syncServerConfigToMcpJson();
           await this.restartServerInVSCode();
+          this.didChangeEmitter.fire();
         } catch (error) {
           logger.warn(`Could not sync Couchbase MCP server to mcp.json: ${error}`);
         }
@@ -532,6 +549,7 @@ export class MCPController {
    * Disposes the controller
    */
   public dispose(): void {
+    this.didChangeEmitter.dispose();
     void this.stopServer();
   }
 }
