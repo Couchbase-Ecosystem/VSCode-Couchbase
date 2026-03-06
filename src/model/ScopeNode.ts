@@ -50,14 +50,14 @@ export class ScopeNode implements INode {
           "..",
           "..",
           "images/light",
-          "scope-item.svg"
+          "scope-icon.svg"
         )),
         dark: vscode.Uri.file(path.join(
           __filename,
           "..",
           "..",
           "images/dark",
-          "scope-item.svg"
+          "scope-icon.svg"
         )),
       },
     };
