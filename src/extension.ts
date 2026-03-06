@@ -93,7 +93,8 @@ import { huggingFaceMigrate } from "./pages/Tools/HuggingFaceMigrate/huggingFace
 import { setQueryTimeout } from "./commands/queryTimeout/setQueryTimeout";
 import { CouchbaseAssistantWebviewProvider } from "./commands/assistant/assistantWebviewProvider";
 import ParticipantController from "./participant/participant";
-import { CouchbaseMcpProvider } from "./commands/mcp/couchbaseMcpProvider";
+import { MCPController } from "./mcp/mcpController";
+import { getActiveConnection } from "./util/connections";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -204,12 +205,28 @@ context.subscriptions.push(disposable);
     cacheService
   );
 
-  // Register MCP Server Definition Provider
-  const couchbaseMcpProvider = new CouchbaseMcpProvider();
-  subscriptions.push(
-    vscode.lm.registerMcpServerDefinitionProvider('couchbaseMcpProvider', couchbaseMcpProvider)
-  );
-  subscriptions.push(couchbaseMcpProvider);
+  // Initialize MCP Controller
+  const mcpController = new MCPController({
+    context,
+    onActiveConnectionChanged: (callback) => {
+      ConnectionEvents.onConnectionChanged(() => {
+        void callback();
+      });
+      ConnectionEvents.onConnectionRemoved(() => {
+        void callback();
+      });
+    },
+    getActiveConnection: () => getActiveConnection(),
+  });
+
+  // Activate MCP Controller
+  mcpController.activate().catch((error) => {
+    logger.error(`Failed to activate MCP Controller: ${error}`);
+  });
+
+  subscriptions.push({
+    dispose: () => mcpController.dispose(),
+  });
 
   // Update secret service with context at startup of extension.
   const secretService = SecretService.getInstance(context);
@@ -1037,6 +1054,25 @@ context.subscriptions.push(disposable);
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.ddlExport, async () => {
       ddlExport();
+    })
+  );
+
+  // Register MCP Server commands
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.startMcpServer, async () => {
+      await mcpController.startServer();
+    })
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.stopMcpServer, async () => {
+      await mcpController.stopServer();
+    })
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.getMcpServerConfig, async () => {
+      await mcpController.openServerConfig();
     })
   );
   

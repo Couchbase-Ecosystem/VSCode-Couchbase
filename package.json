@@ -147,6 +147,7 @@
     "onFileSystem:couchbase",
     "onNotebook:vscode-couchbase.couchbase-query-notebook",
     "onChatParticipant:couchbase.copilot",
+    "onUri",
     "onStartupFinished",
     "onView:couchbase-activity-bar"
   ],
@@ -798,6 +799,21 @@
         "command": "vscode-couchbase.settings.showChatInterface",
         "title": "Change Chat Interface (Assistant/iQ)",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.mcp.startServer",
+        "title": "Start MCP Server",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.mcp.stopServer",
+        "title": "Stop MCP Server",
+        "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.mcp.getServerConfig",
+        "title": "Get MCP Server Config",
+        "category": "Couchbase"
       }
     ],
     "keybindings": [
@@ -1368,8 +1384,8 @@
     },
     "mcpServerDefinitionProviders": [
       {
-        "id": "couchbaseMcpProvider",
-        "label": "Couchbase MCP Server Provider"
+        "id": "couchbase",
+        "label": "Couchbase MCP Server Definition Provider"
       }
     ],
     "configuration": [
@@ -1431,6 +1447,84 @@
             "title": "User Named Parameters",
             "default": {},
             "markdownDescription": "This field represents the user-defined named parameters. You can modify the user-defined named parameters here."
+          }
+        }
+      },
+      {
+        "id": "couchbase-mcp",
+        "title": "MCP Server",
+        "order": 4,
+        "properties": {
+          "couchbase.mcp.server": {
+            "type": "string",
+            "enum": [
+              "prompt",
+              "autoStartEnabled",
+              "autoStartDisabled"
+            ],
+            "enumDescriptions": [
+              "Ask whether to start the MCP server when connecting to a cluster",
+              "Automatically start the MCP server when connecting to a cluster",
+              "Never automatically start the MCP server"
+            ],
+            "default": "prompt",
+            "markdownDescription": "Controls whether Couchbase MCP server starts automatically with the extension and connects to the active connection. If automatic startup is disabled, the server can still be started using the 'Couchbase: Start MCP Server' command.",
+            "scope": "application"
+          },
+          "couchbase.mcp.readOnlyQueryMode": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "When set to true, Couchbase MCP server will only allow read operations, disabling create/update/delete SQL++ queries. Note that documents can still be updated by ID.",
+            "scope": "application"
+          },
+          "couchbase.mcp.disabledTools": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "markdownDescription": "List of tool names to disable in the Couchbase MCP server. You can specify individual tool names or categories.",
+            "scope": "application"
+          },
+          "couchbase.mcp.transport": {
+            "type": "string",
+            "enum": [
+              "stdio",
+              "http",
+              "sse"
+            ],
+            "enumDescriptions": [
+              "Standard I/O transport (default, works with most MCP clients)",
+              "HTTP transport for multiple client connections",
+              "Server-Sent Events transport (deprecated)"
+            ],
+            "default": "stdio",
+            "markdownDescription": "Transport mode for the MCP server. Standard I/O is recommended for most use cases.",
+            "scope": "application"
+          },
+          "couchbase.mcp.httpPort": {
+            "type": "number",
+            "default": 0,
+            "markdownDescription": "Port number for HTTP/SSE transport modes. Use 0 for automatic port assignment.",
+            "scope": "application"
+          },
+          "couchbase.mcp.exportsPath": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "The directory where the Couchbase MCP server will export data. Leave empty to use the default path.",
+            "scope": "application"
+          },
+          "couchbase.mcp.exportTimeoutMs": {
+            "type": "number",
+            "default": 300000,
+            "markdownDescription": "Time in milliseconds after which exports will expire. Default is 5 minutes (300000ms).",
+            "scope": "application"
+          },
+          "couchbase.mcp.exportCleanupIntervalMs": {
+            "type": "number",
+            "default": 120000,
+            "markdownDescription": "How often the export cleanup process runs to remove expired files (in milliseconds). Default is 2 minutes (120000ms).",
+            "scope": "application"
           }
         }
       }

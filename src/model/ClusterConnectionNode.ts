@@ -23,7 +23,7 @@ import { BucketSettings } from "couchbase";
 import { getActiveConnection } from "../util/connections";
 import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
-import { CacheService } from "../../src/util/cacheService/cacheService"
+import { CacheService } from "../../src/util/cacheService/cacheService";
 import { Constants } from "../util/constants";
 
 export class ClusterConnectionNode implements INode {
@@ -45,14 +45,18 @@ export class ClusterConnectionNode implements INode {
     const activeConnection = getActiveConnection();
     this.isActive = `${this.connection.username}@${this.connection.url}` === `${activeConnection?.username}@${activeConnection?.url}`;
 
+    const iconPath = this.isActive
+      ? vscode.Uri.file(path.join(__filename, "..", "..", "images", "cb-logo-icon.svg"))
+      : {
+        light: vscode.Uri.file(path.join(__filename, "..", "..", "images", "light", "cb-logo-icon.svg")),
+        dark: vscode.Uri.file(path.join(__filename, "..", "..", "images", "dark", "cb-logo-icon.svg")),
+      };
+
     return {
       label: this.isActive ? `${this.id}` : this.id,
       collapsibleState: vscode.TreeItemCollapsibleState.Expanded,
       contextValue: this.isActive ? "active_connection" : "connection",
-      iconPath: {
-        light: vscode.Uri.file(path.join(__filename, "..", "..", "images", "light", "cb-logo-icon.svg")),
-        dark: vscode.Uri.file(path.join(__filename, "..", "..", "images", "dark", "cb-logo-icon.svg")),
-      },
+      iconPath,
     };
   }
 
