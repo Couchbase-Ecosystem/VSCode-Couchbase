@@ -33,14 +33,14 @@ export class PagerNode implements INode {
           "..",
           "..",
           "images/light",
-          "arrow-icon.svg"
+          "load-more.svg"
         )),
         dark: vscode.Uri.file(path.join(
           __filename,
           "..",
           "..",
           "images/dark",
-          "arrow-icon.svg"
+          "load-more.svg"
         )),
       },
       collapsibleState: vscode.TreeItemCollapsibleState.None,

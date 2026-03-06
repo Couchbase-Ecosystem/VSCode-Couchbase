@@ -57,12 +57,12 @@ export function validateMCPConfig(config: Partial<CouchbaseMCPConfig>): boolean 
     return false;
   }
 
-  if (config.exportTimeoutMs && config.exportTimeoutMs < 1000) {
+  if (config.exportTimeoutMs !== undefined && config.exportTimeoutMs < 1000) {
     logger.error('Export timeout must be at least 1000ms');
     return false;
   }
 
-  if (config.exportCleanupIntervalMs && config.exportCleanupIntervalMs < 1000) {
+  if (config.exportCleanupIntervalMs !== undefined && config.exportCleanupIntervalMs < 1000) {
     logger.error('Export cleanup interval must be at least 1000ms');
     return false;
   }
