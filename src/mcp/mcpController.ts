@@ -318,9 +318,60 @@ export class MCPController {
     mcpConfigUri: vscode.Uri,
     config: MCPJsonConfiguration
   ): Promise<void> {
-    const mcpConfigContent = new TextEncoder().encode(
-      `${JSON.stringify(config, null, 2)}\n`
-    );
+    let existingContent: string | undefined;
+    try {
+      const fileData = await vscode.workspace.fs.readFile(mcpConfigUri);
+      existingContent = new TextDecoder('utf-8').decode(fileData);
+    } catch {
+      logger.warn(`No existing mcp.json found at ${mcpConfigUri.fsPath}. A new file will be created.`);
+    }
+
+    let newContent: string;
+    if (existingContent !== undefined) {
+      const formattingOptions: jsonc.FormattingOptions = {
+        insertSpaces: true,
+        tabSize: 2,
+        eol: '\n',
+      };
+
+      let content = existingContent;
+      try {
+        const couchbaseServerConfig =
+          config.servers && typeof config.servers === 'object' && !Array.isArray(config.servers)
+            ? (config.servers[MCPController.MCP_SERVER_NAME] as unknown)
+            : undefined;
+
+        if (couchbaseServerConfig !== undefined) {
+          const serverEdits = jsonc.modify(
+            content,
+            ['servers', MCPController.MCP_SERVER_NAME],
+            couchbaseServerConfig,
+            { formattingOptions }
+          );
+          content = jsonc.applyEdits(content, serverEdits);
+        }
+
+        if (Array.isArray(config.inputs)) {
+          const inputsEdits = jsonc.modify(content, ['inputs'], config.inputs, {
+            formattingOptions,
+          });
+          content = jsonc.applyEdits(content, inputsEdits);
+        }
+      } catch {
+        // If we cannot apply JSONC edits (for example malformed content),
+        // rewrite with a normalized JSON document.
+        content = `${JSON.stringify(config, null, 2)}\n`;
+      }
+
+      if (!content.endsWith('\n')) {
+        content += '\n';
+      }
+      newContent = content;
+    } else {
+      newContent = `${JSON.stringify(config, null, 2)}\n`;
+    }
+
+    const mcpConfigContent = new TextEncoder().encode(newContent);
     await vscode.workspace.fs.writeFile(mcpConfigUri, mcpConfigContent);
   }
 
