@@ -18,7 +18,7 @@ import * as vscode from 'vscode';
 import { logger } from '../logger/logger';
 
 export interface CouchbaseMCPConfig {
-  readOnlyQueryMode: boolean;
+  readOnlyMode: boolean;
   disabledTools: string[];
   transport: 'stdio' | 'http' | 'sse';
   httpPort: number;
@@ -32,9 +32,10 @@ export interface CouchbaseMCPConfig {
  */
 export function getMCPConfigFromVSCodeSettings(): Partial<CouchbaseMCPConfig> {
   const mcpConfiguration = vscode.workspace.getConfiguration('couchbase.mcp');
+  const readOnlyMode = mcpConfiguration.get<boolean>('readOnlyMode');
 
   const config: Partial<CouchbaseMCPConfig> = {
-    readOnlyQueryMode: mcpConfiguration.get<boolean>('readOnlyQueryMode', true),
+    readOnlyMode: readOnlyMode ?? true,
     disabledTools: mcpConfiguration.get<string[]>('disabledTools', []),
     transport: mcpConfiguration.get<'stdio' | 'http' | 'sse'>('transport', 'stdio'),
     httpPort: mcpConfiguration.get<number>('httpPort', 0),

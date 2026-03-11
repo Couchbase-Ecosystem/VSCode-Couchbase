@@ -1471,10 +1471,10 @@
             "markdownDescription": "Controls whether Couchbase MCP server starts automatically with the extension and connects to the active connection. If automatic startup is disabled, the server can still be started using the 'Couchbase: Start MCP Server' command.",
             "scope": "application"
           },
-          "couchbase.mcp.readOnlyQueryMode": {
+          "couchbase.mcp.readOnlyMode": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "When set to true, Couchbase MCP server will only allow read operations, disabling create/update/delete SQL++ queries. Note that documents can still be updated by ID.",
+            "markdownDescription": "When set to true, all write operations (KV and Query) are disabled, making the MCP server read-only.",
             "scope": "application"
           },
           "couchbase.mcp.disabledTools": {

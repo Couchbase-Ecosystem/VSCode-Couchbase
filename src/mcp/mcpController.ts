@@ -18,8 +18,6 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as jsonc from 'jsonc-parser';
 import { logger } from '../logger/logger';
-import { Constants } from '../util/constants';
-import { SecretService } from '../util/secretService';
 import { IConnection } from '../types/IConnection';
 import { MCPConnectionManager } from './mcpConnectionManager';
 import { getMCPConfigFromVSCodeSettings } from './mcpConfig';
@@ -30,7 +28,6 @@ export type MCPServerStartupConfig = 'prompt' | 'autoStartEnabled' | 'autoStartD
 type MCPServerInfo = {
   connectionString: string;
   username: string;
-  password?: string;
   headers?: Record<string, string>;
 };
 
@@ -55,6 +52,8 @@ export class MCPController {
   private static readonly USER_MCP_CONFIG_FILE = 'mcp.json';
   private static readonly USER_LOCAL_MCP_SERVER_ID_PREFIX = 'mcp.config.usrlocal';
   private static readonly LEGACY_PROVIDER_SERVER_ID = 'couchbase';
+  private static readonly MCP_PASSWORD_INPUT_ID = 'couchbaseMcpPassword';
+  private static readonly MCP_PASSWORD_INPUT_REFERENCE = `\${input:${MCPController.MCP_PASSWORD_INPUT_ID}}`;
 
   private context: vscode.ExtensionContext;
   private getActiveConnection: () => IConnection | undefined;
@@ -197,16 +196,12 @@ export class MCPController {
 
       logger.info('Starting Couchbase MCP server');
 
-      const password = await this.resolveConnectionPassword(activeConnection);
-
       this.serverInfo = {
         connectionString: activeConnection.url,
         username: activeConnection.username,
-        password,
       };
 
       const connectionParams = MCPConnectionManager.fromConnection(activeConnection);
-      connectionParams.password = password;
 
       // Update the connection manager
       await this.mcpConnectionManager.updateConnection(connectionParams);
@@ -287,26 +282,25 @@ export class MCPController {
   }
 
   private async syncServerConfigToMcpJson(): Promise<vscode.Uri | undefined> {
-    const config = this.getServerConfig();
-    if (!config) {
+    const activeConnection = this.getActiveConnection();
+    if (!activeConnection) {
       return undefined;
     }
 
+    const mcpConfig = getMCPConfigFromVSCodeSettings();
     const mcpConfigUri = this.getUserMcpConfigUri();
     const existingConfig = await this.readUserMcpConfiguration(mcpConfigUri);
     const servers = this.getServersConfiguration(existingConfig);
+    const existingServerConfig = servers[MCPController.MCP_SERVER_NAME];
 
-    servers[MCPController.MCP_SERVER_NAME] = {
-      type: 'stdio',
-      command: config.command,
-      args: [...config.args],
-      ...(config.env && Object.keys(config.env).length > 0 ? { env: config.env } : {}),
-    };
+    servers[MCPController.MCP_SERVER_NAME] = this.buildUpdatedMcpServerConfiguration(
+      existingServerConfig,
+      activeConnection,
+      mcpConfig.readOnlyMode ?? true
+    );
 
     existingConfig.servers = servers;
-    if (!Array.isArray(existingConfig.inputs)) {
-      existingConfig.inputs = [];
-    }
+    existingConfig.inputs = this.withPasswordInput(existingConfig.inputs);
 
     await vscode.workspace.fs.createDirectory(vscode.Uri.file(path.dirname(mcpConfigUri.fsPath)));
     await this.writeUserMcpConfiguration(mcpConfigUri, existingConfig);
@@ -480,19 +474,144 @@ export class MCPController {
     return {};
   }
 
-  private async resolveConnectionPassword(connection: IConnection): Promise<string | undefined> {
-    if (connection.password) {
-      return connection.password;
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return !!value && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  private normalizeArgs(args: unknown): string[] {
+    if (!Array.isArray(args)) {
+      return [];
     }
 
-    try {
-      const secretService = SecretService.getInstance(this.context);
-      const connectionId = `${connection.username}@${connection.url}`;
-      return await secretService.get(`${Constants.extensionID}-${connectionId}`);
-    } catch (error) {
-      logger.warn(`Unable to resolve password for MCP server connection: ${error}`);
-      return undefined;
+    return args.filter((arg): arg is string => typeof arg === 'string');
+  }
+
+  private getArgValue(args: string[], flag: string): string | undefined {
+    const keyValueArg = args.find((arg) => arg.startsWith(`${flag}=`));
+    if (keyValueArg) {
+      return keyValueArg.slice(flag.length + 1);
     }
+
+    const flagIndex = args.findIndex((arg) => arg === flag);
+    if (flagIndex !== -1 && flagIndex + 1 < args.length) {
+      return args[flagIndex + 1];
+    }
+
+    return undefined;
+  }
+
+  private removeArg(args: string[], flag: string): string[] {
+    const nextArgs: string[] = [];
+
+    for (let index = 0; index < args.length; index += 1) {
+      const arg = args[index];
+      if (arg === flag) {
+        index += 1;
+        continue;
+      }
+
+      if (arg.startsWith(`${flag}=`)) {
+        continue;
+      }
+
+      nextArgs.push(arg);
+    }
+
+    return nextArgs;
+  }
+
+  private upsertArg(args: string[], flag: string, value: string): string[] {
+    const keyValueArgIndex = args.findIndex((arg) => arg.startsWith(`${flag}=`));
+    if (keyValueArgIndex !== -1) {
+      const updatedArgs = [...args];
+      updatedArgs[keyValueArgIndex] = `${flag}=${value}`;
+      return updatedArgs;
+    }
+
+    const flagArgIndex = args.findIndex((arg) => arg === flag);
+    if (flagArgIndex !== -1) {
+      const updatedArgs = [...args];
+      if (flagArgIndex + 1 < updatedArgs.length) {
+        updatedArgs[flagArgIndex + 1] = value;
+      } else {
+        updatedArgs.push(value);
+      }
+      return updatedArgs;
+    }
+
+    return [...args, flag, value];
+  }
+
+  private withPasswordInput(inputs: unknown): unknown[] {
+    const existingInputs = Array.isArray(inputs) ? [...inputs] : [];
+    const withoutPasswordInput = existingInputs.filter((entry) => {
+      if (!this.isRecord(entry)) {
+        return true;
+      }
+
+      return entry.id !== MCPController.MCP_PASSWORD_INPUT_ID;
+    });
+
+    withoutPasswordInput.push({
+      id: MCPController.MCP_PASSWORD_INPUT_ID,
+      type: 'promptString',
+      description: 'Enter Couchbase password for MCP server',
+      password: true,
+    });
+
+    return withoutPasswordInput;
+  }
+
+  private buildUpdatedMcpServerConfiguration(
+    existingServerConfig: unknown,
+    activeConnection: IConnection,
+    defaultReadOnlyMode: boolean
+  ): Record<string, unknown> {
+    const hasExistingServerConfig = this.isRecord(existingServerConfig);
+    const serverConfig: Record<string, unknown> = hasExistingServerConfig
+      ? { ...existingServerConfig }
+      : {
+          type: 'stdio',
+          command: 'uvx',
+          args: ['couchbase-mcp-server'],
+        };
+
+    let args = this.normalizeArgs(serverConfig.args);
+    if (args.length === 0) {
+      args = ['couchbase-mcp-server'];
+    }
+
+    args = this.upsertArg(args, '--connection-string', activeConnection.url);
+    args = this.upsertArg(args, '--username', activeConnection.username);
+    args = this.upsertArg(args, '--password', MCPController.MCP_PASSWORD_INPUT_REFERENCE);
+
+    const deprecatedReadOnlyMode = this.getArgValue(args, '--read-only-query-mode');
+    const currentReadOnlyMode = this.getArgValue(args, '--read-only-mode');
+
+    args = this.removeArg(args, '--read-only-query-mode');
+
+    if (deprecatedReadOnlyMode !== undefined && currentReadOnlyMode === undefined) {
+      args = this.upsertArg(args, '--read-only-mode', deprecatedReadOnlyMode);
+    } else if (!hasExistingServerConfig && currentReadOnlyMode === undefined) {
+      args = this.upsertArg(args, '--read-only-mode', String(defaultReadOnlyMode));
+    }
+
+    serverConfig.args = args;
+
+    if (this.isRecord(serverConfig.env)) {
+      const env = { ...serverConfig.env };
+      delete env.CB_CONNECTION_STRING;
+      delete env.CB_USERNAME;
+      delete env.CB_PASSWORD;
+
+      if (Object.keys(env).length > 0) {
+        serverConfig.env = env;
+      } else {
+        delete serverConfig.env;
+      }
+    }
+
+    return serverConfig;
   }
 
   /**
@@ -519,14 +638,12 @@ export class MCPController {
         this.serverInfo.connectionString,
         '--username',
         this.serverInfo.username,
-        ...(this.serverInfo.password ? ['--password', this.serverInfo.password] : []),
-        '--read-only-query-mode',
-        String(mcpConfig.readOnlyQueryMode ?? true),
+        '--password',
+        MCPController.MCP_PASSWORD_INPUT_REFERENCE,
+        '--read-only-mode',
+        String(mcpConfig.readOnlyMode ?? true),
       ],
       {
-        CB_CONNECTION_STRING: this.serverInfo.connectionString,
-        CB_USERNAME: this.serverInfo.username,
-        ...(this.serverInfo.password && { CB_PASSWORD: this.serverInfo.password }),
         ...(mcpConfig.exportsPath && { CB_MCP_EXPORTS_PATH: mcpConfig.exportsPath }),
       }
     );
@@ -552,16 +669,13 @@ export class MCPController {
 
       // Update the connection if server is running
       if (this.serverInfo && activeConnection) {
-        const password = await this.resolveConnectionPassword(activeConnection);
         const connectionParams = MCPConnectionManager.fromConnection(activeConnection);
-        connectionParams.password = password;
         await this.mcpConnectionManager.updateConnection(connectionParams);
 
         // Update server info
         this.serverInfo = {
           connectionString: activeConnection.url,
           username: activeConnection.username,
-          password,
         };
 
         try {
