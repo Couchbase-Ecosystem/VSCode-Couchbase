@@ -146,28 +146,12 @@
   "activationEvents": [
     "onFileSystem:couchbase",
     "onNotebook:vscode-couchbase.couchbase-query-notebook",
-    "onChatParticipant:couchbase.copilot",
     "onUri",
     "onStartupFinished",
     "onView:couchbase-activity-bar"
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "chatParticipants": [
-      {
-        "id": "couchbase.copilot",
-        "name": "Couchbase",
-        "description": "Ask anything related to Couchbase, to get up-to-date information.",
-        "isSticky": true,
-        "commands": [
-          {
-            "name": "docs",
-            "isSticky": true,
-            "description": "Ask Couchbase-related questions and find answers in the official documentation."
-          }
-        ]
-      }
-    ],
     "snippets": [
       {
         "language": "javascript",

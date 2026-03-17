@@ -140,6 +140,4 @@ export const ensureTermsAccepted = async(): Promise<boolean> => {
         }
     }
     return true;
-
-
-}
+};

@@ -92,7 +92,6 @@ import { CBShell } from "./tools/CBShell";
 import { huggingFaceMigrate } from "./pages/Tools/HuggingFaceMigrate/huggingFaceMigrate";
 import { setQueryTimeout } from "./commands/queryTimeout/setQueryTimeout";
 import { CouchbaseAssistantWebviewProvider } from "./commands/assistant/assistantWebviewProvider";
-import ParticipantController from "./participant/participant";
 import { MCPController } from "./mcp/mcpController";
 import { getActiveConnection } from "./util/connections";
 
@@ -112,7 +111,7 @@ export function activate(context: vscode.ExtensionContext) {
   const uriToCasMap = new Map<string, string>();
   const workbench = new QueryWorkbench();
   const searchWorkbench = new SearchWorkbench();
-  const queryKernel = new QueryKernel()
+  const queryKernel = new QueryKernel();
 
   let currentSearchIndexNode: SearchIndexNode;
   let currentSearchWorkbench: SearchWorkbench;
@@ -198,8 +197,6 @@ context.subscriptions.push(disposable);
 
   const subscriptions = context.subscriptions;
   const cacheService = new CacheService();
-  const participant = new ParticipantController(cacheService);
-  participant.createParticipant(context);
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context,
     cacheService
@@ -803,7 +800,7 @@ context.subscriptions.push(disposable);
         await huggingFaceMigrate();
       }
     )
-  )
+  );
 
   subscriptions.push(
     vscode.commands.registerCommand(
