@@ -48,6 +48,13 @@ type MCPControllerConfig = {
 export class MCPController {
   private static readonly MCP_SERVER_NAME = 'couchbase';
 
+  private static readonly READ_ONLY_DISABLED_TOOLS = [
+    'upsert_document_by_id',
+    'insert_document_by_id',
+    'replace_document_by_id',
+    'delete_document_by_id',
+  ];
+
   private context: vscode.ExtensionContext;
   private getActiveConnection: () => IConnection | undefined;
   private mcpConnectionManager: MCPConnectionManager;
@@ -78,6 +85,15 @@ export class MCPController {
           resolveMcpServerDefinition: (server: vscode.McpServerDefinition) => {
             return server;
           },
+        })
+      );
+
+      this.context.subscriptions.push(
+        vscode.workspace.onDidChangeConfiguration((event) => {
+          if (event.affectsConfiguration('couchbase.mcp') && this.serverInfo) {
+            logger.info('MCP settings changed, updating server definition');
+            this.didChangeEmitter.fire();
+          }
         })
       );
 
@@ -192,7 +208,15 @@ export class MCPController {
 
       this.didChangeEmitter.fire();
 
-      vscode.window.showInformationMessage('Couchbase MCP server started successfully');
+      const settingsAction = 'MCP Settings';
+      vscode.window.showInformationMessage(
+        'Couchbase MCP server started successfully. Configure read-only mode, disabled tools, and more in MCP Settings.',
+        settingsAction
+      ).then((selection) => {
+        if (selection === settingsAction) {
+          void MCPController.openMcpSettings();
+        }
+      });
       logger.info('Couchbase MCP server started successfully');
     } catch (error) {
       logger.error(
@@ -241,23 +265,28 @@ export class MCPController {
       });
 
       const mcpConfig = getMCPConfigFromVSCodeSettings();
+      const disabledTools = mcpConfig.disabledTools ?? [];
+      const envVars: Record<string, string> = {
+        CB_CONNECTION_STRING: this.serverInfo!.connectionString,
+        CB_USERNAME: this.serverInfo!.username,
+        CB_PASSWORD: '<your-password>',
+        CB_MCP_READ_ONLY_MODE: String(mcpConfig.readOnlyMode ?? true),
+      };
+      if (disabledTools.length > 0) {
+        envVars.CB_MCP_DISABLED_TOOLS = disabledTools.join(',');
+      }
+      if (mcpConfig.exportsPath) {
+        envVars.CB_MCP_EXPORTS_PATH = mcpConfig.exportsPath;
+      }
+
       const jsonConfig = JSON.stringify(
         {
           mcpServers: {
             [MCPController.MCP_SERVER_NAME]: {
               type: 'stdio',
               command: 'uvx',
-              args: [
-                'couchbase-mcp-server',
-                '--connection-string',
-                this.serverInfo!.connectionString,
-                '--username',
-                this.serverInfo!.username,
-                '--password',
-                '<your-password>',
-                '--read-only-mode',
-                String(mcpConfig.readOnlyMode ?? true),
-              ],
+              args: ['couchbase-mcp-server'],
+              env: envVars,
             },
           },
         },
@@ -302,18 +331,21 @@ export class MCPController {
       return undefined;
     }
 
+    const readOnlyMode = mcpConfig.readOnlyMode ?? true;
+    const disabledTools = (mcpConfig.disabledTools ?? []).filter(
+      (tool) => !readOnlyMode || !MCPController.READ_ONLY_DISABLED_TOOLS.includes(tool)
+    );
+
     return new vscode.McpStdioServerDefinition(
       `Couchbase MCP Server (${activeConnection.connectionIdentifier})`,
       'uvx',
-      [
-        'couchbase-mcp-server',
-        '--read-only-mode',
-        String(mcpConfig.readOnlyMode ?? true),
-      ],
+      ['couchbase-mcp-server'],
       {
         CB_CONNECTION_STRING: this.serverInfo.connectionString,
         CB_USERNAME: this.serverInfo.username,
         CB_PASSWORD: this.serverInfo.password,
+        CB_MCP_READ_ONLY_MODE: String(readOnlyMode),
+        ...(disabledTools.length > 0 && { CB_MCP_DISABLED_TOOLS: disabledTools.join(',') }),
         ...(mcpConfig.exportsPath && { CB_MCP_EXPORTS_PATH: mcpConfig.exportsPath }),
       }
     );
@@ -362,6 +394,10 @@ export class MCPController {
 
   private async setMCPAutoStartConfig(config: MCPServerStartupConfig): Promise<void> {
     await vscode.workspace.getConfiguration().update('couchbase.mcp.server', config, true);
+  }
+
+  public static async openMcpSettings(): Promise<void> {
+    await vscode.commands.executeCommand('workbench.action.openSettings', 'couchbase.mcp');
   }
 
   public dispose(): void {

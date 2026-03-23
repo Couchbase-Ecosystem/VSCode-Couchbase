@@ -798,6 +798,11 @@
         "command": "vscode-couchbase.mcp.getServerConfig",
         "title": "Get MCP Server Config",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.mcp.openSettings",
+        "title": "MCP Server Settings",
+        "category": "Couchbase"
       }
     ],
     "keybindings": [
@@ -1464,10 +1469,36 @@
           "couchbase.mcp.disabledTools": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "get_server_configuration_status",
+                "test_cluster_connection",
+                "get_cluster_health_and_services",
+                "get_buckets_in_cluster",
+                "get_scopes_in_bucket",
+                "get_collections_in_scope",
+                "get_scopes_and_collections_in_bucket",
+                "get_schema_for_collection",
+                "get_document_by_id",
+                "upsert_document_by_id",
+                "insert_document_by_id",
+                "replace_document_by_id",
+                "delete_document_by_id",
+                "run_sql_plus_plus_query",
+                "list_indexes",
+                "get_index_advisor_recommendations",
+                "get_longest_running_queries",
+                "get_most_frequent_queries",
+                "get_queries_with_largest_response_sizes",
+                "get_queries_with_large_result_count",
+                "get_queries_using_primary_index",
+                "get_queries_not_using_covering_index",
+                "get_queries_not_selective"
+              ]
             },
+            "uniqueItems": true,
             "default": [],
-            "markdownDescription": "List of tool names to disable in the Couchbase MCP server. You can specify individual tool names or categories.",
+            "markdownDescription": "Select tools to disable in the Couchbase MCP server. Disabled tools will not be loaded or exposed to the LLM. Note: When `#couchbase.mcp.readOnlyMode#` is enabled, write tools (`upsert_document_by_id`, `insert_document_by_id`, `replace_document_by_id`, `delete_document_by_id`) are already disabled automatically by the server and selecting them here has no additional effect.",
             "scope": "application"
           },
           "couchbase.mcp.transport": {

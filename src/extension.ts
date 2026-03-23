@@ -1072,6 +1072,12 @@ context.subscriptions.push(disposable);
       await mcpController.openServerConfig();
     })
   );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.openMcpSettings, async () => {
+      await MCPController.openMcpSettings();
+    })
+  );
   
   subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(async (event) => {
