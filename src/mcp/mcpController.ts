@@ -15,20 +15,20 @@
  */
 
 import * as vscode from 'vscode';
-import * as path from 'path';
-import * as jsonc from 'jsonc-parser';
 import { logger } from '../logger/logger';
 import { IConnection } from '../types/IConnection';
 import { MCPConnectionManager } from './mcpConnectionManager';
 import { getMCPConfigFromVSCodeSettings } from './mcpConfig';
 import { MCPLogIds } from './mcpLogIds';
+import { SecretService } from '../util/secretService';
+import { Constants } from '../util/constants';
 
 export type MCPServerStartupConfig = 'prompt' | 'autoStartEnabled' | 'autoStartDisabled';
 
 type MCPServerInfo = {
   connectionString: string;
   username: string;
-  headers?: Record<string, string>;
+  password: string;
 };
 
 type MCPControllerConfig = {
@@ -37,23 +37,16 @@ type MCPControllerConfig = {
   getActiveConnection: () => IConnection | undefined;
 };
 
-type MCPJsonConfiguration = {
-  servers?: Record<string, unknown>;
-  inputs?: unknown[];
-  [key: string]: unknown;
-};
-
 /**
  * Main controller for MCP server integration in Couchbase VS Code extension
- * Manages server lifecycle, connection state, and auto-start behavior
+ * Manages server lifecycle, connection state, and auto-start behavior.
+ *
+ * Credentials are kept in memory and passed to the MCP server process via
+ * environment variables through the VS Code MCP server definition provider.
+ * No credentials are persisted to disk (e.g. mcp.json).
  */
 export class MCPController {
   private static readonly MCP_SERVER_NAME = 'couchbase';
-  private static readonly USER_MCP_CONFIG_FILE = 'mcp.json';
-  private static readonly USER_LOCAL_MCP_SERVER_ID_PREFIX = 'mcp.config.usrlocal';
-  private static readonly LEGACY_PROVIDER_SERVER_ID = 'couchbase';
-  private static readonly MCP_PASSWORD_INPUT_ID = 'couchbaseMcpPassword';
-  private static readonly MCP_PASSWORD_INPUT_REFERENCE = `\${input:${MCPController.MCP_PASSWORD_INPUT_ID}}`;
 
   private context: vscode.ExtensionContext;
   private getActiveConnection: () => IConnection | undefined;
@@ -66,21 +59,17 @@ export class MCPController {
     this.getActiveConnection = getActiveConnection;
     this.mcpConnectionManager = new MCPConnectionManager();
 
-    // Listen for connection changes
     onActiveConnectionChanged(() => this.onActiveConnectionChanged());
 
     logger.debug('MCPController initialized');
   }
 
-  /**
-   * Activates the MCP controller
-   */
   public async activate(): Promise<void> {
     try {
       await this.migrateOldConfigToNewConfig(this.getMCPAutoStartConfig<unknown>());
 
       this.context.subscriptions.push(
-        vscode.lm.registerMcpServerDefinitionProvider('couchbase', {
+        vscode.lm.registerMcpServerDefinitionProvider(MCPController.MCP_SERVER_NAME, {
           onDidChangeMcpServerDefinitions: this.didChangeEmitter.event,
           provideMcpServerDefinitions: () => {
             const config = this.getServerConfig();
@@ -92,7 +81,6 @@ export class MCPController {
         })
       );
 
-      // Auto-start if configured
       if (this.getMCPAutoStartConfig() === 'autoStartEnabled') {
         await this.startServer();
       }
@@ -105,9 +93,6 @@ export class MCPController {
     }
   }
 
-  /**
-   * Migrates old config values to new config format
-   */
   private async migrateOldConfigToNewConfig(oldConfig: unknown): Promise<void> {
     try {
       switch (oldConfig) {
@@ -121,7 +106,6 @@ export class MCPController {
           break;
         }
         default: {
-          // Config is already in new format or doesn't exist
           break;
         }
       }
@@ -130,9 +114,6 @@ export class MCPController {
     }
   }
 
-  /**
-   * Prompts user to configure MCP auto-start
-   */
   private async promptForMCPAutoStart(): Promise<void> {
     try {
       const autoStartConfig = this.getMCPAutoStartConfig();
@@ -178,13 +159,16 @@ export class MCPController {
     }
   }
 
-  /**
-   * Starts the MCP server
-   */
+  private async getConnectionPassword(connection: IConnection): Promise<string> {
+    const secretService = SecretService.getInstance();
+    const connectionId = `${connection.username}@${connection.url}`;
+    const password = await secretService.get(`${Constants.extensionID}-${connectionId}`);
+    return password || '';
+  }
+
   public async startServer(): Promise<void> {
     try {
       if (this.serverInfo) {
-        await this.startServerInVSCode();
         logger.info('MCP server is already configured and running');
         return;
       }
@@ -196,23 +180,16 @@ export class MCPController {
 
       logger.info('Starting Couchbase MCP server');
 
+      const password = await this.getConnectionPassword(activeConnection);
       this.serverInfo = {
         connectionString: activeConnection.url,
         username: activeConnection.username,
+        password,
       };
 
       const connectionParams = MCPConnectionManager.fromConnection(activeConnection);
-
-      // Update the connection manager
       await this.mcpConnectionManager.updateConnection(connectionParams);
 
-      try {
-        await this.syncServerConfigToMcpJson();
-      } catch (error) {
-        logger.warn(`Could not sync Couchbase MCP server to mcp.json: ${error}`);
-      }
-
-      await this.startServerInVSCode();
       this.didChangeEmitter.fire();
 
       vscode.window.showInformationMessage('Couchbase MCP server started successfully');
@@ -225,14 +202,9 @@ export class MCPController {
     }
   }
 
-  /**
-   * Stops the MCP server
-   */
   public async stopServer(): Promise<void> {
     try {
       logger.info('Stopping Couchbase MCP server');
-
-      await this.stopServerInVSCode();
 
       if (this.serverInfo) {
         await this.mcpConnectionManager.disconnect();
@@ -250,10 +222,12 @@ export class MCPController {
   }
 
   /**
-   * Adds or updates the server configuration in mcp.json and opens the file
+   * Shows the server configuration in a temporary untitled document.
+   * Does not create a physical file; credentials are not persisted to disk.
    */
   public async openServerConfig(): Promise<boolean> {
-    if (!this.getServerConfig()) {
+    const config = this.getServerConfig();
+    if (!config) {
       void vscode.window.showErrorMessage(
         'Couchbase MCP Server is not running. Start the server by running "Couchbase: Start MCP Server" from the command palette.'
       );
@@ -261,361 +235,60 @@ export class MCPController {
     }
 
     try {
-      const mcpConfigUri = await this.syncServerConfigToMcpJson();
-      if (!mcpConfigUri) {
-        return false;
-      }
+      const documentUri = vscode.Uri.from({
+        path: 'couchbase-mcp-config.json',
+        scheme: 'untitled',
+      });
 
-      const document = await vscode.workspace.openTextDocument(mcpConfigUri);
-      await vscode.window.showTextDocument(document);
-      void vscode.window.showInformationMessage(
-        'Couchbase MCP server configuration has been updated in mcp.json.'
+      const mcpConfig = getMCPConfigFromVSCodeSettings();
+      const jsonConfig = JSON.stringify(
+        {
+          mcpServers: {
+            [MCPController.MCP_SERVER_NAME]: {
+              type: 'stdio',
+              command: 'uvx',
+              args: [
+                'couchbase-mcp-server',
+                '--connection-string',
+                this.serverInfo!.connectionString,
+                '--username',
+                this.serverInfo!.username,
+                '--password',
+                '<your-password>',
+                '--read-only-mode',
+                String(mcpConfig.readOnlyMode ?? true),
+              ],
+            },
+          },
+        },
+        null,
+        2
       );
 
+      const edit = new vscode.WorkspaceEdit();
+      edit.insert(
+        documentUri,
+        new vscode.Position(0, 0),
+        `// Example config - refer to your IDE's docs for exact configuration details\n// Note that the extension manages credentials securely in memory and they\n// are not persisted to disk. Replace <your-password> with your actual\n// password if configuring manually for a different IDE.\n${jsonConfig}`
+      );
+      await vscode.workspace.applyEdit(edit);
+
+      const document = await vscode.workspace.openTextDocument(documentUri);
+      await vscode.languages.setTextDocumentLanguage(document, 'json');
+      await vscode.window.showTextDocument(document);
       return true;
     } catch (error) {
       void vscode.window.showErrorMessage(
-        `Unable to update mcp.json: ${error instanceof Error ? error.message : String(error)}`
+        `Unable to create a config document: ${error instanceof Error ? error.message : String(error)}`
       );
       return false;
     }
   }
 
-  private async syncServerConfigToMcpJson(): Promise<vscode.Uri | undefined> {
-    const activeConnection = this.getActiveConnection();
-    if (!activeConnection) {
-      return undefined;
-    }
-
-    const mcpConfig = getMCPConfigFromVSCodeSettings();
-    const mcpConfigUri = this.getUserMcpConfigUri();
-    const existingConfig = await this.readUserMcpConfiguration(mcpConfigUri);
-    const servers = this.getServersConfiguration(existingConfig);
-    const existingServerConfig = servers[MCPController.MCP_SERVER_NAME];
-
-    servers[MCPController.MCP_SERVER_NAME] = this.buildUpdatedMcpServerConfiguration(
-      existingServerConfig,
-      activeConnection,
-      mcpConfig.readOnlyMode ?? true
-    );
-
-    existingConfig.servers = servers;
-    existingConfig.inputs = this.withPasswordInput(existingConfig.inputs);
-
-    await vscode.workspace.fs.createDirectory(vscode.Uri.file(path.dirname(mcpConfigUri.fsPath)));
-    await this.writeUserMcpConfiguration(mcpConfigUri, existingConfig);
-
-    return mcpConfigUri;
-  }
-
-  private async writeUserMcpConfiguration(
-    mcpConfigUri: vscode.Uri,
-    config: MCPJsonConfiguration
-  ): Promise<void> {
-    let existingContent: string | undefined;
-    try {
-      const fileData = await vscode.workspace.fs.readFile(mcpConfigUri);
-      existingContent = new TextDecoder('utf-8').decode(fileData);
-    } catch {
-      logger.warn(`No existing mcp.json found at ${mcpConfigUri.fsPath}. A new file will be created.`);
-    }
-
-    let newContent: string;
-    if (existingContent !== undefined) {
-      const formattingOptions: jsonc.FormattingOptions = {
-        insertSpaces: true,
-        tabSize: 2,
-        eol: '\n',
-      };
-
-      let content = existingContent;
-      try {
-        const couchbaseServerConfig =
-          config.servers && typeof config.servers === 'object' && !Array.isArray(config.servers)
-            ? (config.servers[MCPController.MCP_SERVER_NAME] as unknown)
-            : undefined;
-
-        if (couchbaseServerConfig !== undefined) {
-          const serverEdits = jsonc.modify(
-            content,
-            ['servers', MCPController.MCP_SERVER_NAME],
-            couchbaseServerConfig,
-            { formattingOptions }
-          );
-          content = jsonc.applyEdits(content, serverEdits);
-        }
-
-        if (Array.isArray(config.inputs)) {
-          const inputsEdits = jsonc.modify(content, ['inputs'], config.inputs, {
-            formattingOptions,
-          });
-          content = jsonc.applyEdits(content, inputsEdits);
-        }
-      } catch {
-        // If we cannot apply JSONC edits (for example malformed content),
-        // rewrite with a normalized JSON document.
-        content = `${JSON.stringify(config, null, 2)}\n`;
-      }
-
-      if (!content.endsWith('\n')) {
-        content += '\n';
-      }
-      newContent = content;
-    } else {
-      newContent = `${JSON.stringify(config, null, 2)}\n`;
-    }
-
-    const mcpConfigContent = new TextEncoder().encode(newContent);
-    await vscode.workspace.fs.writeFile(mcpConfigUri, mcpConfigContent);
-  }
-
-  private async startServerInVSCode(): Promise<void> {
-    const retryDelaysInMs = [0, 300, 900];
-
-    for (const retryDelayInMs of retryDelaysInMs) {
-      if (retryDelayInMs > 0) {
-        await this.delay(retryDelayInMs);
-      }
-
-      try {
-        await vscode.commands.executeCommand(
-          'workbench.mcp.startServer',
-          this.getUserLocalMcpServerId(),
-          {
-            autoTrustChanges: true,
-            waitForLiveTools: true,
-          }
-        );
-      } catch (error) {
-        logger.warn(`Unable to start MCP server in VS Code: ${error}`);
-      }
-    }
-  }
-
-  private async stopServerInVSCode(): Promise<void> {
-    try {
-      await vscode.commands.executeCommand('workbench.mcp.stopServer', this.getUserLocalMcpServerId());
-      await vscode.commands.executeCommand(
-        'workbench.mcp.stopServer',
-        MCPController.LEGACY_PROVIDER_SERVER_ID
-      );
-    } catch (error) {
-      logger.warn(`Unable to stop MCP server in VS Code: ${error}`);
-    }
-  }
-
-  private async restartServerInVSCode(): Promise<void> {
-    try {
-      await vscode.commands.executeCommand(
-        'workbench.mcp.restartServer',
-        this.getUserLocalMcpServerId(),
-        { autoTrustChanges: true }
-      );
-    } catch (error) {
-      logger.warn(`Unable to restart MCP server in VS Code: ${error}`);
-    }
-  }
-
-  private async delay(timeoutInMs: number): Promise<void> {
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, timeoutInMs);
-    });
-  }
-
-  private getUserLocalMcpServerId(): string {
-    return `${MCPController.USER_LOCAL_MCP_SERVER_ID_PREFIX}.${MCPController.MCP_SERVER_NAME}`;
-  }
-
-  private getUserMcpConfigUri(): vscode.Uri {
-    const userConfigDirectory = path.dirname(path.dirname(this.context.globalStorageUri.fsPath));
-    return vscode.Uri.file(path.join(userConfigDirectory, MCPController.USER_MCP_CONFIG_FILE));
-  }
-
-  private async readUserMcpConfiguration(mcpConfigUri: vscode.Uri): Promise<MCPJsonConfiguration> {
-    try {
-      const fileContent = new TextDecoder().decode(await vscode.workspace.fs.readFile(mcpConfigUri));
-      if (!fileContent.trim()) {
-        return {};
-      }
-
-      const parseErrors: jsonc.ParseError[] = [];
-      const parsedConfig = jsonc.parse(fileContent, parseErrors, {
-        allowTrailingComma: true,
-        disallowComments: false,
-      });
-
-      if (parseErrors.length > 0) {
-        logger.warn(
-          `mcp.json had parsing issues (${parseErrors
-            .map((error) => jsonc.printParseErrorCode(error.error))
-            .join(', ')}). Rewriting with updated Couchbase server configuration.`
-        );
-      }
-
-      if (parsedConfig && typeof parsedConfig === 'object' && !Array.isArray(parsedConfig)) {
-        return parsedConfig as MCPJsonConfiguration;
-      }
-
-      return {};
-    } catch (error) {
-      if (error instanceof vscode.FileSystemError && error.code === 'FileNotFound') {
-        return {};
-      }
-
-      throw error;
-    }
-  }
-
-  private getServersConfiguration(config: MCPJsonConfiguration): Record<string, unknown> {
-    if (config.servers && typeof config.servers === 'object' && !Array.isArray(config.servers)) {
-      return { ...config.servers };
-    }
-
-    return {};
-  }
-
-  private isRecord(value: unknown): value is Record<string, unknown> {
-    return !!value && typeof value === 'object' && !Array.isArray(value);
-  }
-
-  private normalizeArgs(args: unknown): string[] {
-    if (!Array.isArray(args)) {
-      return [];
-    }
-
-    return args.filter((arg): arg is string => typeof arg === 'string');
-  }
-
-  private getArgValue(args: string[], flag: string): string | undefined {
-    const keyValueArg = args.find((arg) => arg.startsWith(`${flag}=`));
-    if (keyValueArg) {
-      return keyValueArg.slice(flag.length + 1);
-    }
-
-    const flagIndex = args.findIndex((arg) => arg === flag);
-    if (flagIndex !== -1 && flagIndex + 1 < args.length) {
-      return args[flagIndex + 1];
-    }
-
-    return undefined;
-  }
-
-  private removeArg(args: string[], flag: string): string[] {
-    const nextArgs: string[] = [];
-
-    for (let index = 0; index < args.length; index += 1) {
-      const arg = args[index];
-      if (arg === flag) {
-        index += 1;
-        continue;
-      }
-
-      if (arg.startsWith(`${flag}=`)) {
-        continue;
-      }
-
-      nextArgs.push(arg);
-    }
-
-    return nextArgs;
-  }
-
-  private upsertArg(args: string[], flag: string, value: string): string[] {
-    const keyValueArgIndex = args.findIndex((arg) => arg.startsWith(`${flag}=`));
-    if (keyValueArgIndex !== -1) {
-      const updatedArgs = [...args];
-      updatedArgs[keyValueArgIndex] = `${flag}=${value}`;
-      return updatedArgs;
-    }
-
-    const flagArgIndex = args.findIndex((arg) => arg === flag);
-    if (flagArgIndex !== -1) {
-      const updatedArgs = [...args];
-      if (flagArgIndex + 1 < updatedArgs.length) {
-        updatedArgs[flagArgIndex + 1] = value;
-      } else {
-        updatedArgs.push(value);
-      }
-      return updatedArgs;
-    }
-
-    return [...args, flag, value];
-  }
-
-  private withPasswordInput(inputs: unknown): unknown[] {
-    const existingInputs = Array.isArray(inputs) ? [...inputs] : [];
-    const withoutPasswordInput = existingInputs.filter((entry) => {
-      if (!this.isRecord(entry)) {
-        return true;
-      }
-
-      return entry.id !== MCPController.MCP_PASSWORD_INPUT_ID;
-    });
-
-    withoutPasswordInput.push({
-      id: MCPController.MCP_PASSWORD_INPUT_ID,
-      type: 'promptString',
-      description: 'Enter Couchbase password for MCP server',
-      password: true,
-    });
-
-    return withoutPasswordInput;
-  }
-
-  private buildUpdatedMcpServerConfiguration(
-    existingServerConfig: unknown,
-    activeConnection: IConnection,
-    defaultReadOnlyMode: boolean
-  ): Record<string, unknown> {
-    const hasExistingServerConfig = this.isRecord(existingServerConfig);
-    const serverConfig: Record<string, unknown> = hasExistingServerConfig
-      ? { ...existingServerConfig }
-      : {
-          type: 'stdio',
-          command: 'uvx',
-          args: ['couchbase-mcp-server'],
-        };
-
-    let args = this.normalizeArgs(serverConfig.args);
-    if (args.length === 0) {
-      args = ['couchbase-mcp-server'];
-    }
-
-    args = this.upsertArg(args, '--connection-string', activeConnection.url);
-    args = this.upsertArg(args, '--username', activeConnection.username);
-    args = this.upsertArg(args, '--password', MCPController.MCP_PASSWORD_INPUT_REFERENCE);
-
-    const deprecatedReadOnlyMode = this.getArgValue(args, '--read-only-query-mode');
-    const currentReadOnlyMode = this.getArgValue(args, '--read-only-mode');
-
-    args = this.removeArg(args, '--read-only-query-mode');
-
-    if (deprecatedReadOnlyMode !== undefined && currentReadOnlyMode === undefined) {
-      args = this.upsertArg(args, '--read-only-mode', deprecatedReadOnlyMode);
-    } else if (!hasExistingServerConfig && currentReadOnlyMode === undefined) {
-      args = this.upsertArg(args, '--read-only-mode', String(defaultReadOnlyMode));
-    }
-
-    serverConfig.args = args;
-
-    if (this.isRecord(serverConfig.env)) {
-      const env = { ...serverConfig.env };
-      delete env.CB_CONNECTION_STRING;
-      delete env.CB_USERNAME;
-      delete env.CB_PASSWORD;
-
-      if (Object.keys(env).length > 0) {
-        serverConfig.env = env;
-      } else {
-        delete serverConfig.env;
-      }
-    }
-
-    return serverConfig;
-  }
-
   /**
-   * Gets the server configuration
+   * Returns the server definition for VS Code's MCP provider.
+   * Credentials are passed via environment variables so they remain in memory
+   * and are never written to a config file on disk.
    */
   private getServerConfig(): vscode.McpStdioServerDefinition | undefined {
     if (!this.serverInfo) {
@@ -624,7 +297,7 @@ export class MCPController {
 
     const mcpConfig = getMCPConfigFromVSCodeSettings();
     const activeConnection = this.getActiveConnection();
-    
+
     if (!activeConnection) {
       return undefined;
     }
@@ -634,24 +307,18 @@ export class MCPController {
       'uvx',
       [
         'couchbase-mcp-server',
-        '--connection-string',
-        this.serverInfo.connectionString,
-        '--username',
-        this.serverInfo.username,
-        '--password',
-        MCPController.MCP_PASSWORD_INPUT_REFERENCE,
         '--read-only-mode',
         String(mcpConfig.readOnlyMode ?? true),
       ],
       {
+        CB_CONNECTION_STRING: this.serverInfo.connectionString,
+        CB_USERNAME: this.serverInfo.username,
+        CB_PASSWORD: this.serverInfo.password,
         ...(mcpConfig.exportsPath && { CB_MCP_EXPORTS_PATH: mcpConfig.exportsPath }),
       }
     );
   }
 
-  /**
-   * Handles active connection changes
-   */
   private async onActiveConnectionChanged(): Promise<void> {
     try {
       const activeConnection = this.getActiveConnection();
@@ -667,26 +334,19 @@ export class MCPController {
         return;
       }
 
-      // Update the connection if server is running
       if (this.serverInfo && activeConnection) {
         const connectionParams = MCPConnectionManager.fromConnection(activeConnection);
         await this.mcpConnectionManager.updateConnection(connectionParams);
 
-        // Update server info
+        const password = await this.getConnectionPassword(activeConnection);
         this.serverInfo = {
           connectionString: activeConnection.url,
           username: activeConnection.username,
+          password,
         };
 
-        try {
-          await this.syncServerConfigToMcpJson();
-          await this.restartServerInVSCode();
-          this.didChangeEmitter.fire();
-        } catch (error) {
-          logger.warn(`Could not sync Couchbase MCP server to mcp.json: ${error}`);
-        }
+        this.didChangeEmitter.fire();
       } else if (this.serverInfo && !activeConnection) {
-        // No active connection, stop the server
         await this.stopServer();
       }
     } catch (error) {
@@ -694,25 +354,16 @@ export class MCPController {
     }
   }
 
-  /**
-   * Gets the MCP auto-start configuration
-   */
   private getMCPAutoStartConfig<ConfigValue = MCPServerStartupConfig>():
     | ConfigValue
     | undefined {
     return vscode.workspace.getConfiguration().get<ConfigValue>('couchbase.mcp.server');
   }
 
-  /**
-   * Sets the MCP auto-start configuration
-   */
   private async setMCPAutoStartConfig(config: MCPServerStartupConfig): Promise<void> {
     await vscode.workspace.getConfiguration().update('couchbase.mcp.server', config, true);
   }
 
-  /**
-   * Disposes the controller
-   */
   public dispose(): void {
     this.didChangeEmitter.dispose();
     void this.stopServer();
