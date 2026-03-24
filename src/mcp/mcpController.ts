@@ -176,7 +176,7 @@ export class MCPController {
   }
 
   private async getConnectionPassword(connection: IConnection): Promise<string> {
-    const secretService = SecretService.getInstance();
+    const secretService = SecretService.getInstance(this.context);
     const connectionId = `${connection.username}@${connection.url}`;
     const password = await secretService.get(`${Constants.extensionID}-${connectionId}`);
     return password || '';
@@ -401,7 +401,7 @@ export class MCPController {
   }
 
   public dispose(): void {
-    this.didChangeEmitter.dispose();
     void this.stopServer();
+    this.didChangeEmitter.dispose();
   }
 }

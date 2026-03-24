@@ -202,6 +202,9 @@ context.subscriptions.push(disposable);
     cacheService
   );
 
+  // Update secret service with context at startup of extension.
+  const secretService = SecretService.getInstance(context);
+
   // Initialize MCP Controller
   const mcpController = new MCPController({
     context,
@@ -224,9 +227,6 @@ context.subscriptions.push(disposable);
   subscriptions.push({
     dispose: () => mcpController.dispose(),
   });
-
-  // Update secret service with context at startup of extension.
-  const secretService = SecretService.getInstance(context);
 
   // Function to update secrets, before building, update this file
   secretUpdater(context);
