@@ -1,3 +1,4 @@
+import * as vscode from "vscode";
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { IConnection } from "../types/IConnection";
 import { INode } from "../types/INode";
@@ -21,20 +22,20 @@ export class SearchDirectory implements INode {
             collapsibleState: TreeItemCollapsibleState.Collapsed,
             contextValue: "searchDirectory",
             iconPath: {
-                light: path.join(
+                light: vscode.Uri.file(path.join(
                   __filename,
                   "..",
                   "..",
                   "images/light",
                   "search-icon.svg"
-                ),
-                dark: path.join(
+                )),
+                dark: vscode.Uri.file(path.join(
                   __filename,
                   "..",
                   "..",
                   "images/dark",
                   "search-icon.svg"
-                ),
+                )),
               }
         };
     }

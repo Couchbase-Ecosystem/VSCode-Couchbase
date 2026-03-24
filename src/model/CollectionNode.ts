@@ -119,20 +119,20 @@ export default class CollectionNode implements INode {
           + (filterDocumentsType === "kv" ? "_kv" : "") 
           + (filterDocumentsType === "query" ? "_query" : ""),
       iconPath: {
-        light: path.join(
+        light: vscode.Uri.file(path.join(
           __filename,
           "..",
           "..",
           "images/light",
           filterDocumentsType !== "" ? "filter.svg" : "documents-icon.svg"
-        ),
-        dark: path.join(
+        )),
+        dark: vscode.Uri.file(path.join(
           __filename,
           "..",
           "..",
           "images/dark",
           filterDocumentsType !== "" ? "filter.svg" : "documents-icon.svg"
-        ),
+        )),
       },
     };
   }

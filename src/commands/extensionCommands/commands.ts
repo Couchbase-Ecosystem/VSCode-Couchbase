@@ -81,4 +81,8 @@ export namespace Commands {
     export const showChatInterfaceSettings: string = "vscode-couchbase.settings.showChatInterface";
     export const newIqChat: string = "vscode-couchbase.iq.newChat";
     export const setQueryTimeout: string = "vscode-couchbase.workbench.setQueryTimeout";
+    export const startMcpServer: string = "vscode-couchbase.mcp.startServer";
+    export const stopMcpServer: string = "vscode-couchbase.mcp.stopServer";
+    export const getMcpServerConfig: string = "vscode-couchbase.mcp.getServerConfig";
+    export const openMcpSettings: string = "vscode-couchbase.mcp.openSettings";
 }

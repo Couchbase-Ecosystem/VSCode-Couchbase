@@ -39,20 +39,20 @@ export class BucketNode implements INode {
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue: "bucket",
       iconPath: {
-        light: path.join(
+        light: vscode.Uri.file(path.join(
           __filename,
           "..",
           "..",
           "images/light",
           "bucket-icon.svg"
-        ),
-        dark: path.join(
+        )),
+        dark: vscode.Uri.file(path.join(
           __filename,
           "..",
           "..",
           "images/dark",
           "bucket-icon.svg"
-        ),
+        )),
       },
     };
   }

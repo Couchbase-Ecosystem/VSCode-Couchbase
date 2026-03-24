@@ -92,7 +92,8 @@ import { CBShell } from "./tools/CBShell";
 import { huggingFaceMigrate } from "./pages/Tools/HuggingFaceMigrate/huggingFaceMigrate";
 import { setQueryTimeout } from "./commands/queryTimeout/setQueryTimeout";
 import { CouchbaseAssistantWebviewProvider } from "./commands/assistant/assistantWebviewProvider";
-import ParticipantController from "./participant/participant";
+import { MCPController } from "./mcp/mcpController";
+import { getActiveConnection } from "./util/connections";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -110,7 +111,7 @@ export function activate(context: vscode.ExtensionContext) {
   const uriToCasMap = new Map<string, string>();
   const workbench = new QueryWorkbench();
   const searchWorkbench = new SearchWorkbench();
-  const queryKernel = new QueryKernel()
+  const queryKernel = new QueryKernel();
 
   let currentSearchIndexNode: SearchIndexNode;
   let currentSearchWorkbench: SearchWorkbench;
@@ -196,8 +197,6 @@ context.subscriptions.push(disposable);
 
   const subscriptions = context.subscriptions;
   const cacheService = new CacheService();
-  const participant = new ParticipantController(cacheService);
-  participant.createParticipant(context);
   const clusterConnectionTreeProvider = new ClusterConnectionTreeProvider(
     context,
     cacheService
@@ -205,6 +204,29 @@ context.subscriptions.push(disposable);
 
   // Update secret service with context at startup of extension.
   const secretService = SecretService.getInstance(context);
+
+  // Initialize MCP Controller
+  const mcpController = new MCPController({
+    context,
+    onActiveConnectionChanged: (callback) => {
+      ConnectionEvents.onConnectionChanged(() => {
+        void callback();
+      });
+      ConnectionEvents.onConnectionRemoved(() => {
+        void callback();
+      });
+    },
+    getActiveConnection: () => getActiveConnection(),
+  });
+
+  // Activate MCP Controller
+  mcpController.activate().catch((error) => {
+    logger.error(`Failed to activate MCP Controller: ${error}`);
+  });
+
+  subscriptions.push({
+    dispose: () => mcpController.dispose(),
+  });
 
   // Function to update secrets, before building, update this file
   secretUpdater(context);
@@ -778,7 +800,7 @@ context.subscriptions.push(disposable);
         await huggingFaceMigrate();
       }
     )
-  )
+  );
 
   subscriptions.push(
     vscode.commands.registerCommand(
@@ -1029,6 +1051,31 @@ context.subscriptions.push(disposable);
   context.subscriptions.push(
     vscode.commands.registerCommand(Commands.ddlExport, async () => {
       ddlExport();
+    })
+  );
+
+  // Register MCP Server commands
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.startMcpServer, async () => {
+      await mcpController.startServer();
+    })
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.stopMcpServer, async () => {
+      await mcpController.stopServer();
+    })
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.getMcpServerConfig, async () => {
+      await mcpController.openServerConfig();
+    })
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.openMcpSettings, async () => {
+      await MCPController.openMcpSettings();
     })
   );
   

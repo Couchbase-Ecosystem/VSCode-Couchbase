@@ -19,20 +19,20 @@ export default class SearchIndexNode implements INode {
                 arguments: [this],
               },
               iconPath: {
-                light: path.join(
+                light: vscode.Uri.file(path.join(
                   __filename,
                   "..",
                   "..",
                   "images/light",
                   "document.svg"
-                ),
-                dark: path.join(
+                )),
+                dark: vscode.Uri.file(path.join(
                   __filename,
                   "..",
                   "..",
                   "images/dark",
                   "document.svg"
-                ),
+                )),
               },
         };
     }

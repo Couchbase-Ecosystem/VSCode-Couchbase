@@ -45,20 +45,20 @@ export class ScopeNode implements INode {
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue: this.scopeName === "_default" ? "default_scope" : "scope",
       iconPath: {
-        light: path.join(
+        light: vscode.Uri.file(path.join(
           __filename,
           "..",
           "..",
           "images/light",
-          "scopes-icon.svg"
-        ),
-        dark: path.join(
+          "scope-item.svg"
+        )),
+        dark: vscode.Uri.file(path.join(
           __filename,
           "..",
           "..",
           "images/dark",
-          "scopes-icon.svg"
-        ),
+          "scope-item.svg"
+        )),
       },
     };
   }
