@@ -28,8 +28,7 @@ async function lookupCapellaServers(serverURL: string): Promise<string[]> {
         }
         return servers;
     } catch (err) {
-        logger.error('Error performing lookup');
-        logger.error(err);
+        logger.debug(`SRV lookup failed for ${url}, falling back to direct URL`);
         return [];
     }
 }
