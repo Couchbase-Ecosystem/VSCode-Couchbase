@@ -20,11 +20,7 @@ import { logger } from '../logger/logger';
 export interface CouchbaseMCPConfig {
   readOnlyMode: boolean;
   disabledTools: string[];
-  transport: 'stdio' | 'http' | 'sse';
-  httpPort: number;
   exportsPath: string;
-  exportTimeoutMs: number;
-  exportCleanupIntervalMs: number;
 }
 
 /**
@@ -37,11 +33,7 @@ export function getMCPConfigFromVSCodeSettings(): Partial<CouchbaseMCPConfig> {
   const config: Partial<CouchbaseMCPConfig> = {
     readOnlyMode: readOnlyMode ?? true,
     disabledTools: mcpConfiguration.get<string[]>('disabledTools', []),
-    transport: mcpConfiguration.get<'stdio' | 'http' | 'sse'>('transport', 'stdio'),
-    httpPort: mcpConfiguration.get<number>('httpPort', 0),
     exportsPath: mcpConfiguration.get<string>('exportsPath', ''),
-    exportTimeoutMs: mcpConfiguration.get<number>('exportTimeoutMs', 300000),
-    exportCleanupIntervalMs: mcpConfiguration.get<number>('exportCleanupIntervalMs', 120000),
   };
 
   logger.debug(`Retrieved MCP config from VS Code settings: ${JSON.stringify(config)}`);
@@ -49,24 +41,4 @@ export function getMCPConfigFromVSCodeSettings(): Partial<CouchbaseMCPConfig> {
   return config;
 }
 
-/**
- * Validates the MCP configuration
- */
-export function validateMCPConfig(config: Partial<CouchbaseMCPConfig>): boolean {
-  if (config.httpPort && (config.httpPort < 0 || config.httpPort > 65535)) {
-    logger.error('Invalid HTTP port specified in MCP config');
-    return false;
-  }
 
-  if (config.exportTimeoutMs !== undefined && config.exportTimeoutMs < 1000) {
-    logger.error('Export timeout must be at least 1000ms');
-    return false;
-  }
-
-  if (config.exportCleanupIntervalMs !== undefined && config.exportCleanupIntervalMs < 1000) {
-    logger.error('Export cleanup interval must be at least 1000ms');
-    return false;
-  }
-
-  return true;
-}

@@ -1501,44 +1501,10 @@
             "markdownDescription": "Select tools to disable in the Couchbase MCP server. Disabled tools will not be loaded or exposed to the LLM. Note: When `#couchbase.mcp.readOnlyMode#` is enabled, write tools (`upsert_document_by_id`, `insert_document_by_id`, `replace_document_by_id`, `delete_document_by_id`) are already disabled automatically by the server and selecting them here has no additional effect.",
             "scope": "application"
           },
-          "couchbase.mcp.transport": {
-            "type": "string",
-            "enum": [
-              "stdio",
-              "http",
-              "sse"
-            ],
-            "enumDescriptions": [
-              "Standard I/O transport (default, works with most MCP clients)",
-              "HTTP transport for multiple client connections",
-              "Server-Sent Events transport (deprecated)"
-            ],
-            "default": "stdio",
-            "markdownDescription": "Transport mode for the MCP server. Standard I/O is recommended for most use cases.",
-            "scope": "application"
-          },
-          "couchbase.mcp.httpPort": {
-            "type": "number",
-            "default": 0,
-            "markdownDescription": "Port number for HTTP/SSE transport modes. Use 0 for automatic port assignment.",
-            "scope": "application"
-          },
           "couchbase.mcp.exportsPath": {
             "type": "string",
             "default": "",
             "markdownDescription": "The directory where the Couchbase MCP server will export data. Leave empty to use the default path.",
-            "scope": "application"
-          },
-          "couchbase.mcp.exportTimeoutMs": {
-            "type": "number",
-            "default": 300000,
-            "markdownDescription": "Time in milliseconds after which exports will expire. Default is 5 minutes (300000ms).",
-            "scope": "application"
-          },
-          "couchbase.mcp.exportCleanupIntervalMs": {
-            "type": "number",
-            "default": 120000,
-            "markdownDescription": "How often the export cleanup process runs to remove expired files (in milliseconds). Default is 2 minutes (120000ms).",
             "scope": "application"
           }
         }

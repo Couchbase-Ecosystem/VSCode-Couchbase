@@ -33,8 +33,6 @@ When the MCP server starts, the success notification includes an "MCP Settings" 
 | `couchbase.mcp.readOnlyMode` | `boolean` | `true` | When true, all write operations (KV and Query) are disabled |
 | `couchbase.mcp.disabledTools` | `string[]` | `[]` | Select tools to disable from a dropdown of all available MCP tools |
 | `couchbase.mcp.exportsPath` | `string` | `""` | Directory for MCP server data exports |
-| `couchbase.mcp.exportTimeoutMs` | `number` | `300000` | Export expiration time in milliseconds |
-| `couchbase.mcp.exportCleanupIntervalMs` | `number` | `120000` | Export cleanup interval in milliseconds |
 
 These settings map to the following environment variables passed to the MCP server:
 
