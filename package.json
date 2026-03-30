@@ -1506,8 +1506,7 @@
             "default": "",
             "markdownDescription": "The directory where the Couchbase MCP server will export data. Leave empty to use the default path.",
             "scope": "application"
-          },
-
+          }
         }
       }
     ]

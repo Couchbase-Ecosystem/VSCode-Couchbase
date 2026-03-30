@@ -79,6 +79,14 @@ Click on Scope to list Collections and Indexes. Open context menu on Collection 
 
 ![MongoDB To Couchbase Data Migrator](https://raw.githubusercontent.com/Couchbase-Ecosystem/VSCode-Couchbase/refs/heads/main/gifs/MdbDataMigrator.gif))
 
+### MCP Server (Model Context Protocol)
+The extension includes a built-in MCP server that lets AI assistants (GitHub Copilot, Claude, etc.) interact with your Couchbase cluster directly from VS Code.
+
+1. Connect to a Couchbase cluster — the extension will prompt you to start the MCP server (configurable via `couchbase.mcp.server`).
+2. Alternatively, run **Couchbase: Start MCP Server** from the Command Palette.
+3. Once running, your AI assistant can browse buckets, scopes, and collections, run SQL++ queries, and manage documents through natural language.
+4. Use **Couchbase: Get MCP Server Config** to view the server configuration for use in other IDEs.
+
 
 ## License
 Apache Software License Version 2.  See individual files for details.
