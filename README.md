@@ -87,6 +87,8 @@ The extension includes a built-in MCP server that lets AI assistants (GitHub Cop
 3. Once running, your AI assistant can browse buckets, scopes, and collections, run SQL++ queries, and manage documents through natural language.
 4. Use **Couchbase: Get MCP Server Config** to view the server configuration for use in other IDEs.
 
+![Model Context Protocol in VS Code](https://raw.githubusercontent.com/Couchbase-Ecosystem/VSCode-Couchbase/refs/heads/main/gifs/mcp.gif))
+
 
 ## License
 Apache Software License Version 2.  See individual files for details.
