@@ -20,6 +20,7 @@ import { logger } from '../logger/logger';
 export interface CouchbaseMCPConfig {
   readOnlyMode: boolean;
   disabledTools: string[];
+  confirmationRequiredTools: string[];
   exportsPath: string;
 }
 
@@ -33,6 +34,7 @@ export function getMCPConfigFromVSCodeSettings(): Partial<CouchbaseMCPConfig> {
   const config: Partial<CouchbaseMCPConfig> = {
     readOnlyMode: readOnlyMode ?? true,
     disabledTools: mcpConfiguration.get<string[]>('disabledTools', []),
+    confirmationRequiredTools: mcpConfiguration.get<string[]>('confirmationRequiredTools', []),
     exportsPath: mcpConfiguration.get<string>('exportsPath', ''),
   };
 

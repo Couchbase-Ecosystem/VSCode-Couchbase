@@ -266,6 +266,7 @@ export class MCPController {
 
       const mcpConfig = getMCPConfigFromVSCodeSettings();
       const disabledTools = mcpConfig.disabledTools ?? [];
+      const confirmationRequiredTools = mcpConfig.confirmationRequiredTools ?? [];
       const envVars: Record<string, string> = {
         CB_CONNECTION_STRING: this.serverInfo!.connectionString,
         CB_USERNAME: this.serverInfo!.username,
@@ -274,6 +275,9 @@ export class MCPController {
       };
       if (disabledTools.length > 0) {
         envVars.CB_MCP_DISABLED_TOOLS = disabledTools.join(',');
+      }
+      if (confirmationRequiredTools.length > 0) {
+        envVars.CB_MCP_CONFIRMATION_REQUIRED_TOOLS = confirmationRequiredTools.join(',');
       }
       if (mcpConfig.exportsPath) {
         envVars.CB_MCP_EXPORTS_PATH = mcpConfig.exportsPath;
@@ -346,6 +350,7 @@ export class MCPController {
         CB_PASSWORD: this.serverInfo.password,
         CB_MCP_READ_ONLY_MODE: String(readOnlyMode),
         ...(disabledTools.length > 0 && { CB_MCP_DISABLED_TOOLS: disabledTools.join(',') }),
+        ...(mcpConfig.confirmationRequiredTools && mcpConfig.confirmationRequiredTools.length > 0 && { CB_MCP_CONFIRMATION_REQUIRED_TOOLS: mcpConfig.confirmationRequiredTools.join(',') }),
         ...(mcpConfig.exportsPath && { CB_MCP_EXPORTS_PATH: mcpConfig.exportsPath }),
       }
     );
