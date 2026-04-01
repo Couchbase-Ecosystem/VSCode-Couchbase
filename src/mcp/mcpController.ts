@@ -350,7 +350,7 @@ export class MCPController {
         CB_PASSWORD: this.serverInfo.password,
         CB_MCP_READ_ONLY_MODE: String(readOnlyMode),
         ...(disabledTools.length > 0 && { CB_MCP_DISABLED_TOOLS: disabledTools.join(',') }),
-        ...((mcpConfig.confirmationRequiredTools ?? []).length > 0 && { CB_MCP_CONFIRMATION_REQUIRED_TOOLS: (mcpConfig.confirmationRequiredTools ?? []).join(',') }),
+        ...(mcpConfig.confirmationRequiredTools && mcpConfig.confirmationRequiredTools.length > 0 && { CB_MCP_CONFIRMATION_REQUIRED_TOOLS: mcpConfig.confirmationRequiredTools.join(',') }),
         ...(mcpConfig.exportsPath && { CB_MCP_EXPORTS_PATH: mcpConfig.exportsPath }),
       }
     );
