@@ -446,6 +446,11 @@
         "label": "Filter Documents",
         "id": "vscode-couchbase.filterDocumentsMenu",
         "icon": "images/couchbase.svg"
+      },
+      {
+        "label": "Couchbase",
+        "id": "vscode-couchbase.explorerCouchbaseMenu",
+        "icon": "images/couchbase.svg"
       }
     ],
     "commands": [
@@ -803,6 +808,11 @@
         "command": "vscode-couchbase.mcp.openSettings",
         "title": "MCP Server Settings",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.rosetta.runCompatibilityCheck",
+        "title": "Run Couchbase Compatibility Check",
+        "category": "Couchbase"
       }
     ],
     "keybindings": [
@@ -820,6 +830,19 @@
       }
     ],
     "menus": {
+      "explorer/context": [
+        {
+          "submenu": "vscode-couchbase.explorerCouchbaseMenu",
+          "when": "explorerResourceIsFolder",
+          "group": "7_couchbase"
+        }
+      ],
+      "vscode-couchbase.explorerCouchbaseMenu": [
+        {
+          "command": "vscode-couchbase.rosetta.runCompatibilityCheck",
+          "group": "navigation"
+        }
+      ],
       "editor/title": [
         {
           "command": "vscode-couchbase.runQuery",
@@ -1540,6 +1563,29 @@
             "type": "string",
             "default": "",
             "markdownDescription": "The directory where the Couchbase MCP server will export data. Leave empty to use the default path.",
+            "scope": "application"
+          }
+        }
+      },
+      {
+        "title": "Compatibility Checker",
+        "properties": {
+          "couchbase.rosetta.executablePath": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Path to the Couchbase compatibility checker (rosetta-check). Either a native executable or a `.jar` file (run with `java -jar`). Leave empty until the tool is installed.",
+            "scope": "machine-overridable"
+          },
+          "couchbase.rosetta.javaPath": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Path to a `java` executable (Java 17+) used to run the compatibility checker when it is a `.jar`. Leave empty to use `java` from the system PATH. Ignored when the checker is a native executable.",
+            "scope": "machine-overridable"
+          },
+          "couchbase.rosetta.rulesBaseUrl": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Base URL for the compatibility rule definitions, fetched as `<baseUrl>/<language>.yaml`. Leave empty to use the analyzer's bundled rules.",
             "scope": "application"
           }
         }

@@ -1,0 +1,38 @@
+type: com.mongodb.client.model.SearchIndexType
+member: vectorSearch
+message: Vector search is not supported
+level: SEVERE
+---
+type: com.mongodb.client.model.Aggregates
+member: vectorSearch
+message: Vector aggregations are not supported
+level: SEVERE
+enabled: true
+---
+type: com.mongodb.client.model.search.SearchCollector
+member: facet
+message: Faceted search is not supported
+---
+type: com.mongodb.client.model.Aggregates
+member: facet
+message: Faceted aggregations are not supported
+---
+type: com.mongodb.client.model.Aggregates
+member: bucket
+message: Bucket aggregation stage is not supported
+level: SEVERE
+---
+type: com.mongodb.client.model.Aggregates
+member: replace
+message: Replace aggregation stage is not supported
+level: SEVERE
+---
+type: com.mongodb.client.model.Aggregates
+member: redact
+message: Redact aggregation stage is not supported
+level: SEVERE
+---
+type: com.mongodb.client.model.Aggregates
+member: out
+message: Out aggregation stage is not supported
+level: SEVERE

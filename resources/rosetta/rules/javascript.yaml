@@ -1,0 +1,11 @@
+# Entry point for JavaScript sources.
+# Traces `mongodb` driver objects (client -> db -> collection) and, if the
+# project uses the driver at all, loads the framework-specific rule set.
+type: mongodb.MongoClient
+member: db
+storeAsType: MongoDb
+---
+type: MongoDb
+member: collection
+storeAsType: MongoCollection
+includeRules: mongodb/sdk

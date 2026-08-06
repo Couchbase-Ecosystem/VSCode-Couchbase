@@ -1,0 +1,399 @@
+# Rules for the Node.js MongoDB driver ("mongodb" package).
+# Loaded from javascript.yaml, which has already captured MongoDb and
+# MongoCollection instances for us.
+
+# --- Change streams -----------------------------------------------------
+type: MongoCollection
+member: watch
+message: Change streams are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/changeStream.js
+---
+type: MongoDb
+member: watch
+message: Change streams are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/dbChangeStream.js
+---
+# --- Vector search ------------------------------------------------------
+type: object
+pattern: "$vectorSearch"
+storeAsType: MongoVectorSearchPipeline
+testFile: js/mongodb/sdk/vectorSearch.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoVectorSearchPipeline
+message: Vector search is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/vectorSearch.js
+---
+# --- $facet -------------------------------------------------------------
+type: object
+pattern: "$facet"
+storeAsType: MongoFacetPipeline
+testFile: js/mongodb/sdk/facet.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoFacetPipeline
+message: Faceted aggregations are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/facet.js
+---
+# --- Unique indexes -----------------------------------------------------
+# Rosetta rejects unique index creation and then silently accepts duplicate
+# writes, so this is not detectable at runtime.
+type: object
+pattern: "unique:true"
+storeAsType: MongoUniqueIndexOptions
+testFile: js/mongodb/sdk/uniqueIndex.js
+---
+type: MongoCollection
+member: createIndex
+matchArgumentType: MongoUniqueIndexOptions
+message: Unique indexes are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/uniqueIndex.js
+---
+# --- Multi-document transactions ----------------------------------------
+type: mongodb.MongoClient
+member: startSession
+storeAsType: MongoSession
+testFile: js/mongodb/sdk/transaction.js
+---
+type: MongoSession
+member: startTransaction
+message: Multi-document transactions are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/transaction.js
+---
+type: MongoSession
+member: commitTransaction
+message: Multi-document transactions are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/transaction.js
+---
+type: MongoSession
+member: withTransaction
+message: Multi-document transactions are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/withTransaction.js
+---
+# --- Geospatial proximity queries ---------------------------------------
+type: object
+pattern: "$near"
+storeAsType: MongoNearFilter
+testFile: js/mongodb/sdk/geoNear.js
+---
+type: MongoCollection
+member: find
+matchArgumentType: MongoNearFilter
+message: Geospatial proximity queries are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/geoNear.js
+
+---
+# --- $search (Atlas full-text search) ---------------------------------
+# PRD: Text Search is out of scope for V1.
+type: object
+pattern: "$search"
+storeAsType: MongoSearchPipeline
+testFile: js/mongodb/sdk/search.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoSearchPipeline
+message: Atlas text search is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/search.js
+---
+# --- $searchMeta ------------------------------------------------------
+type: object
+pattern: "$searchMeta"
+storeAsType: MongoSearchMetaPipeline
+testFile: js/mongodb/sdk/searchMeta.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoSearchMetaPipeline
+message: Atlas search metadata is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/searchMeta.js
+---
+# --- $geoNear ---------------------------------------------------------
+# PRD: Geospatial and Search -> Will not Support.
+type: object
+pattern: "$geoNear"
+storeAsType: MongoGeoNearPipeline
+testFile: js/mongodb/sdk/geoNearStage.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoGeoNearPipeline
+message: Geospatial aggregation is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/geoNearStage.js
+---
+# --- $bucket ----------------------------------------------------------
+# PRD: Advanced Aggregation Stages -> P1 (not for V1).
+type: object
+pattern: "$bucket"
+storeAsType: MongoBucketPipeline
+testFile: js/mongodb/sdk/bucket.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoBucketPipeline
+message: Bucket aggregation stage is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/bucket.js
+---
+# --- $replaceRoot -----------------------------------------------------
+# PRD: Advanced Aggregation Stages -> P1 (not for V1).
+type: object
+pattern: "$replaceRoot"
+storeAsType: MongoReplaceRootPipeline
+testFile: js/mongodb/sdk/replaceRoot.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoReplaceRootPipeline
+message: ReplaceRoot aggregation stage is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/replaceRoot.js
+---
+# --- $replaceWith -----------------------------------------------------
+# PRD: Advanced Aggregation Stages -> P1 (not for V1).
+type: object
+pattern: "$replaceWith"
+storeAsType: MongoReplaceWithPipeline
+testFile: js/mongodb/sdk/replaceWith.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoReplaceWithPipeline
+message: ReplaceWith aggregation stage is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/replaceWith.js
+---
+# --- $redact ----------------------------------------------------------
+# PRD: Advanced Aggregation Stages -> P1 (not for V1).
+type: object
+pattern: "$redact"
+storeAsType: MongoRedactPipeline
+testFile: js/mongodb/sdk/redact.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoRedactPipeline
+message: Redact aggregation stage is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/redact.js
+---
+# --- $out -------------------------------------------------------------
+# PRD: Outputs ($out, $merge) -> P1 (not for V1).
+type: object
+pattern: "$out"
+storeAsType: MongoOutPipeline
+testFile: js/mongodb/sdk/out.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoOutPipeline
+message: Out aggregation stage is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/out.js
+---
+# --- $merge -----------------------------------------------------------
+# PRD: Outputs ($out, $merge) -> P1 (not for V1).
+type: object
+pattern: "$merge"
+storeAsType: MongoMergePipeline
+testFile: js/mongodb/sdk/merge.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoMergePipeline
+message: Merge aggregation stage is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/merge.js
+---
+# --- $sample ----------------------------------------------------------
+# PRD: $sample, $unionWith, $count -> P1 (not for V1).
+type: object
+pattern: "$sample"
+storeAsType: MongoSamplePipeline
+testFile: js/mongodb/sdk/sample.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoSamplePipeline
+message: Sample aggregation stage is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/sample.js
+---
+# --- $unionWith -------------------------------------------------------
+# PRD: $sample, $unionWith, $count -> P1 (not for V1).
+type: object
+pattern: "$unionWith"
+storeAsType: MongoUnionWithPipeline
+testFile: js/mongodb/sdk/unionWith.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoUnionWithPipeline
+message: UnionWith aggregation stage is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/unionWith.js
+---
+# --- $count -----------------------------------------------------------
+# PRD: $sample, $unionWith, $count -> P1 (not for V1).
+type: object
+pattern: "$count"
+storeAsType: MongoCountPipeline
+testFile: js/mongodb/sdk/countStage.js
+---
+type: MongoCollection
+member: aggregate
+matchArgumentType: MongoCountPipeline
+message: Count aggregation stage is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/countStage.js
+---
+# --- $text (query operator, not a pipeline stage) ---------------------
+# PRD: Text Search is out of scope for V1.
+type: object
+pattern: "$text"
+storeAsType: MongoTextSearchFilter
+testFile: js/mongodb/sdk/textSearch.js
+---
+type: MongoCollection
+member: find
+matchArgumentType: MongoTextSearchFilter
+message: Text search queries are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/textSearch.js
+---
+# --- $where (server-side JavaScript) ----------------------------------
+# PRD: BSON JavaScript types -> P2, won't support.
+type: object
+pattern: "$where"
+storeAsType: MongoWhereJsFilter
+testFile: js/mongodb/sdk/whereJs.js
+---
+type: MongoCollection
+member: find
+matchArgumentType: MongoWhereJsFilter
+message: Server-side JavaScript ($where) is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/whereJs.js
+---
+# --- $geoWithin (query operator) --------------------------------------
+# PRD: Geospatial Operators -> Will not Support.
+type: object
+pattern: "$geoWithin"
+storeAsType: MongoGeoWithinFilter
+testFile: js/mongodb/sdk/geoWithin.js
+---
+type: MongoCollection
+member: find
+matchArgumentType: MongoGeoWithinFilter
+message: Geospatial queries are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/geoWithin.js
+
+---
+# --- collation ---
+# PRD: Case Insensitivity/Collation -> Will not support.
+type: object
+pattern: "collation:"
+storeAsType: MongoCollationOptions
+testFile: js/mongodb/sdk/collation.js
+---
+type: MongoCollection
+member: createIndex
+matchArgumentType: MongoCollationOptions
+message: Collation / case-insensitive indexes are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/collation.js
+---
+# --- geoIndex ---
+# PRD: Geo-spatial index (2dsphere and 2d) -> Will Not Support.
+type: object
+pattern: "2dsphere"
+storeAsType: MongoGeoIndexKeys
+testFile: js/mongodb/sdk/geoIndex.js
+---
+type: MongoCollection
+member: createIndex
+matchArgumentType: MongoGeoIndexKeys
+message: Geospatial indexes are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/geoIndex.js
+---
+# --- cappedCollection ---
+# PRD: Capped Collections -> P1 (not for V1).
+type: object
+pattern: "capped:true"
+storeAsType: MongoCappedOptions
+testFile: js/mongodb/sdk/cappedCollection.js
+---
+type: MongoDb
+member: createCollection
+matchArgumentType: MongoCappedOptions
+message: Capped collections are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/cappedCollection.js
+---
+# --- timeSeries ---
+# PRD: Time Series Collections -> P2.
+type: object
+pattern: "timeseries:"
+storeAsType: MongoTimeSeriesOptions
+testFile: js/mongodb/sdk/timeSeries.js
+---
+type: MongoDb
+member: createCollection
+matchArgumentType: MongoTimeSeriesOptions
+message: Time series collections are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/timeSeries.js
+---
+# --- view ---
+# PRD: Views (read-only and materialized) -> P2.
+type: object
+pattern: "viewOn:"
+storeAsType: MongoViewOptions
+testFile: js/mongodb/sdk/view.js
+---
+type: MongoDb
+member: createCollection
+matchArgumentType: MongoViewOptions
+message: Views are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/view.js
+
+---
+# --- Change streams (deployment level) ---
+type: mongodb.MongoClient
+member: watch
+message: Change streams are not supported
+level: SEVERE
+testFile: js/mongodb/sdk/clientChangeStream.js
+---
+# --- Map-reduce ---
+# Deprecated in MongoDB and superseded by aggregate; not translated by Rosetta.
+type: MongoCollection
+member: mapReduce
+message: Map-reduce is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/mapReduce.js
+---
+# --- Atlas search index management ---
+# PRD: Text Search / Vector Search out of scope for V1.
+type: MongoCollection
+member: createSearchIndex
+message: Atlas search index management is not supported
+level: SEVERE
+testFile: js/mongodb/sdk/searchIndex.js

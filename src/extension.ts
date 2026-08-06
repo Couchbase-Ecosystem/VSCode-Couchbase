@@ -94,6 +94,7 @@ import { setQueryTimeout } from "./commands/queryTimeout/setQueryTimeout";
 import { CouchbaseAssistantWebviewProvider } from "./commands/assistant/assistantWebviewProvider";
 import { MCPController } from "./mcp/mcpController";
 import { getActiveConnection } from "./util/connections";
+import { runRosettaCheck } from "./commands/rosetta/runRosettaCheck";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -120,6 +121,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   diagnosticCollection = vscode.languages.createDiagnosticCollection('jsonValidation');
   context.subscriptions.push(diagnosticCollection);
+
+  const rosettaDiagnostics = vscode.languages.createDiagnosticCollection('couchbaseRosetta');
+  context.subscriptions.push(rosettaDiagnostics);
 
 context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
     if (event.document === vscode.window.activeTextEditor?.document && event.document.languageId == "json" && vscode.window.activeTextEditor?.document.fileName.endsWith(".cbs.json")) {
@@ -244,6 +248,15 @@ context.subscriptions.push(disposable);
       Commands.showOutputConsole,
       () => {
         logger.showOutput();
+      }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.runRosettaCheck,
+      (resource?: vscode.Uri) => {
+        runRosettaCheck(context, rosettaDiagnostics, resource);
       }
     )
   );

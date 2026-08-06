@@ -24,3 +24,6 @@ node_modules
 *.vsix
 build/
 src/config.json
+
+# Local-only rosetta-check dev tooling (portable JDK + jar); safe to delete
+.rosetta-dev/

@@ -85,4 +85,5 @@ export namespace Commands {
     export const stopMcpServer: string = "vscode-couchbase.mcp.stopServer";
     export const getMcpServerConfig: string = "vscode-couchbase.mcp.getServerConfig";
     export const openMcpSettings: string = "vscode-couchbase.mcp.openSettings";
+    export const runRosettaCheck: string = "vscode-couchbase.rosetta.runCompatibilityCheck";
 }

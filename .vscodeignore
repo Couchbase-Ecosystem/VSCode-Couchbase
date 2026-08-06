@@ -16,3 +16,4 @@ webpack.config.json
 **/cmake*/
 **/cmake*
 **/cb-vscode-extension*/
+.rosetta-dev/
