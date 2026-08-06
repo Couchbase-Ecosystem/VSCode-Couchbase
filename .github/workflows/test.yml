@@ -6,7 +6,8 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        # windows-2022 pinned: windows-latest ships only VS 2026, which cmake-js 6.3.2 cannot detect.
+        os: [macos-latest, ubuntu-latest, windows-2022]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout

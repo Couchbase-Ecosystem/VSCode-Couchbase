@@ -12,7 +12,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-latest
+          # Pinned: windows-latest moved to a VS 2026-only image in June 2026, and the
+          # CMake 3.27.9 pinned below predates the "Visual Studio 18 2026" generator.
+          - os: windows-2022
             platform: win32
             arch: x64
           - os: ubuntu-22.04
