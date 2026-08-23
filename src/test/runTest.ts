@@ -24,9 +24,13 @@ async function main() {
     const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
     // Cleanup step
+    // fs.rmSync, not fs.rmdirSync: the `recursive` option was deprecated on
+    // rmdirSync in Node 14 and removed outright in newer releases, where
+    // passing it throws ERR_INVALID_ARG_VALUE. `force` also makes the
+    // existence check redundant, but it is kept for clarity.
     const userDataPath = path.resolve(__dirname, '../../.vscode-test/user-data');
     if (fs.existsSync(userDataPath)) {
-      fs.rmdirSync(userDataPath, { recursive: true });
+      fs.rmSync(userDataPath, { recursive: true, force: true });
     }
 
     // Get the test file from command line arguments
