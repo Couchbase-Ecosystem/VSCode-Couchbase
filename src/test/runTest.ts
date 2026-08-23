@@ -39,9 +39,23 @@ async function main() {
       process.env.VSCODE_TEST_FILE = testFile;
     }
 
-    // Download VS Code, unzip it and run the integration test
-    await runTests({ 
-      extensionDevelopmentPath, 
+    // Download VS Code, unzip it and run the integration test.
+    //
+    // The version is pinned rather than left to float on `stable`, for two
+    // reasons. It makes the run reproducible: an unpinned job silently tests
+    // against whatever VS Code shipped that day, so it can break with no
+    // change to this repository. And VS Code 1.110 renamed the macOS
+    // executable from `Contents/MacOS/Electron` to `Contents/MacOS/Code`,
+    // which the pinned @vscode/test-electron 2.4.0 does not know about - on
+    // any 1.110+ build it fails with `spawn .../Contents/MacOS/Electron
+    // ENOENT`, macOS only. Testing against the `engines.vscode` floor also
+    // means we verify the oldest VS Code the extension claims to support.
+    //
+    // Raising this past 1.109 requires @vscode/test-electron 3.x, which in
+    // turn requires Node >= 22 (CI currently pins Node 20).
+    await runTests({
+      version: '1.108.0',
+      extensionDevelopmentPath,
       extensionTestsPath,
       launchArgs: testFile ? ['--disable-extensions', '--extensionTestsPath=' + extensionTestsPath, '--testFile=' + testFile] : undefined
     });
