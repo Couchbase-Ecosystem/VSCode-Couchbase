@@ -87,11 +87,15 @@ The extension includes a built-in MCP server that lets AI assistants (GitHub Cop
 3. Once running, your AI assistant can browse buckets, scopes, and collections, run SQL++ queries, manage documents, scopes, collections and indexes, and analyse query performance through natural language.
 4. Use **Couchbase: Get MCP Server Config** to view the server configuration for use in other IDEs.
 
+For everything the server itself can do, see the [Couchbase MCP Server documentation](https://docs.couchbase.com/mcp-server/get-started/overview.html) and the [mcp-server-couchbase repository](https://github.com/couchbase/mcp-server-couchbase). The extension's own integration - settings, environment variables and commands - is documented in [MCP_INTEGRATION.md](MCP_INTEGRATION.md).
+
 #### MCP server logs
 
 The server logs to its process output by default. For product support, add `file` to `couchbase.mcp.logSinks` and raise `couchbase.mcp.logLevel` to `debug` — the server then writes one rotating file per level (`mcp_server.info.log`, `mcp_server.error.log`, ...) plus an `mcp_server_config.log.json` snapshot of its resolved configuration. Rotation size and how many backups are kept can be set globally or per level via the `couchbase.mcp.logRotationMaxSizeMB*` and `couchbase.mcp.logRetentionBackupCount*` settings.
 
 Files go to an `mcp-logs` folder inside the extension's storage unless `couchbase.mcp.logFile` names a path. Run **Couchbase: Open MCP Server Logs Folder** to reveal them.
+
+For what each level contains and how rotation and retention behave, see the [logging documentation](https://docs.couchbase.com/mcp-server/configuration/logging.html).
 
 ![Model Context Protocol in VS Code](https://raw.githubusercontent.com/Couchbase-Ecosystem/VSCode-Couchbase/refs/heads/main/gifs/mcp.gif))
 

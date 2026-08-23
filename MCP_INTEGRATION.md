@@ -100,6 +100,8 @@ Rotation size and retention can be set globally and overridden per level -- for 
 
 A retention count of `0` keeps only the live file for that level; it is still capped by the rotation size, and is truncated rather than rotated.
 
+For what each level contains, and the full set of rotation and retention semantics, see the server's [logging documentation](https://docs.couchbase.com/mcp-server/configuration/logging.html).
+
 ## Start/Stop Semantics
 
 ### Start
@@ -186,6 +188,7 @@ Example environment variable usage for other IDEs:
 
 ## References
 
+- [Couchbase MCP Server documentation](https://docs.couchbase.com/mcp-server/get-started/overview.html)
 - [Couchbase MCP Server GitHub](https://github.com/couchbase/mcp-server-couchbase)
 - [Couchbase MCP Server PyPI](https://pypi.org/project/couchbase-mcp-server/)
 - [Model Context Protocol Documentation](https://modelcontextprotocol.io/)
