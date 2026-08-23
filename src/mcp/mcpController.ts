@@ -18,7 +18,13 @@ import * as vscode from 'vscode';
 import { logger } from '../logger/logger';
 import { IConnection } from '../types/IConnection';
 import { MCPConnectionManager } from './mcpConnectionManager';
-import { getMCPConfigFromVSCodeSettings } from './mcpConfig';
+import {
+  buildMCPEnvironment,
+  getMCPConfigFromVSCodeSettings,
+  isFileLoggingEnabled,
+  MCP_SERVER_PACKAGE_SPEC,
+  resolveLogDirectory,
+} from './mcpConfig';
 import { MCPLogIds } from './mcpLogIds';
 import { SecretService } from '../util/secretService';
 import { Constants } from '../util/constants';
@@ -48,12 +54,11 @@ type MCPControllerConfig = {
 export class MCPController {
   private static readonly MCP_SERVER_NAME = 'couchbase';
 
-  private static readonly READ_ONLY_DISABLED_TOOLS = [
-    'upsert_document_by_id',
-    'insert_document_by_id',
-    'replace_document_by_id',
-    'delete_document_by_id',
-  ];
+  /** Directory under the extension's global storage holding the per-level log files. */
+  private static readonly LOG_DIRECTORY_NAME = 'mcp-logs';
+
+  /** Base file name the server derives `mcp_server.info.log`, `mcp_server.error.log`, ... from. */
+  private static readonly LOG_FILE_NAME = 'mcp_server.log';
 
   private context: vscode.ExtensionContext;
   private getActiveConnection: () => IConnection | undefined;
@@ -89,9 +94,12 @@ export class MCPController {
       );
 
       this.context.subscriptions.push(
-        vscode.workspace.onDidChangeConfiguration((event) => {
+        vscode.workspace.onDidChangeConfiguration(async (event) => {
           if (event.affectsConfiguration('couchbase.mcp') && this.serverInfo) {
             logger.info('MCP settings changed, updating server definition');
+            // The log sink or path may have just changed, so make sure the
+            // destination exists before the server is restarted with it.
+            await this.ensureLogDirectory();
             this.didChangeEmitter.fire();
           }
         })
@@ -206,6 +214,8 @@ export class MCPController {
       const connectionParams = MCPConnectionManager.fromConnection(activeConnection);
       await this.mcpConnectionManager.updateConnection(connectionParams);
 
+      await this.ensureLogDirectory();
+
       this.didChangeEmitter.fire();
 
       const settingsAction = 'MCP Settings';
@@ -264,24 +274,13 @@ export class MCPController {
         scheme: 'untitled',
       });
 
-      const mcpConfig = getMCPConfigFromVSCodeSettings();
-      const disabledTools = mcpConfig.disabledTools ?? [];
-      const confirmationRequiredTools = mcpConfig.confirmationRequiredTools ?? [];
-      const envVars: Record<string, string> = {
-        CB_CONNECTION_STRING: this.serverInfo!.connectionString,
-        CB_USERNAME: this.serverInfo!.username,
-        CB_PASSWORD: '<your-password>',
-        CB_MCP_READ_ONLY_MODE: String(mcpConfig.readOnlyMode ?? true),
-      };
-      if (disabledTools.length > 0) {
-        envVars.CB_MCP_DISABLED_TOOLS = disabledTools.join(',');
-      }
-      if (confirmationRequiredTools.length > 0) {
-        envVars.CB_MCP_CONFIRMATION_REQUIRED_TOOLS = confirmationRequiredTools.join(',');
-      }
-      if (mcpConfig.exportsPath) {
-        envVars.CB_MCP_EXPORTS_PATH = mcpConfig.exportsPath;
-      }
+      const envVars = buildMCPEnvironment({
+        connectionString: this.serverInfo!.connectionString,
+        username: this.serverInfo!.username,
+        password: '<your-password>',
+        config: getMCPConfigFromVSCodeSettings(),
+        defaultLogFilePath: this.getDefaultLogFilePath(),
+      });
 
       const jsonConfig = JSON.stringify(
         {
@@ -289,7 +288,7 @@ export class MCPController {
             [MCPController.MCP_SERVER_NAME]: {
               type: 'stdio',
               command: 'uvx',
-              args: ['couchbase-mcp-server'],
+              args: [MCP_SERVER_PACKAGE_SPEC],
               env: envVars,
             },
           },
@@ -328,32 +327,98 @@ export class MCPController {
       return undefined;
     }
 
-    const mcpConfig = getMCPConfigFromVSCodeSettings();
     const activeConnection = this.getActiveConnection();
 
     if (!activeConnection) {
       return undefined;
     }
 
-    const readOnlyMode = mcpConfig.readOnlyMode ?? true;
-    const disabledTools = (mcpConfig.disabledTools ?? []).filter(
-      (tool) => !readOnlyMode || !MCPController.READ_ONLY_DISABLED_TOOLS.includes(tool)
-    );
-
     return new vscode.McpStdioServerDefinition(
       `Couchbase MCP Server (${activeConnection.connectionIdentifier})`,
       'uvx',
-      ['couchbase-mcp-server'],
-      {
-        CB_CONNECTION_STRING: this.serverInfo.connectionString,
-        CB_USERNAME: this.serverInfo.username,
-        CB_PASSWORD: this.serverInfo.password,
-        CB_MCP_READ_ONLY_MODE: String(readOnlyMode),
-        ...(disabledTools.length > 0 && { CB_MCP_DISABLED_TOOLS: disabledTools.join(',') }),
-        ...(mcpConfig.confirmationRequiredTools && mcpConfig.confirmationRequiredTools.length > 0 && { CB_MCP_CONFIRMATION_REQUIRED_TOOLS: mcpConfig.confirmationRequiredTools.join(',') }),
-        ...(mcpConfig.exportsPath && { CB_MCP_EXPORTS_PATH: mcpConfig.exportsPath }),
-      }
+      [MCP_SERVER_PACKAGE_SPEC],
+      buildMCPEnvironment({
+        connectionString: this.serverInfo.connectionString,
+        username: this.serverInfo.username,
+        password: this.serverInfo.password,
+        config: getMCPConfigFromVSCodeSettings(),
+        defaultLogFilePath: this.getDefaultLogFilePath(),
+      })
     );
+  }
+
+  /**
+   * Base path for the per-level log files when the user enables the file sink
+   * without naming a path. Lives in the extension's global storage so the
+   * files are per-install and never depend on the working directory the
+   * server process inherits.
+   */
+  private getDefaultLogFilePath(): string {
+    return vscode.Uri.joinPath(
+      this.context.globalStorageUri,
+      MCPController.LOG_DIRECTORY_NAME,
+      MCPController.LOG_FILE_NAME
+    ).fsPath;
+  }
+
+  /**
+   * Creates the directory the log files are written to. The server logs an
+   * error and carries on when a log file cannot be opened, so a failure here
+   * is reported but never blocks the server from starting.
+   */
+  private async ensureLogDirectory(): Promise<void> {
+    const logDirectory = resolveLogDirectory(
+      getMCPConfigFromVSCodeSettings(),
+      this.getDefaultLogFilePath()
+    );
+    if (!logDirectory) {
+      return;
+    }
+
+    try {
+      await vscode.workspace.fs.createDirectory(vscode.Uri.file(logDirectory));
+      logger.debug(`MCP log directory ready: ${logDirectory}`);
+    } catch (error) {
+      logger.error(
+        `MCPLogId: ${MCPLogIds.ServerStartError} - Unable to create MCP log directory '${logDirectory}': ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+
+  /**
+   * Reveals the folder holding the per-level MCP log files, for attaching to a
+   * support ticket. Only meaningful once the `file` log sink is enabled.
+   */
+  public async openLogsFolder(): Promise<void> {
+    const mcpConfig = getMCPConfigFromVSCodeSettings();
+
+    if (!isFileLoggingEnabled(mcpConfig)) {
+      const settingsAction = 'MCP Settings';
+      const selection = await vscode.window.showWarningMessage(
+        'Couchbase MCP server log files are not being written. Add "file" to the "couchbase.mcp.logSinks" setting to generate the log files required for product support.',
+        settingsAction
+      );
+      if (selection === settingsAction) {
+        void MCPController.openMcpSettings();
+      }
+      return;
+    }
+
+    const logDirectory = vscode.Uri.file(
+      resolveLogDirectory(mcpConfig, this.getDefaultLogFilePath())!
+    );
+
+    try {
+      await vscode.workspace.fs.createDirectory(logDirectory);
+      // The per-level files (mcp_server.info.log, mcp_server.error.log, ...)
+      // only exist once the server has logged at that level, so reveal the
+      // directory rather than a file that may not be there yet.
+      await vscode.commands.executeCommand('revealFileInOS', logDirectory);
+    } catch (error) {
+      void vscode.window.showErrorMessage(
+        `Unable to open the MCP log folder '${logDirectory.fsPath}': ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
   }
 
   private async onActiveConnectionChanged(): Promise<void> {

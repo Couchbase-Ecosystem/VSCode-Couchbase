@@ -803,6 +803,11 @@
         "command": "vscode-couchbase.mcp.openSettings",
         "title": "MCP Server Settings",
         "category": "Couchbase"
+      },
+      {
+        "command": "vscode-couchbase.mcp.openLogsFolder",
+        "title": "Open MCP Server Logs Folder",
+        "category": "Couchbase"
       }
     ],
     "keybindings": [
@@ -1478,15 +1483,25 @@
                 "get_scopes_in_bucket",
                 "get_collections_in_scope",
                 "get_scopes_and_collections_in_bucket",
-                "get_schema_for_collection",
+                "create_scope",
+                "create_collection",
+                "delete_scope",
+                "delete_collection",
                 "get_document_by_id",
                 "upsert_document_by_id",
                 "insert_document_by_id",
                 "replace_document_by_id",
                 "delete_document_by_id",
+                "lookup_subdocument",
+                "mutate_subdocument",
+                "get_schema_for_collection",
                 "run_sql_plus_plus_query",
+                "explain_sql_plus_plus_query",
                 "list_indexes",
                 "get_index_advisor_recommendations",
+                "create_index",
+                "build_index",
+                "drop_index",
                 "get_longest_running_queries",
                 "get_most_frequent_queries",
                 "get_queries_with_largest_response_sizes",
@@ -1498,7 +1513,7 @@
             },
             "uniqueItems": true,
             "default": [],
-            "markdownDescription": "Select tools to disable in the Couchbase MCP server. Disabled tools will not be loaded or exposed to the LLM. Note: When `#couchbase.mcp.readOnlyMode#` is enabled, write tools (`upsert_document_by_id`, `insert_document_by_id`, `replace_document_by_id`, `delete_document_by_id`) are already disabled automatically by the server and selecting them here has no additional effect.",
+            "markdownDescription": "Select tools to disable in the Couchbase MCP server. Disabled tools will not be loaded or exposed to the LLM. Note: When `#couchbase.mcp.readOnlyMode#` is enabled, the write tools (document `upsert`/`insert`/`replace`/`delete`, `mutate_subdocument`, scope and collection creation/deletion, and `create_index`/`build_index`/`drop_index`) are already disabled automatically by the server and selecting them here has no additional effect.",
             "scope": "application"
           },
           "couchbase.mcp.confirmationRequiredTools": {
@@ -1513,15 +1528,25 @@
                 "get_scopes_in_bucket",
                 "get_collections_in_scope",
                 "get_scopes_and_collections_in_bucket",
-                "get_schema_for_collection",
+                "create_scope",
+                "create_collection",
+                "delete_scope",
+                "delete_collection",
                 "get_document_by_id",
                 "upsert_document_by_id",
                 "insert_document_by_id",
                 "replace_document_by_id",
                 "delete_document_by_id",
+                "lookup_subdocument",
+                "mutate_subdocument",
+                "get_schema_for_collection",
                 "run_sql_plus_plus_query",
+                "explain_sql_plus_plus_query",
                 "list_indexes",
                 "get_index_advisor_recommendations",
+                "create_index",
+                "build_index",
+                "drop_index",
                 "get_longest_running_queries",
                 "get_most_frequent_queries",
                 "get_queries_with_largest_response_sizes",
@@ -1536,10 +1561,122 @@
             "markdownDescription": "Select tools that require explicit user confirmation before execution via MCP elicitation. When a listed tool is invoked and the MCP client supports elicitation, the user will be prompted to confirm before the tool runs. If the client does not support elicitation, the tool executes without confirmation for backward compatibility.",
             "scope": "application"
           },
-          "couchbase.mcp.exportsPath": {
+          "couchbase.mcp.logLevel": {
+            "type": "string",
+            "enum": [
+              "off",
+              "debug",
+              "info",
+              "warning",
+              "error"
+            ],
+            "enumDescriptions": [
+              "Disable MCP server logging entirely, including errors",
+              "Log verbose internal detail, query shapes and stack traces, in addition to everything logged at info",
+              "Log lifecycle events, the resolved config summary and per-tool invocation metadata",
+              "Log degraded paths and errors only",
+              "Log failed operations only"
+            ],
+            "default": "info",
+            "markdownDescription": "Logging level for the Couchbase MCP server and the Couchbase SDK. Raise this to `debug` when reproducing an issue for product support - it adds internal detail, query shapes and the stack traces behind `error` lines. `off` is the only value that silences errors.",
+            "scope": "application"
+          },
+          "couchbase.mcp.logSinks": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "stderr",
+                "file"
+              ],
+              "enumDescriptions": [
+                "Write logs to the server process output, visible in the MCP server output channel",
+                "Write one rotating log file per level to the path set by `couchbase.mcp.logFile`"
+              ]
+            },
+            "uniqueItems": true,
+            "default": [
+              "stderr"
+            ],
+            "markdownDescription": "Where the Couchbase MCP server writes its logs. Include `file` to generate the per-level log files required for product support - one file per level derived from `#couchbase.mcp.logFile#` (for example `mcp_server.info.log` and `mcp_server.error.log`), plus a `mcp_server_config.log.json` snapshot of the resolved server configuration. Run **Couchbase: Open MCP Server Logs Folder** to reveal them.",
+            "scope": "application"
+          },
+          "couchbase.mcp.logFile": {
             "type": "string",
             "default": "",
-            "markdownDescription": "The directory where the Couchbase MCP server will export data. Leave empty to use the default path.",
+            "markdownDescription": "Base file path the per-level log files are derived from, by inserting the level name (`mcp_server.log` becomes `mcp_server.debug.log`, `mcp_server.info.log`, `mcp_server.warning.log` and `mcp_server.error.log`). Leave empty to write them to an `mcp-logs` folder inside the extension's storage; a relative path is resolved against that same folder. Only used when `file` is included in `#couchbase.mcp.logSinks#`.",
+            "scope": "application"
+          },
+          "couchbase.mcp.logRotationMaxSizeMB": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "default": 1,
+            "markdownDescription": "Size in MB at which each per-level log file rotates. Applies to every level unless overridden in `#couchbase.mcp.logRotationMaxSizeMBPerLevel#`. Only used when `file` is included in `#couchbase.mcp.logSinks#`.",
+            "scope": "application"
+          },
+          "couchbase.mcp.logRotationMaxSizeMBPerLevel": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "Rotation size in MB for the ERROR log file, which also captures CRITICAL records"
+              },
+              "warning": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "Rotation size in MB for the WARNING log file"
+              },
+              "info": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "Rotation size in MB for the INFO log file"
+              },
+              "debug": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "Rotation size in MB for the DEBUG log file, which also captures TRACE records"
+              }
+            },
+            "additionalProperties": false,
+            "default": {},
+            "markdownDescription": "Per-level overrides for the log file rotation size, in MB. A level that is not listed here inherits `#couchbase.mcp.logRotationMaxSizeMB#`.",
+            "scope": "application"
+          },
+          "couchbase.mcp.logRetentionBackupCount": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 1,
+            "markdownDescription": "Number of rotated backup files kept for each per-level log file, excluding the live file. Applies to every level unless overridden in `#couchbase.mcp.logRetentionBackupCountPerLevel#`. Set to `0` to keep only the live file, which is still capped by the rotation size. Only used when `file` is included in `#couchbase.mcp.logSinks#`.",
+            "scope": "application"
+          },
+          "couchbase.mcp.logRetentionBackupCountPerLevel": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Rotated backups kept for the ERROR log file"
+              },
+              "warning": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Rotated backups kept for the WARNING log file"
+              },
+              "info": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Rotated backups kept for the INFO log file"
+              },
+              "debug": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Rotated backups kept for the DEBUG log file"
+              }
+            },
+            "additionalProperties": false,
+            "default": {},
+            "markdownDescription": "Per-level overrides for how many rotated log backups are kept. A level that is not listed here inherits `#couchbase.mcp.logRetentionBackupCount#`. Useful for keeping a long ERROR history while capping verbose DEBUG output.",
             "scope": "application"
           }
         }

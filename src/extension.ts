@@ -1078,6 +1078,12 @@ context.subscriptions.push(disposable);
       await MCPController.openMcpSettings();
     })
   );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(Commands.openMcpLogsFolder, async () => {
+      await mcpController.openLogsFolder();
+    })
+  );
   
   subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(async (event) => {
