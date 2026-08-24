@@ -1468,7 +1468,7 @@
           "couchbase.mcp.readOnlyMode": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "When set to true, all write operations (KV and Query) are disabled, making the MCP server read-only.",
+            "markdownDescription": "When set to true, all write operations are disabled, making the MCP server read-only: key-value writes, data- and structure-modifying SQL++ queries, scope and collection management, and index management. The corresponding write tools are not loaded at all, so they are never exposed to the LLM. This is the recommended default and prevents inadvertent data modification.",
             "scope": "application"
           },
           "couchbase.mcp.disabledTools": {

@@ -22,8 +22,10 @@ import { logger } from '../logger/logger';
  * The Couchbase MCP server is pinned to an exact release rather than resolved
  * to whatever `uvx` finds newest, so an upstream release can never change the
  * tool surface or configuration contract of an already-installed extension.
- * Bump this deliberately, together with MCP_ALL_TOOLS / MCP_WRITE_TOOLS and the
- * tool enums in package.json, when moving to a newer server.
+ * Bump this deliberately, together with `MCP_WRITE_TOOLS` below and the
+ * `disabledTools` / `confirmationRequiredTools` tool enums in package.json,
+ * when moving to a newer server. The server ignores unknown tool names with a
+ * warning, so a stale enum fails silently rather than loudly.
  */
 export const MCP_SERVER_PACKAGE = 'couchbase-mcp-server';
 export const MCP_SERVER_VERSION = '1.0.1';
