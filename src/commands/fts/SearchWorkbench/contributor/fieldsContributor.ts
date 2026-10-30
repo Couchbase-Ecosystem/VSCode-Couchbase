@@ -46,6 +46,7 @@ export class fieldsContributor {
 
                         if (prop.includes(".")) {
                             const parts = prop.split(".");
+                            await cache.ensureCollectionSchema(bucketName, parts[0], parts[1]);
                             const additionalFields =
                                 this.extractFieldsFromCollection(
                                     bucketCache,

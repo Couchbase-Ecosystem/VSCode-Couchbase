@@ -63,13 +63,14 @@ jest.mock('../connections', () => {
 
 
 // Helper method to create sample Bucket cache
-function createBucketCache(mockConnection: IConnection, bucketTimeStamp: Date, collectionTimeStamp: Date) {
+function createBucketCache(mockConnection: IConnection, bucketTimeStamp: Date, collectionTimeStamp: Date, schema?: ICollectionCache["schema"]) {
     const exampleCollectionCache: ICollectionCache = {
         name: "exampleCollection",
         scopeName: "exampleScope",
         bucketName: "exampleBucket",
         indexes: ["index1", "index2"],
         timeStamp: collectionTimeStamp,
+        schema,
     };
 
     const exampleScopeCache: IScopeCache = {
@@ -182,7 +183,8 @@ describe("Given CacheService is responsible for refreshing the caching of couchb
         const tenMinutesAgo = new Date(new Date().getTime() - 15 * 60 * 1000);
         const currentTime = new Date(new Date().getTime());
 
-        const exampleBucketCache = createBucketCache(mockConnection, currentTime, tenMinutesAgo);
+        // A collection whose schema was loaded earlier, so its expired cache gets refreshed
+        const exampleBucketCache = createBucketCache(mockConnection, currentTime, tenMinutesAgo, { patterns: [] });
 
         cacheService.updateBucketsData("exampleBucket", exampleBucketCache);
 
@@ -378,5 +380,86 @@ describe("Given CacheService is responsible for refreshing the caching of couchb
             // Assert that cacheAgeMinutes is equal to what it was previously as bucket cache is untouched
             expect(cacheTimeStamp).toEqual(currentTime);
         }
+    });
+    describe("with many collections, schemas are only loaded when used", () => {
+        const { getActiveConnection } = require("../connections");
+        const query = () => getActiveConnection().cluster.query as jest.Mock;
+
+        beforeEach(() => query().mockClear());
+
+        it("connecting caches collection names only, without any INFER query", async () => {
+            await cacheService.fullCache(true);
+
+            expect(query()).not.toHaveBeenCalled();
+            expect(await cacheService.getAllCollections()).toEqual(
+                expect.arrayContaining(["exampleScope.exampleCollection", "exampleScope2.exampleCollection"])
+            );
+        });
+
+        it("does not re-infer collections that were never used when their cache expires", async () => {
+            const expired = new Date(Date.now() - 15 * 60 * 1000);
+            cacheService.updateBucketsData("exampleBucket", createBucketCache(mockConnection, new Date(), expired));
+
+            await cacheService.refreshCacheOnTimeout(10, 10, false);
+
+            expect(query()).not.toHaveBeenCalled();
+        });
+
+        it("loads a collection's schema the first time it is needed, then reuses it", async () => {
+            cacheService.updateBucketsData("exampleBucket", createBucketCache(mockConnection, new Date(), new Date()));
+
+            const first = await cacheService.ensureCollectionSchema("exampleBucket", "exampleScope", "exampleCollection");
+            const second = await cacheService.ensureCollectionSchema("exampleBucket", "exampleScope", "exampleCollection");
+
+            expect(query()).toHaveBeenCalledTimes(1);
+            expect(query().mock.calls[0][0]).toContain("INFER `exampleBucket`.`exampleScope`.`exampleCollection`");
+            expect(first?.schema?.patterns).toBeDefined();
+            expect(second).toBe(first);
+            expect(cacheService.storeCache).toHaveBeenCalled();
+        });
+
+        it("runs a single INFER when several features ask for the same schema at once", async () => {
+            cacheService.updateBucketsData("exampleBucket", createBucketCache(mockConnection, new Date(), new Date()));
+
+            await Promise.all([1, 2, 3].map(() =>
+                cacheService.ensureCollectionSchema("exampleBucket", "exampleScope", "exampleCollection")));
+
+            expect(query()).toHaveBeenCalledTimes(1);
+        });
+
+        it("re-infers a loaded schema once it is older than the collection cache expiry", async () => {
+            const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+            cacheService.updateBucketsData("exampleBucket", createBucketCache(mockConnection, new Date(), twoDaysAgo, { patterns: [] }));
+
+            await cacheService.ensureCollectionSchema("exampleBucket", "exampleScope", "exampleCollection");
+
+            expect(query()).toHaveBeenCalledTimes(1);
+        });
+
+        it("keeps a recently loaded schema without querying", async () => {
+            cacheService.updateBucketsData("exampleBucket", createBucketCache(mockConnection, new Date(), new Date(), { patterns: [] }));
+
+            await cacheService.ensureCollectionSchema("exampleBucket", "exampleScope", "exampleCollection");
+
+            expect(query()).not.toHaveBeenCalled();
+        });
+
+        it("does not retry a failed INFER on every request", async () => {
+            cacheService.updateBucketsData("exampleBucket", createBucketCache(mockConnection, new Date(), new Date()));
+            query().mockRejectedValueOnce(new Error("User does not have credentials to run INFER"));
+
+            await cacheService.ensureCollectionSchema("exampleBucket", "exampleScope", "exampleCollection");
+            await cacheService.ensureCollectionSchema("exampleBucket", "exampleScope", "exampleCollection");
+
+            expect(query()).toHaveBeenCalledTimes(1);
+            expect(cacheService.storeCache).not.toHaveBeenCalled();
+        });
+
+        it("returns undefined for an unknown collection without querying", async () => {
+            cacheService.updateBucketsData("exampleBucket", createBucketCache(mockConnection, new Date(), new Date()));
+
+            expect(await cacheService.ensureCollectionSchema("exampleBucket", "exampleScope", "missing")).toBeUndefined();
+            expect(query()).not.toHaveBeenCalled();
+        });
     });
 });

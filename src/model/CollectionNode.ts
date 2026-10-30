@@ -42,6 +42,8 @@ export default class CollectionNode implements INode {
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public cacheService: CacheService,
     public limit: number = 10,
+    public readonly isFavorite: boolean = false,
+    public readonly isSearchResult: boolean = false,
   ) {
     vscode.workspace.fs.createDirectory(
       vscode.Uri.parse(
@@ -117,7 +119,9 @@ export default class CollectionNode implements INode {
           ? "default_collection"
           : "collection") + (filterDocumentsType !== "" ? "_filter" : "") 
           + (filterDocumentsType === "kv" ? "_kv" : "") 
-          + (filterDocumentsType === "query" ? "_query" : ""),
+          + (filterDocumentsType === "query" ? "_query" : "")
+          + (this.isFavorite ? "_favorite" : ""),
+      description: [this.isFavorite ? "★" : "", this.isSearchResult ? "search result" : ""].filter(Boolean).join(" "),
       iconPath: {
         light: vscode.Uri.file(path.join(
           __filename,

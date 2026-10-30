@@ -45,7 +45,7 @@ export const collectionIntentHandler = async (jsonObject: any, cacheService: Cac
         const splitCollections = collection.split(".");
         if (splitCollections.length === 3) { // bucket.scope.collection format
             const [bucket, scope, col] = splitCollections;
-            const collectionData = await cacheService.getCollectionWithBucketAndScopeName(bucket, scope, col);
+            const collectionData = await cacheService.ensureCollectionSchema(bucket, scope, col);
             const schema = collectionData?.schema || undefined;
             if (schema !== undefined) {
                 const stringifiedIntent: collectionIntentType = {
@@ -58,7 +58,8 @@ export const collectionIntentHandler = async (jsonObject: any, cacheService: Cac
         }
         else if (splitCollections.length === 2) { // scope.collection format
             const [scope, col] = splitCollections;
-            const collectionData = await cacheService.getCollectionWithScopeName(scope, col);
+            const found = await cacheService.getCollectionWithScopeName(scope, col);
+            const collectionData = found && await cacheService.ensureCollectionSchema(found.bucketName, scope, col);
             const schema = collectionData?.schema || undefined;
             if (schema !== undefined) {
                 const stringifiedIntent = {
@@ -70,7 +71,8 @@ export const collectionIntentHandler = async (jsonObject: any, cacheService: Cac
             }
         } else { // collection format or any other format
             const col = collection;
-            const collectionData = await cacheService.getCollectionWithCollectionName(col);
+            const found = await cacheService.getCollectionWithCollectionName(col);
+            const collectionData = found && await cacheService.ensureCollectionSchema(found.bucketName, found.scopeName, col);
             const schema = collectionData?.schema || undefined;
             if (schema !== undefined) {
                 const stringifiedIntent = {

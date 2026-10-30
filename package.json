@@ -2,7 +2,7 @@
   "name": "vscode-couchbase",
   "displayName": "Couchbase",
   "description": "",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "engines": {
     "vscode": "^1.108.0"
   },
@@ -580,6 +580,24 @@
         "category": "Couchbase"
       },
       {
+        "command": "vscode-couchbase.searchCollections",
+        "title": "Search Collections",
+        "category": "Couchbase",
+        "icon": "$(search)"
+      },
+      {
+        "command": "vscode-couchbase.favoriteCollection",
+        "title": "Add to Favorites",
+        "category": "Couchbase",
+        "icon": "$(star-empty)"
+      },
+      {
+        "command": "vscode-couchbase.unfavoriteCollection",
+        "title": "Remove from Favorites",
+        "category": "Couchbase",
+        "icon": "$(star-full)"
+      },
+      {
         "command": "vscode-couchbase.refreshIndexes",
         "title": "Refresh Indexes",
         "category": "Couchbase"
@@ -979,6 +997,18 @@
           "when": "false"
         },
         {
+          "command": "vscode-couchbase.searchCollections",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.favoriteCollection",
+          "when": "false"
+        },
+        {
+          "command": "vscode-couchbase.unfavoriteCollection",
+          "when": "false"
+        },
+        {
           "command": "vscode-couchbase.refreshScopes",
           "when": "false"
         },
@@ -1173,17 +1203,17 @@
         },
         {
           "command": "vscode-couchbase.createDocument",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter_kv || viewItem == default_collection_filter_query || viewItem == collection_filter_kv || viewItem == collection_filter_query)",
+          "when": "view == couchbase && (viewItem =~ /^collection(_favorite)?$/ || viewItem =~ /^default_collection(_favorite)?$/ || viewItem =~ /^default_collection_filter_kv(_favorite)?$/ || viewItem =~ /^default_collection_filter_query(_favorite)?$/ || viewItem =~ /^collection_filter_kv(_favorite)?$/ || viewItem =~ /^collection_filter_query(_favorite)?$/)",
           "group": "primary"
         },
         {
           "command": "vscode-couchbase.searchDocument",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter_kv || viewItem == default_collection_filter_query || viewItem == collection_filter_kv || viewItem == collection_filter_query)",
+          "when": "view == couchbase && (viewItem =~ /^collection(_favorite)?$/ || viewItem =~ /^default_collection(_favorite)?$/ || viewItem =~ /^default_collection_filter_kv(_favorite)?$/ || viewItem =~ /^default_collection_filter_query(_favorite)?$/ || viewItem =~ /^collection_filter_kv(_favorite)?$/ || viewItem =~ /^collection_filter_query(_favorite)?$/)",
           "group": "primary"
         },
         {
           "submenu": "vscode-couchbase.filterDocumentsMenu",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter_kv || viewItem == default_collection_filter_query || viewItem == collection_filter_kv || viewItem == collection_filter_query)",
+          "when": "view == couchbase && (viewItem =~ /^collection(_favorite)?$/ || viewItem =~ /^default_collection(_favorite)?$/ || viewItem =~ /^default_collection_filter_kv(_favorite)?$/ || viewItem =~ /^default_collection_filter_query(_favorite)?$/ || viewItem =~ /^collection_filter_kv(_favorite)?$/ || viewItem =~ /^collection_filter_query(_favorite)?$/)",
           "group": "secondary"
         },
         {
@@ -1196,7 +1226,7 @@
         },
         {
           "command": "vscode-couchbase.refreshCollection",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == default_collection_filter_kv || viewItem == default_collection_filter_query || viewItem == collection_filter_kv || viewItem == collection_filter_query)",
+          "when": "view == couchbase && (viewItem =~ /^collection(_favorite)?$/ || viewItem =~ /^default_collection(_favorite)?$/ || viewItem =~ /^default_collection_filter_kv(_favorite)?$/ || viewItem =~ /^default_collection_filter_query(_favorite)?$/ || viewItem =~ /^collection_filter_kv(_favorite)?$/ || viewItem =~ /^collection_filter_query(_favorite)?$/)",
           "group": "tertiary"
         },
         {
@@ -1224,12 +1254,31 @@
         },
         {
           "command": "vscode-couchbase.removeCollection",
-          "when": "view == couchbase && (viewItem == collection || viewItem == collection_filter_kv || viewItem == collection_filter_query)",
+          "when": "view == couchbase && (viewItem =~ /^collection(_favorite)?$/ || viewItem =~ /^collection_filter_kv(_favorite)?$/ || viewItem =~ /^collection_filter_query(_favorite)?$/)",
           "group": "tertiary"
         },
         {
           "command": "vscode-couchbase.refreshCollections",
           "when": "view == couchbase && (viewItem == scope || viewItem == default_scope)"
+        },
+        {
+          "command": "vscode-couchbase.searchCollections",
+          "when": "view == couchbase && viewItem == collectionDirectory",
+          "group": "inline"
+        },
+        {
+          "command": "vscode-couchbase.searchCollections",
+          "when": "view == couchbase && viewItem == collectionDirectory"
+        },
+        {
+          "command": "vscode-couchbase.favoriteCollection",
+          "when": "view == couchbase && viewItem =~ /^(default_)?collection(_filter_(kv|query))?$/",
+          "group": "tertiary"
+        },
+        {
+          "command": "vscode-couchbase.unfavoriteCollection",
+          "when": "view == couchbase && viewItem =~ /^(default_)?collection(_filter_(kv|query))?_favorite$/",
+          "group": "tertiary"
         },
         {
           "command": "vscode-couchbase.refreshIndexes",
@@ -1321,26 +1370,26 @@
         {
           "command": "vscode-couchbase.queryTypeDocumentFilter",
           "group": "navigation",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == collection_filter_kv || viewItem == default_collection_filter_kv) && !isKVCluster"
+          "when": "view == couchbase && (viewItem =~ /^collection(_favorite)?$/ || viewItem =~ /^default_collection(_favorite)?$/ || viewItem =~ /^collection_filter_kv(_favorite)?$/ || viewItem =~ /^default_collection_filter_kv(_favorite)?$/) && !isKVCluster"
         },
         {
           "command": "vscode-couchbase.kvTypeDocumentFilter",
           "group": "navigation",
-          "when": "view == couchbase && (viewItem == collection || viewItem == default_collection || viewItem == collection_filter_query || viewItem == default_collection_filter_query)"
+          "when": "view == couchbase && (viewItem =~ /^collection(_favorite)?$/ || viewItem =~ /^default_collection(_favorite)?$/ || viewItem =~ /^collection_filter_query(_favorite)?$/ || viewItem =~ /^default_collection_filter_query(_favorite)?$/)"
         },
         {
           "command": "vscode-couchbase.editQueryTypeDocumentFilter",
-          "when": "view == couchbase && (viewItem == collection_filter_query || viewItem == default_collection_filter_query) && !isKVCluster",
+          "when": "view == couchbase && (viewItem =~ /^collection_filter_query(_favorite)?$/ || viewItem =~ /^default_collection_filter_query(_favorite)?$/) && !isKVCluster",
           "group": "secondary"
         },
         {
           "command": "vscode-couchbase.editKvTypeDocumentFilter",
-          "when": "view == couchbase && (viewItem == collection_filter_kv || viewItem == default_collection_filter_kv)",
+          "when": "view == couchbase && (viewItem =~ /^collection_filter_kv(_favorite)?$/ || viewItem =~ /^default_collection_filter_kv(_favorite)?$/)",
           "group": "secondary"
         },
         {
           "command": "vscode-couchbase.clearDocumentFilter",
-          "when": "view == couchbase && (viewItem == collection_filter_kv || viewItem == default_collection_filter_kv || viewItem == collection_filter_query || viewItem == default_collection_filter_query)",
+          "when": "view == couchbase && (viewItem =~ /^collection_filter_kv(_favorite)?$/ || viewItem =~ /^default_collection_filter_kv(_favorite)?$/ || viewItem =~ /^collection_filter_query(_favorite)?$/ || viewItem =~ /^default_collection_filter_query(_favorite)?$/)",
           "group": "tertiary"
         }
       ]
