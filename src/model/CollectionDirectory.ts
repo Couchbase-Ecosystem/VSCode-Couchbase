@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { IConnection } from "../types/IConnection";
 import { INode } from "../types/INode";
 import { logger } from "../logger/logger";
 import { CouchbaseRestAPI } from "../util/apis/CouchbaseRestAPI";
@@ -7,18 +6,24 @@ import { CacheService } from "../util/cacheService/cacheService";
 import { getActiveConnection } from "../util/connections";
 import { Memory } from "../util/util";
 import { hasQueryService } from "../util/common";
+import { COLLECTION_PAGE_SIZE, getFavoriteCollections, getVisibleCollections } from "../util/collectionListing";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
 import CollectionNode from "./CollectionNode";
 import InformationNode from "./InformationNode";
+import { PagerNode } from "./PagerNode";
 
 export class CollectionDirectory implements INode {
+    // Collections added from the search box; cleared when the tree is collapsed
+    private searchedCollections: string[] = [];
+
     constructor(
         public readonly parentNode: INode,
         public readonly scopeName: string,
         public readonly bucketName: string,
         public readonly collections: any[],
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public cacheService: CacheService
+        public cacheService: CacheService,
+        public limit: number = COLLECTION_PAGE_SIZE
     ) {}
 
     public getTreeItem(): vscode.TreeItem {
@@ -29,16 +34,43 @@ export class CollectionDirectory implements INode {
         };
     }
 
+    public addSearchedCollection(collectionName: string): void {
+        this.searchedCollections = [
+            collectionName,
+            ...this.searchedCollections.filter((name) => name !== collectionName),
+        ];
+    }
+
+    public onCollapse(): void {
+        this.searchedCollections = [];
+        this.limit = COLLECTION_PAGE_SIZE;
+    }
+
     public async getChildren(): Promise<INode[]> {
         const connection = getActiveConnection();
         if (!connection) {
           return [];
         }
-        const collectionList: any[] = [];
+        const collectionList: INode[] = [];
+        const favorites = getFavoriteCollections(connection.connectionIdentifier, this.bucketName, this.scopeName);
+        const { searched, paged, hasMore } = getVisibleCollections(
+            this.collections.map((collection) => collection.name),
+            favorites,
+            this.searchedCollections,
+            this.limit
+        );
+        if (searched.length === 0 && paged.length === 0) {
+          return [new InformationNode("No Collections found")];
+        }
+
         const couchbaseRestAPI = new CouchbaseRestAPI(connection);
         const KVCollectionCount: Map<string, number> = await couchbaseRestAPI.getKVDocumentCount(this.bucketName, this.scopeName);
-    
-        for (const collection of this.collections) {
+
+        const visibleCollections = [
+            ...searched.map((name) => ({ name, isSearchResult: true })),
+            ...paged.map((name) => ({ name, isSearchResult: false })),
+        ];
+        for (const collection of visibleCollections) {
           try {
             const queryTypeFilter = Memory.state.get<string>(
               `queryTypeFilterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`
@@ -82,7 +114,10 @@ export class CollectionDirectory implements INode {
               this.bucketName,
               collection.name,
               vscode.TreeItemCollapsibleState.None,
-              this.cacheService
+              this.cacheService,
+              undefined,
+              favorites.has(collection.name),
+              collection.isSearchResult
             );
             collectionList.push(collectionTreeItem);
           } catch (err: any) {
@@ -91,8 +126,8 @@ export class CollectionDirectory implements INode {
             throw new Error(err);
           }
         }
-        if (collectionList.length === 0) {
-          collectionList.push(new InformationNode("No Collections found"));
+        if (hasMore) {
+          collectionList.push(new PagerNode(this));
         }
         return collectionList;
       }

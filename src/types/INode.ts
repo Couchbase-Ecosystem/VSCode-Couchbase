@@ -19,4 +19,7 @@ export interface INode {
   getTreeItem(): Promise<vscode.TreeItem> | vscode.TreeItem;
 
   getChildren(): Promise<INode[]> | INode[];
+
+  // Called when the node is collapsed in the tree, to drop any temporary view state
+  onCollapse?(): void;
 }

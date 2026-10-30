@@ -41,6 +41,9 @@ export namespace Commands {
     export const deleteSearchIndex: string = "vscode-couchbase.deleteSearchIndex";
     export const getSampleProjects: string = "vscode-couchbase.openSampleProjects";
     export const loadMore: string = "vscode-couchbase.loadMore";
+    export const searchCollections: string = "vscode-couchbase.searchCollections";
+    export const favoriteCollection: string = "vscode-couchbase.favoriteCollection";
+    export const unfavoriteCollection: string = "vscode-couchbase.unfavoriteCollection";
     export const showOutputConsole: string = "vscode-couchbase.showOutputConsole";
     export const runQuery: string = "vscode-couchbase.runQuery";
     export const explainQuery: string = "vscode-couchbase.explainQuery";

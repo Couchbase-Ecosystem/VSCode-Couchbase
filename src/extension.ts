@@ -22,6 +22,7 @@ import { IConnection } from "./types/IConnection";
 import { INode } from "./types/INode";
 import { logger } from "./logger/logger";
 import { PagerNode } from "./model/PagerNode";
+import { CollectionDirectory } from "./model/CollectionDirectory";
 import { ScopeNode } from "./model/ScopeNode";
 import ClusterConnectionTreeProvider from "./tree/ClusterConnectionTreeProvider";
 import {
@@ -94,6 +95,8 @@ import { setQueryTimeout } from "./commands/queryTimeout/setQueryTimeout";
 import { CouchbaseAssistantWebviewProvider } from "./commands/assistant/assistantWebviewProvider";
 import { MCPController } from "./mcp/mcpController";
 import { getActiveConnection } from "./util/connections";
+import { extractDocumentInfo } from "./util/common";
+import { getFavoriteCollections, setCollectionFavorite } from "./util/collectionListing";
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -162,6 +165,10 @@ const autoCompleteProviderForDocuments = vscode.languages.registerCompletionItem
   { language: 'json' },
   {
       async provideCompletionItems(document, position, token, context) {
+          if (document.uri.scheme === "couchbase") {
+              const documentInfo = extractDocumentInfo(document.uri.path);
+              await cacheService.ensureCollectionSchema(documentInfo.bucket, documentInfo.scope, documentInfo.collection);
+          }
           const autoComplete = new JsonAttributeCompletionProvider(document,cacheService);
           const suggestions = await autoComplete.provideCompletionItems(document,position);
           if (suggestions?.length === 0) {
@@ -360,6 +367,9 @@ context.subscriptions.push(disposable);
         !editor.document.uri.path.endsWith("cbs.json") &&
         !editor.document.uri.path.includes("/Search/")
       ) {
+        // Start loading the collection's schema for field autocomplete without delaying the editor
+        const documentInfo = extractDocumentInfo(editor.document.uri.path);
+        void cacheService.ensureCollectionSchema(documentInfo.bucket, documentInfo.scope, documentInfo.collection);
         await handleActiveEditorChange(editor, uriToCasMap, memFs);
       }
     })
@@ -499,9 +509,57 @@ context.subscriptions.push(disposable);
     vscode.commands.registerCommand(
       Commands.loadMore,
       async (node: PagerNode) => {
-        node.collection.limit += 10;
-        clusterConnectionTreeProvider.refresh(node.collection);
+        node.parent.limit += 10;
+        clusterConnectionTreeProvider.refresh(node.parent);
       }
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.searchCollections,
+      async (node: CollectionDirectory) => {
+        const connection = getActiveConnection();
+        if (!connection) {
+          return;
+        }
+        const favorites = getFavoriteCollections(connection.connectionIdentifier, node.bucketName, node.scopeName);
+        const picked = await vscode.window.showQuickPick(
+          node.collections.map((collection) => ({
+            label: collection.name,
+            description: favorites.has(collection.name) ? "★" : undefined,
+          })),
+          { placeHolder: `Search collections in ${node.bucketName}.${node.scopeName}` }
+        );
+        if (!picked) {
+          return;
+        }
+        node.addSearchedCollection(picked.label);
+        clusterConnectionTreeProvider.refresh(node);
+      }
+    )
+  );
+
+  const setFavorite = async (node: CollectionNode, isFavorite: boolean) => {
+    const connection = getActiveConnection();
+    if (!connection) {
+      return;
+    }
+    await setCollectionFavorite(connection.connectionIdentifier, node.bucketName, node.scopeName, node.collectionName, isFavorite);
+    clusterConnectionTreeProvider.refresh(node.parentNode);
+  };
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.favoriteCollection,
+      async (node: CollectionNode) => setFavorite(node, true)
+    )
+  );
+
+  subscriptions.push(
+    vscode.commands.registerCommand(
+      Commands.unfavoriteCollection,
+      async (node: CollectionNode) => setFavorite(node, false)
     )
   );
 

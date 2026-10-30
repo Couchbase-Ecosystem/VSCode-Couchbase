@@ -50,6 +50,10 @@ export default class ClusterConnectionTreeProvider implements vscode.TreeDataPro
     this.treeView.onDidExpandElement(event => {
       this.refresh(event.element);
     });
+
+    this.treeView.onDidCollapseElement(event => {
+      event.element.onCollapse?.();
+    });
   }
 
   private async getConnections(): Promise<ClusterConnectionNode[]> {

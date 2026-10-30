@@ -15,13 +15,15 @@
  */
 import * as vscode from "vscode";
 import * as path from "path";
-import CollectionNode from "./CollectionNode";
 import { INode } from "../types/INode";
+
+// A node whose children are paged; "Load more" raises its limit
+export type PagedNode = INode & { limit: number };
 
 export class PagerNode implements INode {
 
   constructor(
-    public readonly collection: CollectionNode
+    public readonly parent: PagedNode
   ) { }
 
   public getTreeItem(): vscode.TreeItem {
