@@ -95,10 +95,11 @@ export class CacheService {
     }
 
 
-    private cacheSchemaForCollection = async (connection: IConnection, collection: ICollectionCache, result?: QueryResult<any>) => {
+    // Runs INFER for one collection (unless a result is given) and returns its schema, or undefined if INFER failed
+    private inferCollectionSchema = async (connection: IConnection, bucketName: string, scopeName: string, collectionName: string, result?: QueryResult<any>): Promise<ISchemaCache | undefined> => {
         try {
             if (!result) {
-                const query = "INFER `" + collection.bucketName + "`.`" + collection.scopeName + "`.`" + collection.name + "` WITH {\"sample_size\": 2000}";
+                const query = "INFER `" + bucketName + "`.`" + scopeName + "`.`" + collectionName + "` WITH {\"sample_size\": 2000}";
                 result = await connection?.cluster?.query(query);
             }
             const patternCnt: number = result?.rows[0].length || 0;
@@ -108,15 +109,22 @@ export class CacheService {
                 const childrenNode = this.schemaTreeTraversal(row.properties);
                 schemaPatternData.push(childrenNode);
             }
-            collection.schema = { patterns: schemaPatternData };
-            collection.timeStamp = new Date();
+            return { patterns: schemaPatternData };
         } catch (error: any) {
+            logger.error(`error while caching schema for a collection: ${bucketName}.${scopeName}.${collectionName}, error: ${error}`);
             if (error instanceof CouchbaseError && (error as any).cause?.first_error_code === 7014) {
-                collection.schema = { patterns: [] };
-                collection.timeStamp = new Date();
-                logger.debug(`No documents found, unable to infer schema for a collection: ${collection.bucketName}.${collection.scopeName}.${collection.name}, error: ${error}`);
+                logger.debug(`No documents found, unable to infer schema for a collection: ${bucketName}.${scopeName}.${collectionName}, error: ${error}`);
+                return { patterns: [] };
             }
-            logger.error(`error while caching schema for a collection: ${collection.bucketName}.${collection.scopeName}.${collection.name}, error: ${error}`);
+            return undefined;
+        }
+    };
+
+    private cacheSchemaForCollection = async (connection: IConnection, collection: ICollectionCache, result?: QueryResult<any>) => {
+        const schema = await this.inferCollectionSchema(connection, collection.bucketName, collection.scopeName, collection.name, result);
+        if (schema) {
+            collection.schema = schema;
+            collection.timeStamp = new Date();
         }
     };
 
@@ -484,7 +492,7 @@ export class CacheService {
         if (collection.schema !== undefined && ageMinutes <= Constants.COLLECTION_CACHE_EXPIRY_DURATION) {
             return collection;
         }
-        const key = `${bucketName}.${scopeName}.${collectionName}`;
+        const key = `${connection.connectionIdentifier}/${bucketName}.${scopeName}.${collectionName}`;
         const failedAt = this.schemaLoadFailures.get(key);
         if (failedAt !== undefined && Date.now() - failedAt < CacheService.SCHEMA_RETRY_DELAY_MS) {
             return collection;
@@ -492,21 +500,30 @@ export class CacheService {
         // Several callers can ask for the same collection at once (e.g. autocomplete while typing)
         let load = this.schemaLoads.get(key);
         if (!load) {
-            const loadedBefore = collection.timeStamp;
             load = (async () => {
-                await this.cacheSchemaForCollection(connection, collection);
-                if (collection.timeStamp === loadedBefore) {
-                    // cacheSchemaForCollection only updates the timestamp when the INFER succeeds
+                const schema = await this.inferCollectionSchema(connection, bucketName, scopeName, collectionName);
+                if (!schema) {
                     this.schemaLoadFailures.set(key, Date.now());
                     return;
                 }
                 this.schemaLoadFailures.delete(key);
+                // While INFER ran, the cache may have been reloaded (new collection objects) or the user
+                // may have switched to another cluster, so don't write into what was captured before it
+                if (getActiveConnection()?.connectionIdentifier !== connection.connectionIdentifier) {
+                    return;
+                }
+                const current = await this.getCollectionWithBucketAndScopeName(bucketName, scopeName, collectionName);
+                if (!current) {
+                    return;
+                }
+                current.schema = schema;
+                current.timeStamp = new Date();
                 await this.storeCache(connection);
             })().finally(() => this.schemaLoads.delete(key));
             this.schemaLoads.set(key, load);
         }
         await load;
-        return collection;
+        return this.getCollectionWithBucketAndScopeName(bucketName, scopeName, collectionName);
     };
 
     public getCollectionWithBucketAndScopeName = async (bucketName: string, scopeName: string, collectionName: string): Promise<undefined | ICollectionCache> => {
@@ -615,6 +632,14 @@ export class CacheService {
     }
 
     public async storeCache(connection: IConnection): Promise<void> {
+        // The in-memory cache can belong to another cluster if the user switched while an update was running
+        for (const [_, bucket] of this.bucketsData) {
+            const cachedFor = bucket.connection?.connectionIdentifier;
+            if (cachedFor !== undefined && cachedFor !== connection.connectionIdentifier) {
+                logger.debug(`Not saving cache for ${connection.connectionIdentifier}: it holds data of ${cachedFor}`);
+                return;
+            }
+        }
         const serializedData: any = {};
         // Serialize each bucket in the map
         for (const [bucketName, bucket] of this.bucketsData) {

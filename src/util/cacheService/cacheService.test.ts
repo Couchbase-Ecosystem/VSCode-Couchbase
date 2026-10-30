@@ -455,6 +455,67 @@ describe("Given CacheService is responsible for refreshing the caching of couchb
             expect(cacheService.storeCache).not.toHaveBeenCalled();
         });
 
+        // INFER whose answer the test releases by hand, to change things while it is in flight
+        const pendingInfer = () => {
+            let release: () => void = () => {};
+            query().mockImplementationOnce(() => new Promise((resolve) => {
+                release = () => resolve({ rows: [[{ properties: { orderId: { type: "string" } } }]] });
+            }));
+            return { release: () => release() };
+        };
+
+        it("keeps the schema when the cache is reloaded while INFER runs", async () => {
+            cacheService.updateBucketsData("exampleBucket", createBucketCache(mockConnection, new Date(), new Date()));
+            const infer = pendingInfer();
+
+            const loading = cacheService.ensureCollectionSchema("exampleBucket", "exampleScope", "exampleCollection");
+            await new Promise((resolve) => setImmediate(resolve));
+            // A tree expand reloads the cache: every collection object is replaced
+            cacheService.updateBucketsData("exampleBucket", createBucketCache(mockConnection, new Date(), new Date()));
+            infer.release();
+            const result = await loading;
+
+            const live = await cacheService.getCollectionWithBucketAndScopeName("exampleBucket", "exampleScope", "exampleCollection");
+            expect(live?.schema?.patterns).toEqual([{ orderId: { type: "string", value: "string" } }]);
+            expect(result).toBe(live);
+            expect(cacheService.storeCache).toHaveBeenCalled();
+        });
+
+        it("saves nothing when the user switches cluster while INFER runs", async () => {
+            cacheService.updateBucketsData("exampleBucket", createBucketCache(mockConnection, new Date(), new Date()));
+            const infer = pendingInfer();
+            const clusterA = getActiveConnection();
+
+            const loading = cacheService.ensureCollectionSchema("exampleBucket", "exampleScope", "exampleCollection");
+            await new Promise((resolve) => setImmediate(resolve));
+            getActiveConnection.mockReturnValue({ ...clusterA, connectionIdentifier: "clusterB" });
+            try {
+                infer.release();
+                await loading;
+            } finally {
+                getActiveConnection.mockReturnValue(clusterA);
+            }
+
+            expect(cacheService.storeCache).not.toHaveBeenCalled();
+            const cached = await cacheService.getCollectionWithBucketAndScopeName("exampleBucket", "exampleScope", "exampleCollection");
+            expect(cached?.schema).toBeUndefined();
+        });
+
+        it("never saves one cluster's cache under another cluster's key", async () => {
+            const { Global } = require("../util");
+            const saved = new Map<string, any>();
+            Global.setState({ get: (k: string) => saved.get(k), update: async (k: string, v: any) => { saved.set(k, v); }, keys: () => [] });
+            (cacheService.storeCache as jest.Mock).mockRestore();
+            const clusterB = { ...mockConnection, connectionIdentifier: "clusterB" };
+            cacheService.updateBucketsData("bucketOfB", createBucketCache(clusterB, new Date(), new Date()));
+
+            await cacheService.storeCache(mockConnection);
+            expect(saved.has(`vscode-couchbase.iq.bucketsCache.${mockConnection.connectionIdentifier}`)).toBe(false);
+
+            await cacheService.storeCache(clusterB);
+            expect(saved.has("vscode-couchbase.iq.bucketsCache.clusterB")).toBe(true);
+        });
+
         it("returns undefined for an unknown collection without querying", async () => {
             cacheService.updateBucketsData("exampleBucket", createBucketCache(mockConnection, new Date(), new Date()));
 
