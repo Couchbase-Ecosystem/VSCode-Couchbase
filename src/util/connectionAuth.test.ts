@@ -1,3 +1,5 @@
+import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import { IConnection } from "../types/IConnection";
 import {
@@ -78,6 +80,18 @@ describe("getRestAuth", () => {
         expect(() => getRestAuth(passwordConnection, "pässwörd€")).not.toThrow();
     });
 
+    it("verifies the cluster against the chosen CA for certificate connections", () => {
+        const auth = getRestAuth({ ...certificateConnection, caPath: certificatePath });
+        expect(auth.httpsAgent.options.rejectUnauthorized).toBe(true);
+        expect(String(auth.httpsAgent.options.ca)).toContain("BEGIN CERTIFICATE");
+    });
+
+    it("still verifies the cluster (against the system's CAs) when no CA is chosen", () => {
+        const auth = getRestAuth(certificateConnection);
+        expect(auth.httpsAgent.options.rejectUnauthorized).toBe(true);
+        expect(auth.httpsAgent.options.ca).toBeUndefined();
+    });
+
     it("sends the client certificate, and no Authorization header, for certificate connections", () => {
         const auth = getRestAuth(certificateConnection);
         expect(auth.headers).toEqual({});
@@ -114,6 +128,42 @@ describe("validateCertificateFiles", () => {
 
     it("rejects encrypted keys, which the SDK cannot use", () => {
         expect(validateCertificateFiles(certificatePath, fixture("fake-encrypted.key"))).toMatch(/Encrypted private keys/);
+    });
+
+    for (const character of ["$", "`", '"', "\n", "\r"]) {
+        it(`refuses paths containing ${JSON.stringify(character)}, which a terminal would interpret`, () => {
+            const unsafe = `/tmp/bad${character}name.pem`;
+            expect(validateCertificateFiles(unsafe, keyPath)).toMatch(/Client certificate path can't contain/);
+            expect(validateCertificateFiles(certificatePath, unsafe)).toMatch(/Private key path can't contain/);
+            expect(validateCertificateFiles(certificatePath, keyPath, unsafe)).toMatch(/CA certificate path can't contain/);
+        });
+    }
+
+    it("accepts ordinary paths with spaces, quotes and Windows backslashes", () => {
+        const dir = fs.mkdtempSync(path.join(os.tmpdir(), "cert test 'dir' "));
+        const cert = path.join(dir, "client.pem");
+        const key = path.join(dir, "client.key");
+        fs.copyFileSync(certificatePath, cert);
+        fs.copyFileSync(keyPath, key);
+        try {
+            expect(validateCertificateFiles(cert, key)).toBeUndefined();
+        } finally {
+            fs.rmSync(dir, { recursive: true, force: true });
+        }
+        expect(validateCertificateFiles("C:\\Users\\me\\client.pem", keyPath)).toMatch(/file not found/);
+    });
+
+    it("reports an unreadable private key instead of failing", () => {
+        const dir = fs.mkdtempSync(path.join(os.tmpdir(), "cert-test-"));
+        const key = path.join(dir, "client.key");
+        fs.copyFileSync(keyPath, key);
+        fs.chmodSync(key, 0o000);
+        try {
+            expect(validateCertificateFiles(certificatePath, key)).toMatch(/Could not read the private key/);
+        } finally {
+            fs.chmodSync(key, 0o600);
+            fs.rmSync(dir, { recursive: true, force: true });
+        }
     });
 
     it("rejects a key that is not PEM", () => {

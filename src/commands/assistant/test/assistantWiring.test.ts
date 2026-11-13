@@ -8,8 +8,10 @@ const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"))
 const extensionSource = fs.readFileSync(path.join(root, "src/extension.ts"), "utf8");
 const commandsSource = fs.readFileSync(path.join(root, "src/commands/extensionCommands/commands.ts"), "utf8");
 
-const commandConstant = (id: string): string | undefined =>
-    commandsSource.match(new RegExp(`export const (\\w+)\\s*:\\s*string\\s*=\\s*"${id.replace(/\./g, "\\.")}"`))?.[1];
+const commandConstant = (id: string): string | undefined => {
+    const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return commandsSource.match(new RegExp(`export const (\\w+)\\s*:\\s*string\\s*=\\s*"${escapedId}"`))?.[1];
+};
 
 const isRegistered = (id: string): boolean => {
     const constant = commandConstant(id);
