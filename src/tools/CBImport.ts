@@ -85,13 +85,16 @@ export class CBImport {
         const cmd: string[] = []; 
         cmd.push(CBTools.getTool(Type.CB_IMPORT).path);
         cmd.push(importData.fileFormat);
-        cmd.push("--no-ssl-verify");
+        // Certificate connections with a CA verify the cluster (--cacert, added below); otherwise skip verification as before
+        if (!(isCertificateAuth(connection) && connection.caPath)) {
+            cmd.push("--no-ssl-verify");
+        }
 
         // Cluster details
         cmd.push("-c");
         cmd.push(connection.url);
         if (isCertificateAuth(connection)) {
-            cmd.push(...getCliCertificateArgs(connection, { certificate: "--client-cert", key: "--client-key" }));
+            cmd.push(...getCliCertificateArgs(connection, { certificate: "--client-cert", key: "--client-key", ca: "--cacert" }));
         } else {
             cmd.push("-u");
             cmd.push(connection.username);

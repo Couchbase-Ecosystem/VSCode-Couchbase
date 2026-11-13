@@ -67,6 +67,19 @@ describe("removeLegacyIqData", () => {
         expect(state.update).not.toHaveBeenCalled();
     });
 
+    it("still clears chat history when deleting the saved password fails, and keeps the username to retry", async () => {
+        const state = fakeGlobalState({
+            [Constants.IQ_USER_ID]: "dev@example.com",
+            "vscode-couchbase.iq.allMessages.org-1": [{ chatId: "a" }],
+        });
+        const secrets = { delete: jest.fn(async () => { throw new Error("keychain locked"); }) };
+
+        await removeLegacyIqData(state as any, secrets as any);
+
+        expect(state.store.has("vscode-couchbase.iq.allMessages.org-1")).toBe(false);
+        expect(state.store.get(Constants.IQ_USER_ID)).toBe("dev@example.com");
+    });
+
     it("never fails extension start-up if storage errors", async () => {
         const state = fakeGlobalState({ [Constants.IQ_USER_ID]: "dev@example.com" });
         const secrets = { delete: jest.fn(async () => { throw new Error("keychain locked"); }) };

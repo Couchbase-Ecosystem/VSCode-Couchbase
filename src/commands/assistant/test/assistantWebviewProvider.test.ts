@@ -1,4 +1,5 @@
 import * as crypto from "crypto";
+import * as path from "path";
 import * as vscode from "vscode";
 import { CouchbaseAssistantWebviewProvider } from "../assistantWebviewProvider";
 import { assistantChat, ensureTermsAccepted } from "../chat/chat";
@@ -50,7 +51,8 @@ describe("Assistant webview", () => {
 
     it("loads the Assistant React bundle from dist/assistant", () => {
         const { view } = setup();
-        expect(view.webview.html).toContain('src="webview:/ext/dist/assistant/reactBuild.js"');
+        // path.join so the expected separator matches the OS the tests run on (\ on Windows)
+        expect(view.webview.html).toContain(`src="webview:${path.join("/ext", "dist", "assistant", "reactBuild.js")}"`);
         expect(view.webview.options).toEqual(expect.objectContaining({ enableScripts: true }));
     });
 

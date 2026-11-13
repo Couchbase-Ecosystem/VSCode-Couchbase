@@ -154,14 +154,11 @@ describe("validateCertificateFiles", () => {
     });
 
     it("reports an unreadable private key instead of failing", () => {
+        // A folder exists but can't be read as a file on every OS (file permissions don't block reads on Windows)
         const dir = fs.mkdtempSync(path.join(os.tmpdir(), "cert-test-"));
-        const key = path.join(dir, "client.key");
-        fs.copyFileSync(keyPath, key);
-        fs.chmodSync(key, 0o000);
         try {
-            expect(validateCertificateFiles(certificatePath, key)).toMatch(/Could not read the private key/);
+            expect(validateCertificateFiles(certificatePath, dir)).toMatch(/Could not read the private key/);
         } finally {
-            fs.chmodSync(key, 0o600);
             fs.rmSync(dir, { recursive: true, force: true });
         }
     });

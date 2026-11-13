@@ -72,6 +72,22 @@ const importData: ICBImportData = {
 };
 
 describe("Data Import (cbimport)", () => {
+    it("verifies the cluster with the connection's CA instead of skipping verification", async () => {
+        useConnection(certificateConnection);
+        await run(CBImport.import(importData, context));
+
+        expect(mockSentText[0]).toContain('--cacert "/Users/me/certs/ca.pem"');
+        expect(mockSentText[0]).not.toContain("--no-ssl-verify");
+    });
+
+    it("skips verification only when the certificate connection has no CA", async () => {
+        useConnection({ ...certificateConnection, caPath: undefined });
+        await run(CBImport.import(importData, context));
+
+        expect(mockSentText[0]).toContain("--no-ssl-verify");
+        expect(mockSentText[0]).not.toContain("--cacert");
+    });
+
     it("logs in with the client certificate and never sets a password", async () => {
         useConnection(certificateConnection);
         await run(CBImport.import(importData, context));
@@ -86,6 +102,7 @@ describe("Data Import (cbimport)", () => {
         await run(CBImport.import(importData, context));
 
         expect(mockSentText[0]).toContain("-u Administrator");
+        expect(mockSentText[0]).toContain("--no-ssl-verify");
         expect(mockSentText[0]).not.toContain("--client-cert");
         expect(mockEnv.replace).toHaveBeenCalledWith("CB_PASSWORD", "s3cret");
     });
@@ -94,6 +111,22 @@ describe("Data Import (cbimport)", () => {
 describe("Data Export (cbexport)", () => {
     const exportAll = () => CBExport.export("test", ["All Scopes"], [], "/out", "key", "scope", "collection", "lines", "2", false, context);
 
+    it("verifies the cluster with the connection's CA instead of skipping verification", async () => {
+        useConnection(certificateConnection);
+        await run(exportAll());
+
+        expect(mockSentText[0]).toContain('--cacert "/Users/me/certs/ca.pem"');
+        expect(mockSentText[0]).not.toContain("--no-ssl-verify");
+    });
+
+    it("skips verification only when the certificate connection has no CA", async () => {
+        useConnection({ ...certificateConnection, caPath: undefined });
+        await run(exportAll());
+
+        expect(mockSentText[0]).toContain("--no-ssl-verify");
+        expect(mockSentText[0]).not.toContain("--cacert");
+    });
+
     it("logs in with the client certificate and never sets a password", async () => {
         useConnection(certificateConnection);
         await run(exportAll());
@@ -108,6 +141,7 @@ describe("Data Export (cbexport)", () => {
         await run(exportAll());
 
         expect(mockSentText[0]).toContain("-u Administrator");
+        expect(mockSentText[0]).toContain("--no-ssl-verify");
         expect(mockEnv.replace).toHaveBeenCalledWith("CB_PASSWORD", "s3cret");
     });
 });

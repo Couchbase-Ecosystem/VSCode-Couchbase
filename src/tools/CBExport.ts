@@ -68,11 +68,14 @@ export class CBExport {
             const cmd: string[] = [];
             cmd.push(CBTools.getTool(Type.CB_EXPORT).path);
             cmd.push("json");
-            cmd.push("--no-ssl-verify");
+            // Certificate connections with a CA verify the cluster (--cacert, added below); otherwise skip verification as before
+            if (!(useCertificate && connection.caPath)) {
+                cmd.push("--no-ssl-verify");
+            }
             cmd.push("-c");
             cmd.push(connection.url);
             if (useCertificate) {
-                cmd.push(...getCliCertificateArgs(connection, { certificate: "--client-cert", key: "--client-key" }));
+                cmd.push(...getCliCertificateArgs(connection, { certificate: "--client-cert", key: "--client-key", ca: "--cacert" }));
             } else {
                 cmd.push("-u");
                 cmd.push(connection.username);

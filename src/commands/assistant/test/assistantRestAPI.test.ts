@@ -11,21 +11,24 @@ describe("AssistantRestAPI", () => {
     beforeEach(() => jest.clearAllMocks());
 
     it("asks the Assistant server and maps the reply", async () => {
-        mockedPost.mockResolvedValue({ data: { content: "answer", thread_id: "t1", run_id: "r1" } });
+        mockedPost.mockResolvedValue({ status: 200, data: { content: "answer", thread_id: "t1", run_id: "r1" } });
 
         const result = await AssistantRestAPI.askAssistant('{"data":{}}');
 
         expect(mockedPost.mock.calls[0][0]).toBe(`${ASSISTANT_SERVER}/chat_postman`);
         expect(mockedPost.mock.calls[0][1]).toBe('{"data":{}}');
-        expect(result).toEqual(expect.objectContaining({ content: "answer", threadId: "t1", runId: "r1", tool_args: null }));
+        expect(result).toEqual(expect.objectContaining({ content: "answer", threadId: "t1", runId: "r1", tool_args: null, status: "200" }));
+        expect(result.error).toBeUndefined();
     });
 
     it("passes tool requests through so the extension can answer them", async () => {
-        mockedPost.mockResolvedValue({ data: { content: "", tool_args: { collection: "hotel" } } });
+        mockedPost.mockResolvedValue({ status: 200, data: { content: "", tool_args: { collection: "hotel" } } });
 
         const result = await AssistantRestAPI.askAssistant("{}");
 
         expect(result.tool_args).toEqual({ collection: "hotel" });
+        expect(result.status).toBe("200");
+        expect(result.error).toBeUndefined();
     });
 
     it("returns an error instead of throwing when the server fails", async () => {
