@@ -4,11 +4,13 @@ import { SecretService } from '../util/secretService';
 import { Constants } from '../util/constants';
 import { getConnectionId } from '../util/connections';
 import { CBTools, Type } from '../util/DependencyDownloaderUtils/CBTool';
+import { isCertificateAuth } from "../util/connectionAuth";
 
 
 export class CBShell {
     private static instance: CBShell | undefined;
     private terminal: vscode.Terminal | undefined;
+    private certificateNoticeShown = false;
     private context: vscode.ExtensionContext | undefined;
 
     private constructor(context?: vscode.ExtensionContext) {
@@ -20,6 +22,16 @@ export class CBShell {
             }
             if(context){
                 this.context = context;
+            }
+            if (isCertificateAuth(connection)) {
+                // Don't leave the previous password connection's password in new terminals
+                this.context?.environmentVariableCollection.replace('CB_PASSWORD', '');
+                // Couchbase Shell has no way to log in with a client certificate
+                if (!this.certificateNoticeShown) {
+                    this.certificateNoticeShown = true;
+                    vscode.window.showInformationMessage("Couchbase Shell is not available yet for connections that use certificate login.");
+                }
+                return undefined;
             }
             const secretService = SecretService.getInstance();
             const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);

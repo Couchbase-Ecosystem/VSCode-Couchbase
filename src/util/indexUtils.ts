@@ -37,12 +37,13 @@ export function getIndexDefinition(queryIndex: QueryIndex): string {
         queryDefinition += `(${indexKeys})`;
     }
 
-    if (queryIndex.condition) {
-        queryDefinition += ` WHERE ${queryIndex.condition}`;
-    }
-
+    // SQL++ expects PARTITION BY before WHERE
     if (queryIndex.partition) {
         queryDefinition += ` PARTITION BY ${queryIndex.partition}`;
+    }
+
+    if (queryIndex.condition) {
+        queryDefinition += ` WHERE ${queryIndex.condition}`;
     }
 
     return queryDefinition;

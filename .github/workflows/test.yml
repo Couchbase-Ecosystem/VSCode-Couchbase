@@ -35,6 +35,9 @@ jobs:
           echo "PATH=${WORKING_DIRECTORY}/cmake-3.27.9-linux-x86_64/bin:$PATH" >> $GITHUB_ENV
       - name: Install Dependencies
         run: npm install
+      # Before the rebuild: it recompiles the couchbase binding for Electron, which plain Node (Jest) cannot load
+      - name: Run Unit Tests
+        run: npm run test:unit
       - name: Run Rebuild
         run: npm run rebuild
       - name: Run Tests

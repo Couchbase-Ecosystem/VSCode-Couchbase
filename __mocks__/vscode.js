@@ -18,10 +18,36 @@ const vscode = {
             };
         }),
     },
+    window: {
+        createOutputChannel: jest.fn().mockImplementation(() => ({
+            appendLine: jest.fn(),
+            append: jest.fn(),
+            show: jest.fn(),
+            dispose: jest.fn(),
+        })),
+        showErrorMessage: jest.fn(),
+        showInformationMessage: jest.fn(),
+        showWarningMessage: jest.fn(),
+    },
     Uri: {
         parse: jest.fn().mockImplementation((str) => ({
             toString: () => str,
         })),
+        file: jest.fn().mockImplementation((fsPath) => ({
+            fsPath: fsPath,
+            toString: () => fsPath,
+        })),
+    },
+    TreeItemCollapsibleState: {
+        None: 0,
+        Collapsed: 1,
+        Expanded: 2,
+    },
+    TreeItem: class TreeItem {
+        constructor(label, collapsibleState) {
+            this.label = label;
+            this.collapsibleState = collapsibleState;
+        }
     },
     workspace: {
         openTextDocument: jest.fn().mockImplementation((uri) => ({
@@ -36,6 +62,7 @@ const vscode = {
         })),
         fs: {
             writeFile: jest.fn(),
+            createDirectory: jest.fn(),
         },
     },
     Range: jest.fn().mockImplementation((start, end) => ({

@@ -5,7 +5,9 @@ module.exports = {
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
     },
-    testMatch: ['**/src/util/**/*.test.(ts|tsx)','**/src/commands/fts/SearchWorkbench/test/*.test.ts'],
+    testMatch: ['**/src/**/*.test.(ts|tsx)'],
+    // src/test holds the mocha suites that run inside VS Code (npm test)
+    testPathIgnorePatterns: ['/node_modules/', '/src/test/', '/out/', '/dist/'],
     transform: {
         '^.+\\.(ts|tsx)$': 'ts-jest',
     },

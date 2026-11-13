@@ -5,6 +5,7 @@ import { getCurrentDateTime } from "../util/util";
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { SecretService } from "../util/secretService";
+import { getCliCertificateArgs, isCertificateAuth } from "../util/connectionAuth";
 
 export class CBExport {
     static async export(
@@ -52,10 +53,14 @@ export class CBExport {
         const includeData = scp.join(",");
         const fullPath = `\"${currentPath}\"`;
 
-        const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
-        if (!password) {
-            return undefined;
+        const useCertificate = isCertificateAuth(connection);
+        let password: string | undefined;
+        if (!useCertificate) {
+            const secretService = SecretService.getInstance();
+            password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
+            if (!password) {
+                return undefined;
+            }
         }
 
         try {
@@ -63,11 +68,18 @@ export class CBExport {
             const cmd: string[] = [];
             cmd.push(CBTools.getTool(Type.CB_EXPORT).path);
             cmd.push("json");
-            cmd.push("--no-ssl-verify");
+            // Certificate connections with a CA verify the cluster (--cacert, added below); otherwise skip verification as before
+            if (!(useCertificate && connection.caPath)) {
+                cmd.push("--no-ssl-verify");
+            }
             cmd.push("-c");
             cmd.push(connection.url);
-            cmd.push("-u");
-            cmd.push(connection.username);
+            if (useCertificate) {
+                cmd.push(...getCliCertificateArgs(connection, { certificate: "--client-cert", key: "--client-key", ca: "--cacert" }));
+            } else {
+                cmd.push("-u");
+                cmd.push(connection.username);
+            }
             // cmd.push("-p");
             // cmd.push('"' + password + '"'); 
             cmd.push("-b");
@@ -100,9 +112,15 @@ export class CBExport {
 
             // Run Command
             const terminal: vscode.Terminal = vscode.window.createTerminal("CBExport");
-            // sending password to vscode environment variables. Note: Password is still accessible via terminal, till its removed
-            context.environmentVariableCollection.replace('CB_PASSWORD', password);
             let text = cmd.join(" ");
+            if (useCertificate) {
+                // The client certificate is passed on the command line, there is no password to hand over
+                terminal.sendText(text);
+                terminal.show();
+                return;
+            }
+            // sending password to vscode environment variables. Note: Password is still accessible via terminal, till its removed
+            context.environmentVariableCollection.replace('CB_PASSWORD', password!);
             terminal.sendText(text);
             terminal.show();
             // removing password from vscode environment variables after 5 seconds

@@ -5,6 +5,7 @@ import { logger } from "../logger/logger";
 import { IConnection } from "../types/IConnection";
 import { CBTools, Type } from "../util/DependencyDownloaderUtils/CBTool";
 import { SecretService } from "../util/secretService";
+import { getCliCertificateArgs, isCertificateAuth } from "../util/connectionAuth";
 
 export interface ICBImportData {
     bucket: string;
@@ -44,6 +45,15 @@ export class CBImport {
 
         // CMD Runner
         try {
+            if (isCertificateAuth(connection)) {
+                // The client certificate is passed on the command line, there is no password to hand over
+                const terminal = vscode.window.createTerminal("CBImport");
+                const text = cmd.join(" ");
+                logger.info("CB Import Command to run: " + text);
+                terminal.sendText(text);
+                terminal.show();
+                return;
+            }
             const secretService = SecretService.getInstance();
             const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
             if (!password) {
@@ -75,13 +85,20 @@ export class CBImport {
         const cmd: string[] = []; 
         cmd.push(CBTools.getTool(Type.CB_IMPORT).path);
         cmd.push(importData.fileFormat);
-        cmd.push("--no-ssl-verify");
+        // Certificate connections with a CA verify the cluster (--cacert, added below); otherwise skip verification as before
+        if (!(isCertificateAuth(connection) && connection.caPath)) {
+            cmd.push("--no-ssl-verify");
+        }
 
         // Cluster details
         cmd.push("-c");
         cmd.push(connection.url);
-        cmd.push("-u");
-        cmd.push(connection.username);
+        if (isCertificateAuth(connection)) {
+            cmd.push(...getCliCertificateArgs(connection, { certificate: "--client-cert", key: "--client-key", ca: "--cacert" }));
+        } else {
+            cmd.push("-u");
+            cmd.push(connection.username);
+        }
         cmd.push("-b");
         cmd.push(importData.bucket);
 

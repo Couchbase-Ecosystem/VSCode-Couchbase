@@ -43,14 +43,11 @@ Click on Scope to list Collections and Indexes. Open context menu on Collection 
 
 ![Interact with Documents](https://raw.githubusercontent.com/Couchbase-Ecosystem/VSCode-Couchbase/refs/heads/main/gifs/InteractWithDocuments.gif)
 
-### Capella iQ
-1. Use iQ natively in your extension. Sign in with your capella credentials and choose the iQ enabled org
-2. A Chatbot which knows about couchbase and can help you with your SDK Code, Query, and more couchbase related stuff.
-3. It knows context of your connected database. And give you more specfic results for your questions
-4. Select a code related to couchbase query or SDK to ask more about it.
-5. Use actions to open stuff in VSCode. Send feedback to the team for improvements.
-
-![Use Capella iQ](https://raw.githubusercontent.com/Couchbase-Ecosystem/VSCode-Couchbase/refs/heads/main/gifs/iQDemo.gif)
+### Couchbase Assistant
+1. Open the Couchbase Assistant panel in the Couchbase sidebar. No sign-in is needed; accept the terms on first use.
+2. Ask about Couchbase, SDK code or SQL++ queries.
+3. When connected to a cluster, it uses the names and schema of your collections to give more specific answers.
+4. Send suggested queries to the workbench, and rate answers to help improve it.
 
 ### Open SQL++ Notebook
 1. Simply right-click on the Cluster and select the "New SQL++ Notebook" option from the context menu.
