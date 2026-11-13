@@ -23,10 +23,12 @@ jest.mock("../util/DependencyDownloaderUtils/CBTool", () => ({ CBTools: { getToo
 const certificateConnection = { url: "couchbases://localhost", username: "vscode-cert-user", connectionIdentifier: "c", isSecure: true, authType: "certificate" } as IConnection;
 const passwordConnection = { url: "couchbase://localhost", username: "Administrator", connectionIdentifier: "p", isSecure: false } as IConnection;
 
+const mockEnvironment = { replace: jest.fn() };
+
 describe("Couchbase Shell", () => {
     beforeAll(() => {
         const { CBShell } = require("./CBShell");
-        CBShell.getInstance({ environmentVariableCollection: { replace: jest.fn() } });
+        CBShell.getInstance({ environmentVariableCollection: mockEnvironment });
     });
     beforeEach(() => jest.clearAllMocks());
 
@@ -37,6 +39,14 @@ describe("Couchbase Shell", () => {
         expect(vscode.window.showInformationMessage).toHaveBeenCalledTimes(1);
         expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(expect.stringContaining("certificate login"));
         expect(vscode.window.createTerminal).not.toHaveBeenCalled();
+    });
+
+    it("clears the previous connection's password from terminals when switching to certificate login", async () => {
+        await mockListeners.changed!(passwordConnection);
+        expect(mockEnvironment.replace).toHaveBeenLastCalledWith("CB_PASSWORD", "s3cret");
+
+        await mockListeners.changed!(certificateConnection);
+        expect(mockEnvironment.replace).toHaveBeenLastCalledWith("CB_PASSWORD", "");
     });
 
     it("still opens for password connections", async () => {

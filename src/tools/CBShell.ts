@@ -24,6 +24,8 @@ export class CBShell {
                 this.context = context;
             }
             if (isCertificateAuth(connection)) {
+                // Don't leave the previous password connection's password in new terminals
+                this.context?.environmentVariableCollection.replace('CB_PASSWORD', '');
                 // Couchbase Shell has no way to log in with a client certificate
                 if (!this.certificateNoticeShown) {
                     this.certificateNoticeShown = true;
