@@ -16,7 +16,7 @@
 
 import * as vscode from "vscode";
 import * as path from "path";
-import { getIQWebviewContent } from "../../webViews/iq/couchbaseIq.webview";
+import { getAssistantWebviewContent } from "../../webViews/assistant.webview";
 import { assistantChat, ensureTermsAccepted } from "./chat/chat";
 
 import { Memory, getUUID } from "../../util/util";
@@ -59,7 +59,7 @@ export class CouchbaseAssistantWebviewProvider implements vscode.WebviewViewProv
         );
 
         const reactAppUri = this._view.webview.asWebviewUri(reactAppPathOnDisk);
-        this._view.webview.html = getIQWebviewContent(
+        this._view.webview.html = getAssistantWebviewContent(
             reactAppUri,
             this._context
         );

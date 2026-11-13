@@ -26,7 +26,6 @@
     "Capella",
     "JSON",
     "AI",
-    "iQ",
     "SQL++"
   ],
   "preview": false,
@@ -52,6 +51,7 @@
     "dev_watch:views": "NODE_ENV=development webpack --watch --mode development",
     "test": "node ./out/test/runTest.js",
     "test:file": "node ./out/test/runTest.js",
+    "test:unit": "jest",
     "format": "prettier 'src/**/*.ts' --write",
     "lint": "eslint src --ext ts --fix",
     "pretest": "npm run compile:extension"
@@ -768,22 +768,10 @@
         "category": "Couchbase"
       },
       {
-        "command": "vscode-couchbase.iq.logout",
-        "title": "Logout capella iQ",
-        "category": "Couchbase",
-        "icon": "$(sign-out)"
-      },
-      {
         "command": "vscode-couchbase.iq.newChat",
         "title": "Start a new chat",
         "category": "Couchbase",
         "icon": "$(plus)"
-      },
-      {
-        "command": "vscode-couchbase.iq.showSettings",
-        "title": "Show iQ settings",
-        "category": "Couchbase",
-        "icon": "$(gear)"
       },
       {
         "command": "vscode-couchbase.assistant.showSettings",
@@ -796,11 +784,6 @@
         "title": "Show Workbench settings",
         "category": "Couchbase",
         "icon": "$(gear)"
-      },
-      {
-        "command": "vscode-couchbase.settings.showChatInterface",
-        "title": "Change Chat Interface (Assistant/iQ)",
-        "category": "Couchbase"
       },
       {
         "command": "vscode-couchbase.mcp.startServer",
@@ -1124,14 +1107,6 @@
           "when": "false"
         },
         {
-          "command": "vscode-couchbase.iq.logout",
-          "when": "false"
-        },
-        {
-          "command": "vscode-couchbase.iq.showSettings",
-          "when": "false"
-        },
-        {
           "command": "vscode-couchbase.assistant.showSettings",
           "when": "false"
         },
@@ -1316,21 +1291,6 @@
         },
         {
           "command": "vscode-couchbase.iq.newChat",
-          "when": "view == couchbase-iq && isIqNewChatButtonBVisible && couchbase.showIQView",
-          "group": "navigation@1"
-        },
-        {
-          "command": "vscode-couchbase.iq.logout",
-          "when": "view == couchbase-iq && isIqLogoutButtonBVisible && couchbase.showIQView",
-          "group": "navigation@3"
-        },
-        {
-          "command": "vscode-couchbase.iq.showSettings",
-          "when": "view == couchbase-iq && couchbase.showIQView",
-          "group": "navigation@2"
-        },
-        {
-          "command": "vscode-couchbase.iq.newChat",
           "when": "view == couchbase-assistant && isIqNewChatButtonBVisible && couchbase.showAssistantView",
           "group": "navigation@1"
         },
@@ -1401,12 +1361,6 @@
           "name": "Couchbase"
         },
         {
-          "id": "couchbase-iq",
-          "name": "Capella iQ (Beta)",
-          "type": "webview",
-          "when": "couchbase.showIQView"
-        },
-        {
           "id": "couchbase-assistant",
           "name": "Couchbase Assistant",
           "type": "webview",
@@ -1432,45 +1386,6 @@
       }
     ],
     "configuration": [
-      {
-        "id": "couchbase-chat",
-        "title": "Couchbase Chat",
-        "order": 1,
-        "properties": {
-          "couchbase.ChatInterface": {
-            "type": "string",
-            "enum": ["cb-assistant", "iQ"],
-            "enumDescriptions": [
-              "Use the Couchbase Assistant interface (default)",
-              "Use the Capella iQ interface"
-            ],
-            "default": "cb-assistant",
-            "markdownDescription": "Choose which interface to use. 'cb-assistant' for the Couchbase Assistant (default) or 'iQ' for the Capella iQ interface.",
-            "scope": "application"
-          }
-        }
-      },
-      {
-        "id": "couchbase-iq",
-        "title": "iQ",
-        "properties": {
-          "couchbase.iQ.savedOrganization": {
-            "type": "string",
-            "default": "",
-            "markdownDescription": "This field represents the 'Saved Organization' currently in use for all iQ tasks. It was stored when you selected 'Remember Me'. If you didn't choose to save it, this field may be empty. You can modify the 'Saved Organization' here. Please note, any changes will take effect only after your next login."
-          },
-          "couchbase.iQ.enableCodeSelectionResult": {
-            "type": "boolean",
-            "default": true,
-            "markdownDescription": "Do you wish that selected code on active editor be sent to iQ to understand context better? (This may result in increased prompt size)"
-          },
-          "couchbase.iQ.sendMessagesToCouchbase": {
-            "type": "boolean",
-            "default": true,
-            "markdownDescription": "Would you like to anonymously submit the queries made to iQ, along with their results, to Couchbase in order to improve iQ's performance?"
-          }
-        }
-      },
       {
         "id": "couchbase-workbench",
         "title": "Workbench",

@@ -69,11 +69,10 @@ import { dataExport } from "./pages/Tools/DataExport/dataExport";
 import { mdbMigrate } from "./pages/Tools/MdbMigrate/mdbMigrate";
 import { DataImport } from "./commands/tools/dataImport";
 import { ddlExport } from "./commands/tools/ddlExport/ddlExport";
-import { CouchbaseIqWebviewProvider } from "./commands/iq/couchbaseIqWebviewProvider";
-import { iqLogoutHandler } from "./commands/iq/iqLogoutHandler";
 import { CacheService } from "./util/cacheService/cacheService";
 import { secretUpdater } from "./util/secretUpdater";
-import { newChatHandler } from "./commands/iq/chat/newChatHandler";
+import { newChatHandler } from "./commands/assistant/newChatHandler";
+import { removeLegacyIqData } from "./util/removeLegacyIqData";
 import { SecretService } from "./util/secretService";
 import { kvTypeFilterDocuments } from "./commands/documents/documentFilters/kvTypeFilterDocuments";
 import { fetchNamedParameters } from "./pages/namedParameters/namedParameters";
@@ -97,6 +96,17 @@ import { MCPController } from "./mcp/mcpController";
 import { getActiveConnection } from "./util/connections";
 import { extractDocumentInfo } from "./util/common";
 import { getFavoriteCollections, setCollectionFavorite } from "./util/collectionListing";
+import { isCertificateAuth } from "./util/connectionAuth";
+
+// The Hugging Face migrator only takes a username and password so far
+const isUnavailableWithCertificate = (feature: string): boolean => {
+  const connection = getActiveConnection();
+  if (connection && isCertificateAuth(connection)) {
+    vscode.window.showInformationMessage(`${feature} is not available yet for connections that use certificate login.`);
+    return true;
+  }
+  return false;
+};
 
 export function activate(context: vscode.ExtensionContext) {
   Global.setState(context.globalState);
@@ -265,53 +275,24 @@ context.subscriptions.push(disposable);
 
   CBShell.getInstance(context);
   
-  const couchbaseIqWebviewProvider = new CouchbaseIqWebviewProvider(context, cacheService);
   const couchbaseAssistantWebviewProvider = new CouchbaseAssistantWebviewProvider(context, cacheService);
 
-  
-  const config = vscode.workspace.getConfiguration('couchbase');
-  const interfaceMode = config.get<string>('ChatInterface', 'cb-assistant');  // Set default to 'cb-assistant'
-  
-  if (interfaceMode === 'iQ') {
-    subscriptions.push(
-      vscode.window.registerWebviewViewProvider(
-        Commands.couchbaseIqViewsCommand,
-        couchbaseIqWebviewProvider,
-        {
-          webviewOptions: {
-            retainContextWhenHidden: true,
-          },
-        }
-      )
-    );
-    
-    vscode.commands.executeCommand('setContext', 'couchbase.showIQView', true);
-    vscode.commands.executeCommand('setContext', 'couchbase.showAssistantView', false);
-  } else {
-    subscriptions.push(
-      vscode.window.registerWebviewViewProvider(
-        Commands.couchbaseAssistantViewsCommand,
-        couchbaseAssistantWebviewProvider,
-        {
-          webviewOptions: {
-            retainContextWhenHidden: true,
-          },
-        }
-      )
-    );
-    
-    vscode.commands.executeCommand('setContext', 'couchbase.showIQView', false);
-    vscode.commands.executeCommand('setContext', 'couchbase.showAssistantView', true);
-  }
-
   subscriptions.push(
-    vscode.commands.registerCommand(
-      Commands.logoutIq,
-      () => {
-        iqLogoutHandler();
+    vscode.window.registerWebviewViewProvider(
+      Commands.couchbaseAssistantViewsCommand,
+      couchbaseAssistantWebviewProvider,
+      {
+        webviewOptions: {
+          retainContextWhenHidden: true,
+        },
       }
     )
   );
+
+  vscode.commands.executeCommand('setContext', 'couchbase.showAssistantView', true);
+
+  // Capella iQ was removed; clear the login and chat history it saved
+  removeLegacyIqData(context.globalState, context.secrets);
 
   subscriptions.push(
     vscode.commands.registerCommand(
@@ -324,18 +305,9 @@ context.subscriptions.push(disposable);
 
   subscriptions.push(
     vscode.commands.registerCommand(
-      Commands.showIqSettings,
-      () => {
-        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase");
-      }
-    )
-  );
-
-  subscriptions.push(
-    vscode.commands.registerCommand(
       Commands.showAssistantSettings,
       () => {
-        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.ChatInterface");
+        vscode.commands.executeCommand('workbench.action.openSettings', "@ext:couchbase.vscode-couchbase");
       }
     )
   );
@@ -345,15 +317,6 @@ context.subscriptions.push(disposable);
       Commands.showWorkbenchSettings,
       () => {
         vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.workbench");
-      }
-    )
-  );
-
-  subscriptions.push(
-    vscode.commands.registerCommand(
-      Commands.showChatInterfaceSettings,
-      () => {
-        vscode.commands.executeCommand('workbench.action.openSettings', "couchbase.ChatInterface");
       }
     )
   );
@@ -855,6 +818,9 @@ context.subscriptions.push(disposable);
     vscode.commands.registerCommand(
       Commands.huggingFaceMigrate,
       async () => {
+        if (isUnavailableWithCertificate("Hugging Face migration")) {
+          return;
+        }
         await huggingFaceMigrate();
       }
     )
@@ -1140,21 +1106,6 @@ context.subscriptions.push(disposable);
   subscriptions.push(
     vscode.commands.registerCommand(Commands.openMcpLogsFolder, async () => {
       await mcpController.openLogsFolder();
-    })
-  );
-  
-  subscriptions.push(
-    vscode.workspace.onDidChangeConfiguration(async (event) => {
-      if (event.affectsConfiguration('couchbase.ChatInterface')) {
-        const reload = await vscode.window.showInformationMessage(
-          `You've changed the Chat interface mode. You need to reload VS Code to apply this change.`,
-          'Reload Now'
-        );
-        
-        if (reload === 'Reload Now') {
-          await vscode.commands.executeCommand('workbench.action.reloadWindow');
-        }
-      }
     })
   );
 

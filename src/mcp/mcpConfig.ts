@@ -164,18 +164,26 @@ export function resolveLogDirectory(
  * expressed, shared by the server definition handed to VS Code and by the
  * example config document, so the two can never drift apart.
  *
- * OAuth and mTLS variables are intentionally not emitted: the extension only
- * ever runs the server over stdio as a child process using the credentials of
- * the active connection.
+ * OAuth variables are intentionally not emitted: the extension only ever runs
+ * the server over stdio as a child process using the credentials of the active
+ * connection. Certificate connections pass their client certificate (mTLS)
+ * instead of a username and password.
  */
+export type MCPClientCertificate = {
+  certificatePath: string;
+  keyPath: string;
+  caPath?: string;
+};
+
 export function buildMCPEnvironment(params: {
   connectionString: string;
   username: string;
   password: string;
+  certificate?: MCPClientCertificate;
   config: Partial<CouchbaseMCPConfig>;
   defaultLogFilePath: string;
 }): Record<string, string> {
-  const { connectionString, username, password, config, defaultLogFilePath } = params;
+  const { connectionString, username, password, certificate, config, defaultLogFilePath } = params;
 
   const readOnlyMode = config.readOnlyMode ?? true;
   // In read-only mode the server never loads write tools, so disabling them
@@ -185,12 +193,20 @@ export function buildMCPEnvironment(params: {
   );
   const confirmationRequiredTools = config.confirmationRequiredTools ?? [];
 
-  const env: Record<string, string> = {
-    CB_CONNECTION_STRING: connectionString,
-    CB_USERNAME: username,
-    CB_PASSWORD: password,
-    CB_MCP_READ_ONLY_MODE: String(readOnlyMode),
-  };
+  const env: Record<string, string> = certificate
+    ? {
+        CB_CONNECTION_STRING: connectionString,
+        CB_CLIENT_CERT_PATH: certificate.certificatePath,
+        CB_CLIENT_KEY_PATH: certificate.keyPath,
+        ...(certificate.caPath ? { CB_CA_CERT_PATH: certificate.caPath } : {}),
+        CB_MCP_READ_ONLY_MODE: String(readOnlyMode),
+      }
+    : {
+        CB_CONNECTION_STRING: connectionString,
+        CB_USERNAME: username,
+        CB_PASSWORD: password,
+        CB_MCP_READ_ONLY_MODE: String(readOnlyMode),
+      };
 
   if (disabledTools.length > 0) {
     env.CB_MCP_DISABLED_TOOLS = disabledTools.join(',');

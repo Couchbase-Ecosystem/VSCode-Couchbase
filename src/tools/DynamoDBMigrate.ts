@@ -3,6 +3,7 @@ import { getActiveConnection, getConnectionId } from "../util/connections";
 import { Constants } from "../util/constants";
 import * as vscode from "vscode";
 import { SecretService } from "../util/secretService";
+import { getCliCertificateArgs, isCertificateAuth } from "../util/connectionAuth";
 
 export class DynamoDBToCb {
     static async export(
@@ -23,10 +24,14 @@ export class DynamoDBToCb {
             return;
         }
 
-        const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
-        if (!password) {
-            return undefined;
+        const useCertificate = isCertificateAuth(connection);
+        let password: string | undefined;
+        if (!useCertificate) {
+            const secretService = SecretService.getInstance();
+            password = await secretService.get(`${Constants.extensionID}-${getConnectionId(connection)}`);
+            if (!password) {
+                return undefined;
+            }
         }
         try {
             // Build Command
@@ -57,15 +62,26 @@ export class DynamoDBToCb {
 
                 cmd.push("--cb-cluster")
                 cmd.push(connection.url)
-                cmd.push("--cb-username");
-                cmd.push(connection.username);
+                if (useCertificate) {
+                    // cbmigrate ignores the CA when --cb-no-ssl-verify is also given, so only pass one of them
+                    cmd.push(...getCliCertificateArgs(connection, {
+                        certificate: "--cb-client-cert",
+                        key: "--cb-client-key",
+                        ca: noSslVerify ? undefined : "--cb-cacert",
+                    }));
+                } else {
+                    cmd.push("--cb-username");
+                    cmd.push(connection.username);
+                }
 
                 if (indexes) {
                     cmd.push("--copy-indexes")
                 }
 
-                cmd.push("--cb-password");
-                cmd.push("'" + password + "'");
+                if (!useCertificate) {
+                    cmd.push("--cb-password");
+                    cmd.push("'" + password + "'");
+                }
 
 
                 if (debug) {

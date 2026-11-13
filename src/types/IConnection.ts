@@ -15,12 +15,22 @@
  */
 import { Cluster } from "couchbase";
 
+export type ConnectionAuthType = "password" | "certificate";
+
 export interface IConnection {
   readonly url: string;
+  // For certificate connections: the user the certificate maps to (its CN), for display and the connection id
   readonly username: string;
   readonly password?: string;
   readonly connectionIdentifier: string;
   readonly isSecure: boolean;
+  // Missing on connections saved before certificate login existed, which all use a password
+  readonly authType?: ConnectionAuthType;
+  // PEM files, used when authType is "certificate"
+  readonly certificatePath?: string;
+  readonly keyPath?: string;
+  // Optional CA to trust the cluster's TLS certificate (PEM)
+  readonly caPath?: string;
   services?: string[];
   cluster?: Cluster;
 }

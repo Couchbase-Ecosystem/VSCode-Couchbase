@@ -20,7 +20,7 @@ import { IConnection } from "../types/IConnection";
 import { INode } from "../types/INode";
 import { BucketNode } from "./BucketNode";
 import { BucketSettings } from "couchbase";
-import { getActiveConnection } from "../util/connections";
+import { getActiveConnection, getConnectionId } from "../util/connections";
 import InformationNode from "./InformationNode";
 import { logger } from "../logger/logger";
 import { CacheService } from "../../src/util/cacheService/cacheService";
@@ -43,7 +43,7 @@ export class ClusterConnectionNode implements INode {
 
   public getTreeItem(): vscode.TreeItem {
     const activeConnection = getActiveConnection();
-    this.isActive = `${this.connection.username}@${this.connection.url}` === `${activeConnection?.username}@${activeConnection?.url}`;
+    this.isActive = activeConnection !== undefined && getConnectionId(this.connection) === getConnectionId(activeConnection);
 
     const iconPath = this.isActive
       ? vscode.Uri.file(path.join(__filename, "..", "..", "images", "cb-logo-icon.svg"))

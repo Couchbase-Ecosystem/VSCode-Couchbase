@@ -23,11 +23,13 @@ import {
   getMCPConfigFromVSCodeSettings,
   isFileLoggingEnabled,
   MCP_SERVER_PACKAGE_SPEC,
+  MCPClientCertificate,
   resolveLogDirectory,
 } from './mcpConfig';
 import { MCPLogIds } from './mcpLogIds';
 import { SecretService } from '../util/secretService';
 import { Constants } from '../util/constants';
+import { isCertificateAuth } from '../util/connectionAuth';
 
 export type MCPServerStartupConfig = 'prompt' | 'autoStartEnabled' | 'autoStartDisabled';
 
@@ -35,6 +37,7 @@ type MCPServerInfo = {
   connectionString: string;
   username: string;
   password: string;
+  certificate?: MCPClientCertificate;
 };
 
 type MCPControllerConfig = {
@@ -183,7 +186,17 @@ export class MCPController {
     }
   }
 
+  private getConnectionCertificate(connection: IConnection): MCPClientCertificate | undefined {
+    if (!isCertificateAuth(connection)) {
+      return undefined;
+    }
+    return { certificatePath: connection.certificatePath!, keyPath: connection.keyPath!, caPath: connection.caPath };
+  }
+
   private async getConnectionPassword(connection: IConnection): Promise<string> {
+    if (isCertificateAuth(connection)) {
+      return '';
+    }
     const secretService = SecretService.getInstance(this.context);
     const connectionId = `${connection.username}@${connection.url}`;
     const password = await secretService.get(`${Constants.extensionID}-${connectionId}`);
@@ -209,6 +222,7 @@ export class MCPController {
         connectionString: activeConnection.url,
         username: activeConnection.username,
         password,
+        certificate: this.getConnectionCertificate(activeConnection),
       };
 
       const connectionParams = MCPConnectionManager.fromConnection(activeConnection);
@@ -278,6 +292,7 @@ export class MCPController {
         connectionString: this.serverInfo!.connectionString,
         username: this.serverInfo!.username,
         password: '<your-password>',
+        certificate: this.serverInfo!.certificate,
         config: getMCPConfigFromVSCodeSettings(),
         defaultLogFilePath: this.getDefaultLogFilePath(),
       });
@@ -341,6 +356,7 @@ export class MCPController {
         connectionString: this.serverInfo.connectionString,
         username: this.serverInfo.username,
         password: this.serverInfo.password,
+        certificate: this.serverInfo.certificate,
         config: getMCPConfigFromVSCodeSettings(),
         defaultLogFilePath: this.getDefaultLogFilePath(),
       })
@@ -445,6 +461,7 @@ export class MCPController {
           connectionString: activeConnection.url,
           username: activeConnection.username,
           password,
+          certificate: this.getConnectionCertificate(activeConnection),
         };
 
         this.didChangeEmitter.fire();

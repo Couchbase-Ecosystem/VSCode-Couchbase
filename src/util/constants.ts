@@ -26,6 +26,7 @@ export class Constants {
   public static CLUSTER_OVERVIEW_WEBVIEW = "clusterOverviewWebview";
   public static CLUSTER_OVERVIEW_DATA = "clusterOverviewData";
   public static QUERY_CONTEXT_STATUS_BAR = "queryContextStatusBar";
+  // Login keys of the removed Capella iQ, kept only so its saved data can be cleared
   public static IQ_USER_ID = "iqStoredUserId";
   public static IQ_PASSWORD = "iqPassword";
   public static IQ_WEBVIEW = "iqWebview";

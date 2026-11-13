@@ -36,7 +36,7 @@ export function run(): Promise<void> {
       mocha.addFile(path.resolve(testsRoot, testFile));
     } else {
     try {
-      const files = await glob("contributor/*.test.js", { cwd: testsRoot });
+      const files = await glob("{contributor,suite}/*.test.js", { cwd: testsRoot });
       files.forEach((f: string) => mocha.addFile(path.resolve(testsRoot, f)));
   } catch (err) {
       console.error("Error during glob operation:", err);

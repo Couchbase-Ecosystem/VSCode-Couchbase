@@ -14,7 +14,12 @@
  *   limitations under the License.
  */
 
+// For values placed inside quoted HTML attributes (file paths can contain spaces and quotes)
+const escapeAttribute = (value: unknown): string =>
+    String(value ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
 export const getClusterConnectingFormView = (message: any) => {
+    const useCertificate = message?.authType === "certificate";
     // @ts-ignore
     return /*HTML*/`
     <!DOCTYPE html>
@@ -128,7 +133,7 @@ export const getClusterConnectingFormView = (message: any) => {
                 outline-color: var(--vscode-focusBorder);
             }
     
-            input:not([type='checkbox']),
+            input:not([type='checkbox']):not([type='radio']),
             textarea {
                 display: block;
                 width: 50%;
@@ -253,6 +258,31 @@ export const getClusterConnectingFormView = (message: any) => {
                     </div>
                     <span id="urlErr" class="error-message"></span><br />
                     <br />
+                    <label>Authentication</label><br>
+                    <div class="secure-box">
+                        <input type="radio" id="authPassword" name="authType" value="password" ${useCertificate ? '' : 'checked'} onchange="updateAuthFields()">
+                        <label for="authPassword">Username and password</label>
+                    </div>
+                    <div class="secure-box">
+                        <input type="radio" id="authCertificate" name="authType" value="certificate" ${useCertificate ? 'checked' : ''} onchange="updateAuthFields()">
+                        <label for="authCertificate">Client certificate</label>
+                    </div>
+                    <br />
+                    <div id="certificateFields" style="display: ${useCertificate ? 'block' : 'none'}">
+                        <label for="certificatePath">Client certificate (PEM)</label><br>
+                        <input type="text" id="certificatePath" placeholder="/path/to/client.pem" value="${escapeAttribute(message?.certificatePath)}" />
+                        <button type="button" class="redButton" onclick="browseFile('certificatePath')">Browse</button>
+                        <span id="certificatePathErr" class="error-message"></span><br /><br />
+                        <label for="keyPath">Private key (PEM, unencrypted)</label><br>
+                        <input type="text" id="keyPath" placeholder="/path/to/client.key" value="${escapeAttribute(message?.keyPath)}" />
+                        <button type="button" class="redButton" onclick="browseFile('keyPath')">Browse</button>
+                        <span id="keyPathErr" class="error-message"></span><br /><br />
+                        <label for="caPath">CA certificate to trust the cluster (PEM, optional)</label><br>
+                        <input type="text" id="caPath" placeholder="Not needed for a cluster with a publicly trusted certificate" value="${escapeAttribute(message?.caPath)}" />
+                        <button type="button" class="redButton" onclick="browseFile('caPath')">Browse</button>
+                        <br /><br />
+                    </div>
+                    <div id="passwordFields" style="display: ${useCertificate ? 'none' : 'block'}">
                     <label for="url">Username</label><br>
                     <input type="text" id="username" name="username" placeholder="Username" value=${message?.username
                         ?? "Administrator" } />
@@ -260,6 +290,7 @@ export const getClusterConnectingFormView = (message: any) => {
                     <label for="password">Password</label><br>
                     <input type="password" id="password" placeholder="Password" value=${message?.password ?? "password" }>
                     <span id="passwordErr" class="error-message"></span><br /><br />
+                    </div>
                     <label for="connectionIndetifier">Name</label><br>
                     <input type="text" id="connectionIdentifier" name="identifier" placeHolder="Name of your connection"
                         value=${message?.connectionIdentifier ?? "" }>
@@ -355,6 +386,35 @@ export const getClusterConnectingFormView = (message: any) => {
                     secureCheck.checked = true;
                 }
             });
+
+            function isCertificateAuth() {
+                return document.getElementById("authCertificate").checked;
+            }
+
+            // Certificate login needs TLS, so the secure connection box is forced on
+            function updateAuthFields() {
+                const useCertificate = isCertificateAuth();
+                document.getElementById("certificateFields").style.display = useCertificate ? "block" : "none";
+                document.getElementById("passwordFields").style.display = useCertificate ? "none" : "block";
+                if (useCertificate) {
+                    secureCheck.checked = true;
+                }
+                secureCheck.disabled = useCertificate;
+            }
+            updateAuthFields();
+
+            function browseFile(field) {
+                vscode.postMessage({ command: 'browseFile', field: field });
+            }
+
+            function getCertificateFields() {
+                return {
+                    authType: isCertificateAuth() ? 'certificate' : 'password',
+                    certificatePath: document.getElementById('certificatePath').value.trim(),
+                    keyPath: document.getElementById('keyPath').value.trim(),
+                    caPath: document.getElementById('caPath').value.trim(),
+                };
+            }
     
             function validateRequest() {
                 let url = document.getElementById('url').value;
@@ -367,6 +427,14 @@ export const getClusterConnectingFormView = (message: any) => {
                     document.getElementById('urlErr').innerHTML = 'Cluster Connection URL is required';
                     err = true;
                 }
+                if (isCertificateAuth()) {
+                    const certificate = getCertificateFields();
+                    document.getElementById('certificatePathErr').innerHTML = certificate.certificatePath ? '' : 'Client certificate is required';
+                    document.getElementById('keyPathErr').innerHTML = certificate.keyPath ? '' : 'Private key is required';
+                    if (!certificate.certificatePath || !certificate.keyPath) {
+                        err = true;
+                    }
+                } else {
                 if (username === null || username == "") {
                     document.getElementById('username').style.border = "solid red";
                     document.getElementById('usernameErr').innerHTML = 'Username is required';
@@ -376,6 +444,7 @@ export const getClusterConnectingFormView = (message: any) => {
                     document.getElementById('password').style.border = "solid red";
                     document.getElementById('passwordErr').innerHTML = 'Password is required';
                     err = true;
+                }
                 }
                 if (identifier === null || identifier == "") {
                     document.getElementById('connectionIdentifier').style.border = "solid red";
@@ -404,7 +473,8 @@ export const getClusterConnectingFormView = (message: any) => {
                     username: username,
                     password: password,
                     connectionIdentifier: identifier,
-                    isSecure: checkBox.checked
+                    isSecure: checkBox.checked,
+                    ...getCertificateFields()
                 })
             };
             function cancelRequest() {
@@ -425,7 +495,8 @@ export const getClusterConnectingFormView = (message: any) => {
                     connectionUrl: url,
                     username: username,
                     password: password,
-                    isSecure: isSecure
+                    isSecure: isSecure,
+                    ...getCertificateFields()
                 });
                 // Show a loading message
                 const resultsDiv = document.getElementById('testConnectionResults');
@@ -446,6 +517,13 @@ export const getClusterConnectingFormView = (message: any) => {
             window.addEventListener('message', function (event) {
                     let message = event.data;
                     switch (message.command) {
+                        case 'browseFileResult':
+                            document.getElementById(message.field).value = message.path;
+                            break;
+                        case 'enableConnect':
+                            document.getElementById("connectButton").disabled = false;
+                            document.getElementById("connectButton").style.backgroundColor = '';
+                            break;
                         case 'testConnectionResult':
                             let resultsDiv = document.getElementById('testConnectionResults');
                             resultsDiv.style.display = 'block';

@@ -28,10 +28,12 @@ import { hasQueryService, hasSearchService } from "./common";
 import { SecretService } from "./secretService";
 import ConnectionEvents from "./events/connectionEvents";
 import { SdkDoctorRunner } from "../tools/SDKDocterRunner";
+import { getCertificateUsername, getConnectOptions, isCertificateAuth, validateCertificateFiles } from "./connectionAuth";
 
-export function getConnectionId(connection: IConnection) {
+export function getConnectionId(connection: Pick<IConnection, "url" | "username" | "authType">) {
   const { url, username } = connection;
-  return `${username}@${url}`;
+  // Prefixed so a certificate login never collides with a password login for the same user
+  return isCertificateAuth(connection) ? `cert:${username}@${url}` : `${username}@${url}`;
 }
 
 export function getConnections() {
@@ -55,7 +57,7 @@ export function setPreviousConnection(connection: IConnection) {
 }
 
 async function saveConnection(connection: IConnection): Promise<string> {
-  const { url, username, connectionIdentifier, isSecure } = connection;
+  const { url, username, connectionIdentifier, isSecure, authType, certificatePath, keyPath, caPath } = connection;
   let connections = getConnections();
   if (!connections) {
     connections = {};
@@ -65,7 +67,8 @@ async function saveConnection(connection: IConnection): Promise<string> {
     url,
     username,
     connectionIdentifier,
-    isSecure
+    isSecure,
+    ...(isCertificateAuth(connection) ? { authType, certificatePath, keyPath, caPath } : {}),
   };
   const secretService = SecretService.getInstance();
   const password =
@@ -101,8 +104,29 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
   currentPanel.webview.onDidReceiveMessage(async (message: any) => {
     switch (message.command) {
       case 'submit':
-        const url = message.isSecure ? (Constants.prefixSecureURL + message.url) : (Constants.prefixURL + message.url);
-        const connection: IConnection = { url, username: message.username, password: message.password, connectionIdentifier: message.connectionIdentifier, isSecure: message.isSecure };
+        let connection: IConnection;
+        if (message.authType === "certificate") {
+          const certificateError = validateCertificateFiles(message.certificatePath, message.keyPath, message.caPath);
+          if (certificateError) {
+            vscode.window.showErrorMessage(certificateError);
+            currentPanel.webview.postMessage({ command: 'enableConnect' });
+            break;
+          }
+          // Certificate login always runs over TLS
+          connection = {
+            url: Constants.prefixSecureURL + message.url,
+            username: getCertificateUsername(message.certificatePath),
+            connectionIdentifier: message.connectionIdentifier,
+            isSecure: true,
+            authType: "certificate",
+            certificatePath: message.certificatePath,
+            keyPath: message.keyPath,
+            caPath: message.caPath || undefined,
+          };
+        } else {
+          const url = message.isSecure ? (Constants.prefixSecureURL + message.url) : (Constants.prefixURL + message.url);
+          connection = { url, username: message.username, password: message.password, connectionIdentifier: message.connectionIdentifier, isSecure: message.isSecure };
+        }
         const connections = getConnections();
         const connectionId = getConnectionId(connection);
         if (connections && connections[connectionId]) {
@@ -152,8 +176,47 @@ export async function addConnection(clusterConnectionTreeProvider: ClusterConnec
         currentPanel.dispose();
         break;
 
+      case 'browseFile': {
+        const picked = await vscode.window.showOpenDialog({
+          canSelectMany: false,
+          openLabel: 'Select',
+          filters: { 'PEM files': ['pem', 'crt', 'cer', 'key'], 'All files': ['*'] },
+        });
+        if (picked && picked[0]) {
+          currentPanel.webview.postMessage({ command: 'browseFileResult', field: message.field, path: picked[0].fsPath });
+        }
+        break;
+      }
+
       case 'testConnection':
         const { connectionUrl, username, password, bucketName, isSecure } = message;
+        if (message.authType === "certificate") {
+          const certificateError = validateCertificateFiles(message.certificatePath, message.keyPath, message.caPath);
+          let result = certificateError ? '[ERRO]: ' + certificateError : '';
+          if (!certificateError && bucketName !== "") {
+            result = '[WARN]: SDK Doctor does not support certificate login yet; testing the connection only';
+          }
+          if (!certificateError) {
+            try {
+              const host = connectionUrl.replace(/^couchbases?:\/\//, '');
+              await connect(Constants.prefixSecureURL + host, getConnectOptions({
+                url: Constants.prefixSecureURL + host,
+                username: getCertificateUsername(message.certificatePath),
+                connectionIdentifier: '',
+                isSecure: true,
+                authType: "certificate",
+                certificatePath: message.certificatePath,
+                keyPath: message.keyPath,
+                caPath: message.caPath || undefined,
+              }));
+              result = [result, 'Connection was successfull!'].filter(Boolean).join('\n');
+            } catch (err) {
+              result = [result, '[ERRO]: Connection Failed ' + err].filter(Boolean).join('\n');
+            }
+          }
+          currentPanel.webview.postMessage({ command: 'testConnectionResult', result });
+          return;
+        }
         if(bucketName === "") {
         try {
           await connect(connectionUrl, { username: username, password: password, configProfile: 'wanDevelopment' });
@@ -217,9 +280,18 @@ export async function useConnection(connection: IConnection): Promise<boolean> {
   const id = getConnectionId(connection);
   let status = false;
   const secretService = SecretService.getInstance();
-  const password = await secretService.get(`${Constants.extensionID}-${id}`);
-  if (!password) {
-    return status;
+  let password: string | undefined;
+  if (isCertificateAuth(connection)) {
+    const certificateError = validateCertificateFiles(connection.certificatePath, connection.keyPath, connection.caPath);
+    if (certificateError) {
+      vscode.window.showErrorMessage(`Cannot connect to ${connection.connectionIdentifier}: ${certificateError}`);
+      return status;
+    }
+  } else {
+    password = await secretService.get(`${Constants.extensionID}-${id}`);
+    if (!password) {
+      return status;
+    }
   }
   const options = {
     location: vscode.ProgressLocation.Notification,
@@ -229,7 +301,7 @@ export async function useConnection(connection: IConnection): Promise<boolean> {
     options, async (progress) => {
       progress.report({ message: "Trying to connect..." });
       try {
-        connection.cluster = await connect(connection.url, { username: connection.username, password: password, configProfile: 'wanDevelopment' });
+        connection.cluster = await connect(connection.url, getConnectOptions(connection, password));
         setActiveConnection(connection);
         // Set Services
         const couchbaseRestAPI = new CouchbaseRestAPI(connection);

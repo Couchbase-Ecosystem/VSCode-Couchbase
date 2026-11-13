@@ -21,20 +21,28 @@ import { logger } from "../../logger/logger";
 import { plainToClass } from 'class-transformer';
 import { ServerOverview } from "./ServerOverview";
 import { getFTSNodes, getServerURL } from "./NSLookup";
-import https from 'https';
 import { BucketOverview } from "./BucketOverview";
 import { SecretService } from "../secretService";
+import { getRestAuth, isCertificateAuth } from "../connectionAuth";
 export class CouchbaseRestAPI {
     constructor(
         public readonly connection: IConnection,
     ) { }
 
-    public async getOverview(): Promise<ServerOverview | undefined> {
-        logger.info(`fetching cluster overview`);
-        const username = this.connection.username;
+    // Basic auth for password connections, the client certificate for certificate connections
+    private async getAuth(): Promise<ReturnType<typeof getRestAuth> | undefined> {
+        if (isCertificateAuth(this.connection)) {
+            return getRestAuth(this.connection);
+        }
         const secretService = SecretService.getInstance();
         const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
-        if (!password) {
+        return password ? getRestAuth(this.connection, password) : undefined;
+    }
+
+    public async getOverview(): Promise<ServerOverview | undefined> {
+        logger.info(`fetching cluster overview`);
+        const auth = await this.getAuth();
+        if (!auth) {
             return undefined;
         }
         let url = (await getServerURL(this.connection.url))[0];
@@ -45,12 +53,10 @@ export class CouchbaseRestAPI {
         let content = await axios.get(url, {
             method: "GET",
             headers: {
-                Authorization: `Basic ${btoa(`${username}:${password}`)}`,
+                ...auth.headers,
                 'Connection': 'keep-alive'
             },
-            httpsAgent: new https.Agent({
-                rejectUnauthorized: false,
-            })
+            httpsAgent: auth.httpsAgent
         });
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
         let status: string = content.status.toString();
@@ -63,10 +69,8 @@ export class CouchbaseRestAPI {
 
     public async getBucketsOverview(bucketName: string): Promise<BucketOverview | undefined> {
         logger.info(`fetching bucket, bucketName:${bucketName}`);
-        const username = this.connection.username;
-        const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
-        if (!password) {
+        const auth = await this.getAuth();
+        if (!auth) {
             return undefined;
         }
         let url = (await getServerURL(this.connection.url))[0];
@@ -77,11 +81,9 @@ export class CouchbaseRestAPI {
         let content = await axios.get(url, {
             method: "GET",
             headers: {
-                Authorization: `Basic ${btoa(`${username}:${password}`)}`
+                ...auth.headers,
             },
-            httpsAgent: new https.Agent({
-                rejectUnauthorized: false,
-            })
+            httpsAgent: auth.httpsAgent
         });
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
         let bucketOverview = plainToClass(BucketOverview, (content.data));
@@ -93,10 +95,8 @@ export class CouchbaseRestAPI {
     }
 
     public async getKVDocuments(bucketName: string, scopeName: string, collectionName: string, skip: number, limit: number, startDocId?: string, endDocId?: string): Promise<any> {
-        const username = this.connection.username;
-        const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
-        if (!password) {
+        const auth = await this.getAuth();
+        if (!auth) {
             return undefined;
         }
         let url = (await getServerURL(this.connection.url))[0];
@@ -114,11 +114,9 @@ export class CouchbaseRestAPI {
             let content = await axios.get(url, {
                 method: "GET",
                 headers: {
-                    Authorization: `Basic ${btoa(`${username}:${password}`)}`
+                    ...auth.headers,
                 },
-                httpsAgent: new https.Agent({
-                    rejectUnauthorized: false,
-                })
+                httpsAgent: auth.httpsAgent
             });
             return content.data;
         }
@@ -132,10 +130,8 @@ export class CouchbaseRestAPI {
     }
 
     public async runSearchIndexes(indexName:string | undefined, payload:any) {
-        const username = this.connection.username;
-        const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
-        if (!password) {
+        const auth = await this.getAuth();
+        if (!auth) {
             return undefined;
         }
         let url = getFTSNodes()[0];
@@ -145,11 +141,9 @@ export class CouchbaseRestAPI {
         let content = await axios.post(url, payload, {  
             headers: {
                 'Content-Type': 'application/json',  
-                Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`
+                ...auth.headers,
             },
-            httpsAgent: new https.Agent({
-                rejectUnauthorized: false
-            })
+            httpsAgent: auth.httpsAgent
         });
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
         return content.data;
@@ -157,10 +151,8 @@ export class CouchbaseRestAPI {
 
     public async fetchSearchIndexDefinition(indexName:string) {
 
-        const username = this.connection.username;
-        const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
-        if (!password) {
+        const auth = await this.getAuth();
+        if (!auth) {
             return undefined;
         }
         let url = getFTSNodes()[0]
@@ -171,11 +163,9 @@ export class CouchbaseRestAPI {
         let content = await axios.get(url, {
             method: "GET",
             headers: {
-                Authorization: `Basic ${btoa(`${username}:${password}`)}`
+                ...auth.headers,
             },
-            httpsAgent: new https.Agent({
-                rejectUnauthorized: false,
-            })
+            httpsAgent: auth.httpsAgent
         });
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
         return content.data;
@@ -183,11 +173,9 @@ export class CouchbaseRestAPI {
     }
 
     public async getKVDocumentCount(bucketName: string, scopeName: string): Promise<Map<string, number>> {
-        const username = this.connection.username;
-        const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
+        const auth = await this.getAuth();
         const KVCollectionCount = new Map<string, number>;
-        if (!password) {
+        if (!auth) {
             return KVCollectionCount;
         }
         let url = (await getServerURL(this.connection.url))[0];
@@ -222,11 +210,9 @@ export class CouchbaseRestAPI {
             payload,
             {
                 headers: {
-                    Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+                    ...auth.headers,
                 },
-                httpsAgent: new https.Agent({
-                    rejectUnauthorized: false,
-                }),
+                httpsAgent: auth.httpsAgent,
             }
         );
 
@@ -243,10 +229,8 @@ export class CouchbaseRestAPI {
     }
 
     public async getKVDocumentMetaData(bucketName: string, scopeName: string, collectionName: string, documentId: string) {
-        const username = this.connection.username;
-        const secretService = SecretService.getInstance();
-        const password = await secretService.get(`${Constants.extensionID}-${getConnectionId(this.connection)}`);
-        if (!password) {
+        const auth = await this.getAuth();
+        if (!auth) {
             return undefined;
         }
         let url = (await getServerURL(this.connection.url))[0];
@@ -256,11 +240,9 @@ export class CouchbaseRestAPI {
         let content = await axios.get(url, {
             method: "GET",
             headers: {
-                Authorization: `Basic ${btoa(`${username}:${password}`)}`
+                ...auth.headers,
             },
-            httpsAgent: new https.Agent({
-                rejectUnauthorized: false,
-            })
+            httpsAgent: auth.httpsAgent
         });
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
         const metaData = {
