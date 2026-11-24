@@ -21,7 +21,7 @@ import { PagerNode } from "./PagerNode";
 import { abbreviateCount, hasQueryService } from "../util/common";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
 import InformationNode from "./InformationNode";
-import { Memory } from "../util/util";
+import { getDocumentFilter } from "../util/documentFilter";
 import { SchemaDirectory } from "./SchemaDirectory";
 import { getActiveConnection } from "../util/connections";
 import { Commands } from "../commands/extensionCommands/commands";
@@ -106,9 +106,7 @@ export default class CollectionNode implements INode {
     if (!connection) {
       return new vscode.TreeItem(this.collectionName, vscode.TreeItemCollapsibleState.None);
     }
-    const filterDocumentsType = Memory.state.get<string>(
-      `filterDocumentsType-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
-    ) ?? "";
+    const filterDocumentsType = getDocumentFilter(connection.connectionIdentifier, this).type;
 
 
     return {
@@ -178,22 +176,14 @@ export default class CollectionNode implements INode {
     // An index is required for database querying. If one is present, a result will be obtained.
     // If not, the user will be prompted to create a index before querying.
 
-    const filterDocumentsType = Memory.state.get<string>(
-      `filterDocumentsType-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
-    );
-
-    let isKVFilterEnabled = false;
-    if (filterDocumentsType && filterDocumentsType === "kv") {
-      isKVFilterEnabled = true;
-    }
+    const documentFilter = getDocumentFilter(connection.connectionIdentifier, this);
+    const isKVFilterEnabled = documentFilter.type === "kv";
 
     const couchbaseRestAPI = new CouchbaseRestAPI(connection);
     if (!hasQueryService(connection?.services!) || isKVFilterEnabled) { // KV Based Fetching Documents
       let [startingDocId, endingDocId]: [string | undefined, string | undefined] = [undefined, undefined];
       if (isKVFilterEnabled) {
-        [startingDocId, endingDocId] = Memory.state.get<string>(
-          `kvTypeFilterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
-        )?.split('|') ?? ["", ""];
+        [startingDocId, endingDocId] = [documentFilter.kvStartDocId, documentFilter.kvEndDocId];
       }
 
       result = await couchbaseRestAPI.getKVDocuments(this.bucketName, this.scopeName, this.collectionName, 0, this.limit, startingDocId, endingDocId);
@@ -201,10 +191,7 @@ export default class CollectionNode implements INode {
     }
     else { // Query Based Fetching Documents
       try {
-        let docFilter = Memory.state.get<string>(
-          `queryTypeFilterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${this.collectionName}`
-        );
-        let filter: string = docFilter ?? "";
+        const filter = documentFilter.queryFilter;
         // selects the attribute that needs to be used according to the index
         const idxField = await this.getIndexedField();
         if (idxField === null) {

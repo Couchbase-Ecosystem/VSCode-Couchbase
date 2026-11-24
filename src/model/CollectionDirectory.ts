@@ -4,7 +4,7 @@ import { logger } from "../logger/logger";
 import { CouchbaseRestAPI } from "../util/apis/CouchbaseRestAPI";
 import { CacheService } from "../util/cacheService/cacheService";
 import { getActiveConnection } from "../util/connections";
-import { Memory } from "../util/util";
+import { getDocumentFilter } from "../util/documentFilter";
 import { hasQueryService } from "../util/common";
 import { COLLECTION_PAGE_SIZE, getFavoriteCollections, getVisibleCollections } from "../util/collectionListing";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
@@ -72,13 +72,10 @@ export class CollectionDirectory implements INode {
         ];
         for (const collection of visibleCollections) {
           try {
-            const queryTypeFilter = Memory.state.get<string>(
-              `queryTypeFilterDocuments-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`
-            ) ?? "";
-    
-            const filterDocumentsType =  Memory.state.get<string>(
-              `filterDocumentsType-${connection.connectionIdentifier}-${this.bucketName}-${this.scopeName}-${collection.name}`
-            ) ?? "";
+            const { type: filterDocumentsType, queryFilter: queryTypeFilter } = getDocumentFilter(
+              connection.connectionIdentifier,
+              { bucketName: this.bucketName, scopeName: this.scopeName, collectionName: collection.name }
+            );
     
             let rowCount = 0;
             try {

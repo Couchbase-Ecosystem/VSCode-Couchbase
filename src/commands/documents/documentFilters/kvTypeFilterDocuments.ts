@@ -1,8 +1,7 @@
 import CollectionNode from "../../../model/CollectionNode";
 import { getActiveConnection } from "../../../util/connections";
 import * as vscode from "vscode";
-import { Memory } from "../../../util/util";
-import { clearDocumentFilter } from "./clearDocumentFilter";
+import { getDocumentFilter, setKvDocumentFilter } from "../../../util/documentFilter";
 
 export const kvTypeFilterDocuments = async (node: CollectionNode) => {
     const connection = getActiveConnection();
@@ -10,12 +9,7 @@ export const kvTypeFilterDocuments = async (node: CollectionNode) => {
         return;
     }
 
-    const docFilter = Memory.state.get<string>(
-        `kvTypeFilterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`
-    );
-    const filterStmt: string = docFilter ?? "";
-
-    const [startingDocId, endingDocId] = filterStmt.split('|');
+    const { kvStartDocId: startingDocId, kvEndDocId: endingDocId } = getDocumentFilter(connection.connectionIdentifier, node);
 
     let collectionName = node.collectionName;
     if (collectionName.length > 15) {
@@ -42,15 +36,5 @@ export const kvTypeFilterDocuments = async (node: CollectionNode) => {
         return;
     }
 
-    clearDocumentFilter(node);
-
-    Memory.state.update(
-        `filterDocumentsType-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
-        `kv`
-    );
-
-    Memory.state.update(
-        `kvTypeFilterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
-        `${newStartingDocId}|${newEndingDocId}`
-    );
+    setKvDocumentFilter(connection.connectionIdentifier, node, newStartingDocId, newEndingDocId);
 };
