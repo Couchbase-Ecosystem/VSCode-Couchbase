@@ -1,7 +1,6 @@
-import { commands } from "vscode";
 import CollectionNode from "../../../model/CollectionNode";
 import { getActiveConnection } from "../../../util/connections";
-import { Memory } from "../../../util/util";
+import { clearDocumentFilter as clearFilter } from "../../../util/documentFilter";
 
 export const clearDocumentFilter = (node: CollectionNode) => {
     const connection = getActiveConnection();
@@ -9,18 +8,5 @@ export const clearDocumentFilter = (node: CollectionNode) => {
         return;
     }
 
-    Memory.state.update(
-        `filterDocumentsType-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
-        ``
-    );
-
-    Memory.state.update(
-        `queryTypeFilterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
-        ""
-    );
-
-    Memory.state.update(
-        `kvTypeFilterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
-        ""
-    );
+    clearFilter(connection.connectionIdentifier, node);
 };

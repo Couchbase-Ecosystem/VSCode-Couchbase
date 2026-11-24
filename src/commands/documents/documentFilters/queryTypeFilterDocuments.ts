@@ -1,10 +1,9 @@
 import CollectionNode from "../../../model/CollectionNode";
 import * as vscode from "vscode";
-import { Memory } from "../../../util/util";
 import { logger } from "../../../logger/logger";
 import { ParsingFailureError, PlanningFailureError } from "couchbase";
 import { getActiveConnection } from "../../../util/connections";
-import { clearDocumentFilter } from "./clearDocumentFilter";
+import { getDocumentFilter, setQueryDocumentFilter } from "../../../util/documentFilter";
 
 export const queryTypeFilterDocuments = async (node: CollectionNode) => {
     const connection = getActiveConnection();
@@ -24,10 +23,7 @@ export const queryTypeFilterDocuments = async (node: CollectionNode) => {
         return false;
     }
 
-    const docFilter = Memory.state.get<string>(
-        `queryTypeFilterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`
-    );
-    const filterStmt: string = docFilter ?? "";
+    const filterStmt = getDocumentFilter(connection.connectionIdentifier, node).queryFilter;
     let collectionName = node.collectionName;
     if (collectionName.length > 15) {
         collectionName = collectionName.substring(0, 13) + "...";
@@ -74,16 +70,6 @@ export const queryTypeFilterDocuments = async (node: CollectionNode) => {
         return;
     }
 
-    // Reset any existing document filter
-    clearDocumentFilter(node);
-
-    Memory.state.update(
-        `filterDocumentsType-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
-        `query`
-    );
-
-    Memory.state.update(
-        `queryTypeFilterDocuments-${connection.connectionIdentifier}-${node.bucketName}-${node.scopeName}-${node.collectionName}`,
-        newDocFilterStmt.trim()
-    );
+    // Replaces any existing document filter
+    setQueryDocumentFilter(connection.connectionIdentifier, node, newDocFilterStmt);
 };
